@@ -46,9 +46,9 @@
 ****************************************************************************************
 -8.0d0           ! [ymin] : Minimum object rapidity Y_X
 8.0d0        ! [ymax] : Maximum object rapidity Y_X
-3d0          ! [mmin] : Minimum object mass M_X (redundant for resonance production)
-103d0         ! [mmax] : Maximum object mass M_X (redundant for resonance production)
-.true.        ! [gencuts] : Generate cuts below
+2.0d0          ! [mmin] : Minimum object mass M_X (redundant for resonance production)
+202d0         ! [mmax] : Maximum object mass M_X (redundant for resonance production)
+.false.        ! [gencuts] : Generate cuts below
 .true.        ! [scorr] : Include spin correlations (for chi_c/b decays)
 .true.	       ! [fwidth] : Include finite width (for chi_c decays)
 ****************************************************************************************
@@ -60,8 +60,8 @@
 ****************************************************************************************
 ************************* 2 body final states : p(a) + p(b) ****************************
 ****************************************************************************************
-1.0d0         ! [ptamin]
-1.0d0         ! [ptbmin]
+0.0d0         ! [ptamin]
+0.0d0         ! [ptbmin]
 -10.0d0         ! [etaamin]
 10.0d0       ! [etaamax]
 -10.0d0         ! [etabmin]
@@ -76,7 +76,7 @@
 -2.5d1         ! [etaamin]	
 2.5d1       ! [etaamax]
 -2.5d1         ! [etabmin]	
-2.5d1       ! [etabmax]	
+2.5d1       ! [etabmax]
 -2.5d1         ! [etacmin]		
 2.5d1       ! [etacmax]	
 ****************************************************************************************
