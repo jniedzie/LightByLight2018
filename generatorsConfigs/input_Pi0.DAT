@@ -9,9 +9,9 @@
 'MMHT2014lo68cl'     ! [PDFname] : PDF set
 0                    ! [PDFmember] : PDF member
 ****************************************************************************************
-56   !  [proc] : Process number (see manual for labelling)
+10   !  [proc] : Process number (see manual for labelling)
 'ion'    ! [beam] : Beam type ('prot', 'ion', 'ionp' or 'electron')
-'_QED'       !  [outtg] : for output file
+'_Pi0'       !  [outtg] : for output file
 .true.        !  [sfaci] : Include soft survival effects
 ****************************************************************************************
 208d0  !  [an] : Ion mass number
@@ -32,7 +32,7 @@
 1000           ! [itend] : Maximum number of iterations
 6              ! [iseed] : Random number seed (integer > 0)
 ****************************************************************************************
-8            ! [s2int] : Survival factor integration : see manual for recommendation
+  32            ! [s2int] : Survival factor integration : see manual for recommendation
 ****************************************************************************************
 ******************************* Unweighted events **************************************
 ****************************************************************************************
@@ -76,7 +76,7 @@
 -2.5d1         ! [etaamin]	
 2.5d1       ! [etaamax]
 -2.5d1         ! [etabmin]	
-2.5d1       ! [etabmax]
+2.5d1       ! [etabmax]	
 -2.5d1         ! [etacmin]		
 2.5d1       ! [etacmax]	
 ****************************************************************************************

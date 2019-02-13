@@ -19,6 +19,8 @@ List of content:
 * input_CEP.DAT - [will be] used with superchic 3.03 to generate 1M CEP events
 * input_ALP.DAT - basic config for ALPs to be used with superchic 3.03 (mass and coupling should be set in the config)
 
+* s2int_dependance.txt - results of the study of total cross section dependance on *s2int* parameter of superchic
+
 ## Authors
 
 * Émilien Chapon
