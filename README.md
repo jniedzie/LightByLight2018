@@ -21,6 +21,14 @@ List of content:
 
 * s2int_dependance.txt - results of the study of total cross section dependance on *s2int* parameter of superchic
 
+
+## MC samples reconstruction
+CMSSW version: CMSSW_10_3_2
+
+* Step1: Gen_Sim - Submit the gen sim jobs with condorConfig.sub script, it uses 1ststep_GEN_SIM.py file in MC_reconstruction/gen_sim repo
+* Step2: Digi_Raw - Submit the digi raw jobs with condorConfig.sub script, it uses step2_DIGI_L1_DIGI2RAW_HLT.py script in MC_reconstruction/gen_sim repo
+change the current directory to your own and output eosarea in batch.sh script.
+
 ## Authors
 
 * Émilien Chapon
