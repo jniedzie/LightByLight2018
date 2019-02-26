@@ -29,7 +29,7 @@ CMSSW version: CMSSW_10_3_2
 * Step2: Digi_Raw - Submit the digi raw jobs with condorConfig.sub script inside MC_reconstruction/digi_raw repo, it uses step2_DIGI_L1_DIGI2RAW_HLT.py script
 
 Change the current directory to your own and output eosarea in batch.sh script.
-
+Create log, error and output directory in your current directory
 ## Authors
 
 * Émilien Chapon
