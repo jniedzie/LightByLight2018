@@ -2,12 +2,11 @@
 export XRD_NETWORKSTACK=IPv4
 
 arg=${1}
-curDir=/afs/cern.ch/work/r/rchudasa/private/CMSSW_10_3_2/src/mc_production/lbyl/condor_test/ruchi_test
+i=${arg}+1
+curDir=/afs/cern.ch/work/r/rchudasa/private/CMSSW_10_3_2/src/mc_production/qed/gen-sim
 config=1ststep_GEN_SIM.py
-inputdir=/store/group/phys_diffraction/lbyl_2018/mc_lbyl/lhe_2016_david
-infilename=PbPb_gammagamma_5TeV
-outputeosdir=/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_lbyl/gen_sim/
-outfilename=LbyL_gensim 
+outputeosdir=/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed/gen_sim/superchic_gensim/
+outfilename=QED_gensim 
 
 CMSSWVER=CMSSW_10_3_2
 CMSSWDIR=/afs/cern.ch/work/r/rchudasa/private/CMSSW_10_3_2
@@ -25,6 +24,7 @@ eval `scramv1 runtime -sh`
 edmPluginRefresh -p ../lib/$SCRAM_ARCH
 
 ## Run the job and copy to eos
-
-cmsRun ${curDir}/${config} outputFile=${outfilename}_${arg}.root inputFiles=${inputdir}/${infilename}_${arg}.lhe 
+infilename=`awk -v awklinefrom="$i" -v awklineto="$i" 'NR==awklinefrom,NR==awklineto' input_filelist.txt`
+echo $infilename
+cmsRun ${curDir}/${config} outputFile=${outfilename}_${arg}.root inputFiles=${infilename}
 xrdcp -N -v ${outfilename}_${arg}.root root://eoscms.cern.ch/${outputeosdir}
