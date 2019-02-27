@@ -23,13 +23,24 @@ List of content:
 
 
 ## MC samples reconstruction
-CMSSW version: CMSSW_10_3_2
 
-* Step1: Gen_Sim - Submit the gen sim jobs with condorConfig.sub script inside MC_reconstruction/gen_sim repo, it uses 1ststep_GEN_SIM.py script
-* Step2: Digi_Raw - Submit the digi raw jobs with condorConfig.sub script inside MC_reconstruction/digi_raw repo, it uses step2_DIGI_L1_DIGI2RAW_HLT.py script
+1. Set CMSSW environment before running the scripts (currently preferred CMSSW version: CMSSW_10_3_2):
 
-Change the current directory to your own and output eosarea in batch.sh script.
-Create log, error and output directory in your current directory
+```
+cd CMSSW_10_3_2/src
+cmsenv
+```
+
+2. Prepare scripts and submit jobs:
+
+* Go to the correct directory depending on the step you want to run:
+	* Step 1 (Gen_Sim): MC_reconstruction/gen_sim
+	* Step 2 (Digi_Raw): MC_reconstruction/digi_raw
+* Modify paths in the top section of the _batch.sh_ script
+* Create output, error and log directories: `mkdir -p output error log`
+* Open _condorConfig.sub_ file and change number next to _queue_ to the desired number of files to process,
+* Submit jobs: `condor_submit condorConfig.sub` 
+ 
 ## Authors
 
 * Émilien Chapon
