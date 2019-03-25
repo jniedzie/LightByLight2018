@@ -1,0 +1,10 @@
+Universe              = vanilla
+executable            = batch.sh
+arguments             = $(ProcId)
+GetEnv                = True
+output                = output/$(ClusterId).$(ProcId).out
+error                 = error/$(ClusterId).$(ProcId).err
+log                   = log/$(ClusterId).log
++JobFlavour           = "workday"
+# RequestCpus           = 8
+queue 3000 
