@@ -40,7 +40,20 @@ cmsenv
 * Create output, error and log directories: `mkdir -p output error log`
 * Open _condorConfig.sub_ file and change number next to _queue_ to the desired number of files to process,
 * Submit jobs: `condor_submit condorConfig.sub` 
- 
+
+## Flat MC photon and electron sample generation and reconstruction
+* Use CMSSW_10_3_2 and cmsenv
+* Copy Configuration/Generator from this repo
+* scram build
+* cd Configuration/Generator/python
+* cmsDriver.py SingleGammaFlatPt_pythia8_cfi --mc --eventcontent RAWSIM --datatier GEN-SIM --conditions 103X_upgrade2018_realistic_HI_v9 --step GEN,SIM --geometry DB:Extended --era Run2_2018 --no_exec --customise Configuration/Generator/RandomSeed_cfi.customizeRandomSeed, Configuration/DataProcessing/Utils.addMonitoring
+* Open SingleGammaFlatPt_pythia8_cfi_GEN_SIM.py and change the number of events from 1 to the number of events you want to generate  
+* Modify paths in the top section of the _batch.sh_ script
+* Create output, error and log directories: `mkdir -p output error log`
+* Open _condorConfig.sub_ file and change number next to _queue_ to the desired number of events you want to generate
+* Submit jobs: `condor_submit condorConfig.sub`
+* For electron sample, chnage the ParticleID = cms.vint32(11) in SingleGammaFlatPt_pythia8_cfi_GEN_SIM.py script and submit the jobs
+
 ## Authors
 
 * Émilien Chapon
