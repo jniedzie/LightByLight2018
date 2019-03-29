@@ -2,17 +2,17 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: step2 --mc --eventcontent RAWSIM --datatier GEN-SIM-RAW --conditions 103X_upgrade2018_realistic_HI_v9 --step DIGI:pdigi,L1,DIGI2RAW,HLT:@fake2 --geometry DB:Extended --era Run2_2018_pp_on_AA --no_exec
+# with command line options: step2 --mc --eventcontent RAWSIM --datatier GEN-SIM-RAW --conditions 103X_upgrade2018_realistic_HI_v9 --step DIGI:pdigi,L1,DIGI2RAW,HLT:@HIon --geometry DB:Extended --era Run2_2018 --no_exec
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('HLT',eras.Run2_2018_pp_on_AA)
+process = cms.Process('HLT',eras.Run2_2018)
 options = VarParsing.VarParsing('python')
 
-options.inputFiles = '/store/group/phys_diffraction/lbyl_2018/mc_lbyl/gen_sim/LbyL_gensim_2.root'
-options.outputFile = 'LbyL_digi_raw.root'
+options.inputFiles = 'file:/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_flat_pt_photon/gen_sim/flatpt_photon_gen_sim_2663.root'
+options.outputFile = 'FlatGamma_pt_digi_raw.root'
 options.parseArguments()
 
 # import of standard configurations
@@ -26,12 +26,12 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
-process.load('HLTrigger.Configuration.HLT_Fake2_cff')
+process.load('HLTrigger.Configuration.HLT_HIon_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    #input = cms.untracked.int32(10)
+    #input = cms.untracked.int32(100)
     input = cms.untracked.int32(-1)
 )
 

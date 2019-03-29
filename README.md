@@ -41,6 +41,8 @@ cmsenv
 * Open _condorConfig.sub_ file and change number next to _queue_ to the desired number of files to process,
 * Submit jobs: `condor_submit condorConfig.sub` 
 
+3. For reconstruction step
+
 ## Flat MC photon and electron sample generation and reconstruction
 * Use CMSSW_10_3_2 and cmsenv
 * Copy Configuration/Generator from this repo

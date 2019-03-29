@@ -2,13 +2,13 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: Configuration/Generator/python/1st_STEP.py --mc --eventcontent RAWSIM --datatier GEN-SIM --conditions 103X_upgrade2018_realistic_HI_v9 --step GEN,SIM --geometry DB:Extended --era Run2_2018_pp_on_AA --no_exec --filein file:qed_ee_pbpb_998.lhe --filetype LHE --fileout STARlight_75Y.root --no_exec --python_filename 1ststep_GEN_SIM.py
+# with command line options: Configuration/Generator/python/1st_STEP.py --mc --eventcontent RAWSIM --datatier GEN-SIM --conditions 103X_upgrade2018_realistic_HI_v9 --step GEN,SIM --geometry DB:Extended --era Run2_2018 --no_exec --filein file:qed_ee_pbpb_998.lhe --filetype LHE --fileout STARlight_75Y.root --no_exec --python_filename 1ststep_GEN_SIM.py
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
 from Configuration.StandardSequences.Eras import eras
 
-process = cms.Process('SIM',eras.Run2_2018_pp_on_AA)
+process = cms.Process('SIM',eras.Run2_2018)
 options = VarParsing.VarParsing('python')
 
 options.inputFiles = '/store/group/phys_diffraction/lbyl_2018/mc_lbyl/lhe_2016_david/PbPb_gammagamma_5TeV_04.lhe'
