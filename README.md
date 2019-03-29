@@ -41,7 +41,15 @@ cmsenv
 * Open _condorConfig.sub_ file and change number next to _queue_ to the desired number of files to process,
 * Submit jobs: `condor_submit condorConfig.sub` 
 
-3. For reconstruction step
+3. Reconstruction with modified Egamma thresholds:
+* `git clone git@github.com:jniedzie/LightByLight2018.git` in CMSSW_10_3_2
+*  compile these packages with `scarm b -j4`
+* `cd MC_reconstruction/reco` contains the reconstruction step script
+* Submit the jobs in condor with `condor_submit condorConfig.sub` as decribed above. 
+
+4. HiForest
+* `cd HeavyIonAnalyis/PhotonAnalysis/test`
+* change the input file path in runForestAOD_pponAA_MIX_103X.py scipt and `cmsRun runForestAOD_pponAA_MIX_103X.py`  
 
 ## Flat MC photon and electron sample generation and reconstruction
 * Use CMSSW_10_3_2 and cmsenv
