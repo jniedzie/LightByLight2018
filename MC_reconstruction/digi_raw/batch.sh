@@ -4,7 +4,7 @@
 config_path=/afs/cern.ch/work/r/rchudasa/private/ruchi_reco_2018/CMSSW_10_3_2/src/Configuration/Generator/python/digi_raw/step2_DIGI_L1_DIGI2RAW_HLT.py
 input_path=/afs/cern.ch/work/r/rchudasa/private/ruchi_reco_2018/CMSSW_10_3_2/src/Configuration/Generator/python/digi_raw/input_filelist.txt
 cmssw_path=/afs/cern.ch/work/r/rchudasa/private/ruchi_reco_2018/CMSSW_10_3_2
-output_path=/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_flat_pt_photon/digi_raw/
+output_path=/eos/yourpath/
 outfilename="flatpt_photon_digi_raw_${1}.root"
 
 #----------------------------------------------------------------------------

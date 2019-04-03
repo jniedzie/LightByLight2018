@@ -66,6 +66,27 @@ cmsDriver.py SingleGammaFlatPt_pythia8_cfi --mc --eventcontent RAWSIM --datatier
 * Submit jobs: `condor_submit condorConfig.sub`
 * For electron sample, change the particle ID to 11 `ParticleID = cms.vint32(11)` in SingleGammaFlatPt_pythia8_cfi_GEN_SIM.py script and submit the jobs
 
+## Run the regression with flat pt photon MC samples
+1. Prepare the ntuples for regression study
+* git clone `SHarper` repo from this github repositoty to your CMSSW_10_3_2/src directory (originally from Sam Harper https://github.com/Sam-Harper/usercode modified for LbyL analysis )
+*  
+```
+scram b -j 16
+cmsRun SHarper/TrigNtup/test/egRegTreeMaker.py 
+```
+* Provide input file list in `egRegTreeMaker.py` inputFiles=reco_inputFiles1.root,reco_inputFile2.root outputFile=output.root
+
+2. Running the Egamma regression training \\
+https://github.com/cms-egamma/EgRegresTrainerLegacy/tree/bparking_dev
+```
+cd EgRegresTrainerLegacy 
+gmake RegressionTrainerExe -j 8
+gmake RegressionApplierExe -j 8
+export PATH=$PATH:./bin/$SCRAM_ARCH #add the binary location to path
+./scripts/runSCRegJob.py
+```
+
+
 ## Authors
 
 * Émilien Chapon
