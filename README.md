@@ -68,7 +68,7 @@ cmsDriver.py SingleGammaFlatPt_pythia8_cfi --mc --eventcontent RAWSIM --datatier
 
 
 ## Hiforest with Empty bunch crossing events for noise threshold study 
-* Clone HeavyIonAnalysis and all Reco repository to CMSSW_10_3_2/src 
+* Clone HeavyIonsAnalysis, RecoBTag, RecoHI, RecoJets and RecoVertex modules from this repo to CMSSW_10_3_2/src 
 * Compile them with `scram b -j 16`
 * For HiForest production, `cd HeavyIonsAnalysis/PhotonAnalysis/test` 
 * To test if everything is running ok, test on data with one of the HIForward AOD files `cmsRun runForestAOD_pponAA_DATA_103X.py` and check the output for calotower variables 
