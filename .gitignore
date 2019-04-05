@@ -1,2 +1,9 @@
 papers/*
 superchic3.0/*
+flat_pt_electron/gen_sim/log/*
+flat_pt_electron/gen_sim/error/*
+flat_pt_electron/gen_sim/output/*
+MC_reconstruction/gen_sim/log/*
+MC_reconstruction/gen_sim/error/*
+MC_reconstruction/gen_sim/output/*
+*/*/jniedzie.cc
