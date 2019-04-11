@@ -51,6 +51,7 @@ cmsenv
 * `cd HeavyIonAnalyis/PhotonAnalysis/test`
 * change the input file path in runForestAOD_pponAA_MIX_103X.py scipt and `cmsRun runForestAOD_pponAA_MIX_103X.py`  
 
+
 ## Flat MC photon and electron sample generation and reconstruction
 * Use CMSSW_10_3_2 and cmsenv
 * Copy Configuration/Generator from this repo
@@ -67,13 +68,27 @@ cmsDriver.py SingleGammaFlatPt_pythia8_cfi --mc --eventcontent RAWSIM --datatier
 * For electron sample, change the particle ID to 11 `ParticleID = cms.vint32(11)` in SingleGammaFlatPt_pythia8_cfi_GEN_SIM.py script and submit the jobs
 
 
-## Hiforest with Empty bunch crossing events for noise threshold study 
+## Calo noise study with EmptyBx
+
+### Hiforest production 
+
 * Clone HeavyIonsAnalysis, RecoBTag, RecoHI, RecoJets and RecoVertex modules from this repo to CMSSW_10_3_2/src 
 * Compile them with `scram b -j 16`
 * For HiForest production, `cd HeavyIonsAnalysis/PhotonAnalysis/test` 
 * To test if everything is running ok, test on data with one of the HIForward AOD files `cmsRun runForestAOD_pponAA_DATA_103X.py` and check the output for calotower variables 
 * Then submit the crab jobs with `crab submit -c crabConfig.py` 
 * Prameters for crab jobs can be modified in crabConfig.py script 
+
+### Preparing energy histograms
+
+* Login to lxplus7 (with centos7)
+* Go to `caloNoiseStudy` and compile binaries with `./build.sh`
+* Create a list of hiforest files to be processed and put it in `input_filelist.txt` (make sure that each entry starts wit _/store/_)
+* Create output, error and log directories: `mkdir -p output error log`
+* Modify paths in the top section of the `run_calo_study.sh` script
+* Open _condorConfig.sub_ file and change number next to _queue_ to the desired number of files to process
+* Submit jobs: `condor_submit condorConfig.sub`
+
 
 ## Authors
 
