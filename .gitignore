@@ -7,3 +7,5 @@ MC_reconstruction/gen_sim/log/*
 MC_reconstruction/gen_sim/error/*
 MC_reconstruction/gen_sim/output/*
 */*/jniedzie.cc
+caloNoiseStudy/*.root
+caloNoiseStudy/getCaloNoiseThresholds
