@@ -76,6 +76,7 @@ cmsDriver.py SingleGammaFlatPt_pythia8_cfi --mc --eventcontent RAWSIM --datatier
 * Compile them with `scram b -j 16`
 * For HiForest production, `cd HeavyIonsAnalysis/PhotonAnalysis/test` 
 * To test if everything is running ok, test on data with one of the HIForward AOD files `cmsRun runForestAOD_pponAA_DATA_103X.py` and check the output for calotower variables 
+* If you don't have crab already set up, run `source /cvmfs/cms.cern.ch/crab3/crab.sh`
 * Then submit the crab jobs with `crab submit -c crabConfig.py` 
 * Prameters for crab jobs can be modified in crabConfig.py script 
 
