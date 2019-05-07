@@ -20,15 +20,15 @@ int main(int argc, char** argv)
   
   // Read input file
   TFile *inFile = TFile::Open(inputPath);
-  TTreeReader treeReader("ggHiNtuplizer/EventTree", inFile);
-  TTree *inTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
+  TTree *eventTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
+  TTree *hltTree = (TTree*)inFile->Get("hltnalysis/HltTree");
   
   // For each input variable setup reader and create a histogram
   map<string, vector<float>*> inputVariables;
   map<string, TH1D*> inputHists;
   
   for(auto &[varName, nBins, min, max] : inputVarParams){
-    inTree->SetBranchAddress(varName.c_str(), &inputVariables[varName]);
+    eventTree->SetBranchAddress(varName.c_str(), &inputVariables[varName]);
     inputHists[varName] = new TH1D(varName.c_str(), varName.c_str(), nBins, min, max);
   }
   
@@ -36,12 +36,12 @@ int main(int argc, char** argv)
   cout<<"Reading events from input file and filling histograms"<<endl;
   vector<CaloTower> leadingCaloTowers[nDets];
   
-  int nEvents = inTree->GetEntries();
+  int nEvents = eventTree->GetEntries();
   
   for(int iEvent=0; iEvent<nEvents; iEvent++){
     if(iEvent%1000==0) cout<<"Processing event "<<iEvent<<" / "<<nEvents<<endl;
     
-    inTree->GetEntry(iEvent);
+    eventTree->GetEntry(iEvent);
     
     // Loop over calo towers in an event
     vector<CaloTower> caloTowersInEvent;
