@@ -12,3 +12,4 @@ caloNoiseStudy/getCaloNoiseHistograms
 caloNoiseStudy/log/*
 caloNoiseStudy/error/*
 caloNoiseStudy/output/*
+caloNoiseStudy/input_filelist.txt
