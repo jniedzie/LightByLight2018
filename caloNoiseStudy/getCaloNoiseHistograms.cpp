@@ -9,6 +9,12 @@ vector<tuple<string,int,double,double>> inputVarParams = { // varName, nBins, mi
   {"CaloTower_phi",   100,-PI, PI},
 };
 
+vector<string> allowedTriggers = {
+  "HLT_HIL1NotBptxOR_v1",
+  "HLT_HIL1UnpairedBunchBptxMinus_v1",
+  "HLT_HIL1UnpairedBunchBptxPlus_v",
+};
+
 int main(int argc, char** argv)
 {
   if(argc!=3){
@@ -20,8 +26,33 @@ int main(int argc, char** argv)
   
   // Read input file
   TFile *inFile = TFile::Open(inputPath);
+  if(!inFile){
+    cout<<"ERROR -- input file not found"<<endl;
+    exit(0);
+  }
+  
   TTree *eventTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
-  TTree *hltTree = (TTree*)inFile->Get("hltnalysis/HltTree");
+  if(!eventTree){
+    cout<<"ERROR -- event tree not found"<<endl;
+    exit(0);
+  }
+
+  TTree *hltTree = (TTree*)inFile->Get("hltanalysis/HltTree");
+  if(!hltTree){
+    cout<<"ERROR -- hlt tree not found"<<endl;
+    exit(0);
+  }
+  
+  map<string, int> triggers;
+  
+  for(string triggerName : allowedTriggers){
+    if(!hltTree->GetBranchStatus(triggerName.c_str())){
+      cout<<"WARNING -- no branch named "<<triggerName<<"!!"<<endl;
+      triggers[triggerName] = 0;
+      continue;
+    }
+    hltTree->SetBranchAddress(triggerName.c_str(), &triggers[triggerName]);
+  }
   
   // For each input variable setup reader and create a histogram
   map<string, vector<float>*> inputVariables;
@@ -37,11 +68,19 @@ int main(int argc, char** argv)
   vector<CaloTower> leadingCaloTowers[nDets];
   
   int nEvents = eventTree->GetEntries();
-  
+
   for(int iEvent=0; iEvent<nEvents; iEvent++){
     if(iEvent%1000==0) cout<<"Processing event "<<iEvent<<" / "<<nEvents<<endl;
     
     eventTree->GetEntry(iEvent);
+    hltTree->GetEntry(iEvent);
+    
+    bool hasTrigger = false;
+    
+    for(auto triggerName : allowedTriggers){
+      if(triggers[triggerName]) hasTrigger = true;
+    }
+    if(!hasTrigger) continue;
     
     // Loop over calo towers in an event
     vector<CaloTower> caloTowersInEvent;
