@@ -136,11 +136,18 @@ int main(int argc, char** argv)
         leadingTower[kHE] = tower;
       }
       
-      if(tower.energy > maxEnergy[kHF] &&
-         eta > detLimits[kHF].first && eta < detLimits[kHF].second){
-        maxEnergy[kHF] = tower.energy;
-        leadingTower[kHF] = tower;
+      if(tower.energy > maxEnergy[kHFm] &&
+        tower.eta > detLimits[kHFm].first && tower.eta < detLimits[kHFm].second){
+        maxEnergy[kHFm] = tower.energy;
+        leadingTower[kHFm] = tower;
       }
+      
+      if(tower.energy > maxEnergy[kHFp] &&
+         tower.eta > detLimits[kHFp].first && tower.eta < detLimits[kHFp].second){
+        maxEnergy[kHFp] = tower.energy;
+        leadingTower[kHFp] = tower;
+      }
+      
     }
     
     for(int iDet=0;iDet<nDets;iDet++){

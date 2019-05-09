@@ -15,15 +15,16 @@ using namespace std;
 
 double PI = TMath::Pi();
 
-enum EDet { kEB, kEE, kHB, kHE, kHF, nDets };
-vector<string> detNames = { "EB", "EE", "HB", "HE", "HF", "unknown" };
+enum EDet { kEB, kEE, kHB, kHE, kHFm, kHFp, nDets };
+vector<string> detNames = { "EB", "EE", "HB", "HE", "HFm", "HFp", "unknown" };
 
 vector<pair<double,double>> detLimits = {
   {0    , 1.479 }, // EB
   {1.479, 3.0   }, // EE
   {0    , 1.3   }, // HB
   {1.3  , 3.0   }, // HE
-  {3.0  , 5.2   }, // HF
+  {-5.2 ,-3.0   }, // HFm
+  {3.0  , 5.2   }, // HFp
 };
 
 struct CaloTower {
