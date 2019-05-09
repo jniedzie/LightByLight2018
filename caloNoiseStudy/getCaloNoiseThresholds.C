@@ -1,5 +1,7 @@
 #include "CaloNoiseHelpers.h"
 
+TH1D* GetEEhist(TFile *inFile, double etaMin, double etaMax);
+
 void getCaloNoiseThresholds(const char* infileName)
 {
   TFile *inFile = TFile::Open(infileName);
@@ -12,7 +14,12 @@ void getCaloNoiseThresholds(const char* infileName)
   
   // Find noise thresholds
   for(int iDet=0;iDet<nDets;iDet++){
-    energyHist[iDet] = (TH1D*)inFile->Get(Form("energyHist%s",detNames[iDet].c_str()));
+    if(iDet == kEE){ // EE is very noisy, so we need to remove some eta regions
+      energyHist[iDet] = GetEEhist(inFile, -2.3, 2.3);
+    }
+    else{
+      energyHist[iDet] = (TH1D*)inFile->Get(Form("energyHist%s",detNames[iDet].c_str()));
+    }
     
     // Normalize histograms by number of entries
     energyHist[iDet]->Scale(1/energyHist[iDet]->GetEntries());
@@ -37,7 +44,20 @@ void getCaloNoiseThresholds(const char* infileName)
     thresholdsCanvas->cd(iDet+1);
     gPad->SetLogy();
     energyHist[iDet]->Draw();
+    energyHist[iDet]->GetXaxis()->SetRangeUser(0, 10);
   }
   
   
+}
+
+TH1D* GetEEhist(TFile *inFile, double etaMin, double etaMax)
+{
+  TH2D *noiseVsEtaEE = (TH2D*)inFile->Get("energyHistEEVsEta");
+  TH1D *noiseEEwithCut = noiseVsEtaEE->ProjectionY("",
+                                                   noiseVsEtaEE->GetXaxis()->FindFixBin(etaMin),
+                                                   noiseVsEtaEE->GetXaxis()->FindFixBin(etaMax));
+  
+  noiseEEwithCut->SetTitle("energyHistEE");
+  
+  return noiseEEwithCut;
 }

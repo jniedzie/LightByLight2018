@@ -137,7 +137,7 @@ int main(int argc, char** argv)
       }
       
       if(tower.energy > maxEnergy[kHF] &&
-         eta > detLimits[kHB].first && eta < detLimits[kHB].second){
+         eta > detLimits[kHF].first && eta < detLimits[kHF].second){
         maxEnergy[kHF] = tower.energy;
         leadingTower[kHF] = tower;
       }
