@@ -3,6 +3,7 @@
 #include <TTreeReader.h>
 #include <TTreeReaderArray.h>
 #include <TH1D.h>
+#include <TH2D.h>
 #include <TCanvas.h>
 
 #include <iostream>

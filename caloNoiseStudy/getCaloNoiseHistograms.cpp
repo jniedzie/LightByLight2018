@@ -1,6 +1,7 @@
 #include "CaloNoiseHelpers.h"
 
-vector<tuple<string,int,double,double>> inputVarParams = { // varName, nBins, min, max
+vector<tuple<string,int,double,double>> inputVarParams = {
+  // varName,       nBins,min, max
   {"CaloTower_hadE",  100,  0, 10},
   {"CaloTower_emE",   100,  0, 10},
   {"CaloTower_e",     100,  0, 10},
@@ -12,7 +13,7 @@ vector<tuple<string,int,double,double>> inputVarParams = { // varName, nBins, mi
 vector<string> allowedTriggers = {
   "HLT_HIL1NotBptxOR_v1",
   "HLT_HIL1UnpairedBunchBptxMinus_v1",
-  "HLT_HIL1UnpairedBunchBptxPlus_v",
+  "HLT_HIL1UnpairedBunchBptxPlus_v1",
 };
 
 int main(int argc, char** argv)
@@ -154,14 +155,26 @@ int main(int argc, char** argv)
   
   // Fill output histograms with leading tower energy
   vector<TH1D*> energyHist;
+  vector<TH2D*> energyVsEtaHist;
+  
   for(int iDet=0;iDet<nDets;iDet++){
     const char* histName = ("energyHist"+detNames[iDet]).c_str();
-    energyHist.push_back(new TH1D(histName, histName, 100, 0, 10));
+    energyHist.push_back(new TH1D(histName, histName, 200, 0, 20));
+    energyVsEtaHist.push_back(new TH2D(Form("%sVsEta",histName), Form("%sVsEta",histName), 100, -5, 5, 200, 0, 20));
     
     for(auto tower : leadingCaloTowers[iDet]){
-      if(iDet == kEE || iDet == kEB)        energyHist[iDet]->Fill(tower.energyEm);
-      else if(iDet == kHE || iDet == kHB)   energyHist[iDet]->Fill(tower.energyHad);
-      else                                  energyHist[iDet]->Fill(tower.energy);
+      if(iDet == kEE || iDet == kEB){
+        energyHist[iDet]->Fill(tower.energyEm);
+        energyVsEtaHist[iDet]->Fill(tower.eta, tower.energyEm);
+      }
+      else if(iDet == kHE || iDet == kHB){
+        energyHist[iDet]->Fill(tower.energyHad);
+        energyVsEtaHist[iDet]->Fill(tower.eta, tower.energyHad);
+      }
+      else{
+        energyHist[iDet]->Fill(tower.energy);
+        energyVsEtaHist[iDet]->Fill(tower.eta, tower.energy);
+      }
     }
   }
   
@@ -174,6 +187,7 @@ int main(int argc, char** argv)
   
   for(int iDet=0;iDet<nDets;iDet++){
     energyHist[iDet]->Write();
+    energyVsEtaHist[iDet]->Write();
   }
   
   outFile->Close();
