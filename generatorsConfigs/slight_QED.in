@@ -12,12 +12,12 @@ W_MIN = 2    #Min value of w
 W_N_BINS = 500    #Bins i w
 RAP_MAX = 8.   #max y
 RAP_N_BINS = 80    #Bins i y
-CUT_PT = 0 #Cut in pT? 0 = (no, 1 = yes)
-PT_MIN = 1.0 #Minimum pT in GeV
-PT_MAX = 100.0 #Maximum pT in GeV
-CUT_ETA = 0 #Cut in pseudorapidity? (0 = no, 1 = yes)
-ETA_MIN = -10 #Minimum pseudorapidity
-ETA_MAX = 10 #Maximum pseudorapidity
+CUT_PT = 1 #Cut in pT? 0 = (no, 1 = yes)
+PT_MIN = 0.2 #Minimum pT in GeV
+PT_MAX = 9999.0 #Maximum pT in GeV
+CUT_ETA = 1 #Cut in pseudorapidity? (0 = no, 1 = yes)
+ETA_MIN = -2.8 #Minimum pseudorapidity
+ETA_MAX = 2.8 #Maximum pseudorapidity
 PROD_MODE = 1     #gg or gP switch (1 = 2-photon, 2 = coherent vector meson (narrow), 3 = coherent vector meson (wide), 4 = incoherent vector meson)
 N_EVENTS = 500000   #Number of events
 PROD_PID = 11   #Channel of interest
