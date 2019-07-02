@@ -1,7 +1,8 @@
 #include "CaloNoiseHelpers.h"
 
 TH1D* GetEEhist(TFile *inFile, double etaMin, double etaMax);
-TH1D* GetHFhist(TFile *inFile, double etaMin);
+TH1D* GetHFphist(TFile *inFile, double etaMin);
+TH1D* GetHFmhist(TFile *inFile, double etaMax);
 
 void getCaloNoiseThresholds(const char* infileName)
 {
@@ -15,15 +16,18 @@ void getCaloNoiseThresholds(const char* infileName)
   
   // Find noise thresholds
   for(int iDet=0;iDet<nDets;iDet++){
-    if(iDet == kEE){ // EE is very noisy, so we need to remove some eta regions
-      energyHist[iDet] = GetEEhist(inFile, -2.3, 2.3);
-    }
-    else if(iDet == kHF){ // EE is very noisy, so we need to remove some eta regions
-      energyHist[iDet] = GetHFhist(inFile, 3.3);
-    }
-    else{
+//    if(iDet == kEE){ // EE is very noisy, so we need to remove some eta regions
+//      energyHist[iDet] = GetEEhist(inFile, -2.3, 2.3);
+//    }
+//    else if(iDet == kHFp){
+//      energyHist[iDet] = GetHFphist(inFile, 3.4);
+//    }
+//    else if(iDet == kHFm){
+//      energyHist[iDet] = GetHFmhist(inFile,-3.4);
+//    }
+//    else{
       energyHist[iDet] = (TH1D*)inFile->Get(Form("energyHist%s",detNames[iDet].c_str()));
-    }
+//    }
     if(!energyHist[iDet]){
       continue;
     }
@@ -70,25 +74,23 @@ TH1D* GetEEhist(TFile *inFile, double etaMin, double etaMax)
   return noiseEEwithCut;
 }
 
-TH1D* GetHFhist(TFile *inFile, double etaMin)
+TH1D* GetHFphist(TFile *inFile, double etaMin)
 {
-  TH2D *noiseVsEtaHF = (TH2D*)inFile->Get("energyHistHFVsEta");
-  if(!noiseVsEtaHF){
-    cout<<"No energyHistHFVsEta found!"<<endl;
-    return nullptr;
-  }
+  TH2D *noiseVsEtaHF = (TH2D*)inFile->Get("energyHistHFpVsEta");
   
-//  TH1D *noiseHFwithCutNegative = noiseVsEtaHF->ProjectionY("projHFneg",
-//                                                           1,
-//                                                           noiseVsEtaHF->GetXaxis()->FindFixBin(-etaMin));
+  TH1D *noiseHFwithCut = noiseVsEtaHF->ProjectionY("projHFpos",
+                                                   noiseVsEtaHF->GetXaxis()->FindFixBin(etaMin),
+                                                   noiseVsEtaHF->GetNbinsX());
+  return noiseHFwithCut;
+}
+
+TH1D* GetHFmhist(TFile *inFile, double etaMax)
+{
+  TH2D *noiseVsEtaHF = (TH2D*)inFile->Get("energyHistHFmVsEta");
   
-  TH1D *noiseHFwithCutPositive = noiseVsEtaHF->ProjectionY("projHFpos",
-                                                           noiseVsEtaHF->GetXaxis()->FindFixBin(etaMin),
-                                                           noiseVsEtaHF->GetNbinsX());
+  TH1D *noiseHFwithCut = noiseVsEtaHF->ProjectionY("projHFneg",
+                                                   1,
+                                                   noiseVsEtaHF->GetXaxis()->FindFixBin(etaMax));
   
-//  TH1D *merged = new TH1D(*noiseHFwithCutPositive);
-//  merged->Add(noiseHFwithCutNegative);
-//  merged->SetTitle("energyHistHF");
-  
-  return noiseHFwithCutPositive;
+  return noiseHFwithCut;
 }
