@@ -81,7 +81,7 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
 process.XMLFromDBSource.label = cms.string("Extended")
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '103X_upgrade2018_realistic_HI_v9', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '103X_upgrade2018_realistic_HI_v11', '')
 
 process.generator = cms.EDFilter("Pythia8HadronizerFilter",
                          maxEventsToPrint = cms.untracked.int32(1),
