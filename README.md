@@ -13,14 +13,13 @@ This repository containts code and documentation for light-by-light analysis of 
 In order to keep track of parameters used to generate MC samples, config files are stored in **generatorConfigs** directory.
 
 List of content:
-* input_QED.DAT - used with superchic 3.03 to generate 50M QED events [ongoing]
-* slight_QED.in - STARlight v.2.47 config used to produce 40M QED samples
-* input_LbL.DAT - [will be] used with superchic 3.03 to generate 0.5M LbL events
-* input_CEP.DAT - [will be] used with superchic 3.03 to generate 1M CEP events
+* input_QED.DAT - used with superchic 3.03 to generate QED events
+* slight_QED.in - STARlight v.3.0 config used to produce QED events
+* input_LbL.DAT - used with superchic 3.03 to generate LbL events
+* input_CEP.DAT - used with superchic 3.03 to generate CEP events
 * input_ALP.DAT - basic config for ALPs to be used with superchic 3.03 (mass and coupling should be set in the config)
 
 * s2int_dependance.txt - results of the study of total cross section dependance on *s2int* parameter of superchic
-
 
 ## MC samples reconstruction
 
@@ -36,10 +35,18 @@ cmsenv
 * Go to the correct directory depending on the step you want to run:
 	* Step 1 (Gen_Sim): MC_reconstruction/gen_sim
 	* Step 2 (Digi_Raw): MC_reconstruction/digi_raw
-* Modify paths in the top section of the _batch.sh_ script
+* In _crabConfig.py_ modify:
+	* put some meaningful name for the dataset you want to process (ideally followig convension used for all the other samples):
+	```
+	config.General.requestName
+	config.Data.outputPrimaryDataset 
+	config.Data.outputDatasetTag
+	```
+	* update the output path: `config.Data.outLFNDirBase`
+* For GEN-SIM step, create a list of input LHE files and put it in _input.txt_ file. Each entry should begin with `/store/` rather than `/eos/cms/store/`!!!
 * Create output, error and log directories: `mkdir -p output error log`
-* Open _condorConfig.sub_ file and change number next to _queue_ to the desired number of files to process,
-* Submit jobs: `condor_submit condorConfig.sub` 
+* If you don't have crab already set up, run `source /cvmfs/cms.cern.ch/crab3/crab.sh`
+* Then submit the crab jobs with `crab submit -c crabConfig.py` 
 
 3. Reconstruction with modified Egamma thresholds:
 * on Lxplus6, in CMSSW_10_3_2/src/ execute:
