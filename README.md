@@ -42,10 +42,11 @@ cmsenv
 * Submit jobs: `condor_submit condorConfig.sub` 
 
 3. Reconstruction with modified Egamma thresholds:
-* `git clone git@github.com:jniedzie/LightByLight2018.git` in CMSSW_10_3_2
-*  compile these packages with `scarm b -j4`
-* `cd MC_reconstruction/reco` contains the reconstruction step script
-* Submit the jobs in condor with `condor_submit condorConfig.sub` as decribed above. 
+* in CMSSW_10_3_2/src/ execute:
+` git cms-merge-topic rchudasa:LightByLightMod_1032 `
+* compile with `scram b -j8`
+
+
 
 4. HiForest
 * `cd HeavyIonAnalyis/PhotonAnalysis/test`
