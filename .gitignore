@@ -16,3 +16,7 @@ caloNoiseStudy/input_filelist.txt
 MC_reconstruction/digi_raw/error/*
 MC_reconstruction/digi_raw/log/*
 MC_reconstruction/digi_raw/output/*
+crab.log
+MC_reconstruction/reco/crabConfig.pyc
+MC_reconstruction/reco/crab_projects/*
+MC_reconstruction/reco/step3_RAW2DIGI_L1Reco_RECO.pyc
