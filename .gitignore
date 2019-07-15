@@ -13,3 +13,6 @@ caloNoiseStudy/log/*
 caloNoiseStudy/error/*
 caloNoiseStudy/output/*
 caloNoiseStudy/input_filelist.txt
+MC_reconstruction/digi_raw/error/*
+MC_reconstruction/digi_raw/log/*
+MC_reconstruction/digi_raw/output/*
