@@ -26,7 +26,8 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
     fileNames = cms.untracked.vstring(
-       "/store/group/phys_diffraction/lbyl_2018/mc_qed/reco/QED_reco_0.root" 
+"/store/group/phys_diffraction/lbyl_2018/mc_flat_pt_electron/reco_hovere_99/Flat_ele_reco/MC_generation_flat_pt_electron_reco_he99_TDseed1/190618_132326/0000/FlatGamma_pt_reco_g4simhits_2.root",
+
        ),
     )
 
@@ -57,7 +58,7 @@ process.HiForest.GlobalTagLabel = process.GlobalTag.globaltag
 ###############################################################################
 
 process.TFileService = cms.Service("TFileService",
-      fileName = cms.string("HiForestAOD_qed_hlt_check.root")
+      fileName = cms.string("HiForestAOD_mc.root")
    )
 
 ###############################################################################
