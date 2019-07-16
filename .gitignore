@@ -24,3 +24,14 @@ MC_reconstruction/reco_modified/crabConfig.pyc
 MC_reconstruction/reco_modified/crab_projects/*
 MC_reconstruction/reco_modified/step3_RAW2DIGI_L1Reco_RECO.pyc
 MC_reconstruction/gen_sim/crab_projects/*
+superchic3.03/*
+ConvertStarlightQEDtoLHE.C
+__MACOSX/
+generatorsComparison/
+generatorsConfigs/input_QED_ALICE.DAT
+generatorsConfigs/input_QED_ATLAS.DAT
+generatorsConfigs/slight_ALP.in
+papersGit/*
+sc_qed_events_p0.lhe
+starlight3.0/*
+superchic3.02/*
