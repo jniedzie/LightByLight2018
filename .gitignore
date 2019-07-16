@@ -23,3 +23,4 @@ MC_reconstruction/reco_default/step3_RAW2DIGI_L1Reco_RECO.pyc
 MC_reconstruction/reco_modified/crabConfig.pyc
 MC_reconstruction/reco_modified/crab_projects/*
 MC_reconstruction/reco_modified/step3_RAW2DIGI_L1Reco_RECO.pyc
+MC_reconstruction/gen_sim/crab_projects/*
