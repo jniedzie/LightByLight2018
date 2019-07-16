@@ -10,6 +10,8 @@ This repository containts code and documentation for light-by-light analysis of 
 
 ## MC samples generation
 
+#### Background samples:
+
 In order to keep track of parameters used to generate MC samples, config files are stored in **generatorConfigs** directory.
 
 List of content:
@@ -21,50 +23,8 @@ List of content:
 
 * s2int_dependance.txt - results of the study of total cross section dependance on *s2int* parameter of superchic
 
-## MC samples reconstruction
+#### Flat p_T MC photon and electron sample:
 
-1. Set CMSSW environment before running the scripts (currently preferred CMSSW version: CMSSW_10_3_2):
-
-```
-cd CMSSW_10_3_2/src
-cmsenv
-```
-
-2. Prepare scripts and submit jobs:
-
-* Go to the correct directory depending on the step you want to run:
-	* Step 1 (Gen_Sim): MC_reconstruction/gen_sim
-	* Step 2 (Digi_Raw): MC_reconstruction/digi_raw
-* In _crabConfig.py_ modify:
-	* put some meaningful name for the dataset you want to process (ideally followig convension used for all the other samples):
-	```
-	config.General.requestName
-	config.Data.outputPrimaryDataset 
-	config.Data.outputDatasetTag
-	```
-	* update the output path: `config.Data.outLFNDirBase`
-* For GEN-SIM step, create a list of input LHE files and put it in _input.txt_ file. Each entry should begin with `/store/` rather than `/eos/cms/store/`!!!
-* Create output, error and log directories: `mkdir -p output error log`
-* If you don't have crab already set up, run `source /cvmfs/cms.cern.ch/crab3/crab.sh`
-* Then submit the crab jobs with `crab submit -c crabConfig.py` 
-
-3. Reconstruction with modified Egamma thresholds:
-* on Lxplus6, in CMSSW_10_3_2/src/ execute:
-` git cms-merge-topic rchudasa:LightByLightMod_1032 `
-* compile with `scram b -j8`
-* Run this command:
-```
-cmsDriver.py step3 --mc --eventcontent AODSIM --datatier AODSIM --conditions 103X_upgrade2018_realistic_HI_v11 --step RAW2DIGI,L1Reco,RECO --geometry DB:Extended --era Run2_2018,lightByLightLowPt --customise Configuration/DataProcessing/Utils.addMonitoring --customise_commands 'process.AODSIMoutput.outputCommands.extend(["keep *_towerMaker_*_*", "keep *_siPixelRecHits_*_*", "keep *_siPixelClusters_*_*","keep *_g4SimHits_*_*"])' --no_exec 
-```
-
-
-
-4. HiForest
-* `cd HeavyIonAnalyis/PhotonAnalysis/test`
-* change the input file path in runForestAOD_pponAA_MIX_103X.py scipt and `cmsRun runForestAOD_pponAA_MIX_103X.py`  
-
-
-## Flat MC photon and electron sample generation and reconstruction
 * Use CMSSW_10_3_2 and cmsenv
 * Copy Configuration/Generator from this repo
 ```
@@ -79,6 +39,47 @@ cmsDriver.py SingleGammaFlatPt_pythia8_cfi --mc --eventcontent RAWSIM --datatier
 * Submit jobs: `condor_submit condorConfig.sub`
 * For electron sample, change the particle ID to 11 `ParticleID = cms.vint32(11)` in SingleGammaFlatPt_pythia8_cfi_GEN_SIM.py script and submit the jobs
 
+## MC samples reconstruction
+
+0. Connect to lxplus6.
+1. Set CMSSW environment, pull modifications in reconstruction, build:
+
+```
+cd CMSSW_10_3_2/src
+cmsenv
+git cms-merge-topic rchudasa:LightByLightMod_1032
+scram b -j8
+```
+
+2. Prepare scripts and submit jobs:
+
+* Go to the correct directory depending on the step you want to run:
+	* Step 1 (gen_sim): MC_reconstruction/gen_sim
+	* Step 2 (digi_raw): MC_reconstruction/digi_raw
+	* Step 3, default  (reco): MC_reconstruction/reco_default
+	* Step 3, modified for low p_T e/γ (reco): MC_reconstruction/reco_modified
+* In _crabConfig.py_ modify the following:
+	* put some meaningful name for the dataset you want to process (ideally followig convension used for all the other samples):
+	```
+	config.General.requestName
+	config.Data.outputPrimaryDataset 
+	config.Data.outputDatasetTag
+	```
+	* update the output path: `config.Data.outLFNDirBase`
+* Create a list of input files and put it in _input.txt_ file. Each entry should begin with `/store/` rather than `/eos/cms/store/`!!!
+* Create output, error and log directories: `mkdir -p output error log`
+* If you don't have crab already set up, run `source /cvmfs/cms.cern.ch/crab3/crab.sh`
+* Then submit the crab jobs with `crab submit -c crabConfig.py` 
+
+
+* Command used to generate reco scipt:
+```
+cmsDriver.py step3 --mc --eventcontent AODSIM --datatier AODSIM --conditions 103X_upgrade2018_realistic_HI_v11 --step RAW2DIGI,L1Reco,RECO --geometry DB:Extended --era Run2_2018,lightByLightLowPt --customise Configuration/DataProcessing/Utils.addMonitoring --customise_commands 'process.AODSIMoutput.outputCommands.extend(["keep *_towerMaker_*_*", "keep *_siPixelRecHits_*_*", "keep *_siPixelClusters_*_*","keep *_g4SimHits_*_*"])' --no_exec 
+```
+
+## Produce HiForest ntuples
+* `cd HeavyIonAnalyis/PhotonAnalysis/test`
+* change the input file path in runForestAOD_pponAA_MIX_103X.py scipt and `cmsRun runForestAOD_pponAA_MIX_103X.py`
 
 ## Calo noise study with EmptyBx
 
