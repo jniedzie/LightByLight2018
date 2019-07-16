@@ -40,15 +40,15 @@ map<string, tuple<string, int, double, double>> histParams = {
 // name            title                nBins min     max
   {"pair_m"     , {"Pair dN/dm"        , 100 ,  0.0  , 100.  }},
   {"pair_pt"    , {"Pair dN/dp_{T}"    , 100 ,  0.0  , 0.5   }},
-  {"pair_pz"    , {"Pair dN/dp_{z}"    , 100 ,  0.0  , 1000. }},
-  {"pair_y"     , {"Pair dN/dy"        , 100 , -6.0  , 6.0   }},
-  {"pair_theta" , {"Pair dN/d#theta"   , 100 ,  0.0  , 3.14  }},
-  {"pair_aco"   , {"Pair dN/dA_{#phi}" , 100 ,  0.0  , 0.1   }},
+  {"pair_pz"    , {"Pair dN/dp_{z}"    , 150 ,  0.0  , 1500. }},
+  {"pair_y"     , {"Pair dN/dy"        , 100 , -10.0 , 10.0  }},
+//  {"pair_theta" , {"Pair dN/d#theta"   , 100 ,  0.0  , 3.14  }},
+  {"pair_aco"   , {"Pair dN/dA_{#phi}" , 500 ,  0.0  , 0.5   }},
   
   {"single_pt"  , {"Single dN/dp_{T}"  , 1000, 0.0   , 100.  }},
   {"single_pz"  , {"Single dN/dp_{z}"  , 1000, 0.0   , 1000. }},
-  {"single_y"   , {"Single dN/dy"      , 100 , -6.0  , 6.    }},
-  {"single_eta" , {"Signle dN/d#eta"   , 100 , -10.0 , 10.   }},
+  {"single_y"   , {"Single dN/dy"      , 100 , -10.0 , 10.0  }},
+  {"single_eta" , {"Signle dN/d#eta"   , 100 , -10.0 , 10.0  }},
   {"single_phi" , {"Single dN/d#phi"   , 100 , -4    , 4     }},
 };
 
