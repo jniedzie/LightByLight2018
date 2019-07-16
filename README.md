@@ -74,7 +74,7 @@ scram b -j8
 
 * Command used to generate reco scipt:
 ```
-cmsDriver.py step3 --mc --eventcontent AODSIM --datatier AODSIM --conditions 103X_upgrade2018_realistic_HI_v11 --step RAW2DIGI,L1Reco,RECO --geometry DB:Extended --era Run2_2018,lightByLightLowPt --customise Configuration/DataProcessing/Utils.addMonitoring --customise_commands 'process.AODSIMoutput.outputCommands.extend(["keep *_towerMaker_*_*", "keep *_siPixelRecHits_*_*", "keep *_siPixelClusters_*_*","keep *_g4SimHits_*_*"])' --no_exec 
+cmsDriver.py step3 --mc --eventcontent AODSIM --datatier AODSIM --conditions 103X_upgrade2018_realistic_HI_v11 --step RAW2DIGI,L1Reco,RECO --geometry DB:Extended --era Run2_2018,lightByLightLowPt --customise Configuration/DataProcessing/Utils.addMonitoring --customise_commands 'process.AODSIMoutput.outputCommands.extend(["keep *_towerMaker_*_*", "keep *_siPixelRecHits_*_*", "keep *_siPixelClusters_*_*","keep *_g4SimHits_*_*"])' -n -1 --no_exec 
 ```
 
 ## Produce HiForest ntuples
