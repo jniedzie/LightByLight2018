@@ -23,7 +23,7 @@ List of content:
 
 * s2int_dependance.txt - results of the study of total cross section dependance on *s2int* parameter of superchic
 
-#### Flat p_T MC photon and electron sample:
+#### Flat p_T MC photon and electron samples:
 
 * Use CMSSW_10_3_2 and cmsenv
 * Copy Configuration/Generator from this repo
