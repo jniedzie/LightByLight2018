@@ -9,41 +9,47 @@
 // QED SuperChic
 //string basePath = "./mc_qed/lhe_superchic_with_cuts/";
 //string outFileName = "raw_plots_qed_sc.root";
+//int pid1 = 11;
+//int pid2 = -11;
 
 // QED Starlight
 //string basePath = "./mc_qed/lhe_starlight_with_cuts/";
 //string outFileName = "raw_plots_qed_sl.root";
+//int pid1 = 11;
+//int pid2 = -11;
 
 // LbL SuperChic
 //string basePath = "./mc_lbyl/lhe_superchic/";
 //string outFileName = "raw_plots_lbl_sc.root";
+//int pid1 = 22;
+//int pid2 = 22;
 
 // CEP SuperChic
 string basePath = "./mc_cep/lhe_superchic/";
 string outFileName = "raw_plots_cep_sc.root";
+int pid1 = 22;
+int pid2 = 22;
 
-
-// Say how many files to process:
-int nFiles = 1;
-
+// Say how many files (at most) to process:
+int nFiles = 100;
 
 // Here modify titles, axis labels, number of bins and histogram ranges.
 // If you add a new histogram, you must fill it in loops over particels in the main loop.
 
-map<string, tuple<string, string, string, int, double, double>> histParams = {
-// name            title                 X axis            Y axis     nBins min     max
-  {"pair_m"     , {"Pair dN/dm"         , "m (GeV/c)"     , "Entries", 100 ,  0.0  , 100.  }},
-  {"pair_pt"    , {"Pair dN/dp_{T}"     , "p_{T} (GeV/c)" , "Entries", 100 ,  0.0  , 0.5   }},
-  {"pair_pz"    , {"Pair dN/dp_{L}"     , "p_{z} (GeV/c)" , "Entries", 100 ,  0.0  , 1000. }},
-  {"pair_y"     , {"Pair dN/dy"         , "y"             , "Entries", 100 , -6.0  , 6.0   }},
-  {"pair_theta" , {"Pair dN/d#theta"    , "#theta"        , "Entries", 100 ,  0.0  , 3.14  }},
-  {"pair_aco"   , {"Pair dN/dA_{#phi}"  , "A_{#phi}"      , "Entries", 100 ,  0.0  , 0.1   }},
+map<string, tuple<string, int, double, double>> histParams = {
+// name            title                nBins min     max
+  {"pair_m"     , {"Pair dN/dm"        , 100 ,  0.0  , 100.  }},
+  {"pair_pt"    , {"Pair dN/dp_{T}"    , 100 ,  0.0  , 0.5   }},
+  {"pair_pz"    , {"Pair dN/dp_{z}"    , 100 ,  0.0  , 1000. }},
+  {"pair_y"     , {"Pair dN/dy"        , 100 , -6.0  , 6.0   }},
+  {"pair_theta" , {"Pair dN/d#theta"   , 100 ,  0.0  , 3.14  }},
+  {"pair_aco"   , {"Pair dN/dA_{#phi}" , 100 ,  0.0  , 0.1   }},
   
-  {"single_pt"  , {"Single dN/dp_{T}"   , "p_{T} (GeV/c)" , "Entries", 1000, 0.0   , 100.  }},
-  {"single_pz"  , {"Single dN/dp_{L}"   , "p_{z} (GeV/c)" , "Entries", 1000, 0.0   , 1000. }},
-  {"single_y"   , {"Single dN/dy"       , "y"             , "Entries", 100 , -6.0  , 6.    }},
-  {"single_eta" , {"Signle dN/d#eta"    , "#eta"          , "Entries", 100 , -10.0 , 10.   }},
-  {"single_phi" , {"Single dN/d#phi"    , "#phi"          , "Entries", 100 , -4    , 4     }},
+  {"single_pt"  , {"Single dN/dp_{T}"  , 1000, 0.0   , 100.  }},
+  {"single_pz"  , {"Single dN/dp_{z}"  , 1000, 0.0   , 1000. }},
+  {"single_y"   , {"Single dN/dy"      , 100 , -6.0  , 6.    }},
+  {"single_eta" , {"Signle dN/d#eta"   , 100 , -10.0 , 10.   }},
+  {"single_phi" , {"Single dN/d#phi"   , 100 , -4    , 4     }},
 };
 
 // Normally no need to modify below this point.
@@ -89,11 +95,9 @@ void plotFromLHE()
   map<string, TH1D*> hists;
   
   for(auto &[name, paramsTuple] : histParams){
-    auto &[title, xTitle, yTitle, nBins, min, max] = paramsTuple;
+    auto &[title, nBins, min, max] = paramsTuple;
     
     hists[name] = new TH1D(name.c_str(), title.c_str(), nBins, min, max);
-    hists[name]->GetXaxis()->SetTitle(xTitle.c_str());
-    hists[name]->GetYaxis()->SetTitle(yTitle.c_str());
   }
   
   vector<TLorentzVector> particles1;
@@ -152,7 +156,7 @@ void ReadParticlesFromFiles(vector<TLorentzVector> &particles1,
     cout<<"Processing file "<<fileName<<endl;
     ifstream lheFile((basePath+"/"+fileName).c_str());
     
-    while (lheFile.good()){
+    while(lheFile.good()){
       string line;
       getline(lheFile,line);
       
@@ -162,41 +166,47 @@ void ReadParticlesFromFiles(vector<TLorentzVector> &particles1,
       if(line.find("<event>")!=string::npos){
         nEvents++;
         
-        // digest unnecessary lines
-        getline(lheFile,line);
-        getline(lheFile,line);
-        getline(lheFile,line);
-        getline(lheFile,line);
-        
-        // get params of final state particles
-        getline(lheFile,line);
-        
-        curstring.clear();
-        curstring.str(line);
-        
-        double useless;
-        double p1[4], p2[4];
-        
-        for(int i=0;i<6;i++){curstring >> useless;}
-        curstring >> p1[0] >> p1[1] >> p1[2] >> p1[3];
-        for(int i=0;i<3;i++){curstring >> useless;}
-        
-        getline(lheFile,line);
-        curstring.clear();
-        curstring.str(line);
-        
-        for(int i=0;i<6;i++){curstring >> useless;}
-        curstring >> p2[0] >> p2[1] >> p2[2] >> p2[3];
-        for(int i=0;i<3;i++){curstring >> useless;}
-        
         TLorentzVector particle1(0.,0.,0.,0.);
-        particle1.SetPxPyPzE(p1[0],p1[1],p1[2],p1[3]);
-        particles1.push_back(particle1);
-        
         TLorentzVector particle2(0.,0.,0.,0.);
-        particle2.SetPxPyPzE(p2[0],p2[1],p2[2],p2[3]);
-        particles2.push_back(particle2);
+        bool first=true;
         
+        while(line.find("</event>")==string::npos &&
+              lheFile.good()){
+          getline(lheFile,line);
+          curstring.clear();
+          curstring.str(line);
+          
+          double pdgID, useless, p1[4];
+          
+          curstring >> pdgID;
+          for(int i=0;i<5;i++){curstring >> useless;}
+          curstring >> p1[0] >> p1[1] >> p1[2] >> p1[3];
+          for(int i=0;i<3;i++){curstring >> useless;}
+          
+         
+          if(pid1 != pid2){ // electrons
+            if(pdgID == pid1){
+              particle1.SetPxPyPzE(p1[0],p1[1],p1[2],p1[3]);
+              particles1.push_back(particle1);
+            }
+            else if(pdgID == pid2){
+              particle2.SetPxPyPzE(p1[0],p1[1],p1[2],p1[3]);
+              particles2.push_back(particle2);
+            }
+          }
+          else{ // photons
+            if((pdgID == pid1) && first){
+              particle1.SetPxPyPzE(p1[0],p1[1],p1[2],p1[3]);
+              particles1.push_back(particle1);
+              first=false;
+            }
+            else if((pdgID == pid2) && !first){
+              particle2.SetPxPyPzE(p1[0],p1[1],p1[2],p1[3]);
+              particles2.push_back(particle2);
+            }
+          }
+        }
+
         TLorentzVector particleSum(0.,0.,0.,0.);
         particleSum = particle1 + particle2;
         particlesSum.push_back(particleSum);
