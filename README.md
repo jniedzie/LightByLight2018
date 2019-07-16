@@ -67,10 +67,10 @@ scram b -j8
 	```
 	* update the output path: `config.Data.outLFNDirBase`
 * Create a list of input files and put it in _input.txt_ file. Each entry should begin with `/store/` rather than `/eos/cms/store/`!!!
-* Create output, error and log directories: `mkdir -p output error log`
 * If you don't have crab already set up, run `source /cvmfs/cms.cern.ch/crab3/crab.sh`
 * Then submit the crab jobs with `crab submit -c crabConfig.py` 
 
+* if you need to resubmit failed jobs, run `crab resubmit -d crab_projects/job_name/`
 
 * Command used to generate reco scipt:
 ```
@@ -78,20 +78,19 @@ cmsDriver.py step3 --mc --eventcontent AODSIM --datatier AODSIM --conditions 103
 ```
 
 ## Produce HiForest ntuples
-* `cd HeavyIonAnalyis/PhotonAnalysis/test`
-* change the input file path in runForestAOD_pponAA_MIX_103X.py scipt and `cmsRun runForestAOD_pponAA_MIX_103X.py`
-
-## Calo noise study with EmptyBx
-
-### Hiforest production 
 
 * Clone HeavyIonsAnalysis, RecoBTag, RecoHI, RecoJets and RecoVertex modules from this repo to CMSSW_10_3_2/src 
 * Compile them with `scram b -j 16`
-* For HiForest production, `cd HeavyIonsAnalysis/PhotonAnalysis/test` 
-* To test if everything is running ok, test on data with one of the HIForward AOD files `cmsRun runForestAOD_pponAA_DATA_103X.py` and check the output for calotower variables 
-* If you don't have crab already set up, run `source /cvmfs/cms.cern.ch/crab3/crab.sh`
-* Then submit the crab jobs with `crab submit -c crabConfig.py` 
-* Prameters for crab jobs can be modified in crabConfig.py script 
+* `cd HeavyIonAnalyis/PhotonAnalysis/test`
+* change the input file path in:
+	* for MC: runForestAOD_pponAA_MC_103X.py
+	* for data: runForestAOD_pponAA_DATA_103X.py
+* to test if everything is running ok, test on one HIForward AOD files `cmsRun correct_script_name.py` and check the output for calotower variables,
+* modify parameters in crabConfig.py script,
+* if you don't have crab already set up, run `source /cvmfs/cms.cern.ch/crab3/crab.sh`
+* submit the crab jobs with `crab submit -c crabConfig.py` 
+
+## Calo noise study with EmptyBx
 
 ### Preparing energy histograms
 
