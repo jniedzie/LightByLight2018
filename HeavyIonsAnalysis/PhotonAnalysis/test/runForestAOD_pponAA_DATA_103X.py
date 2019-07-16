@@ -47,7 +47,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '103X_dataRun2_Prompt_v2', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '103X_dataRun2_Prompt_fixEcalADCToGeV_v1', '')
 process.HiForest.GlobalTagLabel = process.GlobalTag.globaltag
 
 
@@ -57,7 +57,7 @@ process.HiForest.GlobalTagLabel = process.GlobalTag.globaltag
 ###############################################################################
 
 process.TFileService = cms.Service("TFileService",
-      fileName = cms.string("HiForestAOD_check_AOD.root")
+      fileName = cms.string("HiForestAOD_AOD.root")
    )
 
 ###############################################################################
