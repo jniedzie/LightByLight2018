@@ -91,9 +91,9 @@ cmsDriver.py step3 --mc --eventcontent AODSIM --datatier AODSIM --conditions 103
 * submit the crab jobs with `crab submit -c crabConfig.py` 
 * Check the crab report to estimate how much lumi available: `crab report -d crab_projects/name_of_the_project`, it creates the processedLumis.json in crab_projects/name_of_the_project/results repo
 * To check the lumi: run brilcalc using following command at lxplus
-  `export PATH=$HOME/.local/bin:/cvmfs/cms-bril.cern.ch/brilconda/bin:$PATH`
-  `pip install --user --upgrade brilws`
-  `brilcal -i processedLumis.json`
+	*  `export PATH=$HOME/.local/bin:/cvmfs/cms-bril.cern.ch/brilconda/bin:$PATH`
+	*  `pip install --user --upgrade brilws`
+	*  `brilcal -i processedLumis.json`
 
 
 ## Calo noise study with EmptyBx
