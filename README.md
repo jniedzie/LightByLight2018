@@ -95,6 +95,23 @@ cmsDriver.py step3 --mc --eventcontent AODSIM --datatier AODSIM --conditions 103
 	*  `pip install --user --upgrade brilws`
 	*  `brilcal -i processedLumis.json`
 
+## Run the Egamma regression
+```
+cd CMSSW_10_3_2/src
+cmsenv
+git clone git@github.com:cms-egamma/EgRegresTrainerLegacy.git
+cd EgRegresTrainerLegacy 
+gmake RegressionTrainerExe -j 8
+gmake RegressionApplierExe -j 8
+export PATH=$PATH:./bin/$SCRAM_ARCH #add the binary location to path
+export PYTHON27PATH=$PYTHON27PATH:python
+
+export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$PWD/include//includes the headers, 
+
+//copy runSCRegJob.py to your  EgRegresTrainerLegacy/scripts directory from this githubs repo
+cd CMSSW_10_3_2/src/EgRegresTrainerLegacy
+python scripts/runPhoRegTrainings.py
+```
 
 ## Calo noise study with EmptyBx
 
