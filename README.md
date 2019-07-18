@@ -110,7 +110,7 @@ export ROOT_INCLUDE_PATH=$ROOT_INCLUDE_PATH:$PWD/include//includes the headers,
 
 //copy runSCRegJob.py to your  EgRegresTrainerLegacy/scripts directory from this githubs repo
 cd CMSSW_10_3_2/src/EgRegresTrainerLegacy
-python scripts/runPhoRegTrainings.py
+./scripts/runSCRegJob.py
 ```
 
 ## Calo noise study with EmptyBx
