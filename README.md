@@ -54,19 +54,16 @@ scram b -j8
 2. Prepare scripts and submit jobs:
 
 * Go to the correct directory depending on the step you want to run:
-	* Step 1 (gen_sim): MC_reconstruction/gen_sim
-	* Step 2 (digi_raw): MC_reconstruction/digi_raw
-	* Step 3, default  (reco): MC_reconstruction/reco_default
-	* Step 3, modified for low p_T e/γ (reco): MC_reconstruction/reco_modified
-* In _crabConfig.py_ modify the following:
-	* put some meaningful name for the dataset you want to process (ideally followig convension used for all the other samples):
+	`MC_reconstruction/reco_step/sample_type/`
+* In _crabConfig.py_ check and modify if needed the following:
+	* name for the dataset you want to process (ideally followig convension used for all the other samples):
 	```
 	config.General.requestName
 	config.Data.outputPrimaryDataset 
 	config.Data.outputDatasetTag
 	```
-	* update the output path: `config.Data.outLFNDirBase`
-* Create a list of input files and put it in _input.txt_ file. Each entry should begin with `/store/` rather than `/eos/cms/store/`!!!
+	* the output path: `config.Data.outLFNDirBase`
+* Update the list of input files in _input.txt_ file if needed. Each entry should begin with `/store/` rather than `/eos/cms/store/`!!!
 * If you don't have crab already set up, run `source /cvmfs/cms.cern.ch/crab3/crab.sh`
 * Then submit the crab jobs with `crab submit -c crabConfig.py` 
 
