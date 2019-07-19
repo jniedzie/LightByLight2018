@@ -1,0 +1,2 @@
+/store/group/phys_diffraction/lbyl_2018/mc_qed/digi_raw_qed_superchic_with_cuts/digi_raw_qed_sc_with_cuts/digi_raw_qed_sc_with_cuts/190717_184241/0001/failed/digi_raw_test_1291.root
+/store/group/phys_diffraction/lbyl_2018/mc_qed/digi_raw_qed_superchic_with_cuts/digi_raw_qed_sc_with_cuts/digi_raw_qed_sc_with_cuts/190717_184241/0001/failed/digi_raw_test_1338.root
