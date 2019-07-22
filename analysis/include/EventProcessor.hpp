@@ -11,10 +11,12 @@
 class EventProcessor {
 public:
   /// Default constructor
-  EventProcessor(TTree *_hltTree, TTree *_eventTree);
+  EventProcessor(string inFileName);
   
   /// Default destructor
   ~EventProcessor();
+  
+  inline long long GetNevents() const { return eventTree->GetEntries(); }
   
   Event GetEvent(int iEvent);
   

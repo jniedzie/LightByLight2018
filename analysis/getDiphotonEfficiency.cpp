@@ -15,9 +15,11 @@
 #include "Helpers.hpp"
 #include "EventProcessor.hpp"
 
+// Eta and pt cuts
 const double maxEta = 2.4;
 const double minEt = 2; // GeV
 
+// Path to the input file
 const string inFileName = "ntuples/ntuples_mc_lbl_merged.root";
 
 // You can limit number of events analyzed here:
@@ -25,19 +27,13 @@ const int maxEvents = 10000;
 
 int main()
 {
-  // Read trees from input files
-  TFile *inFile = TFile::Open(inFileName.c_str());
-  TTree *eventTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
-  TTree *hltTree   = (TTree*)inFile->Get("hltanalysis/HltTree");
-  
-  unique_ptr<EventProcessor> eventProcessor(new EventProcessor(hltTree, eventTree));
+  unique_ptr<EventProcessor> eventProcessor(new EventProcessor(inFileName));
   
   int nGenEvents = 0;
   int nRecEvents = 0;
   int iEvent;
-  cout<<"N events in the tree: "<<eventTree->GetEntries()<<endl;
   
-  for(iEvent=0; iEvent<eventTree->GetEntries(); iEvent++){
+  for(iEvent=0; iEvent<eventProcessor->GetNevents(); iEvent++){
     if(iEvent >= maxEvents) break;
     
     Event event = eventProcessor->GetEvent(iEvent);

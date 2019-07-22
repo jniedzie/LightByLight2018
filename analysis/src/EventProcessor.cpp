@@ -4,10 +4,13 @@
 
 #include "EventProcessor.hpp"
 
-EventProcessor::EventProcessor(TTree *_hltTree, TTree *_eventTree) :
-hltTree(_hltTree),
-eventTree(_eventTree)
+EventProcessor::EventProcessor(string inFileName)
 {
+  // Read trees from input files
+  TFile *inFile = TFile::Open(inFileName.c_str());
+  eventTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
+  hltTree   = (TTree*)inFile->Get("hltanalysis/HltTree");
+  
   for(int iTrigger=0; iTrigger<triggerNamesLbL.size(); iTrigger++){
     hltTree->SetBranchAddress(triggerNamesLbL[iTrigger].c_str(), &currentEvent.triggersLbL[iTrigger]);
   }
