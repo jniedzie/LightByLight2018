@@ -126,6 +126,18 @@ cd CMSSW_10_3_2/src/EgRegresTrainerLegacy
 * Submit jobs: `condor_submit condorConfig.sub`
 
 
+## Build analysis toolkit
+
+* Login to lxplus7 (with centos7), go to top directory of this repo and run these commands:
+```
+ cd analysis
+ ./setenv.sh
+ cmake .
+ make -j8
+```
+* if everything went well, you should see executables such as "getDiphotonEfficiency" ready to run.
+
+
 ## Authors
 
 * Émilien Chapon
