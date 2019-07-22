@@ -4,11 +4,16 @@ void drawNoiseEtaDependance(const char *inFileName)
   TH2D *noiseVsEtaEE = (TH2D*)inFile->Get("energyHistEEVsEta");
   TH2D *noiseVsEtaHF = (TH2D*)inFile->Get("energyHistHFVsEta");
   
-  TCanvas *c1 = new TCanvas("c1","c1",2880,1800);
-  c1->Divide(3,2);
+//  TCanvas *c1 = new TCanvas("c1","c1",2880,1800);
+//  c1->Divide(3,2);
   
-  c1->cd(1);
+//  c1->cd(1);
+  noiseVsEtaEE->GetXaxis()->SetTitle("#eta");
   noiseVsEtaEE->DrawCopy("colz");
+  
+  noiseVsEtaEE->SaveAs("noise_vs_eta.pdf");
+
+  /*
   c1->cd(2);
   noiseVsEtaHF->DrawCopy("colz");
   
@@ -69,5 +74,5 @@ void drawNoiseEtaDependance(const char *inFileName)
   c1->cd(6);
   avgNoiseVsEta->Draw();
   
-  
+*/
 }

@@ -16,18 +16,18 @@ void getCaloNoiseThresholds(const char* infileName)
   
   // Find noise thresholds
   for(int iDet=0;iDet<nDets;iDet++){
-//    if(iDet == kEE){ // EE is very noisy, so we need to remove some eta regions
-//      energyHist[iDet] = GetEEhist(inFile, -2.3, 2.3);
-//    }
+    if(iDet == kEE){ // EE is very noisy, so we need to remove some eta regions
+      energyHist[iDet] = GetEEhist(inFile, -2.3, 2.3);
+    }
 //    else if(iDet == kHFp){
 //      energyHist[iDet] = GetHFphist(inFile, 3.4);
 //    }
 //    else if(iDet == kHFm){
 //      energyHist[iDet] = GetHFmhist(inFile,-3.4);
 //    }
-//    else{
+    else{
       energyHist[iDet] = (TH1D*)inFile->Get(Form("energyHist%s",detNames[iDet].c_str()));
-//    }
+    }
     if(!energyHist[iDet]){
       continue;
     }
@@ -55,11 +55,32 @@ void getCaloNoiseThresholds(const char* infileName)
     if(!energyHist[iDet]) continue;
     thresholdsCanvas->cd(iDet+1);
     gPad->SetLogy();
+    energyHist[iDet]->SetLineColor(kViolet+3);
+    
+    if(iDet == kHFm)      energyHist[iDet]->SetTitle("Leading tower energy HF-");
+    else if(iDet == kHFp) energyHist[iDet]->SetTitle("Leading tower energy HF+");
+    else{
+      energyHist[iDet]->SetTitle(Form("Leading tower energy %s", detNames[iDet].c_str()));
+    }
     energyHist[iDet]->Draw();
     energyHist[iDet]->GetXaxis()->SetRangeUser(0, 10);
+    energyHist[iDet]->GetXaxis()->SetTitle("Leading tower E (GeV)");
+    
+    TLine *line = new TLine(thresholds[iDet], energyHist[iDet]->GetMinimum(),
+                            thresholds[iDet], energyHist[iDet]->GetMaximum());
+    line->SetLineColor(kGreen+3);
+    line->Draw("same");
+    
+    TLatex *text = new TLatex(4.5,
+                              1e-2,
+                              Form("Threshold: %.1f (GeV)", round(10*thresholds[iDet])/10.));
+    
+    text->SetTextColor(kGreen+3);
+    text->Draw("same");
+    
   }
   
-  
+  thresholdsCanvas->SaveAs("noise_thresholds.pdf");
 }
 
 TH1D* GetEEhist(TFile *inFile, double etaMin, double etaMax)
