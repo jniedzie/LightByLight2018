@@ -35,3 +35,11 @@ sc_qed_events_p0.lhe
 starlight3.0/*
 superchic3.02/*
 convert
+analysis/CMakeCache.txt
+analysis/CMakeFiles/*
+analysis/Makefile
+analysis/cmake_install.cmake
+analysis/getDiphotonEfficiency
+analysis/libAnalysis.a
+analysis/ntuples/ntuples_mc_lbl_merged_afs.root
+xLightByLight.xcodeproj/

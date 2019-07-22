@@ -23,7 +23,14 @@
 #include <vector>
 #include <map>
 #include <tuple>
+#include <memory>
 
 using namespace std;
+
+// List of allowed LbL triggers
+const vector<string> triggerNamesLbL = {
+  "HLT_HIUPC_DoubleEG5_NotMBHF2AND_v1",
+  "HLT_HIUPC_SingleEG3_NotMBHF2AND_v1"
+};
 
 #endif /* Helpers_h */

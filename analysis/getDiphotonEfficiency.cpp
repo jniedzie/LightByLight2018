@@ -13,21 +13,15 @@
 // N^{gen}: number of generated events with E_T^{gen} > 2 GeV, |\eta^{gen}|<2.4
 
 #include "Helpers.hpp"
+#include "EventProcessor.hpp"
 
 const double maxEta = 2.4;
 const double minEt = 2; // GeV
 
 const string inFileName = "ntuples/ntuples_mc_lbl_small_sample.root";
 
-// List of allowed LbL triggers
-vector<string> triggerNames = {
-  "HLT_HIUPC_DoubleEG5_NotMBHF2AND_v1",
-  "HLT_HIUPC_SingleEG3_NotMBHF2AND_v1"
-};
-
 // You can limit number of events analyzed here:
 const int maxEvents = 10000;
-
 
 int main()
 {
@@ -36,27 +30,7 @@ int main()
   TTree *eventTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
   TTree *hltTree = (TTree*)inFile->Get("hltanalysis/HltTree");
   
-  // Setup branches
-  vector<int> triggers(triggerNames.size());
-  
-  int nGenPhotons;
-  vector<double> *genEta = nullptr;
-  vector<double> *genEt = nullptr;
-  
-  int nRecPhotonSCs;
-  vector<double> *photonSCEta = nullptr;;
-  vector<double> *photonSCEt = nullptr;
-  
-  for(int iTrigger=0; iTrigger<triggerNames.size(); iTrigger++){
-    hltTree->SetBranchAddress(triggerNames[iTrigger].c_str(), &triggers[iTrigger]);
-  }
-  eventTree->SetBranchAddress("nMC"   , &nGenPhotons);
-  eventTree->SetBranchAddress("mcEta" , &genEta);
-  eventTree->SetBranchAddress("mcEt"  , &genEt);
-  
-  eventTree->SetBranchAddress("nPho"    , &nRecPhotonSCs);
-  eventTree->SetBranchAddress("phoSCEta", &photonSCEta);
-  eventTree->SetBranchAddress("phoSCEt" , &photonSCEt);
+  unique_ptr<EventProcessor> eventProcessor(new EventProcessor(hltTree, eventTree));
   
   int nGenEvents = 0;
   int nRecEvents = 0;
@@ -66,36 +40,26 @@ int main()
   for(int iEvent=0; iEvent<eventTree->GetEntries(); iEvent++){
     if(iEvent >= maxEvents) break;
     
-    eventTree->GetEntry(iEvent);
-    hltTree->GetEntry(iEvent);
+    Event event = eventProcessor->GetEvent(iEvent);
     
     // Check if gen event is within η and Et limits
     int nGenPhotonsPassing=0;
     
-    for(int iGenPhoton=0; iGenPhoton<nGenPhotons; iGenPhoton++){
-      if((fabs(genEta->at(iGenPhoton)) < maxEta) &&
-         genEt->at(iGenPhoton) > minEt){
+    for(int iGenPhoton=0; iGenPhoton<event.GetNgenPhotons(); iGenPhoton++){
+      if((fabs(event.GetGenPhotonEta(iGenPhoton)) < maxEta) &&
+         event.GetGenPhotonEt(iGenPhoton) > minEt){
         nGenPhotonsPassing++;
       }
     }
     if(nGenPhotonsPassing == 2) nGenEvents++;
     
     // Check if rec event is within η and Et limits, has LbL trigger and passes other selections
-    bool triggerFired=false;
-    
-    for(int iTrigger=0; iTrigger<triggerNames.size(); iTrigger++){
-      if(triggers[iTrigger]){
-        triggerFired = true;
-        break;
-      }
-    }
-    
-    if(!triggerFired) continue;
+    if(!event.HasLbLTrigger()) continue;
     
     int nRecPhotonSCsPassing = 0;
-    for(int iRecPhotonSC=0; iRecPhotonSC<nRecPhotonSCs; iRecPhotonSC++){
-      if(fabs(photonSCEta->at(iRecPhotonSC)) < maxEta &&
-         photonSCEt->at(iRecPhotonSC) > minEt){
+    for(int iRecPhotonSC=0; iRecPhotonSC<event.GetNphotonSCs(); iRecPhotonSC++){
+      if(fabs(event.GetPhotonSCeta(iRecPhotonSC)) < maxEta &&
+         event.GetPhotonSCet(iRecPhotonSC) > minEt){
         nRecPhotonSCsPassing++;
       }
     }
