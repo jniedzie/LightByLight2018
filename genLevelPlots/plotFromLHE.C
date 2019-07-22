@@ -3,53 +3,52 @@
 // This macro creates raw, ugly histograms from LHE files.
 //
 
-
 // Set input path and output filename here:
 
 // QED SuperChic
-//string basePath = "./mc_qed/lhe_superchic_with_cuts/";
+//string basePath = "/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed/lhe_superchic_with_cuts/";
 //string outFileName = "raw_plots_qed_sc.root";
 //int pid1 = 11;
 //int pid2 = -11;
 
 // QED Starlight
-//string basePath = "./mc_qed/lhe_starlight_with_cuts/";
-//string outFileName = "raw_plots_qed_sl.root";
-//int pid1 = 11;
-//int pid2 = -11;
+string basePath = "/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed/lhe_starlight_with_cuts/";
+//string basePath = "./";
+string outFileName = "raw_plots_qed_sl_30M.root";
+int pid1 = 11;
+int pid2 = -11;
 
 // LbL SuperChic
-//string basePath = "./mc_lbyl/lhe_superchic/";
+//string basePath = "/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_lbl/lhe_superchic/";
 //string outFileName = "raw_plots_lbl_sc.root";
 //int pid1 = 22;
 //int pid2 = 22;
 
 // CEP SuperChic
-string basePath = "./mc_cep/lhe_superchic/";
-string outFileName = "raw_plots_cep_sc.root";
-int pid1 = 22;
-int pid2 = 22;
+//string basePath = "/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_cep/lhe_superchic/";
+  //string outFileName = "raw_plots_cep_sc.root";
+//int pid1 = 22;
+//int pid2 = 22;
 
 // Say how many files (at most) to process:
-int nFiles = 100;
+int nFiles = 99999;
 
 // Here modify titles, axis labels, number of bins and histogram ranges.
 // If you add a new histogram, you must fill it in loops over particels in the main loop.
 
 map<string, tuple<string, int, double, double>> histParams = {
-// name            title                nBins min     max
-  {"pair_m"     , {"Pair dN/dm"        , 100 ,  0.0  , 100.  }},
-  {"pair_pt"    , {"Pair dN/dp_{T}"    , 100 ,  0.0  , 0.5   }},
-  {"pair_pz"    , {"Pair dN/dp_{z}"    , 150 ,  0.0  , 1500. }},
-  {"pair_y"     , {"Pair dN/dy"        , 100 , -10.0 , 10.0  }},
-//  {"pair_theta" , {"Pair dN/d#theta"   , 100 ,  0.0  , 3.14  }},
-  {"pair_aco"   , {"Pair dN/dA_{#phi}" , 500 ,  0.0  , 0.5   }},
+// name                      title                nBins min     max
+  {"pair_m"     , make_tuple("Pair dN/dm"        , 100 ,  0.0  , 100.  )},
+  {"pair_pt"    , make_tuple("Pair dN/dp_{T}"    , 100 ,  0.0  , 0.5   )},
+  {"pair_pz"    , make_tuple("Pair dN/dp_{z}"    , 150 ,  0.0  , 1500. )},
+  {"pair_y"     , make_tuple("Pair dN/dy"        , 100 , -10.0 , 10.0  )},
+  {"pair_aco"   , make_tuple("Pair dN/dA_{#phi}" , 500 ,  0    , 1.0   )},
   
-  {"single_pt"  , {"Single dN/dp_{T}"  , 1000, 0.0   , 100.  }},
-  {"single_pz"  , {"Single dN/dp_{z}"  , 1000, 0.0   , 1000. }},
-  {"single_y"   , {"Single dN/dy"      , 100 , -10.0 , 10.0  }},
-  {"single_eta" , {"Signle dN/d#eta"   , 100 , -10.0 , 10.0  }},
-  {"single_phi" , {"Single dN/d#phi"   , 100 , -4    , 4     }},
+  {"single_pt"  , make_tuple("Single dN/dp_{T}"  , 1000, 0.0   , 100.  )},
+  {"single_pz"  , make_tuple("Single dN/dp_{z}"  , 1000, 0.0   , 1000. )},
+  {"single_y"   , make_tuple("Single dN/dy"      , 100 , -10.0 , 10.0  )},
+  {"single_eta" , make_tuple("Signle dN/d#eta"   , 100 , -10.0 , 10.0  )},
+  {"single_phi" , make_tuple("Single dN/d#phi"   , 100 , -4    , 4     )},
 };
 
 // Normally no need to modify below this point.
@@ -106,7 +105,12 @@ void plotFromLHE()
   
   ReadParticlesFromFiles(particles1, particles2, particlesSum);
   
-  for(int i=0; i<particles1.size(); i++){
+  cout<<"N particles 1: "<<particles1.size()<<endl;
+  cout<<"N particles 2: "<<particles2.size()<<endl;
+  
+  for(int i=0; i<min(particles1.size(), particles1.size()); i++){
+    if(i%100000==0) cout<<"Processing particle "<<i<<endl;
+    
     hists["single_y"]->Fill(particles1[i].Rapidity());
     hists["single_eta"]->Fill(particles1[i].Eta());
     hists["single_pt"]->Fill(particles1[i].Pt());
@@ -119,8 +123,27 @@ void plotFromLHE()
     hists["single_pz"]->Fill(particles2[i].Pz());
     hists["single_phi"]->Fill(particles2[i].Phi());
     
-    double acoplanarity = 1 - TMath::Abs(TMath::Abs(particles2[i].Phi()-particles1[i].Phi()))/TMath::Pi(); // acoplanarity
-    hists["pair_aco"]->Fill(acoplanarity);
+    double phi1 = particles1[i].Phi();
+    double phi2 = particles2[i].Phi();
+    
+    // Make sure that angles are in range [0, 2π)
+    while(phi1 < 0)               phi1 += 2*TMath::Pi();
+    while(phi1 >= 2*TMath::Pi())  phi1 -= 2*TMath::Pi();
+    
+    while(phi2 < 0)               phi2 += 2*TMath::Pi();
+    while(phi2 >= 2*TMath::Pi())  phi2 -= 2*TMath::Pi();
+    
+    double deltaPhi = fabs(phi2-phi1);
+    
+    // Make sure that Δφ is in range [0, π]
+    if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi() - deltaPhi;
+    
+    // Calcualte acoplanarity
+    double aco = 1 - deltaPhi/TMath::Pi();
+    if(aco>0.2){
+      cout<<"filling with high aco:"<<aco<<endl;
+    }
+    hists["pair_aco"]->Fill(aco);
   }
   
   for(auto p :particlesSum){
@@ -128,7 +151,6 @@ void plotFromLHE()
     hists["pair_pt"]->Fill(p.Pt());
     hists["pair_pz"]->Fill(p.Pz());
     hists["pair_y"]->Fill(p.Rapidity());
-    hists["pair_theta"]->Fill(p.Theta());
   }
   
   TFile *outFile = new TFile(outFileName.c_str(),"recreate");
@@ -149,10 +171,16 @@ void ReadParticlesFromFiles(vector<TLorentzVector> &particles1,
   
   int iFiles=0;
   
+//  files = {
+//    "starlight_QED_p9555.lhe"
+//  };
+  
   for(auto fileName : files){
+    
     if(iFiles >= nFiles) break;
     iFiles++;
     
+    int nHighAco=0;
     cout<<"Processing file "<<fileName<<endl;
     ifstream lheFile((basePath+"/"+fileName).c_str());
     
@@ -206,11 +234,40 @@ void ReadParticlesFromFiles(vector<TLorentzVector> &particles1,
             }
           }
         }
+        double phi1 = particles1.back().Phi();
+        double phi2 = particles2.back().Phi();
+        
+        // Make sure that angles are in range [0, 2π)
+        while(phi1 < 0)               phi1 += 2*TMath::Pi();
+        while(phi1 >= 2*TMath::Pi())  phi1 -= 2*TMath::Pi();
+        
+        while(phi2 < 0)               phi2 += 2*TMath::Pi();
+        while(phi2 >= 2*TMath::Pi())  phi2 -= 2*TMath::Pi();
+        
+        double deltaPhi = fabs(phi2-phi1);
+        
+        // Make sure that Δφ is in range [0, π]
+        if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi() - deltaPhi;
+        
+        // Calcualte acoplanarity
+        double aco = 1 - deltaPhi/TMath::Pi();
 
+        if(aco > 0.2){
+          cout<<"High aco in file "<<fileName<<endl;
+          nHighAco++;
+          particles1.back().Print();
+          particles2.back().Print();
+        }
+        
         TLorentzVector particleSum(0.,0.,0.,0.);
         particleSum = particle1 + particle2;
         particlesSum.push_back(particleSum);
+        
+        if(particlesSum.size() > 3e7) return;
       }
+    }
+    if(nHighAco>0){
+      cout<<"nHighAco: "<<nHighAco<<endl<<endl;
     }
     lheFile.close();
   }
