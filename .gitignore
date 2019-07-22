@@ -42,4 +42,5 @@ analysis/cmake_install.cmake
 analysis/getDiphotonEfficiency
 analysis/libAnalysis.a
 analysis/ntuples/ntuples_mc_lbl_merged_afs.root
+analysis/ntuples/ntuples_mc_lbl_merged.root
 xLightByLight.xcodeproj/

@@ -18,7 +18,7 @@
 const double maxEta = 2.4;
 const double minEt = 2; // GeV
 
-const string inFileName = "ntuples/ntuples_mc_lbl_small_sample.root";
+const string inFileName = "ntuples/ntuples_mc_lbl_merged.root";
 
 // You can limit number of events analyzed here:
 const int maxEvents = 10000;
@@ -28,16 +28,16 @@ int main()
   // Read trees from input files
   TFile *inFile = TFile::Open(inFileName.c_str());
   TTree *eventTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
-  TTree *hltTree = (TTree*)inFile->Get("hltanalysis/HltTree");
+  TTree *hltTree   = (TTree*)inFile->Get("hltanalysis/HltTree");
   
   unique_ptr<EventProcessor> eventProcessor(new EventProcessor(hltTree, eventTree));
   
   int nGenEvents = 0;
   int nRecEvents = 0;
-  
+  int iEvent;
   cout<<"N events in the tree: "<<eventTree->GetEntries()<<endl;
   
-  for(int iEvent=0; iEvent<eventTree->GetEntries(); iEvent++){
+  for(iEvent=0; iEvent<eventTree->GetEntries(); iEvent++){
     if(iEvent >= maxEvents) break;
     
     Event event = eventProcessor->GetEvent(iEvent);
@@ -72,6 +72,7 @@ int main()
     nRecEvents++;
   }
   
+  cout<<"N event analyzed: "<<iEvent<<endl;
   cout<<"N gen events within limits: "<<nGenEvents<<endl;
   cout<<"N rec events passing selection: "<<nRecEvents<<endl;
   

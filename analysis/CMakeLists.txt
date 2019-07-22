@@ -36,7 +36,8 @@ set_property(TARGET getDiphotonEfficiency PROPERTY CXX_STANDARD 17)
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
-add_library(Analysis src/Event.cpp
+add_library(Analysis  src/Event.cpp
+                      src/EventProcessor.cpp
 
 )
 
