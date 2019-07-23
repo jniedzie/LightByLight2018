@@ -79,13 +79,20 @@ cmsDriver.py step3 --mc --eventcontent AODSIM --datatier AODSIM --conditions 103
 * Clone HeavyIonsAnalysis, RecoBTag, RecoHI, RecoJets and RecoVertex modules from this repo to CMSSW_10_3_2/src 
 * Compile them with `scram b -j 16`
 * `cd HeavyIonAnalyis/PhotonAnalysis/test`
-* change the input file path in:
-	* for MC: runForestAOD_pponAA_MC_103X.py
-	* for data: runForestAOD_pponAA_DATA_103X.py
-* to test if everything is running ok, test on one HIForward AOD files `cmsRun correct_script_name.py` and check the output for calotower variables,
-* modify parameters in crabConfig.py script,
+* in _crabConfig_xxx.py_ 
+	* set dataset names:
+	```
+	config.General.requestName
+	config.Data.outputPrimaryDataset 
+	config.Data.outputDatasetTag
+	```
+	* input file name: `config.Data.userInputFiles`
+	* make sure to point to correct macro in `config.JobType.psetName`:
+		* for MC: runForestAOD_pponAA_MC_103X.py
+		* for data: runForestAOD_pponAA_DATA_103X.py
+* provide input file list, each enrty should start with `/store/`,
 * if you don't have crab already set up, run `source /cvmfs/cms.cern.ch/crab3/crab.sh`
-* submit the crab jobs with `crab submit -c crabConfig.py` 
+* submit the crab jobs with `crab submit -c crabConfig_xxx.py` 
 
 ## Check luminosity in data
 
