@@ -4,10 +4,10 @@
 
 #include "EventProcessor.hpp"
 
-EventProcessor::EventProcessor(string inFileName)
+EventProcessor::EventProcessor(EDataset dataset)
 {
   // Read trees from input files
-  TFile *inFile = TFile::Open(inFileName.c_str());
+  TFile *inFile = TFile::Open(inFileNames[dataset].c_str());
   eventTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
   hltTree   = (TTree*)inFile->Get("hltanalysis/HltTree");
   

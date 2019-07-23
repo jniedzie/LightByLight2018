@@ -11,7 +11,7 @@
 class EventProcessor {
 public:
   /// Default constructor
-  EventProcessor(string inFileName);
+  EventProcessor(EDataset dataset);
   
   /// Default destructor
   ~EventProcessor();

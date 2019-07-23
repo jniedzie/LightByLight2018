@@ -33,4 +33,17 @@ const vector<string> triggerNamesLbL = {
   "HLT_HIUPC_SingleEG3_NotMBHF2AND_v1"
 };
 
+enum EDataset{
+  kData,
+  kMCqedSC,
+  kMCqedSL,
+  kMClbl,
+  kMCcep,
+  nDatasets
+};
+
+inline map<EDataset, string> inFileNames = {
+  {kMClbl, "ntuples/ntuples_mc_lbl_merged.root"},
+};
+
 #endif /* Helpers_h */

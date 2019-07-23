@@ -19,15 +19,12 @@
 const double maxEta = 2.4;
 const double minEt = 2; // GeV
 
-// Path to the input file
-const string inFileName = "ntuples/ntuples_mc_lbl_merged.root";
-
 // You can limit number of events analyzed here:
 const int maxEvents = 10000;
 
 int main()
 {
-  unique_ptr<EventProcessor> eventProcessor(new EventProcessor(inFileName));
+  unique_ptr<EventProcessor> eventProcessor(new EventProcessor(kMClbl));
   
   int nGenEvents = 0;
   int nRecEvents = 0;
