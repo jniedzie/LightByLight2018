@@ -9,6 +9,15 @@ Event::Event()
   for(auto triggerName : triggerNamesLbL) triggersLbL.push_back(0);
 }
 
+Event::Event(const Event &e) :
+nGenParticles(e.nGenParticles),
+genParticles(e.genParticles),
+nPhotonSCs(e.nPhotonSCs),
+photonSC(e.photonSC)
+{
+  
+}
+
 Event::~Event()
 {
   

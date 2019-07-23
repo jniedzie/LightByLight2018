@@ -19,6 +19,9 @@
 const double maxEta = 2.4;
 const double minEt = 2; // GeV
 
+const double maxEtaWidthBarrel = 0.02;
+const double maxEtaWidthEndcap = 0.06;
+
 // You can limit number of events analyzed here:
 const int maxEvents = 10000;
 
@@ -33,34 +36,54 @@ int main()
   for(iEvent=0; iEvent<eventProcessor->GetNevents(); iEvent++){
     if(iEvent >= maxEvents) break;
     
-    Event event = eventProcessor->GetEvent(iEvent);
+    auto event = eventProcessor->GetEvent(iEvent);
     
     // Check if gen event is within η and Et limits
     int nGenPhotonsPassing=0;
     
-    for(int iGenPhoton=0; iGenPhoton<event.GetNgenPhotons(); iGenPhoton++){
-      if((fabs(event.GetGenPhotonEta(iGenPhoton)) < maxEta) &&
-         event.GetGenPhotonEt(iGenPhoton) > minEt){
-        nGenPhotonsPassing++;
-      }
+    for(int iGenPhoton=0; iGenPhoton<event->GetNgenParticles(); iGenPhoton++){
+      auto genPhoton = event->GetGenParticle(iGenPhoton);
+      
+      if(genPhoton->GetPID() != 22) continue;
+      if(fabs(genPhoton->GetEta()) > maxEta) continue;
+      if(genPhoton->GetEt() < minEt) continue;
+      
+      nGenPhotonsPassing++;
     }
     if(nGenPhotonsPassing == 2) nGenEvents++;
     
-    // Check if rec event is within η and Et limits, has LbL trigger and passes other selections
-    if(!event.HasLbLTrigger()) continue;
+    // Check if event has any of the LbL triggers
+    if(!event->HasLbLTrigger()) continue;
     
-    int nRecPhotonSCsPassing = 0;
-    for(int iRecPhotonSC=0; iRecPhotonSC<event.GetNphotonSCs(); iRecPhotonSC++){
-      if(fabs(event.GetPhotonSCeta(iRecPhotonSC)) < maxEta &&
-         event.GetPhotonSCet(iRecPhotonSC) > minEt){
-        nRecPhotonSCsPassing++;
-      }
+    // Find photon candidates
+    vector<shared_ptr<PhysObject>> photonSCpassing;
+    
+    for(int iPhotonSC=0; iPhotonSC<event->GetNphotonSCs(); iPhotonSC++){
+      auto photonSC = event->GetPhotonSC(iPhotonSC);
+      
+      if(fabs(photonSC->GetEta()) > maxEta) continue;
+      if(photonSC->GetEt() < minEt) continue;
+      
+      if(fabs(photonSC->GetEta()) < maxEtaEB &&
+         photonSC->GetEtaWidth() > maxEtaWidthBarrel) continue;
+      
+      if(fabs(photonSC->GetEta()) > minEtaEE &&
+         fabs(photonSC->GetEta()) < maxEtaEE &&
+         photonSC->GetEtaWidth() > maxEtaWidthEndcap) continue;
+      
+      // Here check also other selections!
+      // ...
+      
+      photonSCpassing.push_back(photonSC);
     }
     
-    if(nRecPhotonSCsPassing != 2) continue;
+    // Check if there are exactly 2 passing photon candidates
+    if(photonSCpassing.size() != 2) continue;
     
-    // Here check also other selections!
-    // ...
+    // Check exclusivity conditions
+    
+    
+    
     
     nRecEvents++;
   }

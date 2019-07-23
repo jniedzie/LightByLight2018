@@ -8,23 +8,37 @@
 #include "Helpers.hpp"
 #include "Event.hpp"
 
+/// This class keeps a link to input ROOT trees and creates Event class objects when moving
+/// to next event.
 class EventProcessor {
 public:
-  /// Default constructor
+  /// Default constructor.
+  /// \param dataset Determines which events will be kept here (data, MC lbl, MC cep etc.)
   EventProcessor(EDataset dataset);
   
   /// Default destructor
   ~EventProcessor();
   
+  /// Returns number of events
   inline long long GetNevents() const { return eventTree->GetEntries(); }
   
-  Event GetEvent(int iEvent);
+  /// Returns Event object for given tree entry index
+  shared_ptr<Event> GetEvent(int iEvent);
   
 private:
-  TTree *hltTree;
-  TTree *eventTree;
+  TTree *hltTree;   ///< Pointer to the hlt tree
+  TTree *eventTree; ///< Pointer to the event tree
   
-  Event currentEvent;
+  shared_ptr<Event> currentEvent; ///< Pointer to the current event
+  
+  // Handles to variables stored in ntuple trees
+  vector<double> *mcEta = nullptr;
+  vector<double> *mcEt  = nullptr;
+  vector<double> *mcPID = nullptr;
+  
+  vector<double> *photonSCEta      = nullptr;
+  vector<double> *photonSCEt       = nullptr;
+  vector<double> *photonSCPhiWidth = nullptr;
 };
 
 #endif /* EventProcessor_hpp */

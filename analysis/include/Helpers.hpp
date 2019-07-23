@@ -46,4 +46,15 @@ inline map<EDataset, string> inFileNames = {
   {kMClbl, "ntuples/ntuples_mc_lbl_merged.root"},
 };
 
+const double maxEtaEB = 1.479;
+const double minEtaEE = maxEtaEB;
+const double maxEtaEE = 3.0;
+
+const double maxEtaHB = 1.305;
+const double minEtaHE = maxEtaHB;
+const double maxEtaHE = 3.0;
+
+const double minEtaHF = 2.9;
+const double maxEtaHF = 5.2;
+
 #endif /* Helpers_h */
