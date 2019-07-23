@@ -37,8 +37,16 @@ private:
   vector<double> *mcPID = nullptr;
   
   vector<double> *photonSCEta      = nullptr;
+  vector<double> *photonSCPhi      = nullptr;
   vector<double> *photonSCEt       = nullptr;
   vector<double> *photonSCPhiWidth = nullptr;
+  
+  vector<double> *towerEta       = nullptr;
+  vector<double> *towerPhi       = nullptr;
+  vector<double> *towerEnergy    = nullptr;
+  vector<double> *towerEt        = nullptr;
+  vector<double> *towerEnergyHad = nullptr;
+  vector<double> *towerEnergyEm  = nullptr;
 };
 
 #endif /* EventProcessor_hpp */

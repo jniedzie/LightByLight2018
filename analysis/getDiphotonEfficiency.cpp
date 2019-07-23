@@ -19,8 +19,18 @@
 const double maxEta = 2.4;
 const double minEt = 2; // GeV
 
+// Criteria to reject photons coming from e.g. pi0 decays
 const double maxEtaWidthBarrel = 0.02;
 const double maxEtaWidthEndcap = 0.06;
+
+// Criteria to match calo tower with photon SC
+const double maxDeltaEtaEB = 0.15;
+const double maxDeltaPhiEB = 0.7;
+const double maxDeltaEtaEE = 0.15;
+const double maxDeltaPhiEE = 0.4;
+
+// Reject EE tower that are in very noisy region
+const double maxEtaEEtower = 2.3;
 
 // You can limit number of events analyzed here:
 const int maxEvents = 10000;
@@ -60,10 +70,12 @@ int main()
     
     for(int iPhotonSC=0; iPhotonSC<event->GetNphotonSCs(); iPhotonSC++){
       auto photonSC = event->GetPhotonSC(iPhotonSC);
-      
+
+      // Check eta and Et
       if(fabs(photonSC->GetEta()) > maxEta) continue;
       if(photonSC->GetEt() < minEt) continue;
       
+      // Check η shower shape
       if(fabs(photonSC->GetEta()) < maxEtaEB &&
          photonSC->GetEtaWidth() > maxEtaWidthBarrel) continue;
       
@@ -71,19 +83,59 @@ int main()
          fabs(photonSC->GetEta()) < maxEtaEE &&
          photonSC->GetEtaWidth() > maxEtaWidthEndcap) continue;
       
-      // Here check also other selections!
-      // ...
-      
       photonSCpassing.push_back(photonSC);
     }
     
     // Check if there are exactly 2 passing photon candidates
     if(photonSCpassing.size() != 2) continue;
     
-    // Check exclusivity conditions
+    // Neutral exclusivity
+    
+    bool hasAdditionalTowers = false;
     
     
-    
+    for(int iTower=0; iTower<event->GetNcaloTowers(); iTower++){
+      auto tower = event->GetCaloTower(iTower);
+      
+      double energyHad = tower->GetEnergyHad();
+      
+      if(energyHad > 0){
+        if(energyHad > caloNoiseThreshold[tower->GetTowerSubdetHad()]){
+          hasAdditionalTowers = true;
+          break;
+        }
+      }
+      
+      // Check if tower is above the noise threshold
+      bool overlapsWithPhoton = false;
+      
+      ECaloType subdetEm = tower->GetTowerSubdetEm();
+      
+      if(subdetEm == kEE && fabs(tower->GetEta()) > maxEtaEEtower) continue;
+      
+      double maxDeltaEta = (subdetEm == kEB ) ? maxDeltaEtaEB : maxDeltaEtaEE;
+      double maxDeltaPhi = (subdetEm == kEB ) ? maxDeltaPhiEB : maxDeltaPhiEE;
+        
+      for(int iPhotonSC=0; iPhotonSC<event->GetNphotonSCs(); iPhotonSC++){
+        auto photon = event->GetPhotonSC(iPhotonSC);
+        
+        double deltaEta = fabs(photon->GetEta() - tower->GetEta());
+        double deltaPhi = fabs(photon->GetPhi() - tower->GetPhi());
+        
+        if(deltaEta < maxDeltaEta && deltaPhi < maxDeltaPhi){
+          overlapsWithPhoton = true;
+          break;
+        }
+      }
+      
+      if(!overlapsWithPhoton){
+        if(tower->GetEnergyEm() > caloNoiseThreshold[subdetEm]){
+          hasAdditionalTowers = true;
+          break;
+        }
+      }
+    }
+    if(hasAdditionalTowers) continue;
     
     nRecEvents++;
   }

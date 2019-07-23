@@ -22,9 +22,17 @@ currentEvent(new Event())
   
   eventTree->SetBranchAddress("nPho"          , &currentEvent->nPhotonSCs);
   eventTree->SetBranchAddress("phoSCEta"      , &photonSCEta);
+  eventTree->SetBranchAddress("phoSCPhi"      , &photonSCPhi);
   eventTree->SetBranchAddress("phoSCEt"       , &photonSCEt);
   eventTree->SetBranchAddress("phoSCPhiWidth" , &photonSCPhiWidth);
-
+  
+  eventTree->SetBranchAddress("nTower"          , &currentEvent->nCaloTowers);
+  eventTree->SetBranchAddress("CaloTower_hadE"  , &towerEnergyHad);
+  eventTree->SetBranchAddress("CaloTower_emE"   , &towerEnergyEm);
+  eventTree->SetBranchAddress("CaloTower_e"     , &towerEnergy);
+  eventTree->SetBranchAddress("CaloTower_et"    , &towerEt);
+  eventTree->SetBranchAddress("CaloTower_eta"   , &towerEta);
+  eventTree->SetBranchAddress("CaloTower_phi"   , &towerPhi);
 }
 
 EventProcessor::~EventProcessor()
@@ -58,10 +66,27 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     auto photonSC = make_shared<PhysObject>();
     
     photonSC->eta      = photonSCEta->at(iPhotonSC);
+    photonSC->phi      = photonSCPhi->at(iPhotonSC);
     photonSC->et       = photonSCEt->at(iPhotonSC);
     photonSC->phiWidth = photonSCPhiWidth->at(iPhotonSC);
     
     currentEvent->photonSC.push_back(photonSC);
+  }
+  
+  // Clear and fill in collection of calo towers
+  currentEvent->caloTowers.clear();
+  
+  for(size_t iTower=0; iTower<currentEvent->nCaloTowers; iTower++){
+    auto tower = make_shared<PhysObject>();
+    
+    tower->eta       = towerEta->at(iTower);
+    tower->phi       = towerPhi->at(iTower);
+    tower->energy    = towerEnergy->at(iTower);
+    tower->et        = towerEt->at(iTower);
+    tower->energyHad = towerEnergyHad->at(iTower);
+    tower->energyEm  = towerEnergyEm->at(iTower);
+    
+    currentEvent->caloTowers.push_back(tower);
   }
   
   return currentEvent;

@@ -19,6 +19,7 @@ public:
   
   // Trivial getters:
   inline double GetEta() const { return eta; }
+  inline double GetPhi() const { return phi; }
   inline double GetEt()  const { return et; }
   
   inline double GetEtaWidth()  const { return etaWidth; }
@@ -26,11 +27,22 @@ public:
   
   inline int    GetPID() const { return pdgID; }
   
+  inline double GetEnergy()     const { return energy; }
+  inline double GetEnergyHad()  const { return energyHad; }
+  inline double GetEnergyEm()   const { return energyEm; }
+  
+  /// Returns calo sub-det
+  ECaloType GetTowerSubdetHad() const;
+  ECaloType GetTowerSubdetEm()  const;
+  
 private:
   double eta;       ///< Pseudorapidity
   double phi;       ///< Azimuthal angle
   double energy;    ///< Energy
   double et;        ///< Transverse energy
+  
+  double energyHad; ///< Energy in hadronic part of calo
+  double energyEm;  ///< Energy in EM part of calo
   
   double etaWidth;  ///< Width in eta direction
   double phiWidth;  ///< Width in phi direction

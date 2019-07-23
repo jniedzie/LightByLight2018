@@ -27,11 +27,17 @@ public:
   /// Returns number of photon superclusters in this event
   inline int GetNphotonSCs()  const { return nPhotonSCs; }
   
+  /// Returns number of calo towers in this event
+  inline int GetNcaloTowers()  const { return nCaloTowers; }
+  
   /// Returns i-th gen particle
   inline shared_ptr<PhysObject> GetGenParticle(size_t iPart) const { return genParticles[iPart]; }
   
   /// Returns i-th photon supercluster
   inline shared_ptr<PhysObject> GetPhotonSC(size_t iPhoton)  const { return photonSC[iPhoton]; }
+  
+  /// Returns i-th calo tower
+  inline shared_ptr<PhysObject> GetCaloTower(size_t iTower)  const { return caloTowers[iTower]; }
   
   /// Returns true if any of the LbL triggers (as defined in Helpers.hpp) fired, false otherwise.
   bool HasLbLTrigger();
@@ -39,11 +45,14 @@ public:
 private:
   vector<int> triggersLbL; ///< Vactor of booleans corresponding to LbL triggers
   
-  int nGenParticles = 0; ///< Number of gen particles in this event
+  int nGenParticles = 0; ///< Number of gen particles
   vector<shared_ptr<PhysObject>> genParticles; ///< Vector of gen particles in this event
   
-  int nPhotonSCs = 0; ///< Number of photon superclusters in this event
+  int nPhotonSCs = 0; ///< Number of photon superclusters
   vector<shared_ptr<PhysObject>> photonSC; ///< Vector of photon superclusters in this event
+  
+  int nCaloTowers = 0; ///< Number of calorimeter towers
+  vector<shared_ptr<PhysObject>> caloTowers;
   
   friend class EventProcessor;
 };
