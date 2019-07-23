@@ -138,7 +138,7 @@ cd CMSSW_10_3_2/src/EgRegresTrainerLegacy
 * Login to lxplus7 (with centos7), go to top directory of this repo and run these commands:
 ```
  cd analysis
- ./setenv.sh
+ . setenv.sh
  cmake .
  make -j8
 ```
