@@ -14,137 +14,217 @@
 
 #include "Helpers.hpp"
 #include "EventProcessor.hpp"
+#include "ConfigManager.hpp"
 
-// Eta and pt cuts
-const double maxEta = 2.4;
-const double minEt = 2; // GeV
+string configPath = "configs/efficiencies.md";
 
-// Criteria to reject photons coming from e.g. pi0 decays
-const double maxEtaWidthBarrel = 0.02;
-const double maxEtaWidthEndcap = 0.06;
+vector<shared_ptr<PhysObject>> GetGoodGenPhotons(const shared_ptr<Event> &event)
+{
+  vector<shared_ptr<PhysObject>> goodGenPhotons;
+  
+  for(int iGenPhoton=0; iGenPhoton<event->GetNgenParticles(); iGenPhoton++){
+    auto genPhoton = event->GetGenParticle(iGenPhoton);
+    
+    if(genPhoton->GetPID() != 22) continue;
+    if(fabs(genPhoton->GetEta()) > config.params["maxEta"]) continue;
+    if(genPhoton->GetEt() < config.params["minEt"]) continue;
+    
+    goodGenPhotons.push_back(genPhoton);
+  }
+  
+  return goodGenPhotons;
+}
 
-// Criteria to match calo tower with photon SC
-const double maxDeltaEtaEB = 0.15;
-const double maxDeltaPhiEB = 0.7;
-const double maxDeltaEtaEE = 0.15;
-const double maxDeltaPhiEE = 0.4;
+vector<shared_ptr<PhysObject>> GetGoodPhotonSCs(const shared_ptr<Event> &event)
+{
+  vector<shared_ptr<PhysObject>> photonSCpassing;
+  
+  for(int iPhotonSC=0; iPhotonSC<event->GetNphotonSCs(); iPhotonSC++){
+    auto photonSC = event->GetPhotonSC(iPhotonSC);
+    
+    // Check eta and Et
+    if(fabs(photonSC->GetEta()) > config.params["maxEta"]) continue;
+    if(photonSC->GetEt() < config.params["minEt"]) continue;
+    
+    // Check η shower shape
+    if(fabs(photonSC->GetEta()) < maxEtaEB &&
+       photonSC->GetEtaWidth() > config.params["maxEtaWidthBarrel"]) continue;
+    
+    if(fabs(photonSC->GetEta()) > minEtaEE &&
+       fabs(photonSC->GetEta()) < maxEtaEE &&
+       photonSC->GetEtaWidth() > config.params["maxEtaWidthEndcap"]) continue;
+    
+    photonSCpassing.push_back(photonSC);
+  }
+  return photonSCpassing;
+}
 
-// Reject EE tower that are in very noisy region
-const double maxEtaEEtower = 2.3;
+bool HasAdditionalTowers(const shared_ptr<Event> &event,
+                         const vector<shared_ptr<PhysObject>> &photonSCs)
+{
+  for(int iTower=0; iTower<event->GetNcaloTowers(); iTower++){
+    auto tower = event->GetCaloTower(iTower);
+    
+    double energyHad = tower->GetEnergyHad();
+    
+    if(energyHad > 0){
+      if(energyHad > caloNoiseThreshold[tower->GetTowerSubdetHad()]) return true;
+    }
+    
+    // Check if tower is above the noise threshold
+    bool overlapsWithPhoton = false;
+    
+    ECaloType subdetEm = tower->GetTowerSubdetEm();
+    
+    if(subdetEm == kEE && fabs(tower->GetEta()) > config.params["maxEtaEEtower"]) continue;
+    
+    double maxDeltaEta = (subdetEm == kEB ) ? config.params["maxDeltaEtaEB"] : config.params["maxDeltaEtaEE"];
+    double maxDeltaPhi = (subdetEm == kEB ) ? config.params["maxDeltaPhiEB"] : config.params["maxDeltaPhiEE"];
+    
+    for(int iPhotonSC=0; iPhotonSC<event->GetNphotonSCs(); iPhotonSC++){
+      auto photon = event->GetPhotonSC(iPhotonSC);
+      
+      double deltaEta = fabs(photon->GetEta() - tower->GetEta());
+      double deltaPhi = fabs(photon->GetPhi() - tower->GetPhi());
+      
+      if(deltaEta < maxDeltaEta && deltaPhi < maxDeltaPhi){
+        overlapsWithPhoton = true;
+        break;
+      }
+    }
+    
+    if(!overlapsWithPhoton){
+      if(tower->GetEnergyEm() > caloNoiseThreshold[subdetEm]) return true;
+    }
+  }
+  return false;
+}
 
-// You can limit number of events analyzed here:
-const int maxEvents = 10000;
+bool HasChargedTracks(const shared_ptr<Event> &event)
+{
+  if(event->GetNelectrons() != 0) return true;
+  
+  for(int iTrack=0; iTrack<event->GetNgeneralTracks(); iTrack++){
+    auto track = event->GetGeneralTrack(iTrack);
+    if(track->GetPt() > config.params["trackMinPt"]) return true;
+  }
+  return false;
+}
+
+bool DiphotonPtAboveThreshold(const vector<shared_ptr<PhysObject>> &photonSCs)
+{
+  double pt_1 = photonSCs[0]->GetPt();
+  double pt_2 = photonSCs[1]->GetPt();
+  double deltaPhi = photonSCs[0]->GetPhi() - photonSCs[1]->GetPhi();
+  
+  double pairPt = sqrt(pt_1*pt_1 + pt_2*pt_2 + pt_1*pt_2*cos(deltaPhi));
+  if(pairPt > config.params["diphotonMaxPt"]) return true;
+  
+  return false;
+}
+
+bool HasTwoMatchingPhotons(const vector<shared_ptr<PhysObject>> &genPhotons,
+                           const vector<shared_ptr<PhysObject>> &photonSCs)
+{
+  int nMatched=0;
+  
+  for(auto &genPhoton : genPhotons){
+    for(auto &cluster : photonSCs){
+      double deltaR = sqrt(pow(genPhoton->GetEta() - cluster->GetEta(), 2)+
+                           pow(genPhoton->GetPhi() - cluster->GetPhi(), 2));
+      if(deltaR < config.params["maxDeltaR"]) nMatched++;
+    }
+  }
+  
+  return nMatched >= 2;
+}
 
 int main()
 {
+  config = ConfigManager(configPath);
   unique_ptr<EventProcessor> eventProcessor(new EventProcessor(kMClbl));
   
   int nGenEvents = 0;
-  int nRecEvents = 0;
+  int nEventsPassingAll = 0;
+  int nEventsIDmatched = 0;
   int iEvent;
   
+  float bins[] = { 0, 2, 3, 4, 5, 6, 8, 12, 16, 20 };
+  TH1D *recoEffNum = new TH1D("reco_id_eff_num", "reco_id_eff_num", 9, bins);
+  TH1D *recoEffDen = new TH1D("reco_id_eff_den", "reco_id_eff_den", 9, bins);
+  recoEffNum->Sumw2();
+  recoEffDen->Sumw2();
+  
   for(iEvent=0; iEvent<eventProcessor->GetNevents(); iEvent++){
-    if(iEvent >= maxEvents) break;
+    if(iEvent%10000 == 0) cout<<"Processing event "<<iEvent<<endl;
+    if(iEvent >= config.params["maxEvents"]) break;
     
     auto event = eventProcessor->GetEvent(iEvent);
     
-    // Check if gen event is within η and Et limits
-    int nGenPhotonsPassing=0;
+    auto goodGenPhotons  = GetGoodGenPhotons(event);
+    auto photonSCpassing = GetGoodPhotonSCs(event);
     
-    for(int iGenPhoton=0; iGenPhoton<event->GetNgenParticles(); iGenPhoton++){
-      auto genPhoton = event->GetGenParticle(iGenPhoton);
-      
-      if(genPhoton->GetPID() != 22) continue;
-      if(fabs(genPhoton->GetEta()) > maxEta) continue;
-      if(genPhoton->GetEt() < minEt) continue;
-      
-      nGenPhotonsPassing++;
+    
+    if(goodGenPhotons.size() == 2){
+      nGenEvents++;
+      recoEffDen->Fill(goodGenPhotons.front()->GetEt());
     }
-    if(nGenPhotonsPassing == 2) nGenEvents++;
+    
+    
     
     // Check if event has any of the LbL triggers
-    if(!event->HasLbLTrigger()) continue;
-    
-    // Find photon candidates
-    vector<shared_ptr<PhysObject>> photonSCpassing;
-    
-    for(int iPhotonSC=0; iPhotonSC<event->GetNphotonSCs(); iPhotonSC++){
-      auto photonSC = event->GetPhotonSC(iPhotonSC);
-
-      // Check eta and Et
-      if(fabs(photonSC->GetEta()) > maxEta) continue;
-      if(photonSC->GetEt() < minEt) continue;
+    if(event->HasLbLTrigger()){
       
-      // Check η shower shape
-      if(fabs(photonSC->GetEta()) < maxEtaEB &&
-         photonSC->GetEtaWidth() > maxEtaWidthBarrel) continue;
-      
-      if(fabs(photonSC->GetEta()) > minEtaEE &&
-         fabs(photonSC->GetEta()) < maxEtaEE &&
-         photonSC->GetEtaWidth() > maxEtaWidthEndcap) continue;
-      
-      photonSCpassing.push_back(photonSC);
-    }
-    
-    // Check if there are exactly 2 passing photon candidates
-    if(photonSCpassing.size() != 2) continue;
-    
-    // Neutral exclusivity
-    
-    bool hasAdditionalTowers = false;
-    
-    
-    for(int iTower=0; iTower<event->GetNcaloTowers(); iTower++){
-      auto tower = event->GetCaloTower(iTower);
-      
-      double energyHad = tower->GetEnergyHad();
-      
-      if(energyHad > 0){
-        if(energyHad > caloNoiseThreshold[tower->GetTowerSubdetHad()]){
-          hasAdditionalTowers = true;
-          break;
-        }
-      }
-      
-      // Check if tower is above the noise threshold
-      bool overlapsWithPhoton = false;
-      
-      ECaloType subdetEm = tower->GetTowerSubdetEm();
-      
-      if(subdetEm == kEE && fabs(tower->GetEta()) > maxEtaEEtower) continue;
-      
-      double maxDeltaEta = (subdetEm == kEB ) ? maxDeltaEtaEB : maxDeltaEtaEE;
-      double maxDeltaPhi = (subdetEm == kEB ) ? maxDeltaPhiEB : maxDeltaPhiEE;
+      // Check if there are exactly 2 passing photon candidates
+      if(photonSCpassing.size() == 2){
         
-      for(int iPhotonSC=0; iPhotonSC<event->GetNphotonSCs(); iPhotonSC++){
-        auto photon = event->GetPhotonSC(iPhotonSC);
-        
-        double deltaEta = fabs(photon->GetEta() - tower->GetEta());
-        double deltaPhi = fabs(photon->GetPhi() - tower->GetPhi());
-        
-        if(deltaEta < maxDeltaEta && deltaPhi < maxDeltaPhi){
-          overlapsWithPhoton = true;
-          break;
-        }
-      }
-      
-      if(!overlapsWithPhoton){
-        if(tower->GetEnergyEm() > caloNoiseThreshold[subdetEm]){
-          hasAdditionalTowers = true;
-          break;
+        // Neutral exclusivity
+        if(!HasAdditionalTowers(event, photonSCpassing)){
+          
+          // Charged exlusivity
+          if(!HasChargedTracks(event)){
+            
+            // Diphoton momentum
+            if(!DiphotonPtAboveThreshold(photonSCpassing)){
+              nEventsPassingAll++;
+            }
+          }
         }
       }
     }
-    if(hasAdditionalTowers) continue;
     
-    nRecEvents++;
+    if(HasTwoMatchingPhotons(goodGenPhotons, event->GetPhotonSCs())){
+      nEventsIDmatched++;
+      recoEffNum->Fill(goodGenPhotons.front()->GetEt());
+    }
   }
   
+  cout<<"\n\n------------------------------------------------------------------------"<<endl;
   cout<<"N event analyzed: "<<iEvent<<endl;
   cout<<"N gen events within limits: "<<nGenEvents<<endl;
-  cout<<"N rec events passing selection: "<<nRecEvents<<endl;
+  cout<<"N events passing selection: "<<nEventsPassingAll<<endl;
+  cout<<"N events with matched photons passing selection: "<<nEventsIDmatched<<endl;
   
-  cout<<"Diphoton efficiency : "<<(double)nRecEvents/nGenEvents<<endl;
+  cout<<"Diphoton efficiency: "<<(double)nEventsPassingAll/nGenEvents<<endl;
+  cout<<"Diphoton efficiency uncertainty: "<<sqrt(1./nEventsPassingAll+1./nGenEvents)*(double)nEventsPassingAll/nGenEvents<<endl;
+  
+  
+  cout<<"Reco+ID efficiency: "<<(double)nEventsIDmatched/nGenEvents<<endl;
+  cout<<"Reco+ID efficiency uncertainty: "<<sqrt(1./nEventsIDmatched+1./nGenEvents)*(double)nEventsIDmatched/nGenEvents<<endl;
+  cout<<"------------------------------------------------------------------------\n\n"<<endl;
+  
+  TH1D *recoEff = new TH1D(*recoEffNum);
+  recoEff->SetTitle("reco_id_eff");
+  recoEff->SetName("reco_id_eff");
+  
+  recoEff->Divide(recoEffNum, recoEffDen, 1, 1, "B");
+  
+  TFile *outFile = new TFile("results/efficiencies.root", "recreate");
+  outFile->cd();
+  recoEffNum->Write();
+  recoEffDen->Write();
+  recoEff->Write();
+  outFile->Close();
   
   return 0;
 }

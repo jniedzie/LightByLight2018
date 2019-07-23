@@ -33,6 +33,7 @@ private:
   
   // Handles to variables stored in ntuple trees
   vector<double> *mcEta = nullptr;
+  vector<double> *mcPhi = nullptr;
   vector<double> *mcEt  = nullptr;
   vector<double> *mcPID = nullptr;
   
@@ -47,6 +48,8 @@ private:
   vector<double> *towerEt        = nullptr;
   vector<double> *towerEnergyHad = nullptr;
   vector<double> *towerEnergyEm  = nullptr;
+  
+  vector<double> *generalTrackPt = nullptr;
 };
 
 #endif /* EventProcessor_hpp */

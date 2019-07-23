@@ -21,6 +21,7 @@ public:
   inline double GetEta() const { return eta; }
   inline double GetPhi() const { return phi; }
   inline double GetEt()  const { return et; }
+  inline double GetPt()  const { return pt; }
   
   inline double GetEtaWidth()  const { return etaWidth; }
   inline double GetPhiWidth()  const { return phiWidth; }
@@ -40,6 +41,7 @@ private:
   double phi;       ///< Azimuthal angle
   double energy;    ///< Energy
   double et;        ///< Transverse energy
+  double pt;        ///< Transverse momentum
   
   double energyHad; ///< Energy in hadronic part of calo
   double energyEm;  ///< Energy in EM part of calo

@@ -17,6 +17,7 @@ currentEvent(new Event())
   }
   eventTree->SetBranchAddress("nMC"   , &currentEvent->nGenParticles);
   eventTree->SetBranchAddress("mcEta" , &mcEta);
+  eventTree->SetBranchAddress("mcPhi" , &mcPhi);
   eventTree->SetBranchAddress("mcEt"  , &mcEt);
   eventTree->SetBranchAddress("mcPID" , &mcPID);
   
@@ -33,6 +34,12 @@ currentEvent(new Event())
   eventTree->SetBranchAddress("CaloTower_et"    , &towerEt);
   eventTree->SetBranchAddress("CaloTower_eta"   , &towerEta);
   eventTree->SetBranchAddress("CaloTower_phi"   , &towerPhi);
+  
+  eventTree->SetBranchAddress("ngenTrk"         , &currentEvent->nGeneralTracks);
+  eventTree->SetBranchAddress("gentrkPt"        , &generalTrackPt);
+  
+  eventTree->SetBranchAddress("nEle"            , &currentEvent->nElectrons);
+  
 }
 
 EventProcessor::~EventProcessor()
@@ -53,6 +60,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     auto genParticle = make_shared<PhysObject>();
     
     genParticle->eta   = mcEta->at(iGenPart);
+    genParticle->phi   = mcPhi->at(iGenPart);
     genParticle->et    = mcEt->at(iGenPart);
     genParticle->pdgID = mcPID->at(iGenPart);
     
@@ -87,6 +95,17 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     tower->energyEm  = towerEnergyEm->at(iTower);
     
     currentEvent->caloTowers.push_back(tower);
+  }
+  
+  // Clear and fill in collection of general tracks
+  currentEvent->generalTracks.clear();
+  
+  for(size_t iTrack=0; iTrack<currentEvent->nGeneralTracks; iTrack++){
+    auto track = make_shared<PhysObject>();
+    
+    track->pt = generalTrackPt->at(iTrack);
+    
+    currentEvent->generalTracks.push_back(track);
   }
   
   return currentEvent;

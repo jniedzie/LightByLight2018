@@ -15,6 +15,7 @@
 #include "TF1.h"
 #include "TTree.h"
 #include "TFile.h"
+#include "TEnv.h"
 
 #pragma clang diagnostic pop // restores the saved state for diagnostics
 
