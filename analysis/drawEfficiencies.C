@@ -1,98 +1,54 @@
+//  drawEfficiencies
+//
+//  Created by Jeremi Niedziela on 22/07/2019.
+//
+// Draws a canvas with MC efficiencies dependance on kinematic variables.
+
+
+const string  inputPath    = "results/efficiencies.root";
+const string  outputPath   = "plots/efficiencies.pdf";
+
+const double  canvasWidth  = 800;
+const double  canvasHeight = 800;
+const int     nRaws        = 2;
+const int     nColumns     = 2;
+
+vector<tuple<string, string, string, int, int>> histParams = {
+// hist name      x label              y label         color       iPad
+  {"reco_id_eff"        , "Photon E_{T} (GeV)"      , "Eff^{ID}_{MC}"   , kViolet+2 , 1 },
+  {"trigger_eff"        , "Diphoton m_{inv} (GeV)"  , "Eff^{TRIG}_{MC}" , kViolet+2 , 2 },
+  {"trigger_single_eff" , "Diphoton m_{inv} (GeV)"  , "Eff^{TRIG}_{MC}" , kGreen+2  , 2 },
+  {"trigger_double_eff" , "Diphoton m_{inv} (GeV)"  , "Eff^{TRIG}_{MC}" , kRed+2    , 2 },
+  {"charged_excl_eff"   , "Diphoton m_{inv} (GeV)"  , "Eff^{TRIG}_{CHE}", kViolet+2 , 3 },
+  {"neutral_excl_eff"   , "Diphoton m_{inv} (GeV)"  , "Eff^{TRIG}_{NEE}", kViolet+2 , 4 },
+};
+
 void drawEfficiencies()
 {
-  TFile *inFile = TFile::Open("results/efficiencies.root");
+  TFile *inFile = TFile::Open(inputPath.c_str());
+  TCanvas *canvas = new TCanvas("Efficiencies", "Efficiencies", canvasWidth, canvasHeight);
+  canvas->Divide(nColumns, nRaws);
   
-  // Reco+ID efficiency
-  TH1D *recoIdEff = (TH1D*)inFile->Get("reco_id_eff");
+  int previousPad = -1;
+  for(auto &[name, xLabel, yLabel, color, iPad] : histParams){
   
-  recoIdEff->SetLineColor(kViolet+2);
-  recoIdEff->SetTitle("");
-  recoIdEff->GetXaxis()->SetTitle("Photon E_{T} (GeV)");
-  recoIdEff->GetXaxis()->SetTitleSize(0.05);
-  recoIdEff->GetYaxis()->SetTitle("Eff^{ID}_{MC}");
-  recoIdEff->GetYaxis()->SetTitleSize(0.05);
+    canvas->cd(iPad);
+    TH1D *hist = (TH1D*)inFile->Get(name.c_str());
+    hist->SetLineColor(color);
+    hist->SetTitle("");
+    hist->GetXaxis()->SetTitle(xLabel.c_str());
+    hist->GetXaxis()->SetTitleSize(0.05);
+    hist->GetYaxis()->SetTitle(yLabel.c_str());
+    hist->GetYaxis()->SetTitleSize(0.05);
+    
+    gStyle->SetOptStat(0);
+    gPad->SetLeftMargin(0.12);
+    gPad->SetBottomMargin(0.12);
+    
+    hist->Draw(iPad != previousPad ? "" : "same");
+    previousPad = iPad;
+  }
   
-  TCanvas *efficienciesCanvas = new TCanvas("Efficiencies", "Efficiencies", 800, 1200);
-  efficienciesCanvas->Divide(2,3);
-  
-  efficienciesCanvas->cd(1);
-  
-  gStyle->SetOptStat(0);
-  gPad->SetLeftMargin(0.12);
-  gPad->SetBottomMargin(0.12);
-  recoIdEff->Draw();
-  
-  // Trigger efficiency
-  TH1D *triggerEff = (TH1D*)inFile->Get("trigger_eff");
-  TH1D *triggerSingleEff = (TH1D*)inFile->Get("trigger_single_eff");
-  TH1D *triggerDoubleEff = (TH1D*)inFile->Get("trigger_double_eff");
-  
-  triggerEff->SetLineColor(kViolet+2);
-  triggerEff->SetTitle("");
-  triggerEff->GetXaxis()->SetTitle("Diphoton m_{inv} (GeV)");
-  triggerEff->GetXaxis()->SetTitleSize(0.05);
-  triggerEff->GetYaxis()->SetTitle("Eff^{TRIG}_{MC}");
-  triggerEff->GetYaxis()->SetTitleSize(0.05);
-  
-  triggerSingleEff->SetLineColor(kGreen+2);
-  triggerDoubleEff->SetLineColor(kRed+2);
-  
-  efficienciesCanvas->cd(2);
-  gStyle->SetOptStat(0);
-  gPad->SetLeftMargin(0.12);
-  gPad->SetBottomMargin(0.12);
-  triggerEff->Draw();
-  triggerSingleEff->Draw("same");
-  triggerDoubleEff->Draw("same");
-  
-  TLegend *legTrigger = new TLegend(0.5, 0.15, 0.9, 0.5);
-  legTrigger->AddEntry(triggerEff, "SingleEG3 or DoubleEG2", "le");
-  legTrigger->AddEntry(triggerSingleEff, "SingleEG3 only", "le");
-  legTrigger->AddEntry(triggerDoubleEff, "DoubleEG2 only", "le");
-  
-  legTrigger->Draw("same");
-  
-  
-  // Charged exclusivity efficiency
-  TH1D *chargedExclEff = (TH1D*)inFile->Get("charged_excl_eff");
-  
-  chargedExclEff->SetLineColor(kViolet+2);
-  chargedExclEff->SetTitle("");
-  chargedExclEff->GetXaxis()->SetTitle("Diphoton m_{inv} (GeV)");
-  chargedExclEff->GetXaxis()->SetTitleSize(0.05);
-  chargedExclEff->GetYaxis()->SetTitle("Eff^{CHE}_{MC}");
-  chargedExclEff->GetYaxis()->SetTitleSize(0.05);
-  
-  efficienciesCanvas->cd(3);
-  gStyle->SetOptStat(0);
-  gPad->SetLeftMargin(0.12);
-  gPad->SetBottomMargin(0.12);
-  chargedExclEff->Draw();
-  
-  // Neutral exclusivity efficiency
-  TH1D *neutralExclEff = (TH1D*)inFile->Get("neutral_excl_eff");
-  
-  neutralExclEff->SetLineColor(kViolet+2);
-  neutralExclEff->SetTitle("");
-  neutralExclEff->GetXaxis()->SetTitle("Diphoton m_{inv} (GeV)");
-  neutralExclEff->GetXaxis()->SetTitleSize(0.05);
-  neutralExclEff->GetYaxis()->SetTitle("Eff^{NEE}_{MC}");
-  neutralExclEff->GetYaxis()->SetTitleSize(0.05);
-  
-  efficienciesCanvas->cd(4);
-  gStyle->SetOptStat(0);
-  gPad->SetLeftMargin(0.12);
-  gPad->SetBottomMargin(0.12);
-  neutralExclEff->Draw();
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  efficienciesCanvas->SaveAs("plots/efficiencies.pdf");
+  canvas->SaveAs(outputPath.c_str());
   
 }
