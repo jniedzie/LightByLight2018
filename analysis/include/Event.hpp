@@ -7,6 +7,7 @@
 
 #include "Helpers.hpp"
 #include "PhysObject.hpp"
+#include "ConfigManager.hpp"
 
 /// This class represents a single event with all its gen-level and reconstructed objects,
 /// as well as triggers and other event-wide properties
@@ -33,8 +34,22 @@ public:
   
   inline vector<shared_ptr<PhysObject>> GetPhotonSCs() const { return photonSC; }
   
+  /// Returns vector of gen particles passing η and Et cuts specified in the config
+  vector<shared_ptr<PhysObject>> GetGoodGenPhotons();
+  
+  /// Returns vector of photon superclusters passing η, Et and shower shape cuts specified in config
+  vector<shared_ptr<PhysObject>> GetGoodPhotonSCs();
+  
+  /// Checks if there are towers above threshold not overlapping with reconstructed photons
+  bool HasAdditionalTowers();
+  
+  /// Checks if there are any charged tracks in the event (above pt specified in config)
+  bool HasChargedTracks();
+  
   /// Returns true if any of the LbL triggers (as defined in Helpers.hpp) fired, false otherwise.
   bool HasLbLTrigger();
+  
+  
   
 private:
   vector<int> triggersLbL; ///< Vactor of booleans corresponding to LbL triggers
@@ -44,6 +59,9 @@ private:
   
   int nPhotonSCs = 0;                           ///< Number of photon superclusters
   vector<shared_ptr<PhysObject>> photonSC;      ///< Vector of photon superclusters
+  
+  bool passingPhotonSCready = false;              ///< Were photon SC cuts already applied?
+  vector<shared_ptr<PhysObject>> photonSCpassing; ///< Vector of photon superclusters passing cuts
   
   int nCaloTowers = 0;                          ///< Number of calorimeter towers
   vector<shared_ptr<PhysObject>> caloTowers;    ///< Vector of calorimeter tower

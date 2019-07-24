@@ -18,99 +18,6 @@
 
 string configPath = "configs/efficiencies.md";
 
-vector<shared_ptr<PhysObject>> GetGoodGenPhotons(const shared_ptr<Event> &event)
-{
-  vector<shared_ptr<PhysObject>> goodGenPhotons;
-  
-  for(int iGenPhoton=0; iGenPhoton<event->GetNgenParticles(); iGenPhoton++){
-    auto genPhoton = event->GetGenParticle(iGenPhoton);
-    
-    if(genPhoton->GetPID() != 22) continue;
-    if(fabs(genPhoton->GetEta()) > config.params["maxEta"]) continue;
-    if(genPhoton->GetEt() < config.params["minEt"]) continue;
-    
-    goodGenPhotons.push_back(genPhoton);
-  }
-  
-  return goodGenPhotons;
-}
-
-vector<shared_ptr<PhysObject>> GetGoodPhotonSCs(const shared_ptr<Event> &event)
-{
-  vector<shared_ptr<PhysObject>> photonSCpassing;
-  
-  for(int iPhotonSC=0; iPhotonSC<event->GetNphotonSCs(); iPhotonSC++){
-    auto photonSC = event->GetPhotonSC(iPhotonSC);
-    
-    // Check eta and Et
-    if(fabs(photonSC->GetEta()) > config.params["maxEta"]) continue;
-    if(photonSC->GetEt() < config.params["minEt"]) continue;
-    
-    // Check η shower shape
-    if(fabs(photonSC->GetEta()) < maxEtaEB &&
-       photonSC->GetEtaWidth() > config.params["maxEtaWidthBarrel"]) continue;
-    
-    if(fabs(photonSC->GetEta()) > minEtaEE &&
-       fabs(photonSC->GetEta()) < maxEtaEE &&
-       photonSC->GetEtaWidth() > config.params["maxEtaWidthEndcap"]) continue;
-    
-    photonSCpassing.push_back(photonSC);
-  }
-  return photonSCpassing;
-}
-
-bool HasAdditionalTowers(const shared_ptr<Event> &event,
-                         const vector<shared_ptr<PhysObject>> &photonSCs)
-{
-  for(int iTower=0; iTower<event->GetNcaloTowers(); iTower++){
-    auto tower = event->GetCaloTower(iTower);
-    
-    double energyHad = tower->GetEnergyHad();
-    
-    if(energyHad > 0){
-      if(energyHad > caloNoiseThreshold[tower->GetTowerSubdetHad()]) return true;
-    }
-    
-    // Check if tower is above the noise threshold
-    bool overlapsWithPhoton = false;
-    
-    ECaloType subdetEm = tower->GetTowerSubdetEm();
-    
-    if(subdetEm == kEE && fabs(tower->GetEta()) > config.params["maxEtaEEtower"]) continue;
-    
-    double maxDeltaEta = (subdetEm == kEB ) ? config.params["maxDeltaEtaEB"] : config.params["maxDeltaEtaEE"];
-    double maxDeltaPhi = (subdetEm == kEB ) ? config.params["maxDeltaPhiEB"] : config.params["maxDeltaPhiEE"];
-    
-    for(int iPhotonSC=0; iPhotonSC<event->GetNphotonSCs(); iPhotonSC++){
-      auto photon = event->GetPhotonSC(iPhotonSC);
-      
-      double deltaEta = fabs(photon->GetEta() - tower->GetEta());
-      double deltaPhi = fabs(photon->GetPhi() - tower->GetPhi());
-      
-      if(deltaEta < maxDeltaEta && deltaPhi < maxDeltaPhi){
-        overlapsWithPhoton = true;
-        break;
-      }
-    }
-    
-    if(!overlapsWithPhoton){
-      if(tower->GetEnergyEm() > caloNoiseThreshold[subdetEm]) return true;
-    }
-  }
-  return false;
-}
-
-bool HasChargedTracks(const shared_ptr<Event> &event)
-{
-  if(event->GetNelectrons() != 0) return true;
-  
-  for(int iTrack=0; iTrack<event->GetNgeneralTracks(); iTrack++){
-    auto track = event->GetGeneralTrack(iTrack);
-    if(track->GetPt() > config.params["trackMinPt"]) return true;
-  }
-  return false;
-}
-
 bool DiphotonPtAboveThreshold(const vector<shared_ptr<PhysObject>> &photonSCs)
 {
   double pt_1 = photonSCs[0]->GetPt();
@@ -161,31 +68,24 @@ int main()
     
     auto event = eventProcessor->GetEvent(iEvent);
     
-    auto goodGenPhotons  = GetGoodGenPhotons(event);
-    auto photonSCpassing = GetGoodPhotonSCs(event);
+    auto goodGenPhotons  = event->GetGoodGenPhotons();
+    auto photonSCpassing = event->GetGoodPhotonSCs();
     
-    
-    if(goodGenPhotons.size() == 2){
+    if(goodGenPhotons.size() == 2){ // Exactly 2 gen photons?
       nGenEvents++;
       recoEffDen->Fill(goodGenPhotons.front()->GetEt());
     }
     
     
-    
-    // Check if event has any of the LbL triggers
-    if(event->HasLbLTrigger()){
+    if(event->HasLbLTrigger()){ // Check if event has any of the LbL triggers
       
-      // Check if there are exactly 2 passing photon candidates
-      if(photonSCpassing.size() == 2){
+      if(photonSCpassing.size() == 2){ // Exactly 2 passing photon candidates?
         
-        // Neutral exclusivity
-        if(!HasAdditionalTowers(event, photonSCpassing)){
+        if(!event->HasAdditionalTowers()){ // Neutral exclusivity
           
-          // Charged exlusivity
-          if(!HasChargedTracks(event)){
-            
-            // Diphoton momentum
-            if(!DiphotonPtAboveThreshold(photonSCpassing)){
+          if(!event->HasChargedTracks()){ // Charged exlusivity
+
+            if(!DiphotonPtAboveThreshold(photonSCpassing)){ // Diphoton momentum
               nEventsPassingAll++;
             }
           }
@@ -193,6 +93,7 @@ int main()
       }
     }
     
+    // Are there 2 reconstructed photons matching gen photons?
     if(HasTwoMatchingPhotons(goodGenPhotons, event->GetPhotonSCs())){
       nEventsIDmatched++;
       recoEffNum->Fill(goodGenPhotons.front()->GetEt());

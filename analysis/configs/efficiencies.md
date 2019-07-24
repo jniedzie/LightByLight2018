@@ -1,7 +1,7 @@
 ##  Efficiencies config
 
 ### Max number of events to analyze
-maxEvents: 100000
+maxEvents: 1000
 
 ### Eta and Et (GeV) cuts (gen particles and photon superclusters must be within those limits)
 maxEta: 2.4
