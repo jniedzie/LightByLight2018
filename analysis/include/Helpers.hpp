@@ -45,7 +45,9 @@ enum EDataset{
 };
 
 inline map<EDataset, string> inFileNames = {
-  {kMClbl, "ntuples/ntuples_mc_lbl_merged.root"},
+  {kData    , "ntuples/ntuples_data_small_sample_merged.root" },
+  {kMCqedSC , "ntuples/ntuples_mq_qed_sc_merged.root"         },
+  {kMClbl   , "ntuples/ntuples_mc_lbl_merged.root"            },
 };
 
 enum ECaloType { kEB, kEE, kHB, kHE, kHFp, kHFm, nCaloTypes };

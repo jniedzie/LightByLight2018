@@ -39,8 +39,10 @@ analysis/CMakeCache.txt
 analysis/CMakeFiles/*
 analysis/Makefile
 analysis/cmake_install.cmake
-analysis/getDiphotonEfficiency
+analysis/getEfficienciesData
+analysis/getEfficienciesMC
 analysis/libAnalysis.a
 analysis/ntuples/ntuples_mc_lbl_merged_afs.root
 analysis/ntuples/ntuples_mc_lbl_merged.root
+analysis/ntuples/ntuples_mq_qed_sc_merged.root
 xLightByLight.xcodeproj/

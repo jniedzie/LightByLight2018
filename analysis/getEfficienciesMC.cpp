@@ -1,16 +1,8 @@
-//  getDiphotonEfficiency
+//  getEfficiencies
 //
 //  Created by Jeremi Niedziela on 22/07/2019.
 //
-// Calculates diphoton efficiency, defined as:
-// Eff^{\gamma\gamma} = N^{reco}/N^{gen}
-//
-// where:
-//
-// N^{reco}: number of reconstructed diphoton events with E_T^{reco} > 2 GeV, |\eta^{reco}|<2.4,
-// passing trigger, identification and exclusivity cuts
-//
-// N^{gen}: number of generated events with E_T^{gen} > 2 GeV, |\eta^{gen}|<2.4
+//  Calculates MC driven efficiencies, as defined in the Analysis Note
 
 #include "Helpers.hpp"
 #include "EventProcessor.hpp"
@@ -170,7 +162,7 @@ int main()
   cout<<"------------------------------------------------------------------------\n\n"<<endl;
   
   // Save histograms
-  TFile *outFile = new TFile("results/efficiencies.root", "recreate");
+  TFile *outFile = new TFile("results/efficienciesMC.root", "recreate");
   outFile->cd();
   
   for(auto name : histParams){

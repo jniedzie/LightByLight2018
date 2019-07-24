@@ -30,17 +30,21 @@ INTERFACE_LINK_LIBRARIES ${ROOT_EXE_LINKER_FLAGS})
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-add_executable(getEfficiencies getEfficiencies.cpp)
+add_executable(getEfficienciesMC getEfficienciesMC.cpp)
+add_executable(getEfficienciesData getEfficienciesData.cpp)
 
-set_property(TARGET getEfficiencies PROPERTY CXX_STANDARD 17)
+set_property(TARGET getEfficienciesMC PROPERTY CXX_STANDARD 17)
+set_property(TARGET getEfficienciesData PROPERTY CXX_STANDARD 17)
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
 add_library(Analysis  src/Event.cpp
                       src/EventProcessor.cpp
                       src/PhysObject.cpp
+                      src/ConfigManager.cpp
 )
 
 set_property(TARGET Analysis PROPERTY CXX_STANDARD 17)
 
-target_link_libraries(getEfficiencies Analysis ${ROOT_LIBRARIES})
+target_link_libraries(getEfficienciesMC Analysis ${ROOT_LIBRARIES})
+target_link_libraries(getEfficienciesData Analysis ${ROOT_LIBRARIES})
