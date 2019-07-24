@@ -6,7 +6,7 @@
 
 Event::Event()
 {
-  for(auto triggerName : triggerNamesLbL) triggersLbL.push_back(0);
+
 }
 
 Event::~Event()
@@ -14,15 +14,25 @@ Event::~Event()
   
 }
 
-bool Event::HasLbLTrigger()
+bool Event::HasLbLTrigger() const
 {
-  for(int trigger : triggersLbL){
-    if(trigger != 0) return true;
+  for(auto &[triggerName, fired] : triggersLbL){
+    if(fired) return true;
   }
   return false;
 }
 
-vector<shared_ptr<PhysObject>> Event::GetGoodGenPhotons()
+bool Event::HasSingleEG3Trigger()
+{
+  return triggersLbL["HLT_HIUPC_SingleEG3_NotMBHF2AND_v1"];
+}
+
+bool Event::HasDoubleEG2Trigger()
+{
+  return triggersLbL["HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1"];
+}
+
+vector<shared_ptr<PhysObject>> Event::GetGoodGenPhotons() const
 {
   vector<shared_ptr<PhysObject>> goodGenPhotons;
   
@@ -68,10 +78,26 @@ double Event::GetDiphotonInvMass()
 {
   if(!passingPhotonSCready) GetGoodPhotonSCs();
   
-  if(photonSCpassing.size() != 2) return 0;
+  if(photonSCpassing.size() !=2 ){
+    cout<<"ERROR - asked for inv mass of diphoton, but n!=2"<<endl;
+    return 0;
+  }
   
+  TLorentzVector pho1, pho2;
   
-  return 0;
+  pho1.SetPtEtaPhiE(photonSCpassing[0]->GetEt(),
+                    photonSCpassing[0]->GetEta(),
+                    photonSCpassing[0]->GetPhi(),
+                    photonSCpassing[0]->GetEnergy());
+  
+  pho2.SetPtEtaPhiE(photonSCpassing[1]->GetEt(),
+                    photonSCpassing[1]->GetEta(),
+                    photonSCpassing[1]->GetPhi(),
+                    photonSCpassing[1]->GetEnergy());
+  
+  TLorentzVector diphoton = pho1+pho2;
+  
+  return diphoton.M();
 }
 
 bool Event::HasAdditionalTowers()
@@ -116,7 +142,7 @@ bool Event::HasAdditionalTowers()
   return false;
 }
 
-bool Event::HasChargedTracks()
+bool Event::HasChargedTracks() const
 {
   if(nElectrons != 0) return true;
   

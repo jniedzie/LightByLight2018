@@ -32,14 +32,19 @@ private:
   shared_ptr<Event> currentEvent; ///< Pointer to the current event
   
   // Handles to variables stored in ntuple trees
+  vector<int>    triggersLbL;
+  
   vector<double> *mcEta = nullptr;
   vector<double> *mcPhi = nullptr;
   vector<double> *mcEt  = nullptr;
+  vector<double> *mcE   = nullptr;
   vector<double> *mcPID = nullptr;
   
   vector<double> *photonSCEta      = nullptr;
   vector<double> *photonSCPhi      = nullptr;
   vector<double> *photonSCEt       = nullptr;
+  vector<double> *photonSCE        = nullptr;
+  vector<double> *photonSCEtaWidth = nullptr;
   vector<double> *photonSCPhiWidth = nullptr;
   
   vector<double> *towerEta       = nullptr;

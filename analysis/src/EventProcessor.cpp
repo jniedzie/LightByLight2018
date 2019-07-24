@@ -12,8 +12,10 @@ currentEvent(new Event())
   eventTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
   hltTree   = (TTree*)inFile->Get("hltanalysis/HltTree");
   
+  for(auto triggerName : triggerNamesLbL) triggersLbL.push_back(0);
+  
   for(int iTrigger=0; iTrigger<triggerNamesLbL.size(); iTrigger++){
-    hltTree->SetBranchAddress(triggerNamesLbL[iTrigger].c_str(), &currentEvent->triggersLbL[iTrigger]);
+    hltTree->SetBranchAddress(triggerNamesLbL[iTrigger].c_str(), &triggersLbL[iTrigger]);
   }
   eventTree->SetBranchAddress("nMC"   , &currentEvent->nGenParticles);
   eventTree->SetBranchAddress("mcEta" , &mcEta);
@@ -25,6 +27,8 @@ currentEvent(new Event())
   eventTree->SetBranchAddress("phoSCEta"      , &photonSCEta);
   eventTree->SetBranchAddress("phoSCPhi"      , &photonSCPhi);
   eventTree->SetBranchAddress("phoSCEt"       , &photonSCEt);
+  eventTree->SetBranchAddress("phoSCE"        , &photonSCE);
+  eventTree->SetBranchAddress("phoSCEtaWidth" , &photonSCEtaWidth);
   eventTree->SetBranchAddress("phoSCPhiWidth" , &photonSCPhiWidth);
   
   eventTree->SetBranchAddress("nTower"          , &currentEvent->nCaloTowers);
@@ -56,6 +60,10 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   // Clear and fill in collection of gen particles
   currentEvent->genParticles.clear();
   
+  for(int iTrigger=0; iTrigger<triggerNamesLbL.size(); iTrigger++){
+    currentEvent->triggersLbL[triggerNamesLbL[iTrigger]] = triggersLbL[iTrigger];
+  }
+  
   for(int iGenPart=0; iGenPart<currentEvent->nGenParticles; iGenPart++){
     auto genParticle = make_shared<PhysObject>();
     
@@ -76,6 +84,8 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     photonSC->eta      = photonSCEta->at(iPhotonSC);
     photonSC->phi      = photonSCPhi->at(iPhotonSC);
     photonSC->et       = photonSCEt->at(iPhotonSC);
+    photonSC->energy   = photonSCE->at(iPhotonSC);
+    photonSC->etaWidth = photonSCEtaWidth->at(iPhotonSC);
     photonSC->phiWidth = photonSCPhiWidth->at(iPhotonSC);
     
     currentEvent->photonSC.push_back(photonSC);
@@ -92,6 +102,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     tower->energy    = towerEnergy->at(iTower);
     tower->et        = towerEt->at(iTower);
     tower->energyHad = towerEnergyHad->at(iTower);
+    
     tower->energyEm  = towerEnergyEm->at(iTower);
     
     currentEvent->caloTowers.push_back(tower);

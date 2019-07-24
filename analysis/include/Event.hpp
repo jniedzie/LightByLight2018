@@ -35,26 +35,34 @@ public:
   inline vector<shared_ptr<PhysObject>> GetPhotonSCs() const { return photonSC; }
   
   /// Returns vector of gen particles passing η and Et cuts specified in the config
-  vector<shared_ptr<PhysObject>> GetGoodGenPhotons();
+  vector<shared_ptr<PhysObject>> GetGoodGenPhotons() const;
   
-  /// Returns vector of photon superclusters passing η, Et and shower shape cuts specified in config
+  /// Updates and returns vector of photon superclusters passing η, Et and shower shape cuts
+  /// specified in config
   vector<shared_ptr<PhysObject>> GetGoodPhotonSCs();
   
+  /// Finds two photons passing cuts (if not done yet) and returns diphoton invariant mass
   double GetDiphotonInvMass();
   
-  /// Checks if there are towers above threshold not overlapping with reconstructed photons
+  /// Finds two photons passing cuts (if not done yet) and checks if there are towers above
+  /// threshold not overlapping with reconstructed photons
   bool HasAdditionalTowers();
   
   /// Checks if there are any charged tracks in the event (above pt specified in config)
-  bool HasChargedTracks();
+  bool HasChargedTracks() const;
   
   /// Returns true if any of the LbL triggers (as defined in Helpers.hpp) fired, false otherwise.
-  bool HasLbLTrigger();
+  bool HasLbLTrigger() const;
   
+  /// Checks if SingleEG3 fired
+  bool HasSingleEG3Trigger();
+  
+  /// Checks if DoubleEG2 fired
+  bool HasDoubleEG2Trigger();
   
   
 private:
-  vector<int> triggersLbL; ///< Vactor of booleans corresponding to LbL triggers
+  map<string, bool> triggersLbL; ///< Vactor of booleans corresponding to LbL triggers
   
   int nGenParticles = 0;                        ///< Number of gen particles
   vector<shared_ptr<PhysObject>> genParticles;  ///< Vector of gen particles

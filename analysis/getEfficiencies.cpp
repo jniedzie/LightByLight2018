@@ -72,11 +72,16 @@ int main()
   recoEffNum->Sumw2();
   recoEffDen->Sumw2();
   
-  float binsTriggerEff[] = { 0, 4, 5, 7, 10, 13, 16, 20, 24, 28 };
+  float binsTriggerEff[] = { 2, 3, 4, 5, 6, 8, 10, 13, 16, 20 };
   TH1D *triggerEffNum = new TH1D("trigger_eff_num", "trigger_eff_num", 9, binsTriggerEff);
   TH1D *triggerEffDen = new TH1D("trigger_eff_den", "trigger_eff_den", 9, binsTriggerEff);
   triggerEffNum->Sumw2();
   triggerEffDen->Sumw2();
+  
+  TH1D *triggerSingleEffNum = new TH1D("trigger_single_eff_num", "trigger_single_eff_num", 9, binsTriggerEff);
+  TH1D *triggerDoubleEffNum = new TH1D("trigger_double_eff_num", "trigger_double_eff_num", 9, binsTriggerEff);
+  triggerSingleEffNum->Sumw2();
+  triggerDoubleEffNum->Sumw2();
   
   for(iEvent=0; iEvent<eventProcessor->GetNevents(); iEvent++){
     if(iEvent%10000 == 0) cout<<"Processing event "<<iEvent<<endl;
@@ -111,12 +116,23 @@ int main()
 
     if(hasTwoPhotonsPassingID){
       nEventsPassingID++;
-//      triggerEffDen->Fill(
+      triggerEffDen->Fill(event->GetDiphotonInvMass());
     }
     
     if(hasTwoPhotonsPassingID &&
        hasLbLTrigger){
       nEventsPassingIDandTrigger++;
+      triggerEffNum->Fill(event->GetDiphotonInvMass());
+    }
+    
+    if(hasTwoPhotonsPassingID &&
+       event->HasSingleEG3Trigger()){
+      triggerSingleEffNum->Fill(event->GetDiphotonInvMass());
+    }
+    
+    if(hasTwoPhotonsPassingID &&
+       event->HasDoubleEG2Trigger()){
+      triggerDoubleEffNum->Fill(event->GetDiphotonInvMass());
     }
     
     if(hasTwoMachingPhotons){
@@ -142,14 +158,35 @@ int main()
   TH1D *recoEff = new TH1D(*recoEffNum);
   recoEff->SetTitle("reco_id_eff");
   recoEff->SetName("reco_id_eff");
-  
   recoEff->Divide(recoEffNum, recoEffDen, 1, 1, "B");
+  
+  TH1D *triggerEff = new TH1D(*triggerEffNum);
+  triggerEff->SetTitle("trigger_eff");
+  triggerEff->SetName("trigger_eff");
+  triggerEff->Divide(triggerEffNum, triggerEffDen, 1, 1, "B");
+  
+  TH1D *triggerSingleEff = new TH1D(*triggerSingleEffNum);
+  triggerSingleEff->SetTitle("trigger_single_eff");
+  triggerSingleEff->SetName("trigger_single_eff");
+  triggerSingleEff->Divide(triggerSingleEffNum, triggerEffDen, 1, 1, "B");
+  
+  TH1D *triggerDoubleEff = new TH1D(*triggerDoubleEffNum);
+  triggerDoubleEff->SetTitle("trigger_double_eff");
+  triggerDoubleEff->SetName("trigger_double_eff");
+  triggerDoubleEff->Divide(triggerDoubleEffNum, triggerEffDen, 1, 1, "B");
   
   TFile *outFile = new TFile("results/efficiencies.root", "recreate");
   outFile->cd();
   recoEffNum->Write();
   recoEffDen->Write();
   recoEff->Write();
+  triggerEffNum->Write();
+  triggerEffDen->Write();
+  triggerEff->Write();
+  triggerSingleEffNum->Write();
+  triggerSingleEff->Write();
+  triggerDoubleEffNum->Write();
+  triggerDoubleEff->Write();
   outFile->Close();
   
   return 0;

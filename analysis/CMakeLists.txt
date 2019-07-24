@@ -30,9 +30,9 @@ INTERFACE_LINK_LIBRARIES ${ROOT_EXE_LINKER_FLAGS})
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-add_executable(getDiphotonEfficiency getDiphotonEfficiency.cpp)
+add_executable(getEfficiencies getEfficiencies.cpp)
 
-set_property(TARGET getDiphotonEfficiency PROPERTY CXX_STANDARD 17)
+set_property(TARGET getEfficiencies PROPERTY CXX_STANDARD 17)
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
@@ -43,4 +43,4 @@ add_library(Analysis  src/Event.cpp
 
 set_property(TARGET Analysis PROPERTY CXX_STANDARD 17)
 
-target_link_libraries(getDiphotonEfficiency Analysis ${ROOT_LIBRARIES})
+target_link_libraries(getEfficiencies Analysis ${ROOT_LIBRARIES})

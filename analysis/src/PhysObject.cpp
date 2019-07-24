@@ -11,11 +11,11 @@ energy(-1),
 et(-1),
 pt(-1),
 
-energyHad(0),
-energyEm(0),
+energyHad(-9999),
+energyEm(-9999),
 
-etaWidth(0),
-phiWidth(0),
+etaWidth(-1),
+phiWidth(-1),
 
 pdgID(0)
 {
@@ -49,4 +49,66 @@ ECaloType PhysObject::GetTowerSubdetEm() const
   cout<<"ERROR - could not determine calo tower sub-det!!"<<endl;
   
   return nCaloTypes;
+}
+
+
+
+double PhysObject::GetEta() const
+{
+  if(eta>999) cout<<"WARNING - carefull, eta probably not set"<<endl;
+  return eta;
+}
+
+double PhysObject::GetPhi() const
+{
+  if(phi>999) cout<<"WARNING - carefull, phi probably not set"<<endl;
+  return phi;
+}
+
+double PhysObject::GetEt()  const
+{
+  if(et<0) cout<<"WARNING - carefull, et probably not set"<<endl;
+  return et;
+}
+
+double PhysObject::GetPt()  const
+{
+  if(pt<0) cout<<"WARNING - carefull, pt probably not set"<<endl;
+  return pt;
+}
+
+double PhysObject::GetEtaWidth()  const
+{
+  if(etaWidth < 0)
+    cout<<"WARNING - carefull, etaWidth probably not set"<<endl;
+  return etaWidth;
+}
+double PhysObject::GetPhiWidth()  const
+{
+  if(phiWidth < 0) cout<<"WARNING - carefull, phiWidth probably not set"<<endl;
+  return phiWidth;
+}
+
+int    PhysObject::GetPID() const
+{
+  if(pdgID==0) cout<<"WARNING - carefull, pdgID probably not set"<<endl;
+  return pdgID;
+}
+
+double PhysObject::GetEnergy()     const
+{
+  if(energy<0) cout<<"WARNING - carefull, energy probably not set"<<endl;
+  return energy;
+}
+
+double PhysObject::GetEnergyHad()  const
+{
+  if(energyHad < -999) cout<<"WARNING - carefull, energyHad probably not set"<<endl;
+  return energyHad;
+}
+
+double PhysObject::GetEnergyEm()   const
+{
+  if(energyEm < -999) cout<<"WARNING - carefull, energyEm probably not set"<<endl;
+  return energyEm;
 }

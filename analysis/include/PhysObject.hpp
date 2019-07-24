@@ -18,31 +18,19 @@ public:
   ~PhysObject();
   
   // Trivial getters:
-  inline double GetEta() const {
-    if(eta>999) cout<<"WARNING - carefull, eta probably not set"<<endl;
-    return eta;
-  }
-  inline double GetPhi() const {
-    if(phi>999) cout<<"WARNING - carefull, phi probably not set"<<endl;
-    return phi;
-  }
-  inline double GetEt()  const {
-    if(et<0) cout<<"WARNING - carefull, et probably not set"<<endl;
-    return et;
-  }
-  inline double GetPt()  const {
-    if(pt<0) cout<<"WARNING - carefull, pt probably not set"<<endl;
-    return pt;
-  }
+  double GetEta() const;
+  double GetPhi() const;
+  double GetEt()  const;
+  double GetPt()  const;
   
-  inline double GetEtaWidth()  const { return etaWidth; }
-  inline double GetPhiWidth()  const { return phiWidth; }
+  double GetEtaWidth() const;
+  double GetPhiWidth() const;
   
-  inline int    GetPID() const { return pdgID; }
+  int    GetPID() const;
   
-  inline double GetEnergy()     const { return energy; }
-  inline double GetEnergyHad()  const { return energyHad; }
-  inline double GetEnergyEm()   const { return energyEm; }
+  double GetEnergy()     const;
+  double GetEnergyHad()  const;
+  double GetEnergyEm()   const;
   
   /// Returns calo sub-det
   ECaloType GetTowerSubdetHad() const;

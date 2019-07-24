@@ -16,6 +16,7 @@
 #include "TTree.h"
 #include "TFile.h"
 #include "TEnv.h"
+#include "TLorentzVector.h"
 
 #pragma clang diagnostic pop // restores the saved state for diagnostics
 
@@ -30,7 +31,7 @@ using namespace std;
 
 // List of allowed LbL triggers
 const vector<string> triggerNamesLbL = {
-  "HLT_HIUPC_DoubleEG5_NotMBHF2AND_v1",
+  "HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1",
   "HLT_HIUPC_SingleEG3_NotMBHF2AND_v1"
 };
 
