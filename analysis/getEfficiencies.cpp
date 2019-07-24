@@ -18,20 +18,6 @@
 
 string configPath = "configs/efficiencies.md";
 
-bool DiphotonPtAboveThreshold(const vector<shared_ptr<PhysObject>> &photonSCs)
-{
-  if(photonSCs.size()!=2) return true;
-  
-  double pt_1 = photonSCs[0]->GetEt();
-  double pt_2 = photonSCs[1]->GetEt();
-  double deltaPhi = photonSCs[0]->GetPhi() - photonSCs[1]->GetPhi();
-  
-  double pairPt = sqrt(pt_1*pt_1 + pt_2*pt_2 + 2*pt_1*pt_2*cos(deltaPhi));
-  if(pairPt > config.params["diphotonMaxPt"]) return true;
-  
-  return false;
-}
-
 bool HasTwoMatchingPhotons(const vector<shared_ptr<PhysObject>> &genPhotons,
                            const vector<shared_ptr<PhysObject>> &photonSCs)
 {
@@ -58,30 +44,42 @@ int main()
   config = ConfigManager(configPath);
   unique_ptr<EventProcessor> eventProcessor(new EventProcessor(kMClbl));
   
-  int nGenEvents                 = 0;
-  int nEventsPassingAll          = 0;
-  int nEventsIDmatched           = 0;
-  int nEventsPassingID           = 0;
-  int nEventsPassingIDandTrigger = 0;
+  int nGenEvents                               = 0;
+  int nEventsPassingAll                        = 0;
+  int nEventsIDmatched                         = 0;
+  int nEventsPassingID                         = 0;
+  int nEventsPassingIDandTrigger               = 0;
+  int nEventsPassingIDandTriggerAndChargedExcl = 0;
+  int nEventsPassingIDandTriggerAndBothExcl    = 0;
   
   int iEvent;
   
-  float binsRecoEff[] = { 0, 2, 3, 4, 5, 6, 8, 12, 16, 20 };
-  TH1D *recoEffNum = new TH1D("reco_id_eff_num", "reco_id_eff_num", 9, binsRecoEff);
-  TH1D *recoEffDen = new TH1D("reco_id_eff_den", "reco_id_eff_den", 9, binsRecoEff);
+  float singleEtBins[] = { 0, 2, 3, 4, 5, 6, 8, 12, 16, 20 };
+  TH1D *recoEffNum = new TH1D("reco_id_eff_num", "reco_id_eff_num", 9, singleEtBins);
+  TH1D *recoEffDen = new TH1D("reco_id_eff_den", "reco_id_eff_den", 9, singleEtBins);
   recoEffNum->Sumw2();
   recoEffDen->Sumw2();
   
-  float binsTriggerEff[] = { 2, 3, 4, 5, 6, 8, 10, 13, 16, 20 };
-  TH1D *triggerEffNum = new TH1D("trigger_eff_num", "trigger_eff_num", 9, binsTriggerEff);
-  TH1D *triggerEffDen = new TH1D("trigger_eff_den", "trigger_eff_den", 9, binsTriggerEff);
+  float mInvBins[] = { 2, 3, 4, 5, 6, 8, 10, 13, 16, 20 };
+  TH1D *triggerEffNum = new TH1D("trigger_eff_num", "trigger_eff_num", 9, mInvBins);
+  TH1D *triggerEffDen = new TH1D("trigger_eff_den", "trigger_eff_den", 9, mInvBins);
   triggerEffNum->Sumw2();
   triggerEffDen->Sumw2();
   
-  TH1D *triggerSingleEffNum = new TH1D("trigger_single_eff_num", "trigger_single_eff_num", 9, binsTriggerEff);
-  TH1D *triggerDoubleEffNum = new TH1D("trigger_double_eff_num", "trigger_double_eff_num", 9, binsTriggerEff);
+  TH1D *triggerSingleEffNum = new TH1D("trigger_single_eff_num", "trigger_single_eff_num", 9, mInvBins);
+  TH1D *triggerDoubleEffNum = new TH1D("trigger_double_eff_num", "trigger_double_eff_num", 9, mInvBins);
   triggerSingleEffNum->Sumw2();
   triggerDoubleEffNum->Sumw2();
+  
+  TH1D *chargedExclEffNum = new TH1D("charged_excl_eff_num", "charged_excl_eff_num", 9, mInvBins);
+  TH1D *chargedExclEffDen = new TH1D("charged_excl_eff_den", "charged_excl_eff_den", 9, mInvBins);
+  chargedExclEffNum->Sumw2();
+  chargedExclEffDen->Sumw2();
+  
+  TH1D *neutralExclEffNum = new TH1D("neutral_excl_eff_num", "neutral_excl_eff_num", 9, mInvBins);
+  TH1D *neutralExclEffDen = new TH1D("neutral_excl_eff_den", "neutral_excl_eff_den", 9, mInvBins);
+  neutralExclEffNum->Sumw2();
+  neutralExclEffDen->Sumw2();
   
   for(iEvent=0; iEvent<eventProcessor->GetNevents(); iEvent++){
     if(iEvent%10000 == 0) cout<<"Processing event "<<iEvent<<endl;
@@ -91,13 +89,15 @@ int main()
     auto goodGenPhotons  = event->GetGoodGenPhotons();
     auto photonSCpassing = event->GetGoodPhotonSCs();
     
+    double diphotonMinv = event->GetDiphotonInvMass();
+    
     // Check properties of this event
     bool hasTwoGoodGenPhotons     = goodGenPhotons.size() == 2;
     bool hasLbLTrigger            = event->HasLbLTrigger();
     bool hasTwoPhotonsPassingID   = photonSCpassing.size() == 2;
     bool passesNeutralExclusivity = ! event->HasAdditionalTowers();
     bool passesChargedExclusivity = ! event->HasChargedTracks();
-    bool passesDiphotonCuts       = ! DiphotonPtAboveThreshold(photonSCpassing);
+    bool passesDiphotonCuts       = ! event->DiphotonPtAboveThreshold();
     bool hasTwoMachingPhotons     = HasTwoMatchingPhotons(goodGenPhotons, event->GetPhotonSCs());
     
     // Increment counters of different types of events
@@ -114,25 +114,42 @@ int main()
       nEventsPassingAll++;
     }
 
+    if(hasLbLTrigger &&
+       hasTwoPhotonsPassingID &&
+       passesChargedExclusivity){
+      nEventsPassingIDandTriggerAndChargedExcl++;
+      chargedExclEffNum->Fill(diphotonMinv);
+      neutralExclEffDen->Fill(diphotonMinv);
+    }
+    
+    if(hasLbLTrigger &&
+       hasTwoPhotonsPassingID &&
+       passesChargedExclusivity &&
+       passesNeutralExclusivity){
+      nEventsPassingIDandTriggerAndBothExcl++;
+      neutralExclEffNum->Fill(diphotonMinv);
+    }
+    
     if(hasTwoPhotonsPassingID){
       nEventsPassingID++;
-      triggerEffDen->Fill(event->GetDiphotonInvMass());
+      triggerEffDen->Fill(diphotonMinv);
     }
     
     if(hasTwoPhotonsPassingID &&
        hasLbLTrigger){
       nEventsPassingIDandTrigger++;
-      triggerEffNum->Fill(event->GetDiphotonInvMass());
+      triggerEffNum->Fill(diphotonMinv);
+      chargedExclEffDen->Fill(diphotonMinv);
     }
     
     if(hasTwoPhotonsPassingID &&
        event->HasSingleEG3Trigger()){
-      triggerSingleEffNum->Fill(event->GetDiphotonInvMass());
+      triggerSingleEffNum->Fill(diphotonMinv);
     }
     
     if(hasTwoPhotonsPassingID &&
        event->HasDoubleEG2Trigger()){
-      triggerDoubleEffNum->Fill(event->GetDiphotonInvMass());
+      triggerDoubleEffNum->Fill(diphotonMinv);
     }
     
     if(hasTwoMachingPhotons){
@@ -148,10 +165,14 @@ int main()
   cout<<"N events with matched photons passing selection: "<<nEventsIDmatched<<endl;
   cout<<"N events passing ID: "<<nEventsPassingID<<endl;
   cout<<"N events passing ID and trigger: "<<nEventsPassingIDandTrigger<<endl;
+  cout<<"N events passing ID, trigger and charged excl: "<<nEventsPassingIDandTriggerAndChargedExcl<<endl;
+  cout<<"N events passing ID, trigger and both excl: "<<nEventsPassingIDandTriggerAndBothExcl<<endl;
   
   cout<<"Diphoton efficiency: "; PrintEfficiency(nEventsPassingAll, nGenEvents);
   cout<<"Reco+ID efficiency: "; PrintEfficiency(nEventsIDmatched, nGenEvents);
   cout<<"Trigger efficiency: "; PrintEfficiency(nEventsPassingIDandTrigger, nEventsPassingID);
+  cout<<"Cherged exclusivity efficiency: "; PrintEfficiency(nEventsPassingIDandTriggerAndChargedExcl, nEventsPassingIDandTrigger);
+  cout<<"Neutral exclusivity efficiency: "; PrintEfficiency(nEventsPassingIDandTriggerAndBothExcl, nEventsPassingIDandTriggerAndChargedExcl);
   
   cout<<"------------------------------------------------------------------------\n\n"<<endl;
   
@@ -175,6 +196,16 @@ int main()
   triggerDoubleEff->SetName("trigger_double_eff");
   triggerDoubleEff->Divide(triggerDoubleEffNum, triggerEffDen, 1, 1, "B");
   
+  TH1D *chargedExclEff = new TH1D(*chargedExclEffNum);
+  chargedExclEff->SetTitle("charged_excl_eff");
+  chargedExclEff->SetName("charged_excl_eff");
+  chargedExclEff->Divide(chargedExclEffNum, chargedExclEffDen, 1, 1, "B");
+  
+  TH1D *neutralExclEff = new TH1D(*neutralExclEffNum);
+  neutralExclEff->SetTitle("neutral_excl_eff");
+  neutralExclEff->SetName("neutral_excl_eff");
+  neutralExclEff->Divide(neutralExclEffNum, neutralExclEffDen, 1, 1, "B");
+  
   TFile *outFile = new TFile("results/efficiencies.root", "recreate");
   outFile->cd();
   recoEffNum->Write();
@@ -187,6 +218,13 @@ int main()
   triggerSingleEff->Write();
   triggerDoubleEffNum->Write();
   triggerDoubleEff->Write();
+  chargedExclEffNum->Write();
+  chargedExclEffDen->Write();
+  chargedExclEff->Write();
+  neutralExclEffNum->Write();
+  neutralExclEffDen->Write();
+  neutralExclEff->Write();
+  
   outFile->Close();
   
   return 0;

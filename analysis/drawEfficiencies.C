@@ -9,19 +9,18 @@ void drawEfficiencies()
   recoIdEff->SetTitle("");
   recoIdEff->GetXaxis()->SetTitle("Photon E_{T} (GeV)");
   recoIdEff->GetXaxis()->SetTitleSize(0.05);
-  recoIdEff->GetYaxis()->SetTitle("Eff^{reco+ID}_{MC-driven}");
+  recoIdEff->GetYaxis()->SetTitle("Eff^{ID}_{MC}");
   recoIdEff->GetYaxis()->SetTitleSize(0.05);
   
-  TCanvas *recoIdEffCanvas = new TCanvas("reco_id_eff", "reco_id_eff", 640, 480);
-  recoIdEffCanvas->cd();
+  TCanvas *efficienciesCanvas = new TCanvas("Efficiencies", "Efficiencies", 800, 1200);
+  efficienciesCanvas->Divide(2,3);
+  
+  efficienciesCanvas->cd(1);
   
   gStyle->SetOptStat(0);
   gPad->SetLeftMargin(0.12);
   gPad->SetBottomMargin(0.12);
   recoIdEff->Draw();
-  recoIdEffCanvas->SaveAs("plots/reco_id_eff.pdf");
-  
-  
   
   // Trigger efficiency
   TH1D *triggerEff = (TH1D*)inFile->Get("trigger_eff");
@@ -32,14 +31,13 @@ void drawEfficiencies()
   triggerEff->SetTitle("");
   triggerEff->GetXaxis()->SetTitle("Diphoton m_{inv} (GeV)");
   triggerEff->GetXaxis()->SetTitleSize(0.05);
-  triggerEff->GetYaxis()->SetTitle("Eff^{trigger}_{MC-driven}");
+  triggerEff->GetYaxis()->SetTitle("Eff^{TRIG}_{MC}");
   triggerEff->GetYaxis()->SetTitleSize(0.05);
   
   triggerSingleEff->SetLineColor(kGreen+2);
-  triggerDoubleEff->SetLineColor(kBlue+2);
+  triggerDoubleEff->SetLineColor(kRed+2);
   
-  TCanvas *triggerEffCanvas = new TCanvas("trigger_eff", "trigger_eff", 640, 480);
-  triggerEffCanvas->cd();
+  efficienciesCanvas->cd(2);
   gStyle->SetOptStat(0);
   gPad->SetLeftMargin(0.12);
   gPad->SetBottomMargin(0.12);
@@ -54,6 +52,47 @@ void drawEfficiencies()
   
   legTrigger->Draw("same");
   
-  triggerEffCanvas->SaveAs("plots/trigger_eff.pdf");
+  
+  // Charged exclusivity efficiency
+  TH1D *chargedExclEff = (TH1D*)inFile->Get("charged_excl_eff");
+  
+  chargedExclEff->SetLineColor(kViolet+2);
+  chargedExclEff->SetTitle("");
+  chargedExclEff->GetXaxis()->SetTitle("Diphoton m_{inv} (GeV)");
+  chargedExclEff->GetXaxis()->SetTitleSize(0.05);
+  chargedExclEff->GetYaxis()->SetTitle("Eff^{CHE}_{MC}");
+  chargedExclEff->GetYaxis()->SetTitleSize(0.05);
+  
+  efficienciesCanvas->cd(3);
+  gStyle->SetOptStat(0);
+  gPad->SetLeftMargin(0.12);
+  gPad->SetBottomMargin(0.12);
+  chargedExclEff->Draw();
+  
+  // Neutral exclusivity efficiency
+  TH1D *neutralExclEff = (TH1D*)inFile->Get("neutral_excl_eff");
+  
+  neutralExclEff->SetLineColor(kViolet+2);
+  neutralExclEff->SetTitle("");
+  neutralExclEff->GetXaxis()->SetTitle("Diphoton m_{inv} (GeV)");
+  neutralExclEff->GetXaxis()->SetTitleSize(0.05);
+  neutralExclEff->GetYaxis()->SetTitle("Eff^{NEE}_{MC}");
+  neutralExclEff->GetYaxis()->SetTitleSize(0.05);
+  
+  efficienciesCanvas->cd(4);
+  gStyle->SetOptStat(0);
+  gPad->SetLeftMargin(0.12);
+  gPad->SetBottomMargin(0.12);
+  neutralExclEff->Draw();
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  efficienciesCanvas->SaveAs("plots/efficiencies.pdf");
   
 }

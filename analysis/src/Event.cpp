@@ -78,10 +78,7 @@ double Event::GetDiphotonInvMass()
 {
   if(!passingPhotonSCready) GetGoodPhotonSCs();
   
-  if(photonSCpassing.size() !=2 ){
-    cout<<"ERROR - asked for inv mass of diphoton, but n!=2"<<endl;
-    return 0;
-  }
+  if(photonSCpassing.size() !=2 ) return -1;
   
   TLorentzVector pho1, pho2;
   
@@ -98,6 +95,22 @@ double Event::GetDiphotonInvMass()
   TLorentzVector diphoton = pho1+pho2;
   
   return diphoton.M();
+}
+
+bool Event::DiphotonPtAboveThreshold()
+{
+  if(!passingPhotonSCready) GetGoodPhotonSCs();
+  
+  if(photonSCpassing.size() != 2) return true;
+  
+  double pt_1 = photonSCpassing[0]->GetEt();
+  double pt_2 = photonSCpassing[1]->GetEt();
+  double deltaPhi = photonSCpassing[0]->GetPhi() - photonSCpassing[1]->GetPhi();
+  
+  double pairPt = sqrt(pt_1*pt_1 + pt_2*pt_2 + 2*pt_1*pt_2*cos(deltaPhi));
+  if(pairPt > config.params["diphotonMaxPt"]) return true;
+  
+  return false;
 }
 
 bool Event::HasAdditionalTowers()

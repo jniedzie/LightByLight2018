@@ -44,6 +44,10 @@ public:
   /// Finds two photons passing cuts (if not done yet) and returns diphoton invariant mass
   double GetDiphotonInvMass();
   
+  /// Finds two photons passing cuts (if not done yet) and returns false if diphoton pt is
+  /// within limit specified in config, or true otherwise
+  bool DiphotonPtAboveThreshold();
+  
   /// Finds two photons passing cuts (if not done yet) and checks if there are towers above
   /// threshold not overlapping with reconstructed photons
   bool HasAdditionalTowers();
