@@ -64,6 +64,16 @@ vector<shared_ptr<PhysObject>> Event::GetGoodPhotonSCs()
   return photonSCpassing;
 }
 
+double Event::GetDiphotonInvMass()
+{
+  if(!passingPhotonSCready) GetGoodPhotonSCs();
+  
+  if(photonSCpassing.size() != 2) return 0;
+  
+  
+  return 0;
+}
+
 bool Event::HasAdditionalTowers()
 {
   if(!passingPhotonSCready) GetGoodPhotonSCs();

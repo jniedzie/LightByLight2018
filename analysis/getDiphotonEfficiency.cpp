@@ -20,11 +20,13 @@ string configPath = "configs/efficiencies.md";
 
 bool DiphotonPtAboveThreshold(const vector<shared_ptr<PhysObject>> &photonSCs)
 {
-  double pt_1 = photonSCs[0]->GetPt();
-  double pt_2 = photonSCs[1]->GetPt();
+  if(photonSCs.size()!=2) return true;
+  
+  double pt_1 = photonSCs[0]->GetEt();
+  double pt_2 = photonSCs[1]->GetEt();
   double deltaPhi = photonSCs[0]->GetPhi() - photonSCs[1]->GetPhi();
   
-  double pairPt = sqrt(pt_1*pt_1 + pt_2*pt_2 + pt_1*pt_2*cos(deltaPhi));
+  double pairPt = sqrt(pt_1*pt_1 + pt_2*pt_2 + 2*pt_1*pt_2*cos(deltaPhi));
   if(pairPt > config.params["diphotonMaxPt"]) return true;
   
   return false;
@@ -46,55 +48,78 @@ bool HasTwoMatchingPhotons(const vector<shared_ptr<PhysObject>> &genPhotons,
   return nMatched >= 2;
 }
 
+void PrintEfficiency(double num, double den)
+{
+  cout<<(double)num/den<<"\t#pm "<<sqrt(1./num+1./den)*(double)num/den<<endl;
+}
+
 int main()
 {
   config = ConfigManager(configPath);
   unique_ptr<EventProcessor> eventProcessor(new EventProcessor(kMClbl));
   
-  int nGenEvents = 0;
-  int nEventsPassingAll = 0;
-  int nEventsIDmatched = 0;
+  int nGenEvents                 = 0;
+  int nEventsPassingAll          = 0;
+  int nEventsIDmatched           = 0;
+  int nEventsPassingID           = 0;
+  int nEventsPassingIDandTrigger = 0;
+  
   int iEvent;
   
-  float bins[] = { 0, 2, 3, 4, 5, 6, 8, 12, 16, 20 };
-  TH1D *recoEffNum = new TH1D("reco_id_eff_num", "reco_id_eff_num", 9, bins);
-  TH1D *recoEffDen = new TH1D("reco_id_eff_den", "reco_id_eff_den", 9, bins);
+  float binsRecoEff[] = { 0, 2, 3, 4, 5, 6, 8, 12, 16, 20 };
+  TH1D *recoEffNum = new TH1D("reco_id_eff_num", "reco_id_eff_num", 9, binsRecoEff);
+  TH1D *recoEffDen = new TH1D("reco_id_eff_den", "reco_id_eff_den", 9, binsRecoEff);
   recoEffNum->Sumw2();
   recoEffDen->Sumw2();
+  
+  float binsTriggerEff[] = { 0, 4, 5, 7, 10, 13, 16, 20, 24, 28 };
+  TH1D *triggerEffNum = new TH1D("trigger_eff_num", "trigger_eff_num", 9, binsTriggerEff);
+  TH1D *triggerEffDen = new TH1D("trigger_eff_den", "trigger_eff_den", 9, binsTriggerEff);
+  triggerEffNum->Sumw2();
+  triggerEffDen->Sumw2();
   
   for(iEvent=0; iEvent<eventProcessor->GetNevents(); iEvent++){
     if(iEvent%10000 == 0) cout<<"Processing event "<<iEvent<<endl;
     if(iEvent >= config.params["maxEvents"]) break;
     
     auto event = eventProcessor->GetEvent(iEvent);
-    
     auto goodGenPhotons  = event->GetGoodGenPhotons();
     auto photonSCpassing = event->GetGoodPhotonSCs();
     
-    if(goodGenPhotons.size() == 2){ // Exactly 2 gen photons?
+    // Check properties of this event
+    bool hasTwoGoodGenPhotons     = goodGenPhotons.size() == 2;
+    bool hasLbLTrigger            = event->HasLbLTrigger();
+    bool hasTwoPhotonsPassingID   = photonSCpassing.size() == 2;
+    bool passesNeutralExclusivity = ! event->HasAdditionalTowers();
+    bool passesChargedExclusivity = ! event->HasChargedTracks();
+    bool passesDiphotonCuts       = ! DiphotonPtAboveThreshold(photonSCpassing);
+    bool hasTwoMachingPhotons     = HasTwoMatchingPhotons(goodGenPhotons, event->GetPhotonSCs());
+    
+    // Increment counters of different types of events
+    if(hasTwoGoodGenPhotons){
       nGenEvents++;
       recoEffDen->Fill(goodGenPhotons.front()->GetEt());
     }
     
-    
-    if(event->HasLbLTrigger()){ // Check if event has any of the LbL triggers
-      
-      if(photonSCpassing.size() == 2){ // Exactly 2 passing photon candidates?
-        
-        if(!event->HasAdditionalTowers()){ // Neutral exclusivity
-          
-          if(!event->HasChargedTracks()){ // Charged exlusivity
+    if(hasLbLTrigger &&
+       hasTwoPhotonsPassingID &&
+       passesNeutralExclusivity &&
+       passesChargedExclusivity &&
+       passesDiphotonCuts){
+      nEventsPassingAll++;
+    }
 
-            if(!DiphotonPtAboveThreshold(photonSCpassing)){ // Diphoton momentum
-              nEventsPassingAll++;
-            }
-          }
-        }
-      }
+    if(hasTwoPhotonsPassingID){
+      nEventsPassingID++;
+//      triggerEffDen->Fill(
     }
     
-    // Are there 2 reconstructed photons matching gen photons?
-    if(HasTwoMatchingPhotons(goodGenPhotons, event->GetPhotonSCs())){
+    if(hasTwoPhotonsPassingID &&
+       hasLbLTrigger){
+      nEventsPassingIDandTrigger++;
+    }
+    
+    if(hasTwoMachingPhotons){
       nEventsIDmatched++;
       recoEffNum->Fill(goodGenPhotons.front()->GetEt());
     }
@@ -103,15 +128,15 @@ int main()
   cout<<"\n\n------------------------------------------------------------------------"<<endl;
   cout<<"N event analyzed: "<<iEvent<<endl;
   cout<<"N gen events within limits: "<<nGenEvents<<endl;
-  cout<<"N events passing selection: "<<nEventsPassingAll<<endl;
+  cout<<"N events passing all selections: "<<nEventsPassingAll<<endl;
   cout<<"N events with matched photons passing selection: "<<nEventsIDmatched<<endl;
+  cout<<"N events passing ID: "<<nEventsPassingID<<endl;
+  cout<<"N events passing ID and trigger: "<<nEventsPassingIDandTrigger<<endl;
   
-  cout<<"Diphoton efficiency: "<<(double)nEventsPassingAll/nGenEvents<<endl;
-  cout<<"Diphoton efficiency uncertainty: "<<sqrt(1./nEventsPassingAll+1./nGenEvents)*(double)nEventsPassingAll/nGenEvents<<endl;
+  cout<<"Diphoton efficiency: "; PrintEfficiency(nEventsPassingAll, nGenEvents);
+  cout<<"Reco+ID efficiency: "; PrintEfficiency(nEventsIDmatched, nGenEvents);
+  cout<<"Trigger efficiency: "; PrintEfficiency(nEventsPassingIDandTrigger, nEventsPassingID);
   
-  
-  cout<<"Reco+ID efficiency: "<<(double)nEventsIDmatched/nGenEvents<<endl;
-  cout<<"Reco+ID efficiency uncertainty: "<<sqrt(1./nEventsIDmatched+1./nGenEvents)*(double)nEventsIDmatched/nGenEvents<<endl;
   cout<<"------------------------------------------------------------------------\n\n"<<endl;
   
   TH1D *recoEff = new TH1D(*recoEffNum);

@@ -40,6 +40,8 @@ public:
   /// Returns vector of photon superclusters passing η, Et and shower shape cuts specified in config
   vector<shared_ptr<PhysObject>> GetGoodPhotonSCs();
   
+  double GetDiphotonInvMass();
+  
   /// Checks if there are towers above threshold not overlapping with reconstructed photons
   bool HasAdditionalTowers();
   

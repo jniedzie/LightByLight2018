@@ -5,11 +5,11 @@
 #include "PhysObject.hpp"
 
 PhysObject::PhysObject() :
-eta(0),
-phi(0),
-energy(0),
-et(0),
-pt(0),
+eta(9999),
+phi(9999),
+energy(-1),
+et(-1),
+pt(-1),
 
 energyHad(0),
 energyEm(0),

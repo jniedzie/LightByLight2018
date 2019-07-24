@@ -18,10 +18,22 @@ public:
   ~PhysObject();
   
   // Trivial getters:
-  inline double GetEta() const { return eta; }
-  inline double GetPhi() const { return phi; }
-  inline double GetEt()  const { return et; }
-  inline double GetPt()  const { return pt; }
+  inline double GetEta() const {
+    if(eta>999) cout<<"WARNING - carefull, eta probably not set"<<endl;
+    return eta;
+  }
+  inline double GetPhi() const {
+    if(phi>999) cout<<"WARNING - carefull, phi probably not set"<<endl;
+    return phi;
+  }
+  inline double GetEt()  const {
+    if(et<0) cout<<"WARNING - carefull, et probably not set"<<endl;
+    return et;
+  }
+  inline double GetPt()  const {
+    if(pt<0) cout<<"WARNING - carefull, pt probably not set"<<endl;
+    return pt;
+  }
   
   inline double GetEtaWidth()  const { return etaWidth; }
   inline double GetPhiWidth()  const { return phiWidth; }
