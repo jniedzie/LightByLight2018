@@ -21,13 +21,14 @@ vector<string> histParams = {
 
 int main(int argc, char* argv[])
 {
-  if(argc != 1 && argc != 2){
-    cout<<"This app requires 0 or 1 parameters. Only the input file name can be passed as a parameter."<<endl;
+  if(argc != 1 && argc != 3){
+    cout<<"This app requires 0 or 2 parameters."<<endl;
+    cout<<"./getEfficienciesData inputPath outputPath"<<endl;
     exit(0);
   }
   
   unique_ptr<EventProcessor> eventProcessor;
-  if(argc == 2) eventProcessor = unique_ptr<EventProcessor>(new EventProcessor(argv[1]));
+  if(argc == 3) eventProcessor = unique_ptr<EventProcessor>(new EventProcessor(argv[1]));
   else          eventProcessor = unique_ptr<EventProcessor>(new EventProcessor(kData));
   
   config = ConfigManager(configPath);
@@ -98,11 +99,13 @@ int main(int argc, char* argv[])
             
             if(bremTrack->GetPt() < 2.0){
               cout<<"Found an event matching all \"tag\" criteria"<<endl;
+              hists["reco_id_eff_den"]->Fill(1);
               nTagEvents++;
               
               if(event->GetNphotonSCs() == 1){
                 if(event->GetPhotonSC(0)->GetPt() > 2.0){
                   cout<<"and it has one photon"<<endl;
+                  hists["reco_id_eff_num"]->Fill(1);
                   nPassingEvents++;
                 }
               }
@@ -125,7 +128,7 @@ int main(int argc, char* argv[])
   cout<<"------------------------------------------------------------------------\n\n"<<endl;
   
   // Save histograms
-  TFile *outFile = new TFile("results/efficienciesData.root", "recreate");
+  TFile *outFile = new TFile(argc==3 ? argv[2]  : "results/efficienciesData.root", "recreate");
   outFile->cd();
   
   for(auto name : histParams){
