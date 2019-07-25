@@ -44,7 +44,7 @@ enum EDataset{
   nDatasets
 };
 
-inline map<EDataset, string> inFileNames = {
+const map<EDataset, string> inFileNames = {
   {kData    , "ntuples/ntuples_data_small_sample_merged.root" },
   {kMCqedSC , "ntuples/ntuples_mq_qed_sc_merged.root"         },
   {kMClbl   , "ntuples/ntuples_mc_lbl_merged.root"            },
@@ -52,7 +52,7 @@ inline map<EDataset, string> inFileNames = {
 
 enum ECaloType { kEB, kEE, kHB, kHE, kHFp, kHFm, nCaloTypes };
 
-inline map<ECaloType, double> caloNoiseThreshold = { // in GeV
+const map<ECaloType, double> caloNoiseThreshold = { // in GeV
   {kEB, 0.8},
   {kEE, 3.7},
   {kHB, 2.9},

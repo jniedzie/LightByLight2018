@@ -9,7 +9,7 @@ currentEvent(new Event())
 {
   for(auto triggerName : triggerNamesLbL) triggersLbL.push_back(0);
   
-  SetupBranches(inFileNames[dataset]);
+  SetupBranches(inFileNames.at(dataset));
 }
 
 EventProcessor::EventProcessor(string inputPath) :

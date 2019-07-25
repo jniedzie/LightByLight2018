@@ -16,8 +16,8 @@ Event::~Event()
 
 bool Event::HasLbLTrigger() const
 {
-  for(auto &[triggerName, fired] : triggersLbL){
-    if(fired) return true;
+  for(auto &fired : triggersLbL){
+    if(fired.second) return true;
   }
   return false;
 }
@@ -123,7 +123,7 @@ bool Event::HasAdditionalTowers()
     double energyHad = tower->GetEnergyHad();
     
     if(energyHad > 0){
-      if(energyHad > caloNoiseThreshold[tower->GetTowerSubdetHad()]) return true;
+      if(energyHad > caloNoiseThreshold.at(tower->GetTowerSubdetHad())) return true;
     }
     
     // Check if tower is above the noise threshold
@@ -149,7 +149,7 @@ bool Event::HasAdditionalTowers()
     }
     
     if(!overlapsWithPhoton){
-      if(tower->GetEnergyEm() > caloNoiseThreshold[subdetEm]) return true;
+      if(tower->GetEnergyEm() > caloNoiseThreshold.at(subdetEm)) return true;
     }
   }
   return false;
