@@ -3,8 +3,10 @@
 ### Max number of events to analyze
 maxEvents: 100000
 
-### Eta and Et (GeV) cuts (gen particles and photon superclusters must be within those limits)
+### Eta cut for gen particles and photon superclusters for MC efficiency estimation
 maxEta: 2.4
+
+### Et (GeV) cut for gen particles and photon superclusters for MC efficiency estimation
 minEt: 2 
 
 ### Criteria to reject photons coming from e.g. pi0 decays (by shower shape)

@@ -27,10 +27,11 @@ public:
   inline int GetNelectrons()      const { return nElectrons; }
   
   // Those return i-th object in this event:
-  inline shared_ptr<PhysObject> GetGenParticle(size_t iPart)    const { return genParticles[iPart]; }
-  inline shared_ptr<PhysObject> GetPhotonSC(size_t iPhoton)     const { return photonSC[iPhoton]; }
-  inline shared_ptr<PhysObject> GetCaloTower(size_t iTower)     const { return caloTowers[iTower]; }
-  inline shared_ptr<PhysObject> GetGeneralTrack(size_t iTrack)  const { return generalTracks[iTrack]; }
+  inline shared_ptr<PhysObject> GetGenParticle(size_t i)  const { return genParticles[i];  }
+  inline shared_ptr<PhysObject> GetPhotonSC(size_t i)     const { return photonSC[i];      }
+  inline shared_ptr<PhysObject> GetCaloTower(size_t i)    const { return caloTowers[i];    }
+  inline shared_ptr<PhysObject> GetGeneralTrack(size_t i) const { return generalTracks[i]; }
+  inline shared_ptr<PhysObject> GetElectron(size_t i)     const { return generalTracks[i]; }
   
   inline vector<shared_ptr<PhysObject>> GetPhotonSCs() const { return photonSC; }
   
@@ -84,6 +85,7 @@ private:
   vector<shared_ptr<PhysObject>> generalTracks; ///< Vector of general tracks
   
   int nElectrons = 0;                           ///< Number of electrons
+  vector<shared_ptr<PhysObject>> electrons;     ///< Vector of electrons
   
   friend class EventProcessor;
 };

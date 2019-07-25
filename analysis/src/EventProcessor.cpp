@@ -7,12 +7,30 @@
 EventProcessor::EventProcessor(EDataset dataset) :
 currentEvent(new Event())
 {
+  for(auto triggerName : triggerNamesLbL) triggersLbL.push_back(0);
+  
+  SetupBranches(inFileNames[dataset]);
+}
+
+EventProcessor::EventProcessor(string inputPath) :
+currentEvent(new Event())
+{
+  for(auto triggerName : triggerNamesLbL) triggersLbL.push_back(0);
+  
+  SetupBranches(inputPath);
+}
+
+EventProcessor::~EventProcessor()
+{
+  
+}
+
+void EventProcessor::SetupBranches(string inputPath)
+{
   // Read trees from input files
-  TFile *inFile = TFile::Open(inFileNames[dataset].c_str());
+  TFile *inFile = TFile::Open(inputPath.c_str());
   eventTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
   hltTree   = (TTree*)inFile->Get("hltanalysis/HltTree");
-  
-  for(auto triggerName : triggerNamesLbL) triggersLbL.push_back(0);
   
   for(int iTrigger=0; iTrigger<triggerNamesLbL.size(); iTrigger++){
     hltTree->SetBranchAddress(triggerNamesLbL[iTrigger].c_str(), &triggersLbL[iTrigger]);
@@ -23,13 +41,13 @@ currentEvent(new Event())
   eventTree->SetBranchAddress("mcEt"  , &mcEt);
   eventTree->SetBranchAddress("mcPID" , &mcPID);
   
-  eventTree->SetBranchAddress("nPho"          , &currentEvent->nPhotonSCs);
-  eventTree->SetBranchAddress("phoSCEta"      , &photonSCEta);
-  eventTree->SetBranchAddress("phoSCPhi"      , &photonSCPhi);
-  eventTree->SetBranchAddress("phoSCEt"       , &photonSCEt);
-  eventTree->SetBranchAddress("phoSCE"        , &photonSCE);
-  eventTree->SetBranchAddress("phoSCEtaWidth" , &photonSCEtaWidth);
-  eventTree->SetBranchAddress("phoSCPhiWidth" , &photonSCPhiWidth);
+  eventTree->SetBranchAddress("nPho"            , &currentEvent->nPhotonSCs);
+  eventTree->SetBranchAddress("phoSCEta"        , &photonSCEta);
+  eventTree->SetBranchAddress("phoSCPhi"        , &photonSCPhi);
+  eventTree->SetBranchAddress("phoSCEt"         , &photonSCEt);
+  eventTree->SetBranchAddress("phoSCE"          , &photonSCE);
+  eventTree->SetBranchAddress("phoSCEtaWidth"   , &photonSCEtaWidth);
+  eventTree->SetBranchAddress("phoSCPhiWidth"   , &photonSCPhiWidth);
   
   eventTree->SetBranchAddress("nTower"          , &currentEvent->nCaloTowers);
   eventTree->SetBranchAddress("CaloTower_hadE"  , &towerEnergyHad);
@@ -41,14 +59,15 @@ currentEvent(new Event())
   
   eventTree->SetBranchAddress("ngenTrk"         , &currentEvent->nGeneralTracks);
   eventTree->SetBranchAddress("gentrkPt"        , &generalTrackPt);
+  eventTree->SetBranchAddress("gentrkEta"       , &generalTrackEta);
+  eventTree->SetBranchAddress("gentrkPhi"       , &generalTrackPhi);
+  eventTree->SetBranchAddress("gentrkcharge"    , &generalTrackCharge);
   
   eventTree->SetBranchAddress("nEle"            , &currentEvent->nElectrons);
-  
-}
-
-EventProcessor::~EventProcessor()
-{
-  
+  eventTree->SetBranchAddress("eleCharge"       , &electronCharge);
+  eventTree->SetBranchAddress("elePt"           , &electronPt);
+  eventTree->SetBranchAddress("eleEta"          , &electronEta);
+  eventTree->SetBranchAddress("elePhi"          , &electronPhi);
 }
 
 shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
@@ -84,6 +103,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     photonSC->eta      = photonSCEta->at(iPhotonSC);
     photonSC->phi      = photonSCPhi->at(iPhotonSC);
     photonSC->et       = photonSCEt->at(iPhotonSC);
+    photonSC->pt       = photonSCEt->at(iPhotonSC);
     photonSC->energy   = photonSCE->at(iPhotonSC);
     photonSC->etaWidth = photonSCEtaWidth->at(iPhotonSC);
     photonSC->phiWidth = photonSCPhiWidth->at(iPhotonSC);
@@ -114,9 +134,26 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   for(size_t iTrack=0; iTrack<currentEvent->nGeneralTracks; iTrack++){
     auto track = make_shared<PhysObject>();
     
-    track->pt = generalTrackPt->at(iTrack);
+    track->charge = generalTrackCharge->at(iTrack);
+    track->pt     = generalTrackPt->at(iTrack);
+    track->eta    = generalTrackEta->at(iTrack);
+    track->phi    = generalTrackPhi->at(iTrack);
     
     currentEvent->generalTracks.push_back(track);
+  }
+  
+  // Clear and fill in collection of electrons
+  currentEvent->electrons.clear();
+  
+  for(size_t iElectron=0; iElectron<currentEvent->nElectrons; iElectron++){
+    auto electron = make_shared<PhysObject>();
+    
+    electron->charge = electronCharge->at(iElectron);
+    electron->pt     = electronPt->at(iElectron);
+    electron->eta    = electronEta->at(iElectron);
+    electron->phi    = electronPhi->at(iElectron);
+    
+    currentEvent->electrons.push_back(electron);
   }
   
   return currentEvent;

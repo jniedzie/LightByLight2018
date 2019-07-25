@@ -19,14 +19,22 @@ vector<string> histParams = {
   "reco_id_eff"
 };
 
-int main()
+int main(int argc, char* argv[])
 {
+  if(argc != 1 && argc != 2){
+    cout<<"This app requires 0 or 1 parameters. Only the input file name can be passed as a parameter."<<endl;
+    exit(0);
+  }
+  
+  unique_ptr<EventProcessor> eventProcessor;
+  if(argc == 2) eventProcessor = unique_ptr<EventProcessor>(new EventProcessor(argv[1]));
+  else          eventProcessor = unique_ptr<EventProcessor>(new EventProcessor(kData));
+  
   config = ConfigManager(configPath);
-  unique_ptr<EventProcessor> eventProcessor(new EventProcessor(kData));
   
   // Prepare counters and histograms
-  int nGenEvents                               = 0;
-  int nEventsPassingAll                        = 0;
+  int nTagEvents     = 0;
+  int nPassingEvents = 0;
   
   float bins[] = { 0, 2, 3, 4, 5, 6, 8, 10, 13, 20 };
   map<string, TH1D*> hists;
@@ -46,29 +54,73 @@ int main()
     
     auto event = eventProcessor->GetEvent(iEvent);
     
-    // Here we get gen and reco photons that pass acceptance (c_ACC) criteria
-    auto goodGenPhotons  = event->GetGoodGenPhotons();
-    auto photonSCpassing = event->GetGoodPhotonSCs();
-    
-    // Check properties of this event
-    bool hasTwoGoodGenPhotons     = false;
-    
-    
-    // Increment counters of different types of events
-    if(hasTwoGoodGenPhotons){
-      nGenEvents++;
-      hists["reco_id_eff_den"]->Fill(goodGenPhotons.front()->GetEt());
+    // Preselect events with one photon, one electron and one extra track not reconstructed as an electron
+    if(event->HasSingleEG3Trigger() &&
+       event->GetNgeneralTracks() == 2 &&
+       event->GetNelectrons() == 1){
+      
+      cout<<"Found good event"<<endl;
+      
+      auto electron = event->GetElectron(0);
+      
+      // Find matching track
+      auto track1 = event->GetGeneralTrack(0);
+      auto track2 = event->GetGeneralTrack(1);
+      
+      double deltaR1 = sqrt(pow(electron->GetEta()-track1->GetEta(), 2) +
+                            pow(electron->GetPhi()-track1->GetPhi(), 2));
+      
+      double deltaR2 = sqrt(pow(electron->GetEta()-track2->GetEta(), 2) +
+                            pow(electron->GetPhi()-track2->GetPhi(), 2));
+      
+      shared_ptr<PhysObject> matchingTrack = nullptr;
+      shared_ptr<PhysObject> bremTrack = nullptr;
+      
+      if(deltaR1 < 0.3 && deltaR2 > 0.3){
+        matchingTrack = track1;
+        bremTrack     = track2;
+      }
+      if(deltaR1 > 0.3 && deltaR2 < 0.3){
+        matchingTrack = track2;
+        bremTrack     = track1;
+      }
+      
+      if(!matchingTrack){
+        cout<<"Both track or no track match the electron"<<endl;
+      }
+      else{
+        cout<<"There's one track matching electron"<<endl;
+        if(electron->GetPt() > 3.0 && fabs(electron->GetEta())<2.4){
+          cout<<"Electron passes cuts"<<endl;
+          
+          if(bremTrack->GetCharge() == -electron->GetCharge()){
+            cout<<"Have opposite charges"<<endl;
+            
+            if(bremTrack->GetPt() < 2.0){
+              cout<<"Found an event matching all \"tag\" criteria"<<endl;
+              nTagEvents++;
+              
+              if(event->GetNphotonSCs() == 1){
+                if(event->GetPhotonSC(0)->GetPt() > 2.0){
+                  cout<<"and it has one photon"<<endl;
+                  nPassingEvents++;
+                }
+              }
+            }
+          }
+        }
+      }
+
     }
-    
   }
   
   // Print the results
   cout<<"\n\n------------------------------------------------------------------------"<<endl;
   cout<<"N event analyzed: "<<iEvent<<endl;
-  cout<<"N gen events within limits: "<<nGenEvents<<endl;
-  cout<<"N events passing all selections: "<<nEventsPassingAll<<endl;
+  cout<<"N tags: "<<nTagEvents<<endl;
+  cout<<"N passing: "<<nPassingEvents<<endl;
   
-  cout<<"Reco+ID efficiency: "; PrintEfficiency(nEventsPassingAll, nGenEvents);
+  cout<<"Reco+ID efficiency: "; PrintEfficiency(nPassingEvents, nTagEvents);
   
   cout<<"------------------------------------------------------------------------\n\n"<<endl;
   

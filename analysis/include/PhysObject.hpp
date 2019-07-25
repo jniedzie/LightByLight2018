@@ -27,6 +27,7 @@ public:
   double GetPhiWidth() const;
   
   int    GetPID() const;
+  int    GetCharge() const;
   
   double GetEnergy()     const;
   double GetEnergyHad()  const;
@@ -50,6 +51,7 @@ private:
   double phiWidth;  ///< Width in phi direction
   
   int pdgID;        ///< PDG PID code
+  int charge;       ///< Particle charge
   
   friend class EventProcessor;
 };

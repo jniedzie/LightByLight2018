@@ -16,6 +16,9 @@ public:
   /// \param dataset Determines which events will be kept here (data, MC lbl, MC cep etc.)
   EventProcessor(EDataset dataset);
   
+  /// Alternative constructor, taking directly path to the file
+  EventProcessor(string inputPath);
+  
   /// Default destructor
   ~EventProcessor();
   
@@ -34,27 +37,38 @@ private:
   // Handles to variables stored in ntuple trees
   vector<int>    triggersLbL;
   
-  vector<double> *mcEta = nullptr;
-  vector<double> *mcPhi = nullptr;
-  vector<double> *mcEt  = nullptr;
-  vector<double> *mcE   = nullptr;
-  vector<double> *mcPID = nullptr;
+  vector<double> *mcEta              = nullptr;
+  vector<double> *mcPhi              = nullptr;
+  vector<double> *mcEt               = nullptr;
+  vector<double> *mcE                = nullptr;
+  vector<double> *mcPID              = nullptr;
   
-  vector<double> *photonSCEta      = nullptr;
-  vector<double> *photonSCPhi      = nullptr;
-  vector<double> *photonSCEt       = nullptr;
-  vector<double> *photonSCE        = nullptr;
-  vector<double> *photonSCEtaWidth = nullptr;
-  vector<double> *photonSCPhiWidth = nullptr;
+  vector<double> *photonSCEta        = nullptr;
+  vector<double> *photonSCPhi        = nullptr;
+  vector<double> *photonSCEt         = nullptr;
+  vector<double> *photonSCE          = nullptr;
+  vector<double> *photonSCEtaWidth   = nullptr;
+  vector<double> *photonSCPhiWidth   = nullptr;
   
-  vector<double> *towerEta       = nullptr;
-  vector<double> *towerPhi       = nullptr;
-  vector<double> *towerEnergy    = nullptr;
-  vector<double> *towerEt        = nullptr;
-  vector<double> *towerEnergyHad = nullptr;
-  vector<double> *towerEnergyEm  = nullptr;
+  vector<double> *towerEta           = nullptr;
+  vector<double> *towerPhi           = nullptr;
+  vector<double> *towerEnergy        = nullptr;
+  vector<double> *towerEt            = nullptr;
+  vector<double> *towerEnergyHad     = nullptr;
+  vector<double> *towerEnergyEm      = nullptr;
   
-  vector<double> *generalTrackPt = nullptr;
+  vector<int>    *generalTrackCharge = nullptr;
+  vector<double> *generalTrackPt     = nullptr;
+  vector<double> *generalTrackEta    = nullptr;
+  vector<double> *generalTrackPhi    = nullptr;
+  
+  vector<int>    *electronCharge     = nullptr;
+  vector<double> *electronPt         = nullptr;
+  vector<double> *electronEta        = nullptr;
+  vector<double> *electronPhi        = nullptr;
+  
+  /// Opens input trees and sets branches
+  void SetupBranches(string inputPath);
 };
 
 #endif /* EventProcessor_hpp */

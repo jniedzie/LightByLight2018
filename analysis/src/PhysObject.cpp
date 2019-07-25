@@ -17,7 +17,8 @@ energyEm(-9999),
 etaWidth(-1),
 phiWidth(-1),
 
-pdgID(0)
+pdgID(0),
+charge(9999)
 {
   
 }
@@ -89,10 +90,16 @@ double PhysObject::GetPhiWidth()  const
   return phiWidth;
 }
 
-int    PhysObject::GetPID() const
+int PhysObject::GetPID() const
 {
   if(pdgID==0) cout<<"WARNING - carefull, pdgID probably not set"<<endl;
   return pdgID;
+}
+
+int PhysObject::GetCharge() const
+{
+  if(charge > 999) cout<<"WARNING - carefull, charge probably not set"<<endl;
+  return charge;
 }
 
 double PhysObject::GetEnergy()     const
