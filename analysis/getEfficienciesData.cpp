@@ -21,15 +21,20 @@ vector<string> histParams = {
 
 int main(int argc, char* argv[])
 {
-  if(argc != 1 && argc != 3){
+  if(argc != 1 && argc != 4){
     cout<<"This app requires 0 or 2 parameters."<<endl;
-    cout<<"./getEfficienciesData inputPath outputPath"<<endl;
+    cout<<"./getEfficienciesData configPath inputPath outputPath"<<endl;
     exit(0);
   }
   
   unique_ptr<EventProcessor> eventProcessor;
-  if(argc == 3) eventProcessor = unique_ptr<EventProcessor>(new EventProcessor(argv[1]));
-  else          eventProcessor = unique_ptr<EventProcessor>(new EventProcessor(kData));
+  if(argc == 4){
+    eventProcessor = unique_ptr<EventProcessor>(new EventProcessor(argv[2]));
+    configPath = argv[1];
+  }
+  else{
+    eventProcessor = unique_ptr<EventProcessor>(new EventProcessor(kData));
+  }
   
   config = ConfigManager(configPath);
   
@@ -59,20 +64,24 @@ int main(int argc, char* argv[])
     
     cutThouthHist->Fill(0);
     
-    // Preselect events with one photon, one electron and one extra track not reconstructed as an electron
+    // Preselect events with one electron and one extra track not reconstructed as an electron
     if(event->HasSingleEG3Trigger() &&
        event->GetNgeneralTracks() == 2 &&
        event->GetNelectrons() == 1){
-      
-      cout<<"Found good event"<<endl;
+
       cutThouthHist->Fill(1);
       
+      // Get objects of interest
       auto electron = event->GetElectron(0);
+      auto photon   = event->GetPhotonSC(0);
+      auto track1   = event->GetGeneralTrack(0);
+      auto track2   = event->GetGeneralTrack(1);
       
-      // Find matching track
-      auto track1 = event->GetGeneralTrack(0);
-      auto track2 = event->GetGeneralTrack(1);
+      // Check electron cuts
+      if(electron->GetPt() < 3.0 || fabs(electron->GetEta()) > 2.4) continue;
+      else cutThouthHist->Fill(2);
       
+      // Check if there is exactly one track matching electron
       double deltaR1 = sqrt(pow(electron->GetEta()-track1->GetEta(), 2) +
                             pow(electron->GetPhi()-track1->GetPhi(), 2));
       
@@ -80,53 +89,41 @@ int main(int argc, char* argv[])
                             pow(electron->GetPhi()-track2->GetPhi(), 2));
       
       shared_ptr<PhysObject> matchingTrack = nullptr;
-      shared_ptr<PhysObject> bremTrack = nullptr;
-      
+      shared_ptr<PhysObject> bremTrack     = nullptr;
+
       if(deltaR1 < 0.3 && deltaR2 > 0.3){
-        matchingTrack = track1;
-        bremTrack     = track2;
+        matchingTrack                      = track1;
+        bremTrack                          = track2;
       }
       if(deltaR1 > 0.3 && deltaR2 < 0.3){
-        matchingTrack = track2;
-        bremTrack     = track1;
+        matchingTrack                      = track2;
+        bremTrack                          = track1;
       }
       
-      if(!matchingTrack){
-        cout<<"Both track or no track match the electron"<<endl;
-      }
-      else{
-        cout<<"There's one track matching electron"<<endl;
-        cutThouthHist->Fill(2);
-        
-        if(electron->GetPt() > 3.0 && fabs(electron->GetEta())<2.4){
-          cout<<"Electron passes cuts"<<endl;
-          cutThouthHist->Fill(3);
+      if(!matchingTrack) continue;
+      cutThouthHist->Fill(3);
+      
+      // Make sure that tracks have opposite charges and that brem track has low momentum
+      if(bremTrack->GetCharge() == electron->GetCharge() || bremTrack->GetPt() > 2.0) continue;
+      cutThouthHist->Fill(4);
+      
+      // Count this event as a tag
+      hists["reco_id_eff_den"]->Fill(1);
+      nTagEvents++;
+      
+      // Check that there's exactly one photon and has high enough momentum
+      if(event->GetNphotonSCs() == 1){
+        if(event->GetPhotonSC(0)->GetPt() > 2.0){
+          cutThouthHist->Fill(5);
           
-          if(bremTrack->GetCharge() == -electron->GetCharge()){
-            cout<<"Have opposite charges"<<endl;
-            cutThouthHist->Fill(4);
-            
-            if(bremTrack->GetPt() < 2.0){
-              cout<<"Found an event matching all \"tag\" criteria"<<endl;
-              cutThouthHist->Fill(5);
-              hists["reco_id_eff_den"]->Fill(1);
-              nTagEvents++;
-              
-              if(event->GetNphotonSCs() == 1){
-                if(event->GetPhotonSC(0)->GetPt() > 2.0){
-                  cout<<"and it has one photon"<<endl;
-                  cutThouthHist->Fill(6);
-                  hists["reco_id_eff_num"]->Fill(1);
-                  nPassingEvents++;
-                }
-              }
-            }
-          }
+          // Count this event as a probe
+          hists["reco_id_eff_num"]->Fill(1);
+          nPassingEvents++;
         }
       }
-
     }
   }
+  
   
   // Print the results
   cout<<"\n\n------------------------------------------------------------------------"<<endl;
@@ -139,7 +136,7 @@ int main(int argc, char* argv[])
   cout<<"------------------------------------------------------------------------\n\n"<<endl;
   
   // Save histograms
-  TFile *outFile = new TFile(argc==3 ? argv[2]  : "results/efficienciesData.root", "recreate");
+  TFile *outFile = new TFile(argc==3 ? argv[3]  : "results/efficienciesData.root", "recreate");
   outFile->cd();
   
   cutThouthHist->Write();
