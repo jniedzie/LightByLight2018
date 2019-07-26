@@ -44,3 +44,14 @@ analysis/getEfficienciesMC
 analysis/libAnalysis.a
 analysis/ntuples/*
 xLightByLight.xcodeproj/
+analysis/error/*
+analysis/jniedzie.cc
+analysis/log/*
+analysis/output/*
+MC_reconstruction/digi_raw/mc_qed_sl/crabConfig.pyc
+MC_reconstruction/digi_raw/mc_qed_sl/crab_projects/
+MC_reconstruction/digi_raw/mc_qed_sl/step2_DIGI_L1_DIGI2RAW_HLT.pyc
+MC_reconstruction/reco_modified/mc_qed_sc/crab_projects/
+MC_reconstruction/reco_modified/mc_qed_sl/crab_projects/
+MC_reconstruction/reco_modified/mc_qed_sl/step3_RAW2DIGI_L1Reco_RECO.pyc
+
