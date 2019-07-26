@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
   cout<<"------------------------------------------------------------------------\n\n"<<endl;
   
   // Save histograms
-  TFile *outFile = new TFile(argc==3 ? argv[3]  : "results/efficienciesData.root", "recreate");
+  TFile *outFile = new TFile(argc==4 ? argv[3]  : "results/efficienciesData.root", "recreate");
   outFile->cd();
   
   cutThouthHist->Write();
