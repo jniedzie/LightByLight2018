@@ -16,7 +16,7 @@ void PrintEfficiency(double num, double den)
 }
 
 vector<string> histParams = {
-  "reco_id_eff"
+  "reco_id_eff",
 };
 
 int main(int argc, char* argv[])
@@ -37,6 +37,8 @@ int main(int argc, char* argv[])
   int nTagEvents     = 0;
   int nPassingEvents = 0;
   
+  TH1D *cutThouthHist = new TH1D("cut_through", "cut_through", 10, 0, 10);
+  
   float bins[] = { 0, 2, 3, 4, 5, 6, 8, 10, 13, 20 };
   map<string, TH1D*> hists;
   for(auto name : histParams){
@@ -55,12 +57,15 @@ int main(int argc, char* argv[])
     
     auto event = eventProcessor->GetEvent(iEvent);
     
+    cutThouthHist->Fill(0);
+    
     // Preselect events with one photon, one electron and one extra track not reconstructed as an electron
     if(event->HasSingleEG3Trigger() &&
        event->GetNgeneralTracks() == 2 &&
        event->GetNelectrons() == 1){
       
       cout<<"Found good event"<<endl;
+      cutThouthHist->Fill(1);
       
       auto electron = event->GetElectron(0);
       
@@ -91,20 +96,26 @@ int main(int argc, char* argv[])
       }
       else{
         cout<<"There's one track matching electron"<<endl;
+        cutThouthHist->Fill(2);
+        
         if(electron->GetPt() > 3.0 && fabs(electron->GetEta())<2.4){
           cout<<"Electron passes cuts"<<endl;
+          cutThouthHist->Fill(3);
           
           if(bremTrack->GetCharge() == -electron->GetCharge()){
             cout<<"Have opposite charges"<<endl;
+            cutThouthHist->Fill(4);
             
             if(bremTrack->GetPt() < 2.0){
               cout<<"Found an event matching all \"tag\" criteria"<<endl;
+              cutThouthHist->Fill(5);
               hists["reco_id_eff_den"]->Fill(1);
               nTagEvents++;
               
               if(event->GetNphotonSCs() == 1){
                 if(event->GetPhotonSC(0)->GetPt() > 2.0){
                   cout<<"and it has one photon"<<endl;
+                  cutThouthHist->Fill(6);
                   hists["reco_id_eff_num"]->Fill(1);
                   nPassingEvents++;
                 }
@@ -130,6 +141,8 @@ int main(int argc, char* argv[])
   // Save histograms
   TFile *outFile = new TFile(argc==3 ? argv[2]  : "results/efficienciesData.root", "recreate");
   outFile->cd();
+  
+  cutThouthHist->Write();
   
   for(auto name : histParams){
     hists[name]->Divide(hists[name+"_num"], hists[name+"_den"], 1, 1, "B");
