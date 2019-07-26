@@ -73,7 +73,6 @@ int main(int argc, char* argv[])
       
       // Get objects of interest
       auto electron = event->GetElectron(0);
-      auto photon   = event->GetPhotonSC(0);
       auto track1   = event->GetGeneralTrack(0);
       auto track2   = event->GetGeneralTrack(1);
       
@@ -112,8 +111,8 @@ int main(int argc, char* argv[])
       nTagEvents++;
       
       // Check that there's exactly one photon and has high enough momentum
-      if(event->GetNphotonSCs() == 1){
-        if(event->GetPhotonSC(0)->GetPt() > 2.0){
+      if(event->GetGoodPhotonSCs().size() == 1){
+        if(event->GetGoodPhotonSCs()[0]->GetPt() > 2.0){
           cutThouthHist->Fill(5);
           
           // Count this event as a probe
