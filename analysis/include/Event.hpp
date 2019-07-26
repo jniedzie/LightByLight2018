@@ -42,6 +42,9 @@ public:
   /// specified in config
   vector<shared_ptr<PhysObject>> GetGoodPhotonSCs();
   
+  /// Returns vector of electrons passing η and Et cuts specified in the config
+  vector<shared_ptr<PhysObject>> GetGoodElectrons() const;
+  
   /// Finds two photons passing cuts (if not done yet) and returns diphoton invariant mass
   double GetDiphotonInvMass();
   
@@ -55,6 +58,9 @@ public:
   
   /// Checks if there are any charged tracks in the event (above pt specified in config)
   bool HasChargedTracks() const;
+  
+  /// Returns number of charged tracks with pt above threshold specifined in the config
+  int GetNchargedTracks() const;
   
   /// Returns true if any of the LbL triggers (as defined in Helpers.hpp) fired, false otherwise.
   bool HasLbLTrigger() const;

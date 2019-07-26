@@ -74,6 +74,22 @@ vector<shared_ptr<PhysObject>> Event::GetGoodPhotonSCs()
   return photonSCpassing;
 }
 
+vector<shared_ptr<PhysObject>> Event::GetGoodElectrons() const
+{
+  vector<shared_ptr<PhysObject>> goodElectrons;
+  
+  for(int iElectron=0; iElectron<nElectrons; iElectron++){
+    auto electron = electrons[iElectron];
+    
+    // Check eta and Et
+    if(fabs(electron->GetEta()) > config.params["maxEta"]) continue;
+    if(electron->GetPt() < config.params["minEt"]) continue;
+    
+    goodElectrons.push_back(electron);
+  }
+  return goodElectrons;
+}
+
 double Event::GetDiphotonInvMass()
 {
   if(!passingPhotonSCready) GetGoodPhotonSCs();
@@ -164,4 +180,14 @@ bool Event::HasChargedTracks() const
     if(track->GetPt() > config.params["trackMinPt"]) return true;
   }
   return false;
+}
+
+int Event::GetNchargedTracks() const
+{
+  int nTracks=0;
+  
+  for(int iTrack=0; iTrack<nGeneralTracks; iTrack++){
+    if(generalTracks[iTrack]->GetPt() > config.params["trackMinPt"]) nTracks++;
+  }
+  return nTracks;
 }

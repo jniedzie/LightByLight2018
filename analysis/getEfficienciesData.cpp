@@ -10,6 +10,9 @@
 
 string configPath = "configs/efficiencies.md";
 
+bool doRecoEfficiency = false;
+bool doChargedExclusivityEfficiency = true;
+
 void PrintEfficiency(double num, double den)
 {
   cout<<(double)num/den<<"\t#pm "<<sqrt(1./num+1./den)*(double)num/den<<endl;
@@ -42,6 +45,9 @@ int main(int argc, char* argv[])
   int nTagEvents     = 0;
   int nPassingEvents = 0;
   
+  int nTagCHE   = 0;
+  int nProbeCHE = 0;
+  
   TH1D *cutThouthHist = new TH1D("cut_through", "cut_through", 10, 0, 10);
   
   float bins[] = { 0, 2, 3, 4, 5, 6, 8, 10, 13, 20 };
@@ -61,58 +67,57 @@ int main(int argc, char* argv[])
     if(iEvent >= config.params["maxEvents"]) break;
     
     auto event = eventProcessor->GetEvent(iEvent);
-    
     cutThouthHist->Fill(0);
     
-    // Preselect events with one electron and one extra track not reconstructed as an electron
-    if(event->HasSingleEG3Trigger() &&
-       event->GetNgeneralTracks() == 2 &&
-       event->GetNelectrons() == 1){
-
-      cutThouthHist->Fill(1);
-      
-      // Get objects of interest
-      auto electron = event->GetElectron(0);
-      auto track1   = event->GetGeneralTrack(0);
-      auto track2   = event->GetGeneralTrack(1);
-      
-      // Check electron cuts
-      if(electron->GetPt() < 3.0 || fabs(electron->GetEta()) > 2.4) continue;
-      else cutThouthHist->Fill(2);
-      
-      // Check if there is exactly one track matching electron
-      double deltaR1 = sqrt(pow(electron->GetEta()-track1->GetEta(), 2) +
-                            pow(electron->GetPhi()-track1->GetPhi(), 2));
-      
-      double deltaR2 = sqrt(pow(electron->GetEta()-track2->GetEta(), 2) +
-                            pow(electron->GetPhi()-track2->GetPhi(), 2));
-      
-      shared_ptr<PhysObject> matchingTrack = nullptr;
-      shared_ptr<PhysObject> bremTrack     = nullptr;
-
-      if(deltaR1 < 0.3 && deltaR2 > 0.3){
-        matchingTrack                      = track1;
-        bremTrack                          = track2;
-      }
-      if(deltaR1 > 0.3 && deltaR2 < 0.3){
-        matchingTrack                      = track2;
-        bremTrack                          = track1;
-      }
-      
-      if(!matchingTrack) continue;
-      cutThouthHist->Fill(3);
-      
-      // Make sure that tracks have opposite charges and that brem track has low momentum
-      if(bremTrack->GetCharge() == electron->GetCharge() || bremTrack->GetPt() > 2.0) continue;
-      cutThouthHist->Fill(4);
-      
-      // Count this event as a tag
-      hists["reco_id_eff_den"]->Fill(1);
-      nTagEvents++;
-      
-      // Check that there's exactly one photon and has high enough momentum
-      if(event->GetGoodPhotonSCs().size() == 1){
-        if(event->GetGoodPhotonSCs()[0]->GetPt() > 2.0){
+    if(doRecoEfficiency){
+      // Preselect events with one electron and one extra track not reconstructed as an electron
+      if(event->HasSingleEG3Trigger() &&
+         event->GetNgeneralTracks() == 2 &&
+         event->GetNelectrons() == 1){
+        
+        cutThouthHist->Fill(1);
+        
+        // Get objects of interest
+        auto electron = event->GetElectron(0);
+        auto track1   = event->GetGeneralTrack(0);
+        auto track2   = event->GetGeneralTrack(1);
+        
+        // Check electron cuts
+        if(electron->GetPt() < 3.0 || fabs(electron->GetEta()) > 2.4) continue;
+        else cutThouthHist->Fill(2);
+        
+        // Check if there is exactly one track matching electron
+        double deltaR1 = sqrt(pow(electron->GetEta()-track1->GetEta(), 2) +
+                              pow(electron->GetPhi()-track1->GetPhi(), 2));
+        
+        double deltaR2 = sqrt(pow(electron->GetEta()-track2->GetEta(), 2) +
+                              pow(electron->GetPhi()-track2->GetPhi(), 2));
+        
+        shared_ptr<PhysObject> matchingTrack = nullptr;
+        shared_ptr<PhysObject> bremTrack     = nullptr;
+        
+        if(deltaR1 < 0.3 && deltaR2 > 0.3){
+          matchingTrack                      = track1;
+          bremTrack                          = track2;
+        }
+        if(deltaR1 > 0.3 && deltaR2 < 0.3){
+          matchingTrack                      = track2;
+          bremTrack                          = track1;
+        }
+        
+        if(!matchingTrack) continue;
+        cutThouthHist->Fill(3);
+        
+        // Make sure that tracks have opposite charges and that brem track has low momentum
+        if(bremTrack->GetCharge() == electron->GetCharge() || bremTrack->GetPt() > 2.0) continue;
+        cutThouthHist->Fill(4);
+        
+        // Count this event as a tag
+        hists["reco_id_eff_den"]->Fill(1);
+        nTagEvents++;
+        
+        // Check that there's exactly one photon and has high enough momentum
+        if(event->GetGoodPhotonSCs().size() == 1){
           cutThouthHist->Fill(5);
           
           // Count this event as a probe
@@ -121,16 +126,45 @@ int main(int argc, char* argv[])
         }
       }
     }
+    
+    if(doChargedExclusivityEfficiency){
+      if(event->HasLbLTrigger()){
+        
+        auto goodElectrons = event->GetGoodElectrons();
+        
+        if(goodElectrons.size() >= 2){
+         
+          int nPositiveElectrons = 0;
+          int nNegativeElectrons = 0;
+          
+          for(auto &electron : goodElectrons){
+            if(electron->GetCharge() > 0) nPositiveElectrons++;
+            if(electron->GetCharge() < 0) nNegativeElectrons++;
+          }
+          
+          if(nPositiveElectrons > 0 && nNegativeElectrons > 0){
+            nTagCHE++;
+            
+            if(event->GetNchargedTracks() == 2){
+              nProbeCHE++;
+            }
+          }
+        }
+      }
+    }
+    
   }
-  
   
   // Print the results
   cout<<"\n\n------------------------------------------------------------------------"<<endl;
   cout<<"N event analyzed: "<<iEvent<<endl;
-  cout<<"N tags: "<<nTagEvents<<endl;
-  cout<<"N passing: "<<nPassingEvents<<endl;
+  cout<<"N tags reco: "<<nTagEvents<<endl;
+  cout<<"N probes reco: "<<nPassingEvents<<endl;
+  cout<<"N tags CHE: "<<nTagCHE<<endl;
+  cout<<"N probes CHE: "<<nProbeCHE<<endl;
   
   cout<<"Reco+ID efficiency: "; PrintEfficiency(nPassingEvents, nTagEvents);
+  cout<<"CHE efficiency: "; PrintEfficiency(nProbeCHE, nTagCHE);
   
   cout<<"------------------------------------------------------------------------\n\n"<<endl;
   
