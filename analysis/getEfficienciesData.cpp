@@ -19,7 +19,7 @@ void PrintEfficiency(double num, double den)
 }
 
 vector<string> histParams = {
-  "reco_id_eff",
+  "reco_id_eff", "charged_exclusivity_eff",
 };
 
 int main(int argc, char* argv[])
@@ -144,9 +144,11 @@ int main(int argc, char* argv[])
           
           if(nPositiveElectrons > 0 && nNegativeElectrons > 0){
             nTagCHE++;
+            hists["charged_exclusivity_eff_den"]->Fill(1);
             
             if(event->GetNchargedTracks() == 2){
               nProbeCHE++;
+              hists["charged_exclusivity_eff_num"]->Fill(1);
             }
           }
         }
