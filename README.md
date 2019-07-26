@@ -133,7 +133,9 @@ cd CMSSW_10_3_2/src/EgRegresTrainerLegacy
 * Submit jobs: `condor_submit condorConfig.sub`
 
 
-## Build analysis toolkit
+## Efficiencies estimation
+
+### Build analysis toolkit
 
 * Login to lxplus7 (with centos7), go to top directory of this repo and run these commands:
 ```
@@ -144,6 +146,22 @@ cd CMSSW_10_3_2/src/EgRegresTrainerLegacy
 ```
 * if everything went well, you should see executables such as "getDiphotonEfficiency" ready to run.
 
+### MC driven efficiencies
+
+* Build the analysis toolkit as specified above,
+* `cd analysis`
+* open `getEfficienciesMC.cpp` and set configPath variable if you want to use a config different than the default one (but probably there's no need to do that),
+* verify that variables in `configs/efficiencies.md` are ok,
+* open `include/Helpers.hpp` and check the following:
+	* triggerNamesLbL - should list all possible triggers for LbL,
+	* inFileNames - entry for `kMClbl` should point to the ntuple with LbL events,
+	* caloNoiseThreshold - check if noise thresholds are set correctly,
+* after applying all changes, build again with `make -j8`
+* run `./getEfficienciesMC`,
+* you should get efficiencies together with errors in the standard ouput and output histograms located in `results/efficienciesMC.root`,
+* to create better looking plots, use `drawEfficiencies.C` marco.
+
+	
 
 ## Authors
 
