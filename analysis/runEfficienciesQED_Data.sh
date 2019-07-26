@@ -1,7 +1,5 @@
 #!/bin/bash
 
-process=$1
-
 configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/efficiencies.md"
 
 inputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/HIForward_Reco/ntuples/ntuples_data_lbl/ntuples_data_lbl/190723_062214/0000/HiForestAOD_AOD_${1}.root"
