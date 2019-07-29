@@ -30,11 +30,11 @@ INTERFACE_LINK_LIBRARIES ${ROOT_EXE_LINKER_FLAGS})
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-add_executable(getEfficienciesMC getEfficienciesMC.cpp)
-add_executable(getEfficienciesData getEfficienciesData.cpp)
+add_executable(getEfficienciesLbL getEfficienciesLbL.cpp)
+add_executable(getEfficienciesQED getEfficienciesQED.cpp)
 
-set_property(TARGET getEfficienciesMC PROPERTY CXX_STANDARD 17)
-set_property(TARGET getEfficienciesData PROPERTY CXX_STANDARD 17)
+set_property(TARGET getEfficienciesLbL PROPERTY CXX_STANDARD 17)
+set_property(TARGET getEfficienciesQED PROPERTY CXX_STANDARD 17)
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
@@ -46,5 +46,5 @@ add_library(Analysis  src/Event.cpp
 
 set_property(TARGET Analysis PROPERTY CXX_STANDARD 17)
 
-target_link_libraries(getEfficienciesMC Analysis ${ROOT_LIBRARIES})
-target_link_libraries(getEfficienciesData Analysis ${ROOT_LIBRARIES})
+target_link_libraries(getEfficienciesLbL Analysis ${ROOT_LIBRARIES})
+target_link_libraries(getEfficienciesQED Analysis ${ROOT_LIBRARIES})

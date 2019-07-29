@@ -68,6 +68,9 @@ public:
   /// Checks if SingleEG3 fired
   bool HasSingleEG3Trigger();
   
+  /// Checks if SingleEG5 fired
+  bool HasSingleEG5Trigger();
+  
   /// Checks if DoubleEG2 fired
   bool HasDoubleEG2Trigger();
   

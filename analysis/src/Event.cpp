@@ -27,6 +27,11 @@ bool Event::HasSingleEG3Trigger()
   return triggersLbL["HLT_HIUPC_SingleEG3_NotMBHF2AND_v1"];
 }
 
+bool Event::HasSingleEG5Trigger()
+{
+  return triggersLbL["HLT_HIUPC_SingleEG5_NotMBHF2AND_v1"];
+}
+
 bool Event::HasDoubleEG2Trigger()
 {
   return triggersLbL["HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1"];
