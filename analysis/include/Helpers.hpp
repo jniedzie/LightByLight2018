@@ -72,4 +72,9 @@ const double maxEtaHE = 3.0;
 const double minEtaHF = 2.9;
 const double maxEtaHF = 5.2;
 
+inline void PrintEfficiency(double num, double den)
+{
+  cout<<(double)num/den<<"\t#pm "<<sqrt(1./num+1./den)*(double)num/den<<endl;
+}
+
 #endif /* Helpers_h */

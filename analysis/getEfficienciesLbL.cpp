@@ -26,11 +26,6 @@ bool HasTwoMatchingPhotons(const vector<shared_ptr<PhysObject>> &genPhotons,
   return nMatched >= 2;
 }
 
-void PrintEfficiency(double num, double den)
-{
-  cout<<(double)num/den<<"\t#pm "<<sqrt(1./num+1./den)*(double)num/den<<endl;
-}
-
 vector<string> histParams = {
   "reco_id_eff", "trigger_eff", "trigger_single_eff", "trigger_double_eff", "charged_excl_eff", "neutral_excl_eff"
 };
@@ -162,7 +157,7 @@ int main()
   cout<<"------------------------------------------------------------------------\n\n"<<endl;
   
   // Save histograms
-  TFile *outFile = new TFile("results/efficienciesMC.root", "recreate");
+  TFile *outFile = new TFile("results/efficienciesLbL.root", "recreate");
   outFile->cd();
   
   for(auto name : histParams){

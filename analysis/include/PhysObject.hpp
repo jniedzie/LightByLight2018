@@ -59,6 +59,7 @@ private:
   int nMissingHits; ///< Number of missing hits
   
   friend class EventProcessor;
+  friend class PhysObjectProcessor;
 };
 
 #endif /* PhysObject_hpp */
