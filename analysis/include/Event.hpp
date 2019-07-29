@@ -33,7 +33,8 @@ public:
   inline shared_ptr<PhysObject> GetGeneralTrack(size_t i) const { return generalTracks[i]; }
   inline shared_ptr<PhysObject> GetElectron(size_t i)     const { return generalTracks[i]; }
   
-  inline vector<shared_ptr<PhysObject>> GetPhotonSCs() const { return photonSC; }
+  inline vector<shared_ptr<PhysObject>> GetPhotonSCs()    const { return photonSC; }
+  inline vector<shared_ptr<PhysObject>> GetCaloTowers()   const { return caloTowers; }
   
   /// Returns vector of gen particles passing η and Et cuts specified in the config
   vector<shared_ptr<PhysObject>> GetGoodGenPhotons() const;
