@@ -41,6 +41,7 @@ include_directories("${PROJECT_SOURCE_DIR}/include")
 add_library(Analysis  src/Event.cpp
                       src/EventProcessor.cpp
                       src/PhysObject.cpp
+                      src/PhysObjectProcessor.cpp
                       src/ConfigManager.cpp
 )
 
