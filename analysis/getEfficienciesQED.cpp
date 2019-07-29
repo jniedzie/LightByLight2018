@@ -10,7 +10,7 @@
 
 string configPath = "configs/efficiencies.md";
 
-bool doRecoEfficiency = false;
+bool doRecoEfficiency = true;
 bool doChargedExclusivityEfficiency = true;
 
 void PrintEfficiency(double num, double den)
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
   int nTagCHE   = 0;
   int nProbeCHE = 0;
   
-  TH1D *cutThouthHist = new TH1D("cut_through", "cut_through", 10, 0, 10);
+  TH1D *cutThroughHist = new TH1D("cut_through", "cut_through", 10, 0, 10);
   
   float bins[] = { 0, 2, 3, 4, 5, 6, 8, 10, 13, 20 };
   map<string, TH1D*> hists;
@@ -67,15 +67,15 @@ int main(int argc, char* argv[])
     if(iEvent >= config.params["maxEvents"]) break;
     
     auto event = eventProcessor->GetEvent(iEvent);
-    cutThouthHist->Fill(0);
+    cutThroughHist->Fill(0);
     
     if(doRecoEfficiency){
       // Preselect events with one electron and one extra track not reconstructed as an electron
-      if(event->HasSingleEG3Trigger() &&
-         event->GetNgeneralTracks() == 2 &&
-         event->GetNelectrons() == 1){
+      if(event->HasSingleEG5Trigger() &&
+         event->GetNelectrons() == 1 &&
+         event->GetNgeneralTracks() == 2){
         
-        cutThouthHist->Fill(1);
+        cutThroughHist->Fill(1);
         
         // Get objects of interest
         auto electron = event->GetElectron(0);
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
         
         // Check electron cuts
         if(electron->GetPt() < 3.0 || fabs(electron->GetEta()) > 2.4) continue;
-        else cutThouthHist->Fill(2);
+        else cutThroughHist->Fill(2);
         
         // Check if there is exactly one track matching electron
         double deltaR1 = sqrt(pow(electron->GetEta()-track1->GetEta(), 2) +
@@ -106,11 +106,11 @@ int main(int argc, char* argv[])
         }
         
         if(!matchingTrack) continue;
-        cutThouthHist->Fill(3);
+        cutThroughHist->Fill(3);
         
         // Make sure that tracks have opposite charges and that brem track has low momentum
         if(bremTrack->GetCharge() == electron->GetCharge() || bremTrack->GetPt() > 2.0) continue;
-        cutThouthHist->Fill(4);
+        cutThroughHist->Fill(4);
         
         // Count this event as a tag
         hists["reco_id_eff_den"]->Fill(1);
@@ -118,7 +118,7 @@ int main(int argc, char* argv[])
         
         // Check that there's exactly one photon and has high enough momentum
         if(event->GetGoodPhotonSCs().size() == 1){
-          cutThouthHist->Fill(5);
+          cutThroughHist->Fill(5);
           
           // Count this event as a probe
           hists["reco_id_eff_num"]->Fill(1);
@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
   TFile *outFile = new TFile(argc==4 ? argv[3]  : "results/efficienciesData.root", "recreate");
   outFile->cd();
   
-  cutThouthHist->Write();
+  cutThroughHist->Write();
   
   for(auto name : histParams){
     hists[name]->Divide(hists[name+"_num"], hists[name+"_den"], 1, 1, "B");
