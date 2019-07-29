@@ -16,9 +16,11 @@ energyEm(-9999),
 
 etaWidth(-1),
 phiWidth(-1),
+hOverE(-1),
 
 pdgID(0),
-charge(9999)
+charge(9999),
+nMissingHits(-1)
 {
   
 }
@@ -84,10 +86,17 @@ double PhysObject::GetEtaWidth()  const
     cout<<"WARNING - carefull, etaWidth probably not set"<<endl;
   return etaWidth;
 }
+
 double PhysObject::GetPhiWidth()  const
 {
   if(phiWidth < 0) cout<<"WARNING - carefull, phiWidth probably not set"<<endl;
   return phiWidth;
+}
+
+double PhysObject::GetHoverE()  const
+{
+  if(hOverE < 0) cout<<"WARNING - carefull, hOverE probably not set"<<endl;
+  return hOverE;
 }
 
 int PhysObject::GetPID() const
@@ -100,6 +109,12 @@ int PhysObject::GetCharge() const
 {
   if(charge > 999) cout<<"WARNING - carefull, charge probably not set"<<endl;
   return charge;
+}
+
+int PhysObject::GetNmissingHits() const
+{
+  if(nMissingHits < 0) cout<<"WARNING - carefull, nMissingHits probably not set"<<endl;
+  return nMissingHits;
 }
 
 double PhysObject::GetEnergy()     const

@@ -63,10 +63,12 @@ private:
   vector<double> *generalTrackPhi    = nullptr;
   
   vector<int>    *electronCharge     = nullptr;
+  vector<int>    *electronNmissing   = nullptr;
   vector<double> *electronPt         = nullptr;
   vector<double> *electronEta        = nullptr;
   vector<double> *electronPhi        = nullptr;
-  
+  vector<double> *electronHoverE     = nullptr;
+
   /// Opens input trees and sets branches
   void SetupBranches(string inputPath);
 };

@@ -65,9 +65,11 @@ void EventProcessor::SetupBranches(string inputPath)
   
   eventTree->SetBranchAddress("nEle"            , &currentEvent->nElectrons);
   eventTree->SetBranchAddress("eleCharge"       , &electronCharge);
+  eventTree->SetBranchAddress("eleMissHits"     , &electronNmissing);
   eventTree->SetBranchAddress("elePt"           , &electronPt);
   eventTree->SetBranchAddress("eleEta"          , &electronEta);
   eventTree->SetBranchAddress("elePhi"          , &electronPhi);
+  eventTree->SetBranchAddress("eleHoverE"       , &electronHoverE);
 }
 
 shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
@@ -148,10 +150,12 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   for(size_t iElectron=0; iElectron<currentEvent->nElectrons; iElectron++){
     auto electron = make_shared<PhysObject>();
     
-    electron->charge = electronCharge->at(iElectron);
-    electron->pt     = electronPt->at(iElectron);
-    electron->eta    = electronEta->at(iElectron);
-    electron->phi    = electronPhi->at(iElectron);
+    electron->charge       = electronCharge->at(iElectron);
+    electron->nMissingHits = electronNmissing->at(iElectron);
+    electron->pt           = electronPt->at(iElectron);
+    electron->eta          = electronEta->at(iElectron);
+    electron->phi          = electronPhi->at(iElectron);
+    electron->hOverE       = electronHoverE->at(iElectron);
     
     currentEvent->electrons.push_back(electron);
   }

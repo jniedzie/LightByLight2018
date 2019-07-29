@@ -23,11 +23,13 @@ public:
   double GetEt()  const;
   double GetPt()  const;
   
-  double GetEtaWidth() const;
-  double GetPhiWidth() const;
+  double GetEtaWidth()  const;
+  double GetPhiWidth()  const;
+  double GetHoverE()    const;
   
-  int    GetPID() const;
-  int    GetCharge() const;
+  int    GetPID()           const;
+  int    GetCharge()        const;
+  int    GetNmissingHits()  const;
   
   double GetEnergy()     const;
   double GetEnergyHad()  const;
@@ -50,8 +52,11 @@ private:
   double etaWidth;  ///< Width in eta direction
   double phiWidth;  ///< Width in phi direction
   
+  double hOverE;    ///< Hadronic/EM energy
+  
   int pdgID;        ///< PDG PID code
   int charge;       ///< Particle charge
+  int nMissingHits; ///< Number of missing hits
   
   friend class EventProcessor;
 };
