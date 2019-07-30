@@ -140,11 +140,11 @@ void CheckCHEefficiency(const Event &event)
   int cutLevel = 0;
   
   if(!event.HasLbLTrigger()) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 0
   
   auto goodElectrons = event.GetGoodElectrons();
   if(goodElectrons.size() < 2) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 1
       
   int nPositiveElectrons = 0;
   int nNegativeElectrons = 0;
@@ -155,12 +155,12 @@ void CheckCHEefficiency(const Event &event)
   }
       
   if(nPositiveElectrons < 1 || nNegativeElectrons < 1) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 2
   hists[name+"_den"]->Fill(1);
   nEvents[name].first++;
         
   if(event.GetNchargedTracks() == 2){
-    cutThroughHists[name]->Fill(cutLevel++);
+    cutThroughHists[name]->Fill(cutLevel++); // 3
     hists[name+"_num"]->Fill(1);
     nEvents[name].second++;
   }
@@ -173,12 +173,12 @@ void CheckNEEefficiency(const Event &event)
   int cutLevel = 0;
   
   if(!event.HasLbLTrigger()) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 0
   
   // Check that there are exaclty two electrons
   auto goodElectrons = event.GetGoodElectrons();
   if(goodElectrons.size() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 1
   
   auto electron1 = goodElectrons[0];
   auto electron2 = goodElectrons[1];
@@ -186,19 +186,19 @@ void CheckNEEefficiency(const Event &event)
   // Check if electrons have opposite charges
   // Check number of missing hits and H/E
   if(electron1->GetCharge() == electron2->GetCharge()) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 2
   
   if(electron1->GetNmissingHits() == 0  || electron2->GetNmissingHits() == 0) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 3
   
   if(electron1->GetHoverE() < 0.02      || electron2->GetHoverE() < 0.02) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 4
   
   TLorentzVector dielectron = physObjectProcessor.GetObjectsSum(*electron1, *electron2);
         
   // Check dielectron properties
   if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || fabs(dielectron.Eta()) > 2.4) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 5
           
           
   // ...
@@ -209,7 +209,7 @@ void CheckNEEefficiency(const Event &event)
   nEvents[name].first++;
   
   if(event.GetNchargedTracks() == 2){
-    cutThroughHists[name]->Fill(cutLevel++);
+    cutThroughHists[name]->Fill(cutLevel++); // 6
     hists[name+"_num"]->Fill(1);
     nEvents[name].second++;
   }

@@ -14,9 +14,9 @@ pt(-1),
 energyHad(-9999),
 energyEm(-9999),
 
-etaWidth(-1),
-phiWidth(-1),
-hOverE(-1),
+etaWidth(-9999),
+phiWidth(-9999),
+hOverE(-9999),
 
 pdgID(0),
 charge(9999),
