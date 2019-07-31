@@ -30,6 +30,7 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
     if(iEvent >= config.params["maxEvents"]) break;
     
     // Add all necessary selection criteria here
+    // ...
     
     auto event = events->GetEvent(iEvent);
     auto photons = event->GetGoodPhotonSCs();

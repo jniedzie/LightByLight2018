@@ -32,9 +32,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 add_executable(getEfficienciesLbL getEfficienciesLbL.cpp)
 add_executable(getEfficienciesQED getEfficienciesQED.cpp)
+add_executable(prepareShowerShapePlots prepareShowerShapePlots.cpp)
+add_executable(prepareAcoplanarityPlots prepareAcoplanarityPlots.cpp)
 
 set_property(TARGET getEfficienciesLbL PROPERTY CXX_STANDARD 17)
 set_property(TARGET getEfficienciesQED PROPERTY CXX_STANDARD 17)
+set_property(TARGET prepareShowerShapePlots PROPERTY CXX_STANDARD 17)
+set_property(TARGET prepareAcoplanarityPlots PROPERTY CXX_STANDARD 17)
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
@@ -49,3 +53,5 @@ set_property(TARGET Analysis PROPERTY CXX_STANDARD 17)
 
 target_link_libraries(getEfficienciesLbL Analysis ${ROOT_LIBRARIES})
 target_link_libraries(getEfficienciesQED Analysis ${ROOT_LIBRARIES})
+target_link_libraries(prepareShowerShapePlots Analysis ${ROOT_LIBRARIES})
+target_link_libraries(prepareAcoplanarityPlots Analysis ${ROOT_LIBRARIES})
