@@ -15,8 +15,22 @@ vector<tuple<string, EDataset>> dataTypes = {
   { "QED"   , kMCqedSC  },
 };
 
+vector<tuple<string, int, double, double>> histParams = {
+// title                     nBins min   max
+  {"showerShapeBarrel"      , 100 , 0   , 0.1 },
+  {"showerShapeEndcap"      , 100 , 0   , 0.1 },
+  {"showerShapeEndcap2p3"   , 100 , 0   , 0.1 },
+  {"etaLowWidthBarrel"      , 100 , 0   , 2.0 },
+  {"etaBarrel"              , 100 , 0   , 2.0 },
+  {"etLowWidthBarrel"       , 100 , 0   , 10  },
+  {"etaLowWidthEndcap"      , 100 , 1.0 , 3.2 },
+  {"etaEndcap"              , 100 , 1.0 , 3.2 },
+  {"etLowWidthEndcap"       , 100 , 0   , 10  },
+};
+
 void fillHistograms(const unique_ptr<EventProcessor> &events,
-                    const pair<TH1D*, TH1D*> &hists)
+                    const map<string, TH1D*> &hists,
+                    string datasetName)
 {
   for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
     if(iEvent%10000==0) cout<<"Processing event "<<iEvent<<endl;
@@ -26,8 +40,28 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
     
     for(auto photon : event->GetPhotonSCs()){
 //      if(photon->GetEt() < config.params["minEt"]) continue;
-      if(fabs(photon->GetEta()) < maxEtaEB )      hists.first->Fill(photon->GetEtaWidth());
-      else if(fabs(photon->GetEta()) < maxEtaEE)  hists.second->Fill(photon->GetEtaWidth());
+
+      if(fabs(photon->GetEta()) < maxEtaEB ){
+        hists.at("showerShapeBarrel"+datasetName)->Fill(photon->GetEtaWidth());
+        hists.at("etaBarrel"+datasetName)->Fill(fabs(photon->GetEta()));
+        
+        if(photon->GetEtaWidth() < 0.001){
+          hists.at("etaLowWidthBarrel"+datasetName)->Fill(fabs(photon->GetEta()));
+          hists.at("etLowWidthBarrel"+datasetName)->Fill(photon->GetEt());
+        }
+      }
+      else if(fabs(photon->GetEta()) < maxEtaEE){
+        hists.at("showerShapeEndcap"+datasetName)->Fill(photon->GetEtaWidth());
+        hists.at("etaEndcap"+datasetName)->Fill(fabs(photon->GetEta()));
+        
+        if(photon->GetEtaWidth() < 0.001){
+          hists.at("etaLowWidthEndcap"+datasetName)->Fill(fabs(photon->GetEta()));
+          hists.at("etLowWidthEndcap"+datasetName)->Fill(photon->GetEt());
+        }
+      }
+      if(fabs(photon->GetEta()) > minEtaEE && fabs(photon->GetEta()) < 2.3){
+        hists.at("showerShapeEndcap2p3"+datasetName)->Fill(photon->GetEtaWidth());
+      }
     }
   }
 }
@@ -35,25 +69,24 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
 int main()
 {
   config = ConfigManager(configPath);
-  map<string, pair<TH1D*, TH1D*>> hists;
   
+  map<string, TH1D*> hists;
+ 
   TFile *outFile = new TFile("results/showerShape.root", "recreate");
   
-  for(auto &[name, dataset] : dataTypes){
-    hists[name] = make_pair(new TH1D(("showerShapeBarrel"+name).c_str(),
-                                     ("showerShapeBarrel"+name).c_str(), 100, 0, 0.1),
-                            new TH1D(("showerShapeEndcap"+name).c_str(),
-                                     ("showerShapeEndcap"+name).c_str(), 100, 0, 0.1));
-  
-    cout<<"Creating "<<name<<" plots"<<endl;
+  for(auto &[datasetName, datasetEnum] : dataTypes){
+    for(auto &[histName, nBins, min, max] : histParams){
+      hists[histName+datasetName] = new TH1D((histName+datasetName).c_str(), (histName+datasetName).c_str(), nBins, min, max);
+    }
     
-    unique_ptr<EventProcessor> events(new EventProcessor(dataset));
-    fillHistograms(events, hists[name]);
+    cout<<"Creating "<<datasetName<<" plots"<<endl;
+    
+    unique_ptr<EventProcessor> events(new EventProcessor(datasetEnum));
+    fillHistograms(events, hists, datasetName);
+    
     outFile->cd();
-    hists[name].first->Write();
-    hists[name].second->Write();
+    for(auto &[name, hist] : hists) hist->Write();
   }
 
   outFile->Close();
-  
 }
