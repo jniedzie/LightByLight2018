@@ -26,7 +26,8 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
     fileNames = cms.untracked.vstring(
-       "/store/hidata/HIRun2018A/HIForward/AOD/PromptReco-v2/000/327/564/00000/F1ED5613-8989-3C4D-8378-F6D9A5FA9AA9.root" 
+#       "/store/hidata/HIRun2018A/HIForward/AOD/PromptReco-v2/000/327/564/00000/F1ED5613-8989-3C4D-8378-F6D9A5FA9AA9.root" 
+"/store/group/phys_diffraction/lbyl_2018/HIForward_Reco/HIForward/pbpb_forward_2018/190708_134435/0001/step2_RAW2DIGI_L1Reco_RECO_1316.root"
        ),
     )
 
