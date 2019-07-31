@@ -13,6 +13,7 @@ vector<tuple<string, EDataset>> dataTypes = {
   { "Data"  , kData     },
   { "LbL"   , kMClbl    },
   { "QED"   , kMCqedSC  },
+  { "CEP"   , kMCcep    },
 };
 
 vector<tuple<string, int, double, double>> histParams = {
