@@ -1,13 +1,7 @@
+#include "../include/Helpers.hpp"
 
 string inputPath  = "../results/showerShape.root";
 string outputPath = "../plots/showerShape.pdf";
-
-vector<tuple<string, int, string>> histParams = {
-// name    color       description
-  {"Data" , kOrange+2 , "Data"        },
-  {"LbL"  , kBlack    , "LbL MC"      },
-  {"QED"  , kBlue     , "QED MC (SC)" },
-};
 
 void prepareHist(TH1D *hist, int color)
 {
@@ -37,10 +31,12 @@ void drawShowerShape()
   canvas->Divide(2,2);
   gStyle->SetOptStat(0);
   TLegend *legend = new TLegend(0.5, 0.7, 0.9, 0.9 );
-  map<string, pair<TH1D*, TH1D*>> hists;
+  
   
   bool first = true;
-  for(auto &[name, color, description] : histParams){
+  for(EDataset dataset : datasets){
+    string name = datasetName.at(dataset);
+
     auto shapeBarrel     = (TH1D*)inFile->Get(("showerShapeBarrel"+name).c_str());
     auto shapeEndcap     = (TH1D*)inFile->Get(("showerShapeEndcap"+name).c_str());
     auto shapeEndcap2p3  = (TH1D*)inFile->Get(("showerShapeEndcap2p3"+name).c_str());
@@ -48,6 +44,8 @@ void drawShowerShape()
     auto etaEndcap       = (TH1D*)inFile->Get(("etaEndcap"+name).c_str());
     auto etaNarrowBarrel = (TH1D*)inFile->Get(("etaLowWidthBarrel"+name).c_str());
     auto etaNarrowEndcap = (TH1D*)inFile->Get(("etaLowWidthEndcap"+name).c_str());
+
+    int color = datasetColor.at(dataset);
     
     prepareHist(shapeBarrel, color);
     prepareHist(shapeEndcap, color);
@@ -65,8 +63,7 @@ void drawShowerShape()
     shapeEndcap->SetTitle("Endcap");
     shapeEndcap->Draw(first ? "" : "same");
 
-    
-    if(name=="Data"){
+    if(dataset == kData){
       etaNarrowEndcap->Rebin(2);
       etaEndcap->Rebin(2);
       
@@ -92,7 +89,7 @@ void drawShowerShape()
     shapeEndcap2p3->SetTitle("Endcap, |#eta| < 2.3");
     shapeEndcap2p3->Draw(first ? "" : "same");
 
-    legend->AddEntry(shapeBarrel, description.c_str(), "l");
+    legend->AddEntry(shapeBarrel, datasetDescription.at(dataset).c_str(), "l");
     
     first = false;
   }

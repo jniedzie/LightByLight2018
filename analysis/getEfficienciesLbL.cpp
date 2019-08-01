@@ -9,6 +9,7 @@
 #include "ConfigManager.hpp"
 
 string configPath = "configs/efficiencies.md";
+string outputPath = "results/efficienciesLbL.root";
 
 bool HasTwoMatchingPhotons(const vector<shared_ptr<PhysObject>> &genPhotons,
                            const vector<shared_ptr<PhysObject>> &photonSCs)
@@ -157,7 +158,7 @@ int main()
   cout<<"------------------------------------------------------------------------\n\n"<<endl;
   
   // Save histograms
-  TFile *outFile = new TFile("results/efficienciesLbL.root", "recreate");
+  TFile *outFile = new TFile(outputPath.c_str(), "recreate");
   outFile->cd();
   
   for(auto name : histParams){

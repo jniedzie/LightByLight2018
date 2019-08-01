@@ -8,13 +8,7 @@
 #include "ConfigManager.hpp"
 
 string configPath = "configs/efficiencies.md";
-
-vector<tuple<string, EDataset>> dataTypes = {
-  { "Data"  , kData     },
-  { "LbL"   , kMClbl    },
-  { "QED"   , kMCqedSC  },
-  { "CEP"   , kMCcep    },
-};
+string outputPath = "results/showerShape.root";
 
 vector<tuple<string, int, double, double>> histParams = {
 // title                     nBins min   max
@@ -73,17 +67,20 @@ int main()
   
   map<string, TH1D*> hists;
  
-  TFile *outFile = new TFile("results/showerShape.root", "recreate");
+  TFile *outFile = new TFile(outputPath.c_str(), "recreate");
   
-  for(auto &[datasetName, datasetEnum] : dataTypes){
+  for(EDataset dataset : datasets){
+    string name = datasetName.at(dataset);
+    
     for(auto &[histName, nBins, min, max] : histParams){
-      hists[histName+datasetName] = new TH1D((histName+datasetName).c_str(), (histName+datasetName).c_str(), nBins, min, max);
+      string title = histName+name;
+      hists[title] = new TH1D(title.c_str(), title.c_str(), nBins, min, max);
     }
     
-    cout<<"Creating "<<datasetName<<" plots"<<endl;
+    cout<<"Creating "<<name<<" plots"<<endl;
     
-    unique_ptr<EventProcessor> events(new EventProcessor(datasetEnum));
-    fillHistograms(events, hists, datasetName);
+    unique_ptr<EventProcessor> events(new EventProcessor(dataset));
+    fillHistograms(events, hists, name);
     
     outFile->cd();
     for(auto &[name, hist] : hists) hist->Write();

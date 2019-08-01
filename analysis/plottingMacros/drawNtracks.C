@@ -1,15 +1,9 @@
+#include "../include/Helpers.hpp"
 
-const int maxNevents = 100000;
+const int maxNevents = 10000;
 
+string inputPath  = "../results/basicPlots.root";
 string outputPath = "../plots/nTracks.pdf";
-
-vector<tuple<string, int, string>> histParams = {
-// file name                                 color       description
-  {"ntuples_data_small_sample_merged.root"  , kOrange+2 , "Data"        },
-  {"ntuples_mc_lbl_merged.root"             , kBlack    , "LbL MC"      },
-  {"ntuples_mc_qed_sc_merged.root"          , kBlue     , "QED MC (SC)" },
-  {"ntuples_mc_cep_merged.root"             , kRed      , "CEP MC"      },
-};
 
 void prepareHist(TH1D *hist, int color)
 {
@@ -35,48 +29,27 @@ void preparePad()
 
 void drawNtracks()
 {
-  TFile *inFile[histParams.size()];
+  TFile *inFile = TFile::Open(inputPath.c_str());
   
   TCanvas *canvas = new TCanvas("N tracks", "n Tracks", 1000, 1000);
   canvas->Divide(2,2);
   
   gStyle->SetOptStat(0);
   TLegend *legend = new TLegend(0.5, 0.7, 0.9, 0.9 );
-  map<string, pair<TH1D*, TH1D*>> hists;
   
   bool first = true;
-  for(auto &[name, color, description] : histParams){
+  for(EDataset dataset : datasets){
+    string name        = datasetName.at(dataset);
+    string description = datasetDescription.at(dataset);
+    
     cout<<"Processing "<<description<<" events"<<endl;
     
+    auto nTrackHist       = (TH1D*)inFile->Get(("nTracks"+name).c_str());
+    auto nTrackHighPtHist = (TH1D*)inFile->Get(("nTracks_pt_geq_100_MeV"+name).c_str());
+    auto nTrackLowPtHist  = (TH1D*)inFile->Get(("nTracks_pt_lt_100_MeV"+name).c_str());
+    auto trackPtHist      = (TH1D*)inFile->Get(("track_pt"+name).c_str());
     
-    auto inFile = TFile::Open(("../ntuples/"+name).c_str());
-    auto inTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
-    
-    int nTracks;
-    vector<double> *trackPt;
-    
-    inTree->SetBranchAddress("ngenTrk", &nTracks);
-    inTree->SetBranchAddress("gentrkPt", &trackPt);
-    
-    TH1D *nTrackHist       = new TH1D("nTracks", "nTracks", 100, 0, 100);
-    TH1D *nTrackHighPtHist = new TH1D("nTracks pt >= 100 MeV", "nTracks pt >= 100 MeV", 100, 0, 100);
-    TH1D *nTrackLowPtHist  = new TH1D("nTracks pt < 100 MeV", "nTracks pt < 100 MeV", 100, 0, 100);
-    TH1D *trackPtHist      = new TH1D("Track pt", "Track pt", 500, 0, 5);
-    
-    for(int iEvent=0; iEvent<inTree->GetEntries(); iEvent++){
-      if(iEvent%5000==0) cout<<"Processing event "<<iEvent<<endl;
-      if(iEvent >= maxNevents) break;
-      
-      inTree->GetEntry(iEvent);
-      nTrackHist->Fill(nTracks);
-      
-      for(int iTrack=0; iTrack<nTracks; iTrack++){
-        trackPtHist->Fill(trackPt->at(iTrack));
-        
-        if(trackPt->at(iTrack) < 0.1) nTrackLowPtHist->SetBinContent(nTracks+1, nTrackLowPtHist->GetBinContent(nTracks+1)+1);
-        else                          nTrackHighPtHist->SetBinContent(nTracks+1, nTrackHighPtHist->GetBinContent(nTracks+1)+1);
-      }
-    }
+    int color = datasetColor.at(dataset);
     
     prepareHist(nTrackHist, color);
     prepareHist(nTrackLowPtHist, color);
@@ -86,7 +59,7 @@ void drawNtracks()
     canvas->cd(1); preparePad();
     nTrackHist->SetTitle("# tracks");
     nTrackHist->Draw(first ? "" : "same");
-    
+   
     canvas->cd(2); preparePad();
     trackPtHist->SetTitle("Track p_{T}");
     trackPtHist->SetLineWidth(1);
@@ -94,20 +67,19 @@ void drawNtracks()
     trackPtHist->GetXaxis()->SetRangeUser(0, 1);
     trackPtHist->GetYaxis()->SetRangeUser(1e-6, 1);
     trackPtHist->Draw(first ? "" : "same");
-    
+   
     canvas->cd(3); preparePad();
     nTrackLowPtHist->SetTitle("# tracks, p_{T} < 100 MeV");
     nTrackLowPtHist->Draw(first ? "" : "same");
-    
+   
     canvas->cd(4); preparePad();
     nTrackHighPtHist->SetTitle("# tracks, p_{T} #geq 100 MeV");
     nTrackHighPtHist->Draw(first ? "" : "same");
-    
-    legend->AddEntry(nTrackHist, description.c_str(), "l");
-    
+   
+    legend->AddEntry(nTrackHist, datasetDescription.at(dataset).c_str(), "l");
+   
     first = false;
   }
-  
   canvas->cd(1); legend->Draw("same");
   canvas->cd(2); legend->Draw("same");
   canvas->cd(3); legend->Draw("same");

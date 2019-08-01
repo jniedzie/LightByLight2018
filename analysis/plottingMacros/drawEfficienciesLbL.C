@@ -4,9 +4,10 @@
 //
 // Draws a canvas with MC efficiencies dependance on kinematic variables.
 
+#include "../include/Helpers.hpp";
 
-const string  inputPath    = "../results/efficiencies.root";
-const string  outputPath   = "../plots/efficiencies.pdf";
+const string  inputPath    = "../results/efficienciesLbL.root";
+const string  outputPath   = "../plots/efficienciesLbL.pdf";
 
 const double  canvasWidth  = 800;
 const double  canvasHeight = 800;
@@ -15,15 +16,15 @@ const int     nColumns     = 2;
 
 vector<tuple<string, string, string, int, int>> histParams = {
 // hist name             x label                     y label             color       iPad
-  {"reco_id_eff"        , "Photon E_{T} (GeV)"      , "Eff^{ID}_{MC}"   , kViolet+2 , 1 },
-  {"trigger_eff"        , "Diphoton m_{inv} (GeV)"  , "Eff^{TRIG}_{MC}" , kViolet+2 , 2 },
-  {"trigger_single_eff" , "Diphoton m_{inv} (GeV)"  , "Eff^{TRIG}_{MC}" , kGreen+2  , 2 },
-  {"trigger_double_eff" , "Diphoton m_{inv} (GeV)"  , "Eff^{TRIG}_{MC}" , kRed+2    , 2 },
-  {"charged_excl_eff"   , "Diphoton m_{inv} (GeV)"  , "Eff^{TRIG}_{CHE}", kViolet+2 , 3 },
-  {"neutral_excl_eff"   , "Diphoton m_{inv} (GeV)"  , "Eff^{TRIG}_{NEE}", kViolet+2 , 4 },
+  {"reco_id_eff"        , "Photon E_{T} (GeV)"      , "Eff^{ID}_{MC}"   , datasetColor.at(kMClbl) , 1 },
+  {"trigger_eff"        , "Diphoton m_{inv} (GeV)"  , "Eff^{TRIG}_{MC}" , datasetColor.at(kMClbl) , 2 },
+  {"trigger_single_eff" , "Diphoton m_{inv} (GeV)"  , "Eff^{TRIG}_{MC}" , kGreen+2                , 2 },
+  {"trigger_double_eff" , "Diphoton m_{inv} (GeV)"  , "Eff^{TRIG}_{MC}" , kRed+2                  , 2 },
+  {"charged_excl_eff"   , "Diphoton m_{inv} (GeV)"  , "Eff^{TRIG}_{CHE}", datasetColor.at(kMClbl) , 3 },
+  {"neutral_excl_eff"   , "Diphoton m_{inv} (GeV)"  , "Eff^{TRIG}_{NEE}", datasetColor.at(kMClbl) , 4 },
 };
 
-void drawEfficiencies()
+void drawEfficienciesLbL()
 {
   TFile *inFile = TFile::Open(inputPath.c_str());
   TCanvas *canvas = new TCanvas("Efficiencies", "Efficiencies", canvasWidth, canvasHeight);

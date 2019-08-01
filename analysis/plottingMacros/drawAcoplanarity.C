@@ -1,6 +1,9 @@
+#include "../include/Helpers.hpp"
 
-string inputPath  = "../results/acoplanarity.root";
+string inputPath  = "../results/basicPlots.root";
 string outputPath = "../plots/acoplanarity.pdf";
+
+vector<EDataset> datasetsToSkip = { kMCqedSL };
 
 void prepareHist(TH1D *hist, int color)
 {
@@ -11,6 +14,14 @@ void prepareHist(TH1D *hist, int color)
   hist->Sumw2(false);
 }
 
+map<EDataset, string> legendOptions = {
+  {kData,     "elp" },
+  {kMCcep,    "f"   },
+  {kMCqedSL,  "f"   },
+  {kMCqedSC,  "f"   },
+  {kMClbl,    "f"   },
+};
+
 void drawAcoplanarity()
 {
   TFile *inFile = TFile::Open(inputPath.c_str());
@@ -20,30 +31,35 @@ void drawAcoplanarity()
   gStyle->SetOptStat(0);
   TLegend *legend = new TLegend(0.6, 0.6, 0.9, 0.9 );
   
-  auto acoplanarityHistLbL = (TH1D*)inFile->Get("acoplanarityLbL");
-  auto acoplanarityHistQED = (TH1D*)inFile->Get("acoplanarityQED");
-  auto acoplanarityHistCEP = (TH1D*)inFile->Get("acoplanarityCEP");
-  auto dataGraph           = (TH1D*)inFile->Get("acoplanarityData");
   
-  legend->AddEntry(dataGraph, "Data", "elp");
-  legend->AddEntry(acoplanarityHistLbL, "LbL MC", "f");
-  legend->AddEntry(acoplanarityHistQED, "QED SC MC", "f");
-  legend->AddEntry(acoplanarityHistCEP, "CEP MC", "f");
-  
-  prepareHist(acoplanarityHistLbL, kBlack);
-  prepareHist(acoplanarityHistQED, kBlue);
-  prepareHist(acoplanarityHistCEP, kRed);
-  prepareHist(dataGraph, kOrange+2);
-  
-  dataGraph->SetMarkerStyle(21);
-  dataGraph->SetLineColor(kOrange+3);
-  dataGraph->SetMarkerColor(kOrange+2);
-  dataGraph->SetMarkerSize(1);
-  
+  map<EDataset, TH1D*> hists;
   THStack *backgroundsStack = new THStack();
-  backgroundsStack->Add(acoplanarityHistQED);
-  backgroundsStack->Add(acoplanarityHistCEP);
-  backgroundsStack->Add(acoplanarityHistLbL);
+  
+  for(EDataset dataset : datasets){
+    if(find(datasetsToSkip.begin(), datasetsToSkip.end(), dataset) != datasetsToSkip.end()) continue;
+    
+    string legendOption = legendOptions[dataset];
+    
+    hists[dataset] = (TH1D*)inFile->Get(("acoplanarity"+datasetName.at(dataset)).c_str());
+    
+    if(!hists[dataset]){
+      cout<<"ERROR -- no histogram found for dataset "<<datasetName.at(dataset)<<endl;
+      continue;
+    }
+    
+    legend->AddEntry(hists[dataset], datasetDescription.at(dataset).c_str(), legendOption.c_str());
+    prepareHist(hists[dataset], datasetColor.at(dataset));
+    
+    if(dataset == kData){
+      hists[dataset]->SetMarkerStyle(21);
+      hists[dataset]->SetLineColor(datasetColor.at(dataset));
+      hists[dataset]->SetMarkerColor(datasetColor.at(dataset));
+      hists[dataset]->SetMarkerSize(1);
+    }
+    else{
+      backgroundsStack->Add(hists[dataset]);
+    }
+  }
   
   canvas->cd(1);
   gPad->SetLeftMargin(0.15);
@@ -57,7 +73,7 @@ void drawAcoplanarity()
   backgroundsStack->GetXaxis()->SetTitle("A_{#phi}^{#gamma#gamma}");
   backgroundsStack->GetXaxis()->SetTitleSize(0.06);
   
-  dataGraph->Draw("samePE");
+  hists[kData]->Draw("samePE");
   legend->Draw("same");
   
   canvas->SaveAs(outputPath.c_str());
