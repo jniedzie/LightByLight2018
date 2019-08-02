@@ -22,18 +22,36 @@ ConfigManager::ConfigManager(string _path)
   
   outputPath  = configFile->GetValue("output_path","unnamed.root");
   
-  params["maxEvents"]         = configFile->GetValue("maxEvents", 99999999.9);
-  params["maxEta"]            = configFile->GetValue("maxEta", 10.0);
-  params["minEt"]             = configFile->GetValue("minEt", 0.0);
-  params["maxEtaWidthBarrel"] = configFile->GetValue("maxEtaWidthBarrel", 9999.9);
-  params["maxEtaWidthEndcap"] = configFile->GetValue("maxEtaWidthEndcap", 9999.9);
-  params["maxDeltaEtaEB"]     = configFile->GetValue("maxDeltaEtaEB", 9999.9);
-  params["maxDeltaPhiEB"]     = configFile->GetValue("maxDeltaPhiEB", 9999.9);
-  params["maxDeltaEtaEE"]     = configFile->GetValue("maxDeltaEtaEE", 9999.9);
-  params["maxDeltaPhiEE"]     = configFile->GetValue("maxDeltaPhiEE", 9999.9);
-  params["maxEtaEEtower"]     = configFile->GetValue("maxEtaEEtower", 9999.9);
-  params["trackMinPt"]        = configFile->GetValue("trackMinPt", 0.0);
-  params["diphotonMaxPt"]     = configFile->GetValue("diphotonMaxPt", 9999.9);
-  params["maxDeltaR"]         = configFile->GetValue("maxDeltaR", 9999.9);
+  _params["maxEvents"]         = configFile->GetValue("maxEvents", 99999999.9);
+  
+  _params["maxDeltaEtaEB"]     = configFile->GetValue("maxDeltaEtaEB", 9999.9);
+  _params["maxDeltaPhiEB"]     = configFile->GetValue("maxDeltaPhiEB", 9999.9);
+  _params["maxDeltaEtaEE"]     = configFile->GetValue("maxDeltaEtaEE", 9999.9);
+  _params["maxDeltaPhiEE"]     = configFile->GetValue("maxDeltaPhiEE", 9999.9);
+  
+  _params["maxEtaEEtower"]     = configFile->GetValue("maxEtaEEtower", 9999.9);
+  
+  _params["trackMinPt"]        = configFile->GetValue("trackMinPt", 0.0);
+  _params["diphotonMaxPt"]     = configFile->GetValue("diphotonMaxPt", 9999.9);
+  
+  _params["maxDeltaR"]         = configFile->GetValue("maxDeltaR", 9999.9);
 
+  // Photon ID cuts
+  _params["photonMinEt"]             = configFile->GetValue("photonMinEt"            , 9999.9);
+  _params["photonMaxEta"]            = configFile->GetValue("photonMaxEta"           , 9999.9);
+  _params["photonMaxHoverE"]         = configFile->GetValue("photonMaxHoverE"        , 9999.9);
+  _params["photonMaxEtaWidthBarrel"] = configFile->GetValue("photonMaxEtaWidthBarrel", 9999.9);
+  _params["photonMaxEtaWidthEndcap"] = configFile->GetValue("photonMaxEtaWidthEndcap", 9999.9);
+  
+  _params["ecalCrackMin"]      = configFile->GetValue("ecalCrackMin", 9999.9);
+  _params["ecalCrackMax"]      = configFile->GetValue("ecalCrackMax", 9999.9);
+}
+
+double ConfigManager::params(string name)
+{
+  if(_params.find(name) == _params.end()){
+    cout<<"ERROR -- requested param "<<name<<" doesn't exist in the configuration"<<endl;
+    return 0;
+  }
+  return _params.at(name);
 }

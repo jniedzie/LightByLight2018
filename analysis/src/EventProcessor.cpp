@@ -42,6 +42,8 @@ void EventProcessor::SetupBranches(string inputPath)
   eventTree->SetBranchAddress("mcPID" , &mcPID);
   
   eventTree->SetBranchAddress("nPho"            , &currentEvent->nPhotons);
+  eventTree->SetBranchAddress("phoHoverE"       , &photonHoverE);
+  
   eventTree->SetBranchAddress("phoSCEta"        , &photonSCEta);
   eventTree->SetBranchAddress("phoSCPhi"        , &photonSCPhi);
   eventTree->SetBranchAddress("phoSCEt"         , &photonSCEt);
@@ -105,6 +107,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   for(size_t iPhoton=0; iPhoton<currentEvent->nPhotons; iPhoton++){
     auto photon = make_shared<PhysObject>();
     
+    photon->hOverE   = photonHoverE->at(iPhoton);
     photon->eta      = photonSCEta->at(iPhoton);
     photon->etaSC    = photonSCEta->at(iPhoton);
     photon->phi      = photonSCPhi->at(iPhoton);

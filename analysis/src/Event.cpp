@@ -45,8 +45,8 @@ vector<shared_ptr<PhysObject>> Event::GetGoodGenPhotons() const
     auto genPhoton = genParticles[iGenPhoton];
     
     if(genPhoton->GetPID() != 22) continue;
-    if(fabs(genPhoton->GetEta()) > config.params["maxEta"]) continue;
-    if(genPhoton->GetEt() < config.params["minEt"]) continue;
+    if(fabs(genPhoton->GetEta()) > config.params("maxEta")) continue;
+    if(genPhoton->GetEt() < config.params("minEt")) continue;
     
     goodGenPhotons.push_back(genPhoton);
   }
@@ -62,16 +62,16 @@ vector<shared_ptr<PhysObject>> Event::GetGoodPhotons()
     auto cluster = photons[iPhotonSC];
     
     // Check eta and Et
-    if(fabs(cluster->GetEta()) > config.params["maxEta"]) continue;
-    if(cluster->GetEt() < config.params["minEt"]) continue;
+    if(fabs(cluster->GetEta()) > config.params("photonMaxEta")) continue;
+    if(cluster->GetEt() < config.params("photonMinEt")) continue;
     
     // Check η shower shape
     if(fabs(cluster->GetEta()) < maxEtaEB &&
-       cluster->GetEtaWidth() > config.params["maxEtaWidthBarrel"]) continue;
+       cluster->GetEtaWidth() > config.params("photonMaxEtaWidthBarrel")) continue;
     
     if(fabs(cluster->GetEta()) > minEtaEE &&
        fabs(cluster->GetEta()) < maxEtaEE &&
-       cluster->GetEtaWidth() > config.params["maxEtaWidthEndcap"]) continue;
+       cluster->GetEtaWidth() > config.params("photonMaxEtaWidthEndcap")) continue;
     
     goodPhotons.push_back(cluster);
   }
@@ -87,19 +87,19 @@ vector<shared_ptr<PhysObject>> Event::GetGoodElectrons()
     auto electron = electrons[iElectron];
     
     // Check eta and Et
-    if(fabs(electron->GetEta())    > config.params["electronMaxEta"]) continue;
-    if(fabs(electron->GetEtaSC())  > config.params["electronMaxEta"]) continue;
+    if(fabs(electron->GetEta())   > config.params("electronMaxEta")) continue;
+    if(fabs(electron->GetEtaSC()) > config.params("electronMaxEta")) continue;
     
-    if(fabs(electron->GetEtaSC())  > config.params["ecalCrackMin"] &&
-       fabs(electron->GetEtaSC())  < config.params["ecalCrackMax"])   continue;
+    if(fabs(electron->GetEtaSC()) > config.params("ecalCrackMin") &&
+       fabs(electron->GetEtaSC()) < config.params("ecalCrackMax"))   continue;
     
-    if(electron->GetPt() < config.params["electronMinPt"]) continue;
+    if(electron->GetPt() < config.params("electronMinPt")) continue;
     
     // Check number of missing hits
-    if(electron->GetNmissingHits() > config.params["electronMaxMissingHits"]) continue;
+    if(electron->GetNmissingHits() > config.params("electronMaxMissingHits")) continue;
     
     // Check H/E
-    if(electron->GetHoverE() > config.params["electronMaxHoverE"]) continue;
+    if(electron->GetHoverE() > config.params("electronMaxHoverE")) continue;
     
     // Add isolation cuts here !!!
     // ...
@@ -143,7 +143,7 @@ bool Event::DiphotonPtAboveThreshold()
   double deltaPhi = goodPhotons[0]->GetPhi() - goodPhotons[1]->GetPhi();
   
   double pairPt = sqrt(pt_1*pt_1 + pt_2*pt_2 + 2*pt_1*pt_2*cos(deltaPhi));
-  if(pairPt > config.params["diphotonMaxPt"]) return true;
+  if(pairPt > config.params("diphotonMaxPt")) return true;
   
   return false;
 }
@@ -166,10 +166,10 @@ bool Event::HasAdditionalTowers()
     
     ECaloType subdetEm = tower->GetTowerSubdetEm();
     
-    if(subdetEm == kEE && fabs(tower->GetEta()) > config.params["maxEtaEEtower"]) continue;
+    if(subdetEm == kEE && fabs(tower->GetEta()) > config.params("maxEtaEEtower")) continue;
     
-    double maxDeltaEta = (subdetEm == kEB ) ? config.params["maxDeltaEtaEB"] : config.params["maxDeltaEtaEE"];
-    double maxDeltaPhi = (subdetEm == kEB ) ? config.params["maxDeltaPhiEB"] : config.params["maxDeltaPhiEE"];
+    double maxDeltaEta = (subdetEm == kEB ) ? config.params("maxDeltaEtaEB") : config.params("maxDeltaEtaEE");
+    double maxDeltaPhi = (subdetEm == kEB ) ? config.params("maxDeltaPhiEB") : config.params("maxDeltaPhiEE");
     
     for(int iPhotonSC=0; iPhotonSC<goodPhotons.size(); iPhotonSC++){
       auto photon = goodPhotons[iPhotonSC];
@@ -196,7 +196,7 @@ bool Event::HasChargedTracks() const
   
   for(int iTrack=0; iTrack<nGeneralTracks; iTrack++){
     auto track = generalTracks[iTrack];
-    if(track->GetPt() > config.params["trackMinPt"]) return true;
+    if(track->GetPt() > config.params("trackMinPt")) return true;
   }
   return false;
 }
@@ -206,7 +206,7 @@ int Event::GetNchargedTracks() const
   int nTracks=0;
   
   for(int iTrack=0; iTrack<nGeneralTracks; iTrack++){
-    if(generalTracks[iTrack]->GetPt() > config.params["trackMinPt"]) nTracks++;
+    if(generalTracks[iTrack]->GetPt() > config.params("trackMinPt")) nTracks++;
   }
   return nTracks;
 }

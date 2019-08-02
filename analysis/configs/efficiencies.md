@@ -3,16 +3,6 @@
 ### Max number of events to analyze
 maxEvents: 100000
 
-### Eta cut for gen particles and photon superclusters for MC efficiency estimation
-maxEta: 2.4
-
-### Et (GeV) cut for gen particles and photon superclusters for MC efficiency estimation
-minEt: 2 
-
-### Criteria to reject photons coming from e.g. pi0 decays (by shower shape)
-maxEtaWidthBarrel:  0.02
-maxEtaWidthEndcap:  0.06
-
 ### Criteria to match calo tower with photon SC for neutral exclusivity
 maxDeltaEtaEB:  0.15
 maxDeltaPhiEB:  0.7
@@ -29,4 +19,15 @@ diphotonMaxPt:      1.0
 ### Max ΔR for matching for reco+ID efficiency
 maxDeltaR:              0.3
 
+
+### Photon ID cuts:
+photonMinEt:                            2.0
+photonMaxEta:                         2.3
+photonMaxHoverE:                   0.04
+photonMaxEtaWidthBarrel:       0.02
+photonMaxEtaWidthEndcap:    0.06
+
+### Exclude transition region between calo barrel and endcap
+ecalCrackMin: 1.4442
+ecalCrackMax: 1.566
  

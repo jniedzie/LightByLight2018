@@ -43,6 +43,8 @@ private:
   vector<double> *mcE                = nullptr;
   vector<double> *mcPID              = nullptr;
   
+  vector<double> *photonHoverE       = nullptr;
+  
   vector<double> *photonSCEta        = nullptr;
   vector<double> *photonSCPhi        = nullptr;
   vector<double> *photonSCEt         = nullptr;

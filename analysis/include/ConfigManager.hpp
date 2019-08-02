@@ -18,12 +18,14 @@ struct ConfigManager {
   /// \param _path Path to the config file
   ConfigManager(string _path="");
   
-  map<string, double> params; ///< All bool, int and double parameters from the config file
+  double params(string name="");
   
   string outputPath;  ///< Output file path
   
 private:
   unique_ptr<TEnv> configFile;
+  
+  map<string, double> _params; ///< All bool, int and double parameters from the config file
 };
 
 #endif /* ConfigManager_hpp */

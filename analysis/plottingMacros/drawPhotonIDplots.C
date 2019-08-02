@@ -1,7 +1,7 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/showerShape.root";
-string outputPath = "../plots/showerShape.pdf";
+string inputPath  = "../results/photonID.root";
+string outputPath = "../plots/photonID.pdf";
 
 void prepareHist(TH1D *hist, int color)
 {
@@ -23,12 +23,12 @@ void preparePad()
   gPad->SetBottomMargin(0.15);
 }
 
-void drawShowerShape()
+void drawPhotonIDplots()
 {
   TFile *inFile = TFile::Open(inputPath.c_str());
   
-  TCanvas *canvas = new TCanvas("Shower shape", "Shower shape", 1000, 1000);
-  canvas->Divide(2,2);
+  TCanvas *canvas = new TCanvas("Shower shape", "Shower shape", 1000, 1500);
+  canvas->Divide(2,3);
   gStyle->SetOptStat(0);
   TLegend *legend = new TLegend(0.5, 0.7, 0.9, 0.9 );
   
@@ -44,12 +44,14 @@ void drawShowerShape()
     auto etaEndcap       = (TH1D*)inFile->Get(("etaEndcap"+name).c_str());
     auto etaNarrowBarrel = (TH1D*)inFile->Get(("etaLowWidthBarrel"+name).c_str());
     auto etaNarrowEndcap = (TH1D*)inFile->Get(("etaLowWidthEndcap"+name).c_str());
+    auto hOverE          = (TH1D*)inFile->Get(("HoverE"+name).c_str());
 
     int color = datasetColor.at(dataset);
     
     prepareHist(shapeBarrel, color);
     prepareHist(shapeEndcap, color);
     prepareHist(shapeEndcap2p3, color);
+    prepareHist(hOverE, color);
 //    prepareHist(etaBarrel, color);
 //    prepareHist(etaEndcap, color);
 //    prepareHist(etaNarrowBarrel, color);
@@ -88,6 +90,12 @@ void drawShowerShape()
     canvas->cd(4); preparePad();
     shapeEndcap2p3->SetTitle("Endcap, |#eta| < 2.3");
     shapeEndcap2p3->Draw(first ? "" : "same");
+    
+    canvas->cd(5); preparePad();
+    hOverE->GetXaxis()->SetTitle("H/E");
+    hOverE->Rebin(5);
+//    hOverE->Sumw2();
+    hOverE->Draw(first ? "" : "same");
 
     legend->AddEntry(shapeBarrel, datasetDescription.at(dataset).c_str(), "l");
     
@@ -97,6 +105,7 @@ void drawShowerShape()
   canvas->cd(1); legend->Draw("same");
   canvas->cd(2); legend->Draw("same");
   canvas->cd(4); legend->Draw("same");
+  canvas->cd(5); legend->Draw("same");
   
   canvas->SaveAs(outputPath.c_str());
 }
