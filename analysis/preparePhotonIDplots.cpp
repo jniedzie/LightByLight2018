@@ -131,9 +131,9 @@ int main(int argc, char* argv[])
   for(EDataset dataset : datasets){
     string name = datasetName.at(dataset);
     
-    for(auto &[histName, nBins, min, max] : histParams){
-      string title = histName+name;
-      hists[title] = new TH1D(title.c_str(), title.c_str(), nBins, min, max);
+    for(auto params : histParams){
+      string title = get<0>(params)+name;
+      hists[title] = new TH1D(title.c_str(), title.c_str(), get<1>(params), get<2>(params), get<3>(params));
     }
     
     cout<<"Creating "<<name<<" plots"<<endl;
@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
     fillHistograms(events, hists, name);
     
     outFile->cd();
-    for(auto &[name, hist] : hists) hist->Write();
+    for(auto hist : hists) hist.second->Write();
   }
 
   outFile->Close();

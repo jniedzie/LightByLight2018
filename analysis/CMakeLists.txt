@@ -32,12 +32,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 add_executable(getEfficienciesLbL getEfficienciesLbL.cpp)
 add_executable(getEfficienciesQED getEfficienciesQED.cpp)
-add_executable(preparePhtonIDplots preparePhtonIDplots.cpp)
-add_executable(prepareBasicPlots prepareAcoplanarityPlots.cpp)
+add_executable(preparePhotonIDplots preparePhotonIDplots.cpp)
+add_executable(prepareBasicPlots prepareBasicPlots.cpp)
 
 set_property(TARGET getEfficienciesLbL PROPERTY CXX_STANDARD 17)
 set_property(TARGET getEfficienciesQED PROPERTY CXX_STANDARD 17)
-set_property(TARGET preparePhtonIDplots PROPERTY CXX_STANDARD 17)
+set_property(TARGET preparePhotonIDplots PROPERTY CXX_STANDARD 17)
 set_property(TARGET prepareBasicPlots PROPERTY CXX_STANDARD 17)
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
@@ -53,5 +53,5 @@ set_property(TARGET Analysis PROPERTY CXX_STANDARD 17)
 
 target_link_libraries(getEfficienciesLbL Analysis ${ROOT_LIBRARIES})
 target_link_libraries(getEfficienciesQED Analysis ${ROOT_LIBRARIES})
-target_link_libraries(preparePhtonIDplots Analysis ${ROOT_LIBRARIES})
+target_link_libraries(preparePhotonIDplots Analysis ${ROOT_LIBRARIES})
 target_link_libraries(prepareBasicPlots Analysis ${ROOT_LIBRARIES})
