@@ -93,8 +93,25 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
   }
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+  if(argc != 1 && argc != 8){
+    cout<<"This app requires 0 or 7 parameters."<<endl;
+    cout<<"./getEfficienciesData configPath inputPathData inputPathLbL inputPathQED_SC inputPathQED_SL inputPathCEP outputPath"<<endl;
+    exit(0);
+  }
+  
+  map<EDataset, string> inputPaths;
+  
+  if(argc == 8){
+    configPath           = argv[1];
+    inputPaths[kData]    = argv[2];
+    inputPaths[kMClbl]   = argv[3];
+    inputPaths[kMCqedSC] = argv[4];
+    inputPaths[kMCqedSL] = argv[5];
+    inputPaths[kMCcep]   = argv[6];
+    outputPath           = argv[7];
+  }
   config = ConfigManager(configPath);
   
   map<string, TH1D*> hists;
@@ -111,7 +128,14 @@ int main()
     
     cout<<"Creating "<<name<<" plots"<<endl;
     
-    unique_ptr<EventProcessor> events(new EventProcessor(dataset));
+    unique_ptr<EventProcessor> events;
+    if(argc == 8){
+      events = unique_ptr<EventProcessor>(new EventProcessor(inputPaths[dataset]));
+    }
+    else{
+      events = unique_ptr<EventProcessor>(new EventProcessor(dataset));
+    }
+    
     fillHistograms(events, hists, name);
     
     outFile->cd();
