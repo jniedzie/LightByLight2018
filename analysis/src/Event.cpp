@@ -54,12 +54,12 @@ vector<shared_ptr<PhysObject>> Event::GetGoodGenPhotons() const
   return goodGenPhotons;
 }
 
-vector<shared_ptr<PhysObject>> Event::GetGoodPhotonSCs()
+vector<shared_ptr<PhysObject>> Event::GetGoodPhotons()
 {
-  photonSCpassing.clear();
+  goodPhotons.clear();
   
-  for(int iPhotonSC=0; iPhotonSC<nPhotonSCs; iPhotonSC++){
-    auto cluster = photonSC[iPhotonSC];
+  for(int iPhotonSC=0; iPhotonSC<nPhotons; iPhotonSC++){
+    auto cluster = photons[iPhotonSC];
     
     // Check eta and Et
     if(fabs(cluster->GetEta()) > config.params["maxEta"]) continue;
@@ -73,23 +73,37 @@ vector<shared_ptr<PhysObject>> Event::GetGoodPhotonSCs()
        fabs(cluster->GetEta()) < maxEtaEE &&
        cluster->GetEtaWidth() > config.params["maxEtaWidthEndcap"]) continue;
     
-    photonSCpassing.push_back(cluster);
+    goodPhotons.push_back(cluster);
   }
-  passingPhotonSCready = true;
-  return photonSCpassing;
+  goodPhotonsReady = true;
+  return goodPhotons;
 }
 
-vector<shared_ptr<PhysObject>> Event::GetGoodElectrons() const
+vector<shared_ptr<PhysObject>> Event::GetGoodElectrons()
 {
-  vector<shared_ptr<PhysObject>> goodElectrons;
+  goodElectrons.clear();
   
   for(int iElectron=0; iElectron<nElectrons; iElectron++){
     auto electron = electrons[iElectron];
     
     // Check eta and Et
-    if(fabs(electron->GetEta()) > config.params["maxEta"]) continue;
-    if(electron->GetPt() < config.params["minEt"]) continue;
+    if(fabs(electron->GetEta())    > config.params["electronMaxEta"]) continue;
+    if(fabs(electron->GetEtaSC())  > config.params["electronMaxEta"]) continue;
     
+    if(fabs(electron->GetEtaSC())  > config.params["ecalCrackMin"] &&
+       fabs(electron->GetEtaSC())  < config.params["ecalCrackMax"])   continue;
+    
+    if(electron->GetPt() < config.params["electronMinPt"]) continue;
+    
+    // Check number of missing hits
+    if(electron->GetNmissingHits() > config.params["electronMaxMissingHits"]) continue;
+    
+    // Check H/E
+    if(electron->GetHoverE() > config.params["electronMaxHoverE"]) continue;
+    
+    // Add isolation cuts here !!!
+    // ...
+
     goodElectrons.push_back(electron);
   }
   return goodElectrons;
@@ -97,21 +111,21 @@ vector<shared_ptr<PhysObject>> Event::GetGoodElectrons() const
 
 double Event::GetDiphotonInvMass()
 {
-  if(!passingPhotonSCready) GetGoodPhotonSCs();
+  if(!goodPhotonsReady) GetGoodPhotons();
   
-  if(photonSCpassing.size() !=2 ) return -1;
+  if(goodPhotons.size() !=2 ) return -1;
   
   TLorentzVector pho1, pho2;
   
-  pho1.SetPtEtaPhiE(photonSCpassing[0]->GetEt(),
-                    photonSCpassing[0]->GetEta(),
-                    photonSCpassing[0]->GetPhi(),
-                    photonSCpassing[0]->GetEnergy());
+  pho1.SetPtEtaPhiE(goodPhotons[0]->GetEt(),
+                    goodPhotons[0]->GetEta(),
+                    goodPhotons[0]->GetPhi(),
+                    goodPhotons[0]->GetEnergy());
   
-  pho2.SetPtEtaPhiE(photonSCpassing[1]->GetEt(),
-                    photonSCpassing[1]->GetEta(),
-                    photonSCpassing[1]->GetPhi(),
-                    photonSCpassing[1]->GetEnergy());
+  pho2.SetPtEtaPhiE(goodPhotons[1]->GetEt(),
+                    goodPhotons[1]->GetEta(),
+                    goodPhotons[1]->GetPhi(),
+                    goodPhotons[1]->GetEnergy());
   
   TLorentzVector diphoton = pho1+pho2;
   
@@ -120,13 +134,13 @@ double Event::GetDiphotonInvMass()
 
 bool Event::DiphotonPtAboveThreshold()
 {
-  if(!passingPhotonSCready) GetGoodPhotonSCs();
+  if(!goodPhotonsReady) GetGoodPhotons();
   
-  if(photonSCpassing.size() != 2) return true;
+  if(goodPhotons.size() != 2) return true;
   
-  double pt_1 = photonSCpassing[0]->GetEt();
-  double pt_2 = photonSCpassing[1]->GetEt();
-  double deltaPhi = photonSCpassing[0]->GetPhi() - photonSCpassing[1]->GetPhi();
+  double pt_1 = goodPhotons[0]->GetEt();
+  double pt_2 = goodPhotons[1]->GetEt();
+  double deltaPhi = goodPhotons[0]->GetPhi() - goodPhotons[1]->GetPhi();
   
   double pairPt = sqrt(pt_1*pt_1 + pt_2*pt_2 + 2*pt_1*pt_2*cos(deltaPhi));
   if(pairPt > config.params["diphotonMaxPt"]) return true;
@@ -136,7 +150,7 @@ bool Event::DiphotonPtAboveThreshold()
 
 bool Event::HasAdditionalTowers()
 {
-  if(!passingPhotonSCready) GetGoodPhotonSCs();
+  if(!goodPhotonsReady) GetGoodPhotons();
   
   for(int iTower=0; iTower<nCaloTowers; iTower++){
     auto tower = caloTowers[iTower];
@@ -157,8 +171,8 @@ bool Event::HasAdditionalTowers()
     double maxDeltaEta = (subdetEm == kEB ) ? config.params["maxDeltaEtaEB"] : config.params["maxDeltaEtaEE"];
     double maxDeltaPhi = (subdetEm == kEB ) ? config.params["maxDeltaPhiEB"] : config.params["maxDeltaPhiEE"];
     
-    for(int iPhotonSC=0; iPhotonSC<photonSCpassing.size(); iPhotonSC++){
-      auto photon = photonSCpassing[iPhotonSC];
+    for(int iPhotonSC=0; iPhotonSC<goodPhotons.size(); iPhotonSC++){
+      auto photon = goodPhotons[iPhotonSC];
       
       double deltaEta = fabs(photon->GetEta() - tower->GetEta());
       double deltaPhi = fabs(photon->GetPhi() - tower->GetPhi());

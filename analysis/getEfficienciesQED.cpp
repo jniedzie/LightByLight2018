@@ -33,20 +33,21 @@ void CheckRecoEfficiency(Event &event)
   int cutLevel = 0;
   
   // Check trigger
-  if(!event.HasSingleEG5Trigger()) return;
+  if(!event.HasSingleEG3Trigger()) return;
   cutThroughHists[name]->Fill(cutLevel++);
+  
+  auto goodElectrons = event.GetGoodElectrons();
   
   // Preselect events with one electron and one extra track not reconstructed as an electron
-  if(event.GetNelectrons() != 1 || event.GetNgeneralTracks() != 2) return;
+  if(goodElectrons.size() != 1 || event.GetNgeneralTracks() != 2) return;
   cutThroughHists[name]->Fill(cutLevel++);
   
-  // Get objects of interest
-  auto electron = event.GetElectron(0);
-  auto track1   = event.GetGeneralTrack(0);
-  auto track2   = event.GetGeneralTrack(1);
+  // Get objects
+  auto electron   = goodElectrons[0];
+  auto track1     = event.GetGeneralTrack(0);
+  auto track2     = event.GetGeneralTrack(1);
   
   // Check electron cuts
-  if(electron->GetPt() < 3.0 || fabs(electron->GetEta()) > 2.4) return;
   cutThroughHists[name]->Fill(cutLevel++);
       
   // Check if there is exactly one track matching electron
@@ -76,8 +77,8 @@ void CheckRecoEfficiency(Event &event)
   hists[name+"_den"]->Fill(1);
   nEvents[name].first++;
           
-  // Check that there's exactly one photon and has high enough momentum
-  if(event.GetGoodPhotonSCs().size() == 1){
+  // Check that there's exactly one photon passing ID cuts
+  if(event.GetGoodPhotons().size() == 1){
     cutThroughHists[name]->Fill(cutLevel++);
             
     // Count this event as a probe
@@ -134,7 +135,7 @@ void CheckTriggerEfficiency(Event &event)
 }
 
 /// Counts number of events passing tag and probe criteria for charged exclusivity efficiency
-void CheckCHEefficiency(const Event &event)
+void CheckCHEefficiency(Event &event)
 {
   string name = "charged_exclusivity_eff";
   int cutLevel = 0;
@@ -167,7 +168,7 @@ void CheckCHEefficiency(const Event &event)
 }
 
 /// Counts number of events passing tag and probe criteria for neutral exclusivity efficiency
-void CheckNEEefficiency(const Event &event)
+void CheckNEEefficiency(Event &event)
 {
   string name = "neutral_exclusivity_eff";
   int cutLevel = 0;

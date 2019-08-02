@@ -33,7 +33,7 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
     
     auto event = events->GetEvent(iEvent);
     
-    for(auto photon : event->GetPhotonSCs()){
+    for(auto photon : event->GetPhotons()){
 //      if(photon->GetEt() < config.params["minEt"]) continue;
 
       if(fabs(photon->GetEta()) < maxEtaEB ){

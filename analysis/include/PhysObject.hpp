@@ -23,6 +23,10 @@ public:
   double GetEt()  const;
   double GetPt()  const;
   
+  double GetEtaSC()     const;
+  double GetPhiSC()     const;
+  double GetEnergySC()  const;
+  
   double GetEtaWidth()  const;
   double GetPhiWidth()  const;
   double GetHoverE()    const;
@@ -35,6 +39,10 @@ public:
   double GetEnergyHad()  const;
   double GetEnergyEm()   const;
   
+  double GetTrackIso()   const;
+  double GetECalIso()    const;
+  double GetHCalIso()    const;
+  
   /// Returns calo sub-det
   ECaloType GetTowerSubdetHad() const;
   ECaloType GetTowerSubdetEm()  const;
@@ -43,6 +51,11 @@ private:
   double eta;       ///< Pseudorapidity
   double phi;       ///< Azimuthal angle
   double energy;    ///< Energy
+  
+  double etaSC;     ///< Pseudorapidity of the supercluster
+  double phiSC;     ///< Azimuthal angle of the supercluster
+  double energySC;  ///< Energy of the supercluster
+  
   double et;        ///< Transverse energy
   double pt;        ///< Transverse momentum
   
@@ -57,6 +70,10 @@ private:
   int pdgID;        ///< PDG PID code
   int charge;       ///< Particle charge
   int nMissingHits; ///< Number of missing hits
+  
+  double trackIso;  ///< Track isolation
+  double ecalIso;   ///< Isolation in ECal
+  double hcalIso;   ///< Isolation in HCal
   
   friend class EventProcessor;
   friend class PhysObjectProcessor;

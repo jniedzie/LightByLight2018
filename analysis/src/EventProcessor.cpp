@@ -41,7 +41,7 @@ void EventProcessor::SetupBranches(string inputPath)
   eventTree->SetBranchAddress("mcEt"  , &mcEt);
   eventTree->SetBranchAddress("mcPID" , &mcPID);
   
-  eventTree->SetBranchAddress("nPho"            , &currentEvent->nPhotonSCs);
+  eventTree->SetBranchAddress("nPho"            , &currentEvent->nPhotons);
   eventTree->SetBranchAddress("phoSCEta"        , &photonSCEta);
   eventTree->SetBranchAddress("phoSCPhi"        , &photonSCPhi);
   eventTree->SetBranchAddress("phoSCEt"         , &photonSCEt);
@@ -70,6 +70,9 @@ void EventProcessor::SetupBranches(string inputPath)
   eventTree->SetBranchAddress("eleEta"          , &electronEta);
   eventTree->SetBranchAddress("elePhi"          , &electronPhi);
   eventTree->SetBranchAddress("eleHoverE"       , &electronHoverE);
+  eventTree->SetBranchAddress("eleSCEta"        , &electronSCEta);
+  eventTree->SetBranchAddress("eleSCPhi"        , &electronSCPhi);
+  eventTree->SetBranchAddress("eleSCEn"         , &electronSCEn);
 }
 
 shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
@@ -97,20 +100,23 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   }
   
   // Clear and fill in collection of photon superclusters
-  currentEvent->photonSC.clear();
+  currentEvent->photons.clear();
   
-  for(size_t iPhotonSC=0; iPhotonSC<currentEvent->nPhotonSCs; iPhotonSC++){
-    auto photonSC = make_shared<PhysObject>();
+  for(size_t iPhoton=0; iPhoton<currentEvent->nPhotons; iPhoton++){
+    auto photon = make_shared<PhysObject>();
     
-    photonSC->eta      = photonSCEta->at(iPhotonSC);
-    photonSC->phi      = photonSCPhi->at(iPhotonSC);
-    photonSC->et       = photonSCEt->at(iPhotonSC);
-    photonSC->pt       = photonSCEt->at(iPhotonSC);
-    photonSC->energy   = photonSCE->at(iPhotonSC);
-    photonSC->etaWidth = photonSCEtaWidth->at(iPhotonSC);
-    photonSC->phiWidth = photonSCPhiWidth->at(iPhotonSC);
+    photon->eta      = photonSCEta->at(iPhoton);
+    photon->etaSC    = photonSCEta->at(iPhoton);
+    photon->phi      = photonSCPhi->at(iPhoton);
+    photon->phiSC    = photonSCPhi->at(iPhoton);
+    photon->et       = photonSCEt->at(iPhoton);
+    photon->pt       = photonSCEt->at(iPhoton);
+    photon->energy   = photonSCE->at(iPhoton);
+    photon->energySC = photonSCE->at(iPhoton);
+    photon->etaWidth = photonSCEtaWidth->at(iPhoton);
+    photon->phiWidth = photonSCPhiWidth->at(iPhoton);
     
-    currentEvent->photonSC.push_back(photonSC);
+    currentEvent->photons.push_back(photon);
   }
   
   // Clear and fill in collection of calo towers
@@ -156,6 +162,9 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     electron->eta          = electronEta->at(iElectron);
     electron->phi          = electronPhi->at(iElectron);
     electron->hOverE       = electronHoverE->at(iElectron);
+    electron->etaSC        = electronSCEta->at(iElectron);
+    electron->phiSC        = electronSCPhi->at(iElectron);
+    electron->energySC     = electronSCEn->at(iElectron);
     
     currentEvent->electrons.push_back(electron);
   }

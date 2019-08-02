@@ -20,31 +20,31 @@ public:
   ~Event();
   
   // Those return number of objects in this event:
-  inline int GetNgenParticles()   const { return nGenParticles; }
-  inline int GetNphotonSCs()      const { return nPhotonSCs; }
-  inline int GetNcaloTowers()     const { return nCaloTowers; }
-  inline int GetNgeneralTracks()  const { return nGeneralTracks; }
-  inline int GetNelectrons()      const { return nElectrons; }
+  inline int GetNgenParticles()   const { return nGenParticles;   }
+  inline int GetNphotons()        const { return nPhotons;        }
+  inline int GetNelectrons()      const { return nElectrons;      }
+  inline int GetNcaloTowers()     const { return nCaloTowers;     }
+  inline int GetNgeneralTracks()  const { return nGeneralTracks;  }
   
   // Those return i-th object in this event:
   inline shared_ptr<PhysObject> GetGenParticle(size_t i)  const { return genParticles[i];  }
-  inline shared_ptr<PhysObject> GetPhotonSC(size_t i)     const { return photonSC[i];      }
+  inline shared_ptr<PhysObject> GetPhoton(size_t i)       const { return photons[i];       }
+  inline shared_ptr<PhysObject> GetElectron(size_t i)     const { return generalTracks[i]; }
   inline shared_ptr<PhysObject> GetCaloTower(size_t i)    const { return caloTowers[i];    }
   inline shared_ptr<PhysObject> GetGeneralTrack(size_t i) const { return generalTracks[i]; }
-  inline shared_ptr<PhysObject> GetElectron(size_t i)     const { return generalTracks[i]; }
   
-  inline vector<shared_ptr<PhysObject>> GetPhotonSCs()    const { return photonSC; }
-  inline vector<shared_ptr<PhysObject>> GetCaloTowers()   const { return caloTowers; }
+  
+  inline vector<shared_ptr<PhysObject>> GetPhotons()      const { return photons;     }
+  inline vector<shared_ptr<PhysObject>> GetCaloTowers()   const { return caloTowers;  }
   
   /// Returns vector of gen particles passing η and Et cuts specified in the config
   vector<shared_ptr<PhysObject>> GetGoodGenPhotons() const;
   
-  /// Updates and returns vector of photon superclusters passing η, Et and shower shape cuts
-  /// specified in config
-  vector<shared_ptr<PhysObject>> GetGoodPhotonSCs();
+  /// Updates and returns vector of photons passing all photon ID cuts
+  vector<shared_ptr<PhysObject>> GetGoodPhotons();
   
-  /// Returns vector of electrons passing η and Et cuts specified in the config
-  vector<shared_ptr<PhysObject>> GetGoodElectrons() const;
+  /// Updates and returns vector of electrons passing all electron ID cuts
+  vector<shared_ptr<PhysObject>> GetGoodElectrons();
   
   /// Finds two photons passing cuts (if not done yet) and returns diphoton invariant mass
   double GetDiphotonInvMass();
@@ -82,11 +82,11 @@ private:
   int nGenParticles = 0;                        ///< Number of gen particles
   vector<shared_ptr<PhysObject>> genParticles;  ///< Vector of gen particles
   
-  int nPhotonSCs = 0;                           ///< Number of photon superclusters
-  vector<shared_ptr<PhysObject>> photonSC;      ///< Vector of photon superclusters
+  int nPhotons = 0;                             ///< Number of photon superclusters
+  vector<shared_ptr<PhysObject>> photons;       ///< Vector of photon superclusters
   
-  bool passingPhotonSCready = false;              ///< Were photon SC cuts already applied?
-  vector<shared_ptr<PhysObject>> photonSCpassing; ///< Vector of photon superclusters passing cuts
+  bool goodPhotonsReady = false;                ///< Were photon cuts already applied?
+  vector<shared_ptr<PhysObject>> goodPhotons;   ///< Vector of photons passing cuts
   
   int nCaloTowers = 0;                          ///< Number of calorimeter towers
   vector<shared_ptr<PhysObject>> caloTowers;    ///< Vector of calorimeter tower
@@ -96,6 +96,9 @@ private:
   
   int nElectrons = 0;                           ///< Number of electrons
   vector<shared_ptr<PhysObject>> electrons;     ///< Vector of electrons
+  
+  bool goodElectronsReady = false;              ///< Were electron cuts already applied?
+  vector<shared_ptr<PhysObject>> goodElectrons; ///< Vector of electrons passing cuts
   
   friend class EventProcessor;
 };

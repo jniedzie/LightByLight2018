@@ -8,6 +8,11 @@ PhysObject::PhysObject() :
 eta(9999),
 phi(9999),
 energy(-1),
+
+etaSC(9999),
+phiSC(9999),
+energySC(-1),
+
 et(-1),
 pt(-1),
 
@@ -20,7 +25,11 @@ hOverE(-9999),
 
 pdgID(0),
 charge(9999),
-nMissingHits(-1)
+nMissingHits(-1),
+
+trackIso(-9999),
+ecalIso(-9999),
+hcalIso(-9999)
 {
   
 }
@@ -123,14 +132,50 @@ double PhysObject::GetEnergy()     const
   return energy;
 }
 
-double PhysObject::GetEnergyHad()  const
+double PhysObject::GetEnergyHad() const
 {
   if(energyHad < -999) cout<<"WARNING - carefull, energyHad probably not set"<<endl;
   return energyHad;
 }
 
-double PhysObject::GetEnergyEm()   const
+double PhysObject::GetEnergyEm() const
 {
   if(energyEm < -999) cout<<"WARNING - carefull, energyEm probably not set"<<endl;
   return energyEm;
+}
+
+double PhysObject::GetEtaSC() const
+{
+  if(etaSC > 999) cout<<"WARNING - carefull, etaSC probably not set"<<endl;
+  return etaSC;
+}
+
+double PhysObject::GetPhiSC() const
+{
+  if(phiSC > 999) cout<<"WARNING - carefull, phiSC probably not set"<<endl;
+  return phiSC;
+}
+
+double PhysObject::GetEnergySC() const
+{
+  if(energySC < 0) cout<<"WARNING - carefull, energySC probably not set"<<endl;
+  return energySC;
+}
+
+double PhysObject::GetTrackIso() const
+{
+  if(trackIso < 0) cout<<"WARNING - carefull, trackIso probably not set"<<endl;
+  return trackIso;
+}
+
+double PhysObject::GetECalIso() const
+{
+  if(ecalIso < 0) cout<<"WARNING - carefull, ecalIso probably not set"<<endl;
+  return ecalIso;
+}
+
+double PhysObject::GetHCalIso() const
+{
+  if(hcalIso < 0) cout<<"WARNING - carefull, hcalIso probably not set"<<endl;
+  return hcalIso;
 }
