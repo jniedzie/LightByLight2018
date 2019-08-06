@@ -8,7 +8,7 @@
 #include "ConfigManager.hpp"
 
 string configPath = "configs/efficiencies.md";
-string outputPath = "results/photonID.root";
+string outputPath = "results/photonID_withAllCuts.root";
 
 vector<tuple<string, int, double, double>> histParams = {
 // title                     nBins min   max
@@ -22,6 +22,9 @@ vector<tuple<string, int, double, double>> histParams = {
   {"etaEndcap"              , 100 , 1.0 , 3.2 },
   {"etLowWidthEndcap"       , 100 , 0   , 10  },
   {"HoverE"                 , 300 , 0   , 0.6 },
+  {"etaHighHoverE"          , 320 , 0   , 3.2 },
+  {"etaLowHoverE"           , 320 , 0   , 3.2 },
+  {"HoverE2p3"              , 300 , 0   , 0.6 },
 };
 
 void fillHistograms(const unique_ptr<EventProcessor> &events,
@@ -37,13 +40,13 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
     // Check that event passes cuts
     
     // Trigger
-    if(!event->HasDoubleEG2Trigger()) continue;
+//    if(!event->HasDoubleEG2Trigger()) continue;
     
     // Charged exclusivity
-    if(event->HasChargedTracks()) continue;
+//    if(event->HasChargedTracks()) continue;
     
     // Neutral exclusivity
-    if(event->HasAdditionalTowers()) continue;
+//    if(event->HasAdditionalTowers()) continue;
     
     // Fill histograms for N-1 photon ID cuts
     for(auto photon : event->GetPhotons()){
@@ -51,7 +54,6 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
       
       // Check basic cuts:
       if(photon->GetEt() < config.params("photonMinEt")) continue;
-      if(eta > config.params("photonMaxEta")) continue;
       if(eta > config.params("ecalCrackMin") &&
          eta < config.params("ecalCrackMax"))   continue;
       
@@ -81,6 +83,9 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
         }
       }
       
+      // for H/E, check already that |η| < 2.3
+      if(eta > config.params("photonMaxEta")) continue;
+      
       // Fill in H/E plots
       if((eta < maxEtaEB &&
           photon->GetEtaWidth()  < config.params("photonMaxEtaWidthBarrel")) ||
@@ -88,6 +93,11 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
           photon->GetEtaWidth()  < config.params("photonMaxEtaWidthEndcap"))){
       
            hists.at("HoverE"+datasetName)->Fill(photon->GetHoverE());
+           
+           if(photon->GetHoverE() > 0.15) hists.at("etaHighHoverE"+datasetName)->Fill(eta);
+           else                           hists.at("etaLowHoverE"+datasetName)->Fill(eta);
+           
+           if(eta < 2.3) hists.at("HoverE2p3"+datasetName)->Fill(photon->GetHoverE());
       }
     }
   }

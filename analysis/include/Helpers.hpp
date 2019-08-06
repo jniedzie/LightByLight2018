@@ -17,6 +17,10 @@
 #include "TFile.h"
 #include "TEnv.h"
 #include "TLorentzVector.h"
+#include "TCanvas.h"
+#include "TFile.h"
+#include "TLegend.h"
+#include "TStyle.h"
 
 #pragma clang diagnostic pop // restores the saved state for diagnostics
 
