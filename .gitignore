@@ -62,4 +62,6 @@ MC_reconstruction/digi_raw/mc_qed_sc/step2_DIGI_L1_DIGI2RAW_HLT.pyc
 MC_reconstruction/reco_modified/mc_qed_sl/crabConfig.pyc
 analysis/prepareShowerShapePlots
 analysis/preparePhotonIDplots
-
+analysis/condor/error/
+analysis/condor/log/
+analysis/condor/output/
