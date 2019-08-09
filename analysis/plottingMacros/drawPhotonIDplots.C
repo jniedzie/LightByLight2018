@@ -120,6 +120,7 @@ void drawPhotonIDplots()
       etaNarrowEndcap->Scale(1./etaNarrowEndcap->GetEntries());
       etaNarrowEndcap->Sumw2(false);
       etaNarrowEndcap->Draw(first ? "" : "same");
+      etaNarrowEndcap->GetXaxis()->SetRangeUser(1.5, 3.2);
       
       notNarrow->SetLineColor(kGreen+2);
       notNarrow->Scale(1./notNarrow->GetEntries());
@@ -130,7 +131,6 @@ void drawPhotonIDplots()
       legendEta->AddEntry(etaNarrowEndcap, "#sigma_{i#etai#eta} < 0.001", "l");
       legendEta->AddEntry(notNarrow, "#sigma_{i#etai#eta} >= 0.001", "l");
       legendEta->Draw("same");
-      
     }
     
     canvasShower->cd(4); preparePad();

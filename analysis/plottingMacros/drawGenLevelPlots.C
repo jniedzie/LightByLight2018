@@ -1,12 +1,17 @@
+#include "../include/Helpers.hpp"
+
 int canvasWidth = 1000;
 int canvasHeight = 1800;
 
-vector<tuple<string, string, int>> datasetParams = {
-  {"raw_plots_cep_sc.root", "CEP"           , kRed    },
-  {"raw_plots_lbl_sc.root", "LbL"           , kBlack  },
-  {"raw_plots_qed_sc.root", "QED SuperChic" , kBlue   },
-  {"raw_plots_qed_sl_30M.root", "QED Starlight" , kGreen  },
+string basePath = "../results/";
+
+map<EDataset, string> inputPaths = {
+  { kMCcep    , "raw_plots_cep_sc.root"     },
+  { kMCqedSC  , "raw_plots_qed_sc.root"     },
+  { kMCqedSL  , "raw_plots_qed_sl_30M.root" },
+  { kMClbl    , "raw_plots_lbl_sc.root"     },
 };
+
 //            name    x label y label logY  xMin    xMax    yMax   rebin
 typedef tuple<string, string, string, bool, double, double, double, int> histParams;
 
@@ -49,19 +54,28 @@ TH1D* DrawPlot(TFile *inFile, histParams params, int color, bool firstFile)
 
 void drawGenLevelPlots()
 {
-  TCanvas *canvasPair = new TCanvas("Gen-level pair plots", "Gen-level pair plots", canvasWidth, canvasHeight);
+  TCanvas *canvasPair = new TCanvas("Gen-level pair plots", "Gen-level pair plots",
+                                    canvasWidth, canvasHeight);
   canvasPair->Divide(2,3);
   
-  TCanvas *canvasSingle = new TCanvas("Gen-level single plots", "Gen-level single plots", canvasWidth, canvasHeight);
+  TCanvas *canvasSingle = new TCanvas("Gen-level single plots", "Gen-level single plots",
+                                      canvasWidth, canvasHeight);
   canvasSingle->Divide(2,3);
   
   TLegend *legend = new TLegend(0.2,0.2,0.8,0.8);
   
+  gStyle->SetOptStat(0);
   
   bool firstFile=true;
   
-  for(auto &[fileName, sampleName, color] : datasetParams){
+  for(EDataset dataset : datasets){
+    if(dataset == kData) continue;
+    
+    string fileName = basePath+inputPaths.at(dataset);
     TFile *inFile = TFile::Open(fileName.c_str());
+    
+    int color = datasetColor.at(dataset);
+    string sampleName = datasetDescription.at(dataset);
     
     int iPad=1;
     bool firstHist=true;
@@ -87,7 +101,7 @@ void drawGenLevelPlots()
     firstFile=false;
   }
 
-  canvasSingle->SaveAs("gen_level_single.pdf");
-  canvasPair->SaveAs("gen_level_pair.pdf");
+  canvasSingle->SaveAs("../plots/gen_level_single.pdf");
+  canvasPair->SaveAs("../plots/gen_level_pair.pdf");
   
 }

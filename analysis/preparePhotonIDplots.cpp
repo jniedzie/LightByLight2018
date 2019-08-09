@@ -8,7 +8,7 @@
 #include "ConfigManager.hpp"
 
 string configPath = "configs/efficiencies.md";
-string outputPath = "results/photonID_withAllCuts.root";
+string outputPath = "results/photonID_test.root";
 
 vector<tuple<string, int, double, double>> histParams = {
 // title                     nBins min   max
