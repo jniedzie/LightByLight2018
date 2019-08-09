@@ -65,3 +65,5 @@ analysis/preparePhotonIDplots
 analysis/condor/error/
 analysis/condor/log/
 analysis/condor/output/
+analysis/prepareBasicPlots
+analysis/prepareElectronIDplots
