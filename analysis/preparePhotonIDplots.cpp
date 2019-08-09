@@ -21,10 +21,11 @@ vector<tuple<string, int, double, double>> histParams = {
   {"etaLowWidthEndcap"      , 100 , 1.0 , 3.2 },
   {"etaEndcap"              , 100 , 1.0 , 3.2 },
   {"etLowWidthEndcap"       , 100 , 0   , 10  },
-  {"HoverE"                 , 300 , 0   , 0.6 },
+  
+  {"HoverEbarrel"           , 300 , 0   , 0.6 },
+  {"HoverEendcap"           , 300 , 0   , 0.6 },
   {"etaHighHoverE"          , 320 , 0   , 3.2 },
   {"etaLowHoverE"           , 320 , 0   , 3.2 },
-  {"HoverE2p3"              , 300 , 0   , 0.6 },
 };
 
 void fillHistograms(const unique_ptr<EventProcessor> &events,
@@ -58,46 +59,42 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
          eta < config.params("ecalCrackMax"))   continue;
       
       // Fill in shower shape histograms
-      if(photon->GetHoverE() < config.params("photonMaxHoverE")){
+      
+      if((eta < maxEtaEB) && (photon->GetHoverE() < config.params("photonMaxHoverEbarrel"))){
+        hists.at("showerShapeBarrel"+datasetName)->Fill(photon->GetEtaWidth());
+        hists.at("etaBarrel"+datasetName)->Fill(eta);
         
-        if(eta < maxEtaEB ){
-          hists.at("showerShapeBarrel"+datasetName)->Fill(photon->GetEtaWidth());
-          hists.at("etaBarrel"+datasetName)->Fill(eta);
-          
-          if(photon->GetEtaWidth() < 0.001){
-            hists.at("etaLowWidthBarrel"+datasetName)->Fill(eta);
-            hists.at("etLowWidthBarrel"+datasetName)->Fill(photon->GetEt());
-          }
+        if(photon->GetEtaWidth() < 0.001){
+          hists.at("etaLowWidthBarrel"+datasetName)->Fill(eta);
+          hists.at("etLowWidthBarrel"+datasetName)->Fill(photon->GetEt());
         }
-        else if(eta < maxEtaEE){
-          hists.at("showerShapeEndcap"+datasetName)->Fill(photon->GetEtaWidth());
-          hists.at("etaEndcap"+datasetName)->Fill(eta);
-          
-          if(photon->GetEtaWidth() < 0.001){
-            hists.at("etaLowWidthEndcap"+datasetName)->Fill(eta);
-            hists.at("etLowWidthEndcap"+datasetName)->Fill(photon->GetEt());
-          }
+      }
+      else if((eta < maxEtaEE) && (photon->GetHoverE() < config.params("photonMaxHoverEendcap"))){
+        hists.at("showerShapeEndcap"+datasetName)->Fill(photon->GetEtaWidth());
+        hists.at("etaEndcap"+datasetName)->Fill(eta);
+        
+        if(photon->GetEtaWidth() < 0.001){
+          hists.at("etaLowWidthEndcap"+datasetName)->Fill(eta);
+          hists.at("etLowWidthEndcap"+datasetName)->Fill(photon->GetEt());
         }
-        if(eta > minEtaEE && eta < 2.3){
-          hists.at("showerShapeEndcap2p3"+datasetName)->Fill(photon->GetEtaWidth());
-        }
+        if(eta < 2.3) hists.at("showerShapeEndcap2p3"+datasetName)->Fill(photon->GetEtaWidth());
       }
       
       // for H/E, check already that |η| < 2.3
       if(eta > config.params("photonMaxEta")) continue;
       
       // Fill in H/E plots
-      if((eta < maxEtaEB &&
-          photon->GetEtaWidth()  < config.params("photonMaxEtaWidthBarrel")) ||
-         (eta > minEtaEE && eta < maxEtaEE &&
-          photon->GetEtaWidth()  < config.params("photonMaxEtaWidthEndcap"))){
-      
-           hists.at("HoverE"+datasetName)->Fill(photon->GetHoverE());
-           
-           if(photon->GetHoverE() > 0.15) hists.at("etaHighHoverE"+datasetName)->Fill(eta);
-           else                           hists.at("etaLowHoverE"+datasetName)->Fill(eta);
-           
-           if(eta < 2.3) hists.at("HoverE2p3"+datasetName)->Fill(photon->GetHoverE());
+      if((eta < maxEtaEB) && (photon->GetEtaWidth()  < config.params("photonMaxEtaWidthBarrel"))){
+        hists.at("HoverEbarrel"+datasetName)->Fill(photon->GetHoverE());
+        
+        if(photon->GetHoverE() > 0.15) hists.at("etaHighHoverE"+datasetName)->Fill(eta);
+        else                           hists.at("etaLowHoverE"+datasetName)->Fill(eta);
+      }
+      else if((eta < maxEtaEE) && (photon->GetEtaWidth()  < config.params("photonMaxEtaWidthEndcap"))){
+        hists.at("HoverEendcap"+datasetName)->Fill(photon->GetHoverE());
+        
+        if(photon->GetHoverE() > 0.15) hists.at("etaHighHoverE"+datasetName)->Fill(eta);
+        else                           hists.at("etaLowHoverE"+datasetName)->Fill(eta);
       }
     }
   }

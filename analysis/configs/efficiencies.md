@@ -23,7 +23,8 @@ maxDeltaR:              0.3
 ### Photon ID cuts:
 photonMinEt:                            2.0
 photonMaxEta:                         2.3
-photonMaxHoverE:                   0.04
+photonMaxHoverEbarrel:          0.04596
+photonMaxHoverEendcap:       0.0590
 photonMaxEtaWidthBarrel:       0.02
 photonMaxEtaWidthEndcap:    0.06
 

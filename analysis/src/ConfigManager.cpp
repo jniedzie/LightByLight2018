@@ -39,7 +39,8 @@ ConfigManager::ConfigManager(string _path)
   // Photon ID cuts
   _params["photonMinEt"]             = configFile->GetValue("photonMinEt"            , 9999.9);
   _params["photonMaxEta"]            = configFile->GetValue("photonMaxEta"           , 9999.9);
-  _params["photonMaxHoverE"]         = configFile->GetValue("photonMaxHoverE"        , 9999.9);
+  _params["photonMaxHoverEbarrel"]   = configFile->GetValue("photonMaxHoverEbarrel"  , 9999.9);
+  _params["photonMaxHoverEendcap"]   = configFile->GetValue("photonMaxHoverEendcap"  , 9999.9);
   _params["photonMaxEtaWidthBarrel"] = configFile->GetValue("photonMaxEtaWidthBarrel", 9999.9);
   _params["photonMaxEtaWidthEndcap"] = configFile->GetValue("photonMaxEtaWidthEndcap", 9999.9);
   

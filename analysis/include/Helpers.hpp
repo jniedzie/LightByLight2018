@@ -21,6 +21,8 @@
 #include "TFile.h"
 #include "TLegend.h"
 #include "TStyle.h"
+#include "TLine.h"
+#include "TLatex.h"
 
 #pragma clang diagnostic pop // restores the saved state for diagnostics
 

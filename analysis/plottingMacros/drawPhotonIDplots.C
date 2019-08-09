@@ -24,14 +24,26 @@ void preparePad()
   gPad->SetBottomMargin(0.15);
 }
 
+void drawThreshold(double threshold, string label="")
+{
+  TLine *line = new TLine(threshold, 0, threshold, 1.0);
+  line->SetLineColor(kGreen+2);
+  line->SetLineWidth(2);
+  line->Draw("same");
+  TLatex *text = new TLatex(threshold+0.005, 1e-2, label=="" ? Form("%.2f", threshold) : label.c_str());
+  text->SetTextColor(kGreen+2);
+  text->SetTextSize(0.05);
+  text->Draw("same");
+}
+
 void drawPhotonIDplots()
 {
   TFile *inFile = TFile::Open(inputPath.c_str());
   
   TCanvas *canvasShower = new TCanvas("Shower shape", "Shower shape", 1000, 1000);
-  TCanvas *canvasHoverE = new TCanvas("H/E", "H/E", 1000, 1000);
+  TCanvas *canvasHoverE = new TCanvas("H/E", "H/E", 1000, 500);
   canvasShower->Divide(2,2);
-  canvasHoverE->Divide(2,2);
+  canvasHoverE->Divide(2,1);
   
   gStyle->SetOptStat(0);
   TLegend *legend = new TLegend(0.5, 0.7, 0.9, 0.9 );
@@ -42,27 +54,39 @@ void drawPhotonIDplots()
     string name = datasetName.at(dataset);
 
     auto shapeBarrel     = (TH1D*)inFile->Get(("showerShapeBarrel"+name).c_str());
-    auto shapeEndcap     = (TH1D*)inFile->Get(("showerShapeEndcap"+name).c_str());
-    auto shapeEndcap2p3  = (TH1D*)inFile->Get(("showerShapeEndcap2p3"+name).c_str());
-    auto etaEndcap       = (TH1D*)inFile->Get(("etaEndcap"+name).c_str());
-    auto etaNarrowEndcap = (TH1D*)inFile->Get(("etaLowWidthEndcap"+name).c_str());
+    if(!shapeBarrel) cout<<"Could not open showerShapeBarrel hist"<<endl;
     
-    auto hOverE          = (TH1D*)inFile->Get(("HoverE"+name).c_str());
-    auto hOverE2p3       = (TH1D*)inFile->Get(("HoverE2p3"+name).c_str());
-    auto etaLowHoverE    = (TH1D*)inFile->Get(("etaLowHoverE"+name).c_str());
-    auto etaHighHoverE   = (TH1D*)inFile->Get(("etaHighHoverE"+name).c_str());
-
+    auto shapeEndcap     = (TH1D*)inFile->Get(("showerShapeEndcap"+name).c_str());
+    if(!shapeEndcap) cout<<"Could not open shapeEndcap hist"<<endl;
+    
+    auto shapeEndcap2p3  = (TH1D*)inFile->Get(("showerShapeEndcap2p3"+name).c_str());
+    if(!shapeEndcap2p3) cout<<"Could not open shapeEndcap2p3 hist"<<endl;
+    
+    auto etaEndcap       = (TH1D*)inFile->Get(("etaEndcap"+name).c_str());
+    if(!etaEndcap) cout<<"Could not open etaEndcap hist"<<endl;
+    
+    auto etaNarrowEndcap = (TH1D*)inFile->Get(("etaLowWidthEndcap"+name).c_str());
+    if(!etaNarrowEndcap) cout<<"Could not open etaNarrowEndcap hist"<<endl;
+    
+    auto hOverEbarrel    = (TH1D*)inFile->Get(("HoverEbarrel"+name).c_str());
+    if(!hOverEbarrel) cout<<"Could not open hOverEbarrel hist"<<endl;
+    
+    auto hOverEendcap    = (TH1D*)inFile->Get(("HoverEendcap"+name).c_str());
+    if(!hOverEendcap) cout<<"Could not open hOverEendcap hist"<<endl;
+    
     int color = datasetColor.at(dataset);
     
     prepareHist(shapeBarrel, color);
     prepareHist(shapeEndcap, color);
     prepareHist(shapeEndcap2p3, color);
-    prepareHist(hOverE, color);
-    prepareHist(hOverE2p3, color);
+    prepareHist(hOverEbarrel, color);
+    prepareHist(hOverEendcap, color);
     
     canvasShower->cd(1); preparePad();
     shapeBarrel->SetTitle("Barrel");
     shapeBarrel->Draw(first ? "" : "same");
+    
+    if(first) drawThreshold(0.02);
     
     canvasShower->cd(2); preparePad();
     shapeEndcap->SetTitle("Endcap");
@@ -92,41 +116,26 @@ void drawPhotonIDplots()
       legendEta->AddEntry(notNarrow, "#sigma_{i#etai#eta} >= 0.001", "l");
       legendEta->Draw("same");
       
-      
-      canvasHoverE->cd(2); preparePad();
-      etaHighHoverE->SetLineColor(kRed);
-      etaHighHoverE->GetXaxis()->SetTitle("#eta");
-      etaHighHoverE->GetXaxis()->SetRangeUser(1, 3.2);
-      etaHighHoverE->Scale(1./etaHighHoverE->GetEntries());
-      etaHighHoverE->Rebin(5);
-      etaHighHoverE->Sumw2(false);
-      etaHighHoverE->Draw(first ? "" : "same");
-      
-      etaLowHoverE->SetLineColor(kGreen+2);
-      etaLowHoverE->Scale(1./etaLowHoverE->GetEntries());
-      etaLowHoverE->Rebin(5);
-      etaLowHoverE->Sumw2(false);
-      etaLowHoverE->Draw("same");
-      
-      TLegend *legendEtaHoverE = new TLegend(0.15, 0.75, 0.5, 0.9 );
-      legendEtaHoverE->AddEntry(etaHighHoverE,"H/E > 0.15", "l");
-      legendEtaHoverE->AddEntry(etaLowHoverE, "H/E <= 0.15", "l");
-      legendEtaHoverE->Draw("same");
     }
     
     canvasShower->cd(4); preparePad();
     shapeEndcap2p3->SetTitle("Endcap, |#eta| < 2.3");
     shapeEndcap2p3->Draw(first ? "" : "same");
+    if(first) drawThreshold(0.06);
     
     canvasHoverE->cd(1); preparePad();
-    hOverE->GetXaxis()->SetTitle("H/E");
-    hOverE->Rebin(5);
-    hOverE->Draw(first ? "" : "same");
-
-    canvasHoverE->cd(3); preparePad();
-    hOverE2p3->GetXaxis()->SetTitle("H/E");
-    hOverE2p3->Rebin(5);
-    hOverE2p3->Draw(first ? "" : "same");
+    hOverEbarrel->GetXaxis()->SetTitle("H/E");
+    hOverEbarrel->SetTitle("Barrel");
+    hOverEbarrel->Rebin(5);
+    hOverEbarrel->Draw(first ? "" : "same");
+    if(first) drawThreshold(0.04596, "0.04596");
+    
+    canvasHoverE->cd(2); preparePad();
+    hOverEendcap->GetXaxis()->SetTitle("H/E");
+    hOverEendcap->SetTitle("Endcap");
+    hOverEendcap->Rebin(5);
+    hOverEendcap->Draw(first ? "" : "same");
+    if(first) drawThreshold(0.0590, "0.0590");
     
     legend->AddEntry(shapeBarrel, datasetDescription.at(dataset).c_str(), "l");
     
@@ -137,7 +146,7 @@ void drawPhotonIDplots()
   canvasShower->cd(2); legend->Draw("same");
   canvasShower->cd(4); legend->Draw("same");
   canvasHoverE->cd(1); legend->Draw("same");
-  canvasHoverE->cd(3); legend->Draw("same");
+  canvasHoverE->cd(2); legend->Draw("same");
   
   canvasShower->SaveAs(outputPathShower.c_str());
   canvasHoverE->SaveAs(outputPathHoverE.c_str());
