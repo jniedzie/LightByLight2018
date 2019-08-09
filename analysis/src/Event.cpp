@@ -58,22 +58,29 @@ vector<shared_ptr<PhysObject>> Event::GetGoodPhotons()
 {
   goodPhotons.clear();
   
-  for(int iPhotonSC=0; iPhotonSC<nPhotons; iPhotonSC++){
-    auto cluster = photons[iPhotonSC];
+  for(int iPhoton=0; iPhoton<nPhotons; iPhoton++){
+    auto photon = photons[iPhoton];
+    double absEta = fabs(photon->GetEtaSC());
     
-    // Check eta and Et
-    if(fabs(cluster->GetEta()) > config.params("photonMaxEta")) continue;
-    if(cluster->GetEt() < config.params("photonMinEt")) continue;
+    // Check Et
+    if(photon->GetEt() < config.params("photonMinEt")) continue;
+    
+    // Check eta & phi (remove noisy region >2.3, remove cracks between EB and EE, remove HEM issue region)
+    if(absEta > config.params("photonMaxEta")) continue;
+    if(absEta > config.params("ecalCrackMin") && absEta < config.params("ecalCrackMax")) continue;
+    if(photon->GetEtaSC() < -minEtaEE &&
+       photon->GetPhiSC() > config.params("ecalHEMmin") &&
+       photon->GetPhiSC() < config.params("ecalHEMmax")) continue;
     
     // Check η shower shape
-    if(fabs(cluster->GetEta()) < maxEtaEB &&
-       cluster->GetEtaWidth() > config.params("photonMaxEtaWidthBarrel")) continue;
+    if((absEta < maxEtaEB) && (photon->GetEtaWidth() > config.params("photonMaxEtaWidthBarrel"))) continue;
+    else if((absEta < maxEtaEE) && (photon->GetEtaWidth() > config.params("photonMaxEtaWidthEndcap"))) continue;
     
-    if(fabs(cluster->GetEta()) > minEtaEE &&
-       fabs(cluster->GetEta()) < maxEtaEE &&
-       cluster->GetEtaWidth() > config.params("photonMaxEtaWidthEndcap")) continue;
+    // Check H/E
+    if((absEta < maxEtaEB) && (photon->GetHoverE() > config.params("photonMaxHoverEbarrel"))) continue;
+    else if((absEta < maxEtaEE) && (photon->GetHoverE() > config.params("photonMaxHoverEendcap"))) continue;
     
-    goodPhotons.push_back(cluster);
+    goodPhotons.push_back(photon);
   }
   goodPhotonsReady = true;
   return goodPhotons;
