@@ -41,40 +41,42 @@ void EventProcessor::SetupBranches(string inputPath)
   eventTree->SetBranchAddress("mcEt"  , &mcEt);
   eventTree->SetBranchAddress("mcPID" , &mcPID);
   
-  eventTree->SetBranchAddress("nPho"            , &currentEvent->nPhotons);
-  eventTree->SetBranchAddress("phoHoverE"       , &photonHoverE);
+  eventTree->SetBranchAddress("nPho"              , &currentEvent->nPhotons);
+  eventTree->SetBranchAddress("phoHoverE"         , &photonHoverE);
   
-  eventTree->SetBranchAddress("phoSCEta"        , &photonSCEta);
-  eventTree->SetBranchAddress("phoSCPhi"        , &photonSCPhi);
-  eventTree->SetBranchAddress("phoSCEt"         , &photonSCEt);
-  eventTree->SetBranchAddress("phoSCE"          , &photonSCE);
-  eventTree->SetBranchAddress("phoSCEtaWidth"   , &photonSCEtaWidth);
-  eventTree->SetBranchAddress("phoSCPhiWidth"   , &photonSCPhiWidth);
+  eventTree->SetBranchAddress("phoSCEta"          , &photonSCEta);
+  eventTree->SetBranchAddress("phoSCPhi"          , &photonSCPhi);
+  eventTree->SetBranchAddress("phoSCEt"           , &photonSCEt);
+  eventTree->SetBranchAddress("phoSCE"            , &photonSCE);
+  eventTree->SetBranchAddress("phoSCEtaWidth"     , &photonSCEtaWidth);
+  eventTree->SetBranchAddress("phoSCPhiWidth"     , &photonSCPhiWidth);
   
-  eventTree->SetBranchAddress("nTower"          , &currentEvent->nCaloTowers);
-  eventTree->SetBranchAddress("CaloTower_hadE"  , &towerEnergyHad);
-  eventTree->SetBranchAddress("CaloTower_emE"   , &towerEnergyEm);
-  eventTree->SetBranchAddress("CaloTower_e"     , &towerEnergy);
-  eventTree->SetBranchAddress("CaloTower_et"    , &towerEt);
-  eventTree->SetBranchAddress("CaloTower_eta"   , &towerEta);
-  eventTree->SetBranchAddress("CaloTower_phi"   , &towerPhi);
+  eventTree->SetBranchAddress("nTower"            , &currentEvent->nCaloTowers);
+  eventTree->SetBranchAddress("CaloTower_hadE"    , &towerEnergyHad);
+  eventTree->SetBranchAddress("CaloTower_emE"     , &towerEnergyEm);
+  eventTree->SetBranchAddress("CaloTower_e"       , &towerEnergy);
+  eventTree->SetBranchAddress("CaloTower_et"      , &towerEt);
+  eventTree->SetBranchAddress("CaloTower_eta"     , &towerEta);
+  eventTree->SetBranchAddress("CaloTower_phi"     , &towerPhi);
   
-  eventTree->SetBranchAddress("ngenTrk"         , &currentEvent->nGeneralTracks);
-  eventTree->SetBranchAddress("gentrkPt"        , &generalTrackPt);
-  eventTree->SetBranchAddress("gentrkEta"       , &generalTrackEta);
-  eventTree->SetBranchAddress("gentrkPhi"       , &generalTrackPhi);
-  eventTree->SetBranchAddress("gentrkcharge"    , &generalTrackCharge);
+  eventTree->SetBranchAddress("ngenTrk"           , &currentEvent->nGeneralTracks);
+  eventTree->SetBranchAddress("gentrkPt"          , &generalTrackPt);
+  eventTree->SetBranchAddress("gentrkEta"         , &generalTrackEta);
+  eventTree->SetBranchAddress("gentrkPhi"         , &generalTrackPhi);
+  eventTree->SetBranchAddress("gentrkcharge"      , &generalTrackCharge);
   
-  eventTree->SetBranchAddress("nEle"            , &currentEvent->nElectrons);
-  eventTree->SetBranchAddress("eleCharge"       , &electronCharge);
-  eventTree->SetBranchAddress("eleMissHits"     , &electronNmissing);
-  eventTree->SetBranchAddress("elePt"           , &electronPt);
-  eventTree->SetBranchAddress("eleEta"          , &electronEta);
-  eventTree->SetBranchAddress("elePhi"          , &electronPhi);
-  eventTree->SetBranchAddress("eleHoverE"       , &electronHoverE);
-  eventTree->SetBranchAddress("eleSCEta"        , &electronSCEta);
-  eventTree->SetBranchAddress("eleSCPhi"        , &electronSCPhi);
-  eventTree->SetBranchAddress("eleSCEn"         , &electronSCEn);
+  eventTree->SetBranchAddress("nEle"              , &currentEvent->nElectrons);
+  eventTree->SetBranchAddress("eleCharge"         , &electronCharge);
+  eventTree->SetBranchAddress("eleMissHits"       , &electronNmissing);
+  eventTree->SetBranchAddress("elePt"             , &electronPt);
+  eventTree->SetBranchAddress("eleEta"            , &electronEta);
+  eventTree->SetBranchAddress("elePhi"            , &electronPhi);
+  eventTree->SetBranchAddress("eleHoverE"         , &electronHoverE);
+  eventTree->SetBranchAddress("elePFRelIsoWithEA" , &electronRelIsoWithEA);
+  eventTree->SetBranchAddress("eledEtaAtVtx"      , &electronDetaSeed);
+  eventTree->SetBranchAddress("eleSCEta"          , &electronSCEta);
+  eventTree->SetBranchAddress("eleSCPhi"          , &electronSCPhi);
+  eventTree->SetBranchAddress("eleSCEn"           , &electronSCEn);
 }
 
 shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
@@ -165,6 +167,8 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     electron->eta          = electronEta->at(iElectron);
     electron->phi          = electronPhi->at(iElectron);
     electron->hOverE       = electronHoverE->at(iElectron);
+    electron->relIsoWithEA = electronRelIsoWithEA->at(iElectron);
+    electron->dEtaSeed     = electronDetaSeed->at(iElectron);
     electron->etaSC        = electronSCEta->at(iElectron);
     electron->phiSC        = electronSCPhi->at(iElectron);
     electron->energySC     = electronSCEn->at(iElectron);

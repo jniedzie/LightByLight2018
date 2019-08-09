@@ -19,7 +19,6 @@ diphotonMaxPt:      1.0
 ### Max ΔR for matching for reco+ID efficiency
 maxDeltaR:              0.3
 
-
 ### Photon ID cuts:
 photonMinEt:                            2.0
 photonMaxEta:                         2.3
@@ -27,6 +26,13 @@ photonMaxHoverEbarrel:          0.04596
 photonMaxHoverEendcap:       0.0590
 photonMaxEtaWidthBarrel:       0.0106
 photonMaxEtaWidthEndcap:    0.0272
+
+### Electron ID cuts:
+electronMinPt:                            2.0
+electronMaxEta:                         2.3
+electronMaxNmissingHits:         1
+electronMaxHoverEbarrel:          0.02
+electronMaxHoverEendcap:       0.02
 
 ### Exclude transition region between calo barrel and endcap
 ecalCrackMin: 1.4442

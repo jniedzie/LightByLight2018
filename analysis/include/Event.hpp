@@ -35,6 +35,7 @@ public:
   
   
   inline vector<shared_ptr<PhysObject>> GetPhotons()      const { return photons;     }
+  inline vector<shared_ptr<PhysObject>> GetElectrons()    const { return electrons;   }
   inline vector<shared_ptr<PhysObject>> GetCaloTowers()   const { return caloTowers;  }
   
   /// Returns vector of gen particles passing η and Et cuts specified in the config

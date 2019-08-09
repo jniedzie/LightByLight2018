@@ -39,9 +39,8 @@ public:
   double GetEnergyHad()  const;
   double GetEnergyEm()   const;
   
-  double GetTrackIso()   const;
-  double GetECalIso()    const;
-  double GetHCalIso()    const;
+  double GetRelIsoWithEA()  const;
+  double GetDetaSeed()      const;
   
   /// Returns calo sub-det
   ECaloType GetTowerSubdetHad() const;
@@ -71,9 +70,8 @@ private:
   int charge;       ///< Particle charge
   int nMissingHits; ///< Number of missing hits
   
-  double trackIso;  ///< Track isolation
-  double ecalIso;   ///< Isolation in ECal
-  double hcalIso;   ///< Isolation in HCal
+  double relIsoWithEA;  ///< Relative isolation
+  double dEtaSeed;      ///< Seed Δη
   
   friend class EventProcessor;
   friend class PhysObjectProcessor;

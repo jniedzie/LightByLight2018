@@ -64,16 +64,19 @@ private:
   vector<double> *generalTrackEta    = nullptr;
   vector<double> *generalTrackPhi    = nullptr;
   
-  vector<int>    *electronCharge     = nullptr;
-  vector<int>    *electronNmissing   = nullptr;
-  vector<double> *electronPt         = nullptr;
-  vector<double> *electronEta        = nullptr;
-  vector<double> *electronPhi        = nullptr;
-  vector<double> *electronHoverE     = nullptr;
+  vector<int>    *electronCharge       = nullptr;
+  vector<int>    *electronNmissing     = nullptr;
+  vector<double> *electronPt           = nullptr;
+  vector<double> *electronEta          = nullptr;
+  vector<double> *electronPhi          = nullptr;
+  vector<double> *electronHoverE       = nullptr;
+  vector<double> *electronRelIsoWithEA = nullptr;
+  vector<double> *electronDetaSeed     = nullptr;
+  vector<double> *electronSCEta        = nullptr;
+  vector<double> *electronSCPhi        = nullptr;
+  vector<double> *electronSCEn         = nullptr;
   
-  vector<double> *electronSCEta      = nullptr;
-  vector<double> *electronSCPhi      = nullptr;
-  vector<double> *electronSCEn       = nullptr;
+  
 
   /// Opens input trees and sets branches
   void SetupBranches(string inputPath);

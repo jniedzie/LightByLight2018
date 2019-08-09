@@ -25,13 +25,13 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
 {
   for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
     if(iEvent%10000==0) cout<<"Processing event "<<iEvent<<endl;
-    if(iEvent >= config.params["maxEvents"]) break;
+    if(iEvent >= config.params("maxEvents")) break;
     
     // Add all necessary selection criteria here
     // ...
     
     auto event = events->GetEvent(iEvent);
-    auto photons = event->GetGoodPhotonSCs();
+    auto photons = event->GetGoodPhotons();
     
     if(photons.size() == 2){
       double aco = physObjectProcessor.GetAcoplanarity(*photons[0], *photons[1]);

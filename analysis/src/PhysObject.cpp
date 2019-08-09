@@ -27,9 +27,8 @@ pdgID(0),
 charge(9999),
 nMissingHits(-1),
 
-trackIso(-9999),
-ecalIso(-9999),
-hcalIso(-9999)
+relIsoWithEA(-9999),
+dEtaSeed(-9999)
 {
   
 }
@@ -162,20 +161,14 @@ double PhysObject::GetEnergySC() const
   return energySC;
 }
 
-double PhysObject::GetTrackIso() const
+double PhysObject::GetRelIsoWithEA() const
 {
-  if(trackIso < 0) cout<<"WARNING - carefull, trackIso probably not set"<<endl;
-  return trackIso;
+  if(relIsoWithEA < 0) cout<<"WARNING - carefull, relIsoWithEA probably not set"<<endl;
+  return relIsoWithEA;
 }
 
-double PhysObject::GetECalIso() const
+double PhysObject::GetDetaSeed() const
 {
-  if(ecalIso < 0) cout<<"WARNING - carefull, ecalIso probably not set"<<endl;
-  return ecalIso;
-}
-
-double PhysObject::GetHCalIso() const
-{
-  if(hcalIso < 0) cout<<"WARNING - carefull, hcalIso probably not set"<<endl;
-  return hcalIso;
+  if(dEtaSeed < -999) cout<<"WARNING - carefull, dEtaSeed probably not set"<<endl;
+  return dEtaSeed;
 }

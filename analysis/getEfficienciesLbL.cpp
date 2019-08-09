@@ -20,7 +20,7 @@ bool HasTwoMatchingPhotons(const vector<shared_ptr<PhysObject>> &genPhotons,
     for(auto &cluster : photonSCs){
       double deltaR = sqrt(pow(genPhoton->GetEta() - cluster->GetEta(), 2)+
                            pow(genPhoton->GetPhi() - cluster->GetPhi(), 2));
-      if(deltaR < config.params["maxDeltaR"]) nMatched++;
+      if(deltaR < config.params("maxDeltaR")) nMatched++;
     }
   }
   
@@ -59,24 +59,24 @@ int main()
   int iEvent;
   for(iEvent=0; iEvent<eventProcessor->GetNevents(); iEvent++){
     if(iEvent%10000 == 0) cout<<"Processing event "<<iEvent<<endl;
-    if(iEvent >= config.params["maxEvents"]) break;
+    if(iEvent >= config.params("maxEvents")) break;
     
     auto event = eventProcessor->GetEvent(iEvent);
     
     // Here we get gen and reco photons that pass acceptance (c_ACC) criteria
     auto goodGenPhotons  = event->GetGoodGenPhotons();
-    auto photonSCpassing = event->GetGoodPhotonSCs();
+    auto photonsPassing = event->GetGoodPhotons();
     
     double diphotonMinv = event->GetDiphotonInvMass();
     
     // Check properties of this event
     bool hasTwoGoodGenPhotons     = goodGenPhotons.size() == 2;
     bool hasLbLTrigger            = event->HasLbLTrigger();
-    bool hasTwoPhotonsPassingID   = photonSCpassing.size() == 2;
+    bool hasTwoPhotonsPassingID   = photonsPassing.size() == 2;
     bool passesNeutralExclusivity = ! event->HasAdditionalTowers();
     bool passesChargedExclusivity = ! event->HasChargedTracks();
     bool passesDiphotonCuts       = ! event->DiphotonPtAboveThreshold();
-    bool hasTwoMachingPhotons     = HasTwoMatchingPhotons(goodGenPhotons, event->GetPhotonSCs());
+    bool hasTwoMachingPhotons     = HasTwoMatchingPhotons(goodGenPhotons, event->GetPhotons());
     
     // Increment counters of different types of events
     if(hasTwoGoodGenPhotons){

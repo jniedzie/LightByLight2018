@@ -252,7 +252,7 @@ int main(int argc, char* argv[])
   // Loop over events
   for(int iEvent=0; iEvent<eventProcessor->GetNevents(); iEvent++){
     if(iEvent%10000 == 0) cout<<"Processing event "<<iEvent<<endl;
-    if(iEvent >= config.params["maxEvents"]) break;
+    if(iEvent >= config.params("maxEvents")) break;
     
     auto event = eventProcessor->GetEvent(iEvent);
     

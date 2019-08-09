@@ -47,13 +47,9 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
     
     // Check that event passes cuts
     
-    // Trigger
+    // Triggers and exclusivity
 //    if(!event->HasDoubleEG2Trigger()) continue;
-    
-    // Charged exclusivity
 //    if(event->HasChargedTracks()) continue;
-    
-    // Neutral exclusivity
 //    if(event->HasAdditionalTowers()) continue;
     
     // Fill histograms for N-1 photon ID cuts
