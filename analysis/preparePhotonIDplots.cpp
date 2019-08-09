@@ -29,8 +29,9 @@ vector<tuple<string, int, double, double>> histParams = {
 };
 
 vector<tuple<string, int, double, double, int, double, double>> histParams2D = {
-  // title       nBinsX minX   maxX   nBinsY minY  maxY
-  {"HoverEmap" , 314 , -3.14 , 3.14 , 460 , -2.3 , 2.3 },
+  // title         nBinsX minX   maxX   nBinsY minY  maxY
+  {"HoverEmapNum" , 314 , -3.14 , 3.14 , 460 , -2.3 , 2.3 },
+  {"HoverEmapDen" , 314 , -3.14 , 3.14 , 460 , -2.3 , 2.3 },
 };
 
 void fillHistograms(const unique_ptr<EventProcessor> &events,
@@ -96,7 +97,8 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
         if(photon->GetHoverE() > 0.15) hists.at("etaHighHoverE"+datasetName)->Fill(eta);
         else                           hists.at("etaLowHoverE"+datasetName)->Fill(eta);
         
-        hists2D.at("HoverEmap"+datasetName)->Fill(photon->GetPhi(), eta);
+        hists2D.at("HoverEmapNum"+datasetName)->Fill(photon->GetPhi(), photon->GetEta(), photon->GetHoverE());
+        hists2D.at("HoverEmapDen"+datasetName)->Fill(photon->GetPhi(), photon->GetEta());
       }
       else if((eta < maxEtaEE) && (photon->GetEtaWidth()  < config.params("photonMaxEtaWidthEndcap"))){
         hists.at("HoverEendcap"+datasetName)->Fill(photon->GetHoverE());
@@ -104,7 +106,8 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
         if(photon->GetHoverE() > 0.15) hists.at("etaHighHoverE"+datasetName)->Fill(eta);
         else                           hists.at("etaLowHoverE"+datasetName)->Fill(eta);
         
-        hists2D.at("HoverEmap"+datasetName)->Fill(photon->GetPhi(), eta);
+        hists2D.at("HoverEmapNum"+datasetName)->Fill(photon->GetPhi(), photon->GetEta(), photon->GetHoverE());
+        hists2D.at("HoverEmapDen"+datasetName)->Fill(photon->GetPhi(), photon->GetEta());
       }
     }
   }
