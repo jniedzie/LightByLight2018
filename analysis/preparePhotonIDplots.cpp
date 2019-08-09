@@ -28,8 +28,14 @@ vector<tuple<string, int, double, double>> histParams = {
   {"etaLowHoverE"           , 320 , 0   , 3.2 },
 };
 
+vector<tuple<string, int, double, double, int, double, double>> histParams2D = {
+  // title       nBinsX minX   maxX   nBinsY minY  maxY
+  {"HoverEmap" , 314 , -3.14 , 3.14 , 460 , -2.3 , 2.3 },
+};
+
 void fillHistograms(const unique_ptr<EventProcessor> &events,
                     const map<string, TH1D*> &hists,
+                    const map<string, TH2D*> &hists2D,
                     string datasetName)
 {
   for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
@@ -80,7 +86,7 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
         if(eta < 2.3) hists.at("showerShapeEndcap2p3"+datasetName)->Fill(photon->GetEtaWidth());
       }
       
-      // for H/E, check already that |η| < 2.3
+      // for other distributions, check already that |η| < 2.3
       if(eta > config.params("photonMaxEta")) continue;
       
       // Fill in H/E plots
@@ -89,12 +95,16 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
         
         if(photon->GetHoverE() > 0.15) hists.at("etaHighHoverE"+datasetName)->Fill(eta);
         else                           hists.at("etaLowHoverE"+datasetName)->Fill(eta);
+        
+        hists2D.at("HoverEmap"+datasetName)->Fill(photon->GetPhi(), eta);
       }
       else if((eta < maxEtaEE) && (photon->GetEtaWidth()  < config.params("photonMaxEtaWidthEndcap"))){
         hists.at("HoverEendcap"+datasetName)->Fill(photon->GetHoverE());
         
         if(photon->GetHoverE() > 0.15) hists.at("etaHighHoverE"+datasetName)->Fill(eta);
         else                           hists.at("etaLowHoverE"+datasetName)->Fill(eta);
+        
+        hists2D.at("HoverEmap"+datasetName)->Fill(photon->GetPhi(), eta);
       }
     }
   }
@@ -122,6 +132,7 @@ int main(int argc, char* argv[])
   config = ConfigManager(configPath);
   
   map<string, TH1D*> hists;
+  map<string, TH2D*> hists2D;
  
   TFile *outFile = new TFile(outputPath.c_str(), "recreate");
   
@@ -131,6 +142,12 @@ int main(int argc, char* argv[])
     for(auto params : histParams){
       string title = get<0>(params)+name;
       hists[title] = new TH1D(title.c_str(), title.c_str(), get<1>(params), get<2>(params), get<3>(params));
+    }
+    for(auto params : histParams2D){
+      string title = get<0>(params)+name;
+      hists2D[title] = new TH2D(title.c_str(), title.c_str(),
+                                get<1>(params), get<2>(params), get<3>(params),
+                                get<4>(params), get<5>(params), get<6>(params));
     }
     
     cout<<"Creating "<<name<<" plots"<<endl;
@@ -143,10 +160,11 @@ int main(int argc, char* argv[])
       events = unique_ptr<EventProcessor>(new EventProcessor(dataset));
     }
     
-    fillHistograms(events, hists, name);
+    fillHistograms(events, hists, hists2D, name);
     
     outFile->cd();
-    for(auto hist : hists) hist.second->Write();
+    for(auto hist : hists)    hist.second->Write();
+    for(auto hist : hists2D)  hist.second->Write();
   }
 
   outFile->Close();
