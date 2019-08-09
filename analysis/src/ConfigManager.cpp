@@ -44,8 +44,10 @@ ConfigManager::ConfigManager(string _path)
   _params["photonMaxEtaWidthBarrel"] = configFile->GetValue("photonMaxEtaWidthBarrel", 9999.9);
   _params["photonMaxEtaWidthEndcap"] = configFile->GetValue("photonMaxEtaWidthEndcap", 9999.9);
   
-  _params["ecalCrackMin"]      = configFile->GetValue("ecalCrackMin", 9999.9);
-  _params["ecalCrackMax"]      = configFile->GetValue("ecalCrackMax", 9999.9);
+  _params["ecalCrackMin"] = configFile->GetValue("ecalCrackMin", 9999.9);
+  _params["ecalCrackMax"] = configFile->GetValue("ecalCrackMax", 9999.9);
+  _params["ecalHEMmin"]   = configFile->GetValue("ecalHEMmin", 9999.9);
+  _params["ecalHEMmax"]   = configFile->GetValue("ecalHEMmax", 9999.9);
 }
 
 double ConfigManager::params(string name)

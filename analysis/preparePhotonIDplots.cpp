@@ -65,8 +65,12 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
       if(eta > config.params("ecalCrackMin") &&
          eta < config.params("ecalCrackMax"))   continue;
       
-      // Fill in shower shape histograms
+      // Check for HEM issue
+      if(photon->GetEta() < -minEtaEE &&
+         photon->GetPhi() > config.params("ecalHEMmin") &&
+         photon->GetPhi() < config.params("ecalHEMmax")) continue;
       
+      // Fill in shower shape histograms
       if((eta < maxEtaEB) && (photon->GetHoverE() < config.params("photonMaxHoverEbarrel"))){
         hists.at("showerShapeBarrel"+datasetName)->Fill(photon->GetEtaWidth());
         hists.at("etaBarrel"+datasetName)->Fill(eta);

@@ -25,10 +25,14 @@ photonMinEt:                            2.0
 photonMaxEta:                         2.3
 photonMaxHoverEbarrel:          0.04596
 photonMaxHoverEendcap:       0.0590
-photonMaxEtaWidthBarrel:       0.02
-photonMaxEtaWidthEndcap:    0.06
+photonMaxEtaWidthBarrel:       0.0106
+photonMaxEtaWidthEndcap:    0.0272
 
 ### Exclude transition region between calo barrel and endcap
 ecalCrackMin: 1.4442
 ecalCrackMax: 1.566
+
+### Exclude hole in ECal (HEM issue, only in negative part of EE)
+ecalHEMmin:  -1.5
+ecalHEMmax: -1.0
  

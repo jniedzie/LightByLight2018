@@ -17,6 +17,13 @@ void prepareHist(TH1D *hist, int color)
   hist->Sumw2(false);
 }
 
+void prepareHist(TH2D *hist, int color)
+{
+  hist->SetTitle("");
+  hist->GetYaxis()->SetTitleSize(0.06);
+  hist->GetXaxis()->SetTitleSize(0.06);
+}
+
 void preparePad()
 {
   gPad->SetLogy();
@@ -30,7 +37,7 @@ void drawThreshold(double threshold, string label="")
   line->SetLineColor(kGreen+2);
   line->SetLineWidth(2);
   line->Draw("same");
-  TLatex *text = new TLatex(threshold+0.005, 1e-2, label=="" ? Form("%.2f", threshold) : label.c_str());
+  TLatex *text = new TLatex(threshold+0.005, 3e-2, label=="" ? Form("%.2f", threshold) : label.c_str());
   text->SetTextColor(kGreen+2);
   text->SetTextSize(0.05);
   text->Draw("same");
@@ -41,9 +48,9 @@ void drawPhotonIDplots()
   TFile *inFile = TFile::Open(inputPath.c_str());
   
   TCanvas *canvasShower = new TCanvas("Shower shape", "Shower shape", 1000, 1000);
-  TCanvas *canvasHoverE = new TCanvas("H/E", "H/E", 1000, 500);
+  TCanvas *canvasHoverE = new TCanvas("H/E", "H/E", 1000, 1000);
   canvasShower->Divide(2,2);
-  canvasHoverE->Divide(2,1);
+  canvasHoverE->Divide(2,2);
   
   gStyle->SetOptStat(0);
   TLegend *legend = new TLegend(0.5, 0.7, 0.9, 0.9 );
@@ -74,6 +81,12 @@ void drawPhotonIDplots()
     auto hOverEendcap    = (TH1D*)inFile->Get(("HoverEendcap"+name).c_str());
     if(!hOverEendcap) cout<<"Could not open hOverEendcap hist"<<endl;
     
+    auto hOverEmapNum    = (TH2D*)inFile->Get(("HoverEmapNum"+name).c_str());
+    if(!hOverEmapNum) cout<<"Could not open hOverEmapNum hist"<<endl;
+    
+    auto hOverEmapDen    = (TH2D*)inFile->Get(("HoverEmapDen"+name).c_str());
+    if(!hOverEmapDen) cout<<"Could not open hOverEmapDen hist"<<endl;
+    
     int color = datasetColor.at(dataset);
     
     prepareHist(shapeBarrel, color);
@@ -81,12 +94,13 @@ void drawPhotonIDplots()
     prepareHist(shapeEndcap2p3, color);
     prepareHist(hOverEbarrel, color);
     prepareHist(hOverEendcap, color);
+    prepareHist(hOverEmapNum, color);
     
     canvasShower->cd(1); preparePad();
     shapeBarrel->SetTitle("Barrel");
     shapeBarrel->Draw(first ? "" : "same");
     
-    if(first) drawThreshold(0.02);
+    if(first) drawThreshold(0.0106, "0.0106");
     
     canvasShower->cd(2); preparePad();
     shapeEndcap->SetTitle("Endcap");
@@ -100,6 +114,7 @@ void drawPhotonIDplots()
       
       canvasShower->cd(3); preparePad();
       etaNarrowEndcap->SetLineColor(kRed);
+      etaNarrowEndcap->SetTitle("");
       etaNarrowEndcap->GetXaxis()->SetTitle("#eta");
       etaNarrowEndcap->GetXaxis()->SetRangeUser(1, 3.2);
       etaNarrowEndcap->Scale(1./etaNarrowEndcap->GetEntries());
@@ -121,7 +136,7 @@ void drawPhotonIDplots()
     canvasShower->cd(4); preparePad();
     shapeEndcap2p3->SetTitle("Endcap, |#eta| < 2.3");
     shapeEndcap2p3->Draw(first ? "" : "same");
-    if(first) drawThreshold(0.06);
+    if(first) drawThreshold(0.0272, "0.0272");
     
     canvasHoverE->cd(1); preparePad();
     hOverEbarrel->GetXaxis()->SetTitle("H/E");
@@ -136,6 +151,23 @@ void drawPhotonIDplots()
     hOverEendcap->Rebin(5);
     hOverEendcap->Draw(first ? "" : "same");
     if(first) drawThreshold(0.0590, "0.0590");
+    
+    if(dataset == kData){
+      canvasHoverE->cd(3); preparePad();
+      gPad->SetLogy(false);
+      gPad->SetRightMargin(0.15);
+      
+      int rebin = 2;
+      hOverEmapNum->Rebin2D(rebin,rebin);
+      hOverEmapDen->Rebin2D(rebin,rebin);
+      hOverEmapNum->Divide(hOverEmapDen);
+      
+      hOverEmapNum->GetXaxis()->SetTitle("#phi");
+      hOverEmapNum->GetYaxis()->SetTitle("#eta");
+      hOverEmapNum->GetZaxis()->SetTitle("< H/E >");
+      hOverEmapNum->GetZaxis()->SetTitleOffset(1.5);
+      hOverEmapNum->Draw("colz");
+    }
     
     legend->AddEntry(shapeBarrel, datasetDescription.at(dataset).c_str(), "l");
     
