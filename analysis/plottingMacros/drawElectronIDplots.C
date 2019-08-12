@@ -3,15 +3,17 @@
 string inputPath  = "../results/electronID_test.root";
 string outputPath = "../plots/electronID.pdf";
 
+vector<EDataset> datasetsToSkip = { kMCcep, kMClbl };
+
 vector<tuple<string, string, double, string, bool>> histParams = {
 // name                 title                         threshold thresholdLabel logY
-  {"nMissingHits"       , "N missing hits"            , 1       , "1"       , false },
   {"HoverEbarrel"       , "H/E (barrel)"              , 0.02    , "0.02"    , true  },
   {"HoverEendcap"       , "H/E (endcap)"              , 0.02    , "0.02"    , true  },
   {"relIsoWithEAbarrel" ,  "RelIso (barrel)"          , 9999    , ""        , true  },
   {"relIsoWithEAendcap" ,  "RelIso (endcap)"          , 9999    , ""        , true  },
   {"dEtaSeedbarrel"     , "#Delta#eta seed (barrel)"  , 0.00377 , "0.00377" , true  },
   {"dEtaSeedendcap"     , "#Delta#eta seed (endcap)"  , 0.00674 , "0.00674" , true  },
+  {"nMissingHits"       , "N missing hits"            , 1       , "1"       , false },
 };
 
 void prepareHist(TH1D *hist, int color)
@@ -62,6 +64,8 @@ void drawElectronIDplots()
   
   bool first = true;
   for(EDataset dataset : datasets){
+    if(find(datasetsToSkip.begin(), datasetsToSkip.end(), dataset) != datasetsToSkip.end()) continue;
+    
     string dataName = datasetName.at(dataset);
     int color = datasetColor.at(dataset);
     
@@ -70,7 +74,14 @@ void drawElectronIDplots()
     int iPad=1;
     for(auto &[histName, histTitle, threshold, thresholdLabel, logY] : histParams){
       hists[histName] = (TH1D*)inFile->Get((histName+dataName).c_str());
-      if(!hists[histName]) cout<<"Could not open hist: "<<histName<<dataName<<endl;
+      if(!hists[histName]){
+        cout<<"Could not open hist: "<<histName<<dataName<<endl;
+        continue;
+      }
+      if(hists[histName]->GetEntries()==0){
+        cout<<"No entries in hist "<<histName<<dataName<<endl;
+        continue;
+      }
       
       prepareHist(hists[histName], color);
       

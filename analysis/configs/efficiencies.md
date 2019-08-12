@@ -33,6 +33,8 @@ electronMaxEta:                         2.3
 electronMaxNmissingHits:         1
 electronMaxHoverEbarrel:          0.02
 electronMaxHoverEendcap:       0.02
+electronMaxDetaSeedBarrel:      0.03
+electronMaxDetaSeedEndcap:   0.03
 
 ### Exclude transition region between calo barrel and endcap
 ecalCrackMin: 1.4442

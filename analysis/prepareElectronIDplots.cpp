@@ -10,18 +10,20 @@
 string configPath = "configs/efficiencies.md";
 string outputPath = "results/electronID_test.root";
 
+vector<EDataset> datasetsToSkip = { kMCcep, kMClbl };
+
 vector<tuple<string, int, double, double>> histParams = {
   // title                     nBins min   max
-  {"nMissingHits"           , 20    , 0   , 20 },
+  {"nMissingHits"           , 10    , 0   , 10  },
   
-  {"HoverEbarrel"           , 2000  , 0   , 4 },
-  {"HoverEendcap"           , 2000  , 0   , 4 },
+  {"HoverEbarrel"           , 500   , 0   , 2.5 },
+  {"HoverEendcap"           , 500   , 0   , 2.5 },
   
-  {"relIsoWithEAbarrel"     , 300   , 0   , 300 },
-  {"relIsoWithEAendcap"     , 300   , 0   , 300 },
+  {"relIsoWithEAbarrel"     , 240   , 0   , 120 },
+  {"relIsoWithEAendcap"     , 240   , 0   , 120 },
   
-  {"dEtaSeedbarrel"         , 400   , 0   , 4   },
-  {"dEtaSeedendcap"         , 400   , 0   , 4   },
+  {"dEtaSeedbarrel"         , 4000  , 0   , 4   },
+  {"dEtaSeedendcap"         , 4000  , 0   , 4   },
 };
 
 vector<tuple<string, int, double, double, int, double, double>> histParams2D = {
@@ -41,12 +43,10 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
     
     auto event = events->GetEvent(iEvent);
     
-    // Triggers and exclusivity
-    //    if(!event->HasDoubleEG2Trigger()) continue;
-    //    if(event->HasChargedTracks()) continue;
-    //    if(event->HasAdditionalTowers()) continue;
+    // Triggers
+//    if(!event->HasSingleEG3Trigger()) continue;
     
-    // Fill histograms for N-1 photon ID cuts
+    // Fill histograms for electron ID cuts
     for(auto electron : event->GetElectrons()){
       double eta = fabs(electron->GetEtaSC());
       
@@ -64,15 +64,36 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
       
       hists.at("nMissingHits"+datasetName)->Fill(electron->GetNmissingHits());
       
+      if(electron->GetNmissingHits() > config.params("electronMaxNmissingHits")) continue;
+      
       if((eta < maxEtaEB)){
-        hists.at("HoverEbarrel"+datasetName)->Fill(electron->GetHoverE());
-        hists.at("relIsoWithEAbarrel"+datasetName)->Fill(electron->GetRelIsoWithEA());
-        hists.at("dEtaSeedbarrel"+datasetName)->Fill(fabs(electron->GetDetaSeed()));
+        
+        bool passesHoverE   = electron->GetHoverE() <= config.params("electronMaxHoverEbarrel");
+        bool passesRelIso   = electron->GetRelIsoWithEA() <= 0.112+0.506/electron->GetPt();
+        bool passesDetaSeed = electron->GetDetaSeed() <= config.params("electronMaxDetaSeedBarrel");
+        
+        if(passesHoverE && passesDetaSeed) hists.at("relIsoWithEAbarrel"+datasetName)->Fill(electron->GetRelIsoWithEA());
+        
+        if(passesHoverE && passesRelIso)
+          hists.at("dEtaSeedbarrel"+datasetName)->Fill(fabs(electron->GetDetaSeed()));
+        
+        if(passesRelIso && passesDetaSeed)
+          hists.at("HoverEbarrel"+datasetName)->Fill(electron->GetHoverE());
       }
       else if((eta < maxEtaEE)){
-        hists.at("HoverEendcap"+datasetName)->Fill(electron->GetHoverE());
-        hists.at("relIsoWithEAendcap"+datasetName)->Fill(electron->GetRelIsoWithEA());
-        hists.at("dEtaSeedendcap"+datasetName)->Fill(fabs(electron->GetDetaSeed()));
+        
+        bool passesHoverE   = electron->GetHoverE() <= config.params("electronMaxHoverEendcap");
+        bool passesRelIso   = electron->GetRelIsoWithEA() <= 0.108+0.963/electron->GetPt();
+        bool passesDetaSeed = electron->GetDetaSeed() <= config.params("electronMaxDetaSeedEndcap");
+        
+        if(passesHoverE && passesDetaSeed)
+          hists.at("relIsoWithEAendcap"+datasetName)->Fill(electron->GetRelIsoWithEA());
+        
+        if(passesHoverE && passesRelIso)
+          hists.at("dEtaSeedendcap"+datasetName)->Fill(fabs(electron->GetDetaSeed()));
+        
+        if(passesRelIso && passesDetaSeed)
+          hists.at("HoverEendcap"+datasetName)->Fill(electron->GetHoverE());
       }
     }
   }
@@ -105,6 +126,8 @@ int main(int argc, char* argv[])
   TFile *outFile = new TFile(outputPath.c_str(), "recreate");
   
   for(EDataset dataset : datasets){
+    if(find(datasetsToSkip.begin(), datasetsToSkip.end(), dataset) != datasetsToSkip.end()) continue;
+    
     string name = datasetName.at(dataset);
     
     for(auto params : histParams){
