@@ -10,20 +10,28 @@
 string configPath = "configs/efficiencies.md";
 string outputPath = "results/electronID_test.root";
 
-vector<EDataset> datasetsToSkip = { kMCcep, kMClbl };
+bool requirePassingOtherCuts = false;
+
+vector<EDataset> datasetsToSkip = { kMCcep, kMClbl, kMCqedSL };
 
 vector<tuple<string, int, double, double>> histParams = {
   // title                     nBins min   max
-  {"nMissingHits"           , 10    , 0   , 10  },
+  {"nMissingHits"             , 10    , 0   , 10  },
   
-  {"HoverEbarrel"           , 500   , 0   , 2.5 },
-  {"HoverEendcap"           , 500   , 0   , 2.5 },
+  {"HoverE_Barrel"            , 500   , 0   , 2.5 },
+  {"HoverE_Endcap"            , 500   , 0   , 2.5 },
   
-  {"relIsoWithEAbarrel"     , 240   , 0   , 120 },
-  {"relIsoWithEAendcap"     , 240   , 0   , 120 },
+  {"chargedIsoBarrel"         , 150   , 0   , 15  },
+  {"photonIsoBarrel"          , 150   , 0   , 15  },
+  {"neutralIsoBarrel"         , 150   , 0   , 15  },
+  {"chargedIsoEndcap"         , 150   , 0   , 15  },
+  {"photonIsoEndcap"          , 150   , 0   , 15  },
+  {"neutralIsoEndcap"         , 150   , 0   , 15  },
+  {"relIsoWithEA_Barrel"      , 240   , 0   , 120 },
+  {"relIsoWithEA_Endcap"      , 240   , 0   , 120 },
   
-  {"dEtaSeedbarrel"         , 4000  , 0   , 4   },
-  {"dEtaSeedendcap"         , 4000  , 0   , 4   },
+  {"dEtaSeedBarrel"           , 4000  , 0   , 4   },
+  {"dEtaSeedEndcap"           , 4000  , 0   , 4   },
 };
 
 vector<tuple<string, int, double, double, int, double, double>> histParams2D = {
@@ -61,39 +69,38 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
          electron->GetPhiSC() > config.params("ecalHEMmin") &&
          electron->GetPhiSC() < config.params("ecalHEMmax")) continue;
       
-      
       hists.at("nMissingHits"+datasetName)->Fill(electron->GetNmissingHits());
       
       if(electron->GetNmissingHits() > config.params("electronMaxNmissingHits")) continue;
       
-      if((eta < maxEtaEB)){
-        
-        bool passesHoverE   = electron->GetHoverE() <= config.params("electronMaxHoverEbarrel");
-        bool passesRelIso   = electron->GetRelIsoWithEA() <= 0.112+0.506/electron->GetPt();
-        bool passesDetaSeed = electron->GetDetaSeed() <= config.params("electronMaxDetaSeedBarrel");
-        
-        if(passesHoverE && passesDetaSeed) hists.at("relIsoWithEAbarrel"+datasetName)->Fill(electron->GetRelIsoWithEA());
-        
-        if(passesHoverE && passesRelIso)
-          hists.at("dEtaSeedbarrel"+datasetName)->Fill(fabs(electron->GetDetaSeed()));
-        
-        if(passesRelIso && passesDetaSeed)
-          hists.at("HoverEbarrel"+datasetName)->Fill(electron->GetHoverE());
+      string subdet = "";
+      
+      if((eta < maxEtaEB)) subdet = "Barrel";
+      else if((eta < maxEtaEE)) subdet = "Endcap";
+      
+      bool passesHoverE     = electron->GetHoverE()     < 0.05+1.16/electron->GetEnergySC();
+      bool passesDetaSeed   = electron->GetDetaSeed()   < config.params("electronMaxDetaSeed"+subdet);
+      bool passesIsolation  = electron->GetChargedIso() < config.params("electronMaxChargedIso"+subdet) &&
+                              electron->GetPhotonIso()  < config.params("electronMaxPhotonIso"+subdet)  &&
+                              electron->GetNeutralIso() < config.params("electronMaxNeutralIso"+subdet);
+      
+      if(!requirePassingOtherCuts ||
+         (passesHoverE && passesDetaSeed)){
+        hists.at("chargedIso"+subdet+datasetName)->Fill(electron->GetChargedIso());
+        hists.at("photonIso"+subdet+datasetName)->Fill(electron->GetPhotonIso());
+        hists.at("neutralIso"+subdet+datasetName)->Fill(electron->GetNeutralIso());
       }
-      else if((eta < maxEtaEE)){
-        
-        bool passesHoverE   = electron->GetHoverE() <= config.params("electronMaxHoverEendcap");
-        bool passesRelIso   = electron->GetRelIsoWithEA() <= 0.108+0.963/electron->GetPt();
-        bool passesDetaSeed = electron->GetDetaSeed() <= config.params("electronMaxDetaSeedEndcap");
-        
-        if(passesHoverE && passesDetaSeed)
-          hists.at("relIsoWithEAendcap"+datasetName)->Fill(electron->GetRelIsoWithEA());
-        
-        if(passesHoverE && passesRelIso)
-          hists.at("dEtaSeedendcap"+datasetName)->Fill(fabs(electron->GetDetaSeed()));
-        
-        if(passesRelIso && passesDetaSeed)
-          hists.at("HoverEendcap"+datasetName)->Fill(electron->GetHoverE());
+      if(!requirePassingOtherCuts ||
+         (passesHoverE && passesDetaSeed && passesIsolation)){
+        hists.at("relIsoWithEA_"+subdet+datasetName)->Fill(electron->GetRelIsoWithEA());
+      }
+      if(!requirePassingOtherCuts ||
+         (passesHoverE && passesIsolation)){
+        hists.at("dEtaSeed"+subdet+datasetName)->Fill(fabs(electron->GetDetaSeed()));
+      }
+      if(!requirePassingOtherCuts ||
+         (passesDetaSeed && passesIsolation)){
+        hists.at("HoverE_"+subdet+datasetName)->Fill(electron->GetHoverE());
       }
     }
   }

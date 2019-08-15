@@ -27,6 +27,10 @@ pdgID(0),
 charge(9999),
 nMissingHits(-1),
 
+chargedIso(-9999),
+photonIso(-9999),
+neutralIso(-9999),
+
 relIsoWithEA(-9999),
 dEtaSeed(-9999)
 {
@@ -171,4 +175,22 @@ double PhysObject::GetDetaSeed() const
 {
   if(dEtaSeed < -999) cout<<"WARNING - carefull, dEtaSeed probably not set"<<endl;
   return dEtaSeed;
+}
+
+double PhysObject::GetChargedIso() const
+{
+  if(chargedIso < 0) cout<<"WARNING - carefull, chargedIso probably not set"<<endl;
+  return chargedIso;
+}
+
+double PhysObject::GetPhotonIso() const
+{
+  if(photonIso < 0) cout<<"WARNING - carefull, photonIso probably not set"<<endl;
+  return photonIso;
+}
+
+double PhysObject::GetNeutralIso() const
+{
+  if(neutralIso < 0) cout<<"WARNING - carefull, neutralIso probably not set"<<endl;
+  return neutralIso;
 }

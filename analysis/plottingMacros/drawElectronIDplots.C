@@ -6,14 +6,23 @@ string outputPath = "../plots/electronID.pdf";
 vector<EDataset> datasetsToSkip = { kMCcep, kMClbl };
 
 vector<tuple<string, string, double, string, bool>> histParams = {
-// name                 title                         threshold thresholdLabel logY
-  {"HoverEbarrel"       , "H/E (barrel)"              , 0.02    , "0.02"    , true  },
-  {"HoverEendcap"       , "H/E (endcap)"              , 0.02    , "0.02"    , true  },
-  {"relIsoWithEAbarrel" ,  "RelIso (barrel)"          , 9999    , ""        , true  },
-  {"relIsoWithEAendcap" ,  "RelIso (endcap)"          , 9999    , ""        , true  },
-  {"dEtaSeedbarrel"     , "#Delta#eta seed (barrel)"  , 0.00377 , "0.00377" , true  },
-  {"dEtaSeedendcap"     , "#Delta#eta seed (endcap)"  , 0.00674 , "0.00674" , true  },
-  {"nMissingHits"       , "N missing hits"            , 1       , "1"       , false },
+// name                 title                                  threshold thresholdLabel logY
+  {"HoverE_Barrel"            , "H/E (barrel)"                , 0.02    , "0.02"    , true  },
+  {"HoverE_Endcap"            , "H/E (endcap)"                , 0.02    , "0.02"    , true  },
+  
+  {"chargedIsoBarrel"         ,  "Charged isolation (barrel)" , 9999    , ""        , true  },
+  {"chargedIsoEndcap"         ,  "Charged isolation (endcap)" , 9999    , ""        , true  },
+  {"photonIsoBarrel"          ,  "Photon isolation (barrel)"  , 9999    , ""        , true  },
+  {"photonIsoEndcap"          ,  "Photon isolation (endcap)"  , 9999    , ""        , true  },
+  {"neutralIsoBarrel"         ,  "Neutral isolation (barrel)" , 9999    , ""        , true  },
+  {"neutralIsoEndcap"         ,  "Neutral isolation (endcap)" , 9999    , ""        , true  },
+  
+  {"relIsoWithEA_Barrel"      ,  "RelIso (barrel)"            , 9999    , ""        , true  },
+  {"relIsoWithEA_Endcap"      ,  "RelIso (endcap)"            , 9999    , ""        , true  },
+  
+  {"dEtaSeedBarrel"           , "#Delta#eta seed (barrel)"    , 0.00377 , "0.00377" , true  },
+  {"dEtaSeedEndcap"           , "#Delta#eta seed (endcap)"    , 0.00674 , "0.00674" , true  },
+//  {"nMissingHits"             , "N missing hits"              , 1       , "1"       , false },
 };
 
 void prepareHist(TH1D *hist, int color)
@@ -57,8 +66,8 @@ void drawElectronIDplots()
   TFile *inFile = TFile::Open(inputPath.c_str());
   gStyle->SetOptStat(0);
   
-  TCanvas *canvas = new TCanvas("Shower shape", "Shower shape", 1000, 2000);
-  canvas->Divide(2,4);
+  TCanvas *canvas = new TCanvas("Shower shape", "Shower shape", 2880, 1800);
+  canvas->Divide(4,3);
 
   TLegend *legend = new TLegend(0.5, 0.7, 0.9, 0.9 );
   

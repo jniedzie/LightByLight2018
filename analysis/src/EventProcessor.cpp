@@ -77,6 +77,11 @@ void EventProcessor::SetupBranches(string inputPath)
   eventTree->SetBranchAddress("eleSCEta"          , &electronSCEta);
   eventTree->SetBranchAddress("eleSCPhi"          , &electronSCPhi);
   eventTree->SetBranchAddress("eleSCEn"           , &electronSCEn);
+  
+  eventTree->SetBranchAddress("elePFChIso"        , &electronChIso);
+  eventTree->SetBranchAddress("elePFPhoIso"       , &electronPhoIso);
+  eventTree->SetBranchAddress("elePFNeuIso"       , &electronNeuIso);
+  
 }
 
 shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
@@ -172,6 +177,9 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     electron->etaSC        = electronSCEta->at(iElectron);
     electron->phiSC        = electronSCPhi->at(iElectron);
     electron->energySC     = electronSCEn->at(iElectron);
+    electron->chargedIso   = electronChIso->at(iElectron);
+    electron->photonIso    = electronPhoIso->at(iElectron);
+    electron->neutralIso   = electronNeuIso->at(iElectron);
     
     currentEvent->electrons.push_back(electron);
   }

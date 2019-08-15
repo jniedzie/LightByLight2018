@@ -75,8 +75,9 @@ private:
   vector<double> *electronSCEta        = nullptr;
   vector<double> *electronSCPhi        = nullptr;
   vector<double> *electronSCEn         = nullptr;
-  
-  
+  vector<double> *electronChIso        = nullptr;
+  vector<double> *electronPhoIso       = nullptr;
+  vector<double> *electronNeuIso       = nullptr;
 
   /// Opens input trees and sets branches
   void SetupBranches(string inputPath);

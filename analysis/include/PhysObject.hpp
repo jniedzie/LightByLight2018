@@ -39,6 +39,10 @@ public:
   double GetEnergyHad()  const;
   double GetEnergyEm()   const;
   
+  double GetChargedIso() const;
+  double GetPhotonIso()  const;
+  double GetNeutralIso() const;
+  
   double GetRelIsoWithEA()  const;
   double GetDetaSeed()      const;
   
@@ -69,6 +73,10 @@ private:
   int pdgID;        ///< PDG PID code
   int charge;       ///< Particle charge
   int nMissingHits; ///< Number of missing hits
+  
+  double chargedIso;  ///< Isolation wrt. charged particles
+  double photonIso;   ///< Isolation wrt. photons
+  double neutralIso;  ///< Isolation wrt. neutral particles
   
   double relIsoWithEA;  ///< Relative isolation
   double dEtaSeed;      ///< Seed Δη

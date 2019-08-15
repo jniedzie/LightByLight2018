@@ -52,6 +52,13 @@ ConfigManager::ConfigManager(string _path)
   _params["electronMaxDetaSeedBarrel"] = configFile->GetValue("electronMaxDetaSeedBarrel", 9999.9);
   _params["electronMaxDetaSeedEndcap"] = configFile->GetValue("electronMaxDetaSeedEndcap", 9999.9);
   
+  _params["electronMaxChargedIsoBarrel"] = configFile->GetValue("electronMaxChargedIsoBarrel", 9999.9);
+  _params["electronMaxChargedIsoEndcap"] = configFile->GetValue("electronMaxChargedIsoEndcap", 9999.9);
+  _params["electronMaxPhotonIsoBarrel"]  = configFile->GetValue("electronMaxPhotonIsoBarrel", 9999.9);
+  _params["electronMaxPhotonIsoEndcap"]  = configFile->GetValue("electronMaxPhotonIsoEndcap", 9999.9);
+  _params["electronMaxNeutralIsoBarrel"] = configFile->GetValue("electronMaxNeutralIsoBarrel", 9999.9);
+  _params["electronMaxNeutralIsoEndcap"] = configFile->GetValue("electronMaxNeutralIsoEndcap", 9999.9);
+  
   _params["ecalCrackMin"] = configFile->GetValue("ecalCrackMin", 9999.9);
   _params["ecalCrackMax"] = configFile->GetValue("ecalCrackMax", 9999.9);
   _params["ecalHEMmin"]   = configFile->GetValue("ecalHEMmin", 9999.9);
