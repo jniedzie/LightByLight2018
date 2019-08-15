@@ -18,20 +18,20 @@ vector<tuple<string, int, double, double>> histParams = {
   // title                     nBins min   max
   {"nMissingHits"             , 10    , 0   , 10  },
   
-  {"HoverE_Barrel"            , 500   , 0   , 2.5 },
-  {"HoverE_Endcap"            , 500   , 0   , 2.5 },
+  {"HoverE_Barrel"            , 1000   , 0   , 2.5 },
+  {"HoverE_Endcap"            , 1000   , 0   , 2.5 },
   
-  {"chargedIsoBarrel"         , 150   , 0   , 15  },
-  {"photonIsoBarrel"          , 150   , 0   , 15  },
-  {"neutralIsoBarrel"         , 150   , 0   , 15  },
-  {"chargedIsoEndcap"         , 150   , 0   , 15  },
-  {"photonIsoEndcap"          , 150   , 0   , 15  },
-  {"neutralIsoEndcap"         , 150   , 0   , 15  },
+  {"chargedIsoBarrel"         , 500   , 0   , 15  },
+  {"photonIsoBarrel"          , 500   , 0   , 15  },
+  {"neutralIsoBarrel"         , 500   , 0   , 15  },
+  {"chargedIsoEndcap"         , 500   , 0   , 15  },
+  {"photonIsoEndcap"          , 500   , 0   , 15  },
+  {"neutralIsoEndcap"         , 500   , 0   , 15  },
   {"relIsoWithEA_Barrel"      , 240   , 0   , 120 },
   {"relIsoWithEA_Endcap"      , 240   , 0   , 120 },
   
-  {"dEtaSeedBarrel"           , 4000  , 0   , 4   },
-  {"dEtaSeedEndcap"           , 4000  , 0   , 4   },
+  {"dEtaSeedBarrel"           , 1000  , 0   , 1   },
+  {"dEtaSeedEndcap"           , 1000  , 0   , 1   },
 };
 
 vector<tuple<string, int, double, double, int, double, double>> histParams2D = {
@@ -78,29 +78,32 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
       if((eta < maxEtaEB)) subdet = "Barrel";
       else if((eta < maxEtaEE)) subdet = "Endcap";
       
-      bool passesHoverE     = electron->GetHoverE()     < 0.05+1.16/electron->GetEnergySC();
+      bool passesHoverE     = electron->GetHoverE()     < config.params("electronMaxHoverE_"+subdet);
       bool passesDetaSeed   = electron->GetDetaSeed()   < config.params("electronMaxDetaSeed"+subdet);
       bool passesIsolation  = electron->GetChargedIso() < config.params("electronMaxChargedIso"+subdet) &&
                               electron->GetPhotonIso()  < config.params("electronMaxPhotonIso"+subdet)  &&
                               electron->GetNeutralIso() < config.params("electronMaxNeutralIso"+subdet);
       
-      if(!requirePassingOtherCuts ||
-         (passesHoverE && passesDetaSeed)){
-        hists.at("chargedIso"+subdet+datasetName)->Fill(electron->GetChargedIso());
-        hists.at("photonIso"+subdet+datasetName)->Fill(electron->GetPhotonIso());
-        hists.at("neutralIso"+subdet+datasetName)->Fill(electron->GetNeutralIso());
+      hists.at("chargedIso"+subdet+datasetName)->Fill(electron->GetChargedIso());
+      hists.at("photonIso"+subdet+datasetName)->Fill(electron->GetPhotonIso());
+      hists.at("neutralIso"+subdet+datasetName)->Fill(electron->GetNeutralIso());
+      hists.at("relIsoWithEA_"+subdet+datasetName)->Fill(electron->GetRelIsoWithEA());
+      hists.at("dEtaSeed"+subdet+datasetName)->Fill(fabs(electron->GetDetaSeed()));
+      hists.at("HoverE_"+subdet+datasetName)->Fill(electron->GetHoverE());
+      
+      if(passesHoverE && passesDetaSeed){
+        hists.at("chargedIso"+subdet+datasetName+"_withCuts")->Fill(electron->GetChargedIso());
+        hists.at("photonIso"+subdet+datasetName+"_withCuts")->Fill(electron->GetPhotonIso());
+        hists.at("neutralIso"+subdet+datasetName+"_withCuts")->Fill(electron->GetNeutralIso());
       }
-      if(!requirePassingOtherCuts ||
-         (passesHoverE && passesDetaSeed && passesIsolation)){
-        hists.at("relIsoWithEA_"+subdet+datasetName)->Fill(electron->GetRelIsoWithEA());
+      if(passesHoverE && passesDetaSeed && passesIsolation){
+        hists.at("relIsoWithEA_"+subdet+datasetName+"_withCuts")->Fill(electron->GetRelIsoWithEA());
       }
-      if(!requirePassingOtherCuts ||
-         (passesHoverE && passesIsolation)){
-        hists.at("dEtaSeed"+subdet+datasetName)->Fill(fabs(electron->GetDetaSeed()));
+      if(passesHoverE && passesIsolation){
+        hists.at("dEtaSeed"+subdet+datasetName+"_withCuts")->Fill(fabs(electron->GetDetaSeed()));
       }
-      if(!requirePassingOtherCuts ||
-         (passesDetaSeed && passesIsolation)){
-        hists.at("HoverE_"+subdet+datasetName)->Fill(electron->GetHoverE());
+      if(passesDetaSeed && passesIsolation){
+        hists.at("HoverE_"+subdet+datasetName+"_withCuts")->Fill(electron->GetHoverE());
       }
     }
   }
@@ -139,6 +142,8 @@ int main(int argc, char* argv[])
     
     for(auto params : histParams){
       string title = get<0>(params)+name;
+      hists[title] = new TH1D(title.c_str(), title.c_str(), get<1>(params), get<2>(params), get<3>(params));
+      title += "_withCuts";
       hists[title] = new TH1D(title.c_str(), title.c_str(), get<1>(params), get<2>(params), get<3>(params));
     }
     for(auto params : histParams2D){

@@ -47,8 +47,8 @@ ConfigManager::ConfigManager(string _path)
   _params["electronMinPt"]             = configFile->GetValue("electronMinPt", 9999.9);
   _params["electronMaxEta"]            = configFile->GetValue("electronMaxEta", 9999.9);
   _params["electronMaxNmissingHits"]   = configFile->GetValue("electronMaxNmissingHits", 9999);
-  _params["electronMaxHoverEbarrel"]   = configFile->GetValue("electronMaxHoverEbarrel", 9999.9);
-  _params["electronMaxHoverEendcap"]   = configFile->GetValue("electronMaxHoverEendcap", 9999.9);
+  _params["electronMaxHoverE_Barrel"]   = configFile->GetValue("electronMaxHoverEbarrel", 9999.9);
+  _params["electronMaxHoverE_Endcap"]   = configFile->GetValue("electronMaxHoverEendcap", 9999.9);
   _params["electronMaxDetaSeedBarrel"] = configFile->GetValue("electronMaxDetaSeedBarrel", 9999.9);
   _params["electronMaxDetaSeedEndcap"] = configFile->GetValue("electronMaxDetaSeedEndcap", 9999.9);
   
