@@ -31,16 +31,16 @@ photonMaxEtaWidthEndcap:    0.0272
 electronMinPt:                            2.0
 electronMaxEta:                         2.3
 electronMaxNmissingHits:         1
-electronMaxHoverE_Barrel:         0.02
-electronMaxHoverE_Endcap:      0.02
-electronMaxDetaSeedBarrel:      0.03
-electronMaxDetaSeedEndcap:   0.03
-electronMaxChargedIsoBarrel:    0.02
-electronMaxChargedIsoEndcap: 0.02
-electronMaxPhotonIsoBarrel:      0.05
-electronMaxPhotonIsoEndcap:   0.04
-electronMaxNeutralIsoBarrel:      0.02
-electronMaxNeutralIsoEndcap:   0.02
+electronMaxHoverE_Barrel:         0.01
+electronMaxHoverE_Endcap:      0.005
+electronMaxDetaSeedBarrel:      0.1
+electronMaxDetaSeedEndcap:   0.1
+electronMaxChargedIsoBarrel:    0.1
+electronMaxChargedIsoEndcap: 0.1
+electronMaxPhotonIsoBarrel:      0.045
+electronMaxPhotonIsoEndcap:   0.035
+electronMaxNeutralIsoBarrel:      0.07
+electronMaxNeutralIsoEndcap:   0.07
 
 ### Exclude transition region between calo barrel and endcap
 ecalCrackMin: 1.4442

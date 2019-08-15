@@ -66,8 +66,10 @@ void drawElectronIDplots()
   TFile *inFile = TFile::Open(inputPath.c_str());
   gStyle->SetOptStat(0);
   
-  TCanvas *canvas = new TCanvas("Shower shape", "Shower shape", 2880, 1800);
+  TCanvas *canvas         = new TCanvas("Electon ID", "Electon ID", 2880, 1800);
+  TCanvas *canvasWithCuts = new TCanvas("Electon ID (after cuts) ", "Electon ID (after cuts)", 2880, 1800);
   canvas->Divide(4,3);
+  canvasWithCuts->Divide(4,3);
 
   TLegend *legend = new TLegend(0.5, 0.7, 0.9, 0.9 );
   
@@ -83,22 +85,31 @@ void drawElectronIDplots()
     int iPad=1;
     for(auto &[histName, histTitle, threshold, thresholdLabel, logY] : histParams){
       hists[histName] = (TH1D*)inFile->Get((histName+dataName).c_str());
-      if(!hists[histName]){
+      hists[histName+"_withCuts"] = (TH1D*)inFile->Get((histName+dataName+"_withCuts").c_str());
+      if(!hists[histName] || !hists[histName+"_withCuts"]){
         cout<<"Could not open hist: "<<histName<<dataName<<endl;
         continue;
       }
-      if(hists[histName]->GetEntries()==0){
+      if(hists[histName]->GetEntries()==0 || hists[histName+"_withCuts"]->GetEntries()==0){
         cout<<"No entries in hist "<<histName<<dataName<<endl;
         continue;
       }
       
-      prepareHist(hists[histName], color);
-      
-      canvas->cd(iPad++); preparePad();
+      canvas->cd(iPad); preparePad();
       gPad->SetLogy(logY);
+      prepareHist(hists[histName], color);
       hists[histName]->SetTitle(histTitle.c_str());
       hists[histName]->Draw(first ? "" : "same");
       if(first) drawThreshold(threshold, thresholdLabel, logY ? 3e-2 : 0.5);
+      
+      canvasWithCuts->cd(iPad); preparePad();
+      gPad->SetLogy(logY);
+      prepareHist(hists[histName+"_withCuts"], color);
+      hists[histName+"_withCuts"]->SetTitle(histTitle.c_str());
+      hists[histName+"_withCuts"]->Draw(first ? "" : "same");
+      if(first) drawThreshold(threshold, thresholdLabel, logY ? 3e-2 : 0.5);
+      
+      iPad++;
     }
     
     legend->AddEntry(hists.begin()->second, datasetDescription.at(dataset).c_str(), "l");
@@ -108,7 +119,9 @@ void drawElectronIDplots()
   
   for(int iPad=1; iPad<=histParams.size(); iPad++){
     canvas->cd(iPad); legend->Draw("same");
+    canvasWithCuts->cd(iPad); legend->Draw("same");
   }
   
-  canvas->SaveAs(outputPath.c_str());
+  canvas->SaveAs((outputPath+".pdf").c_str());
+  canvasWithCuts->SaveAs((outputPath+"_withCuts.pdf").c_str());
 }
