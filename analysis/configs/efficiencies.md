@@ -31,13 +31,13 @@ photonMaxEtaWidthEndcap:    0.0272
 electronMinPt:                            2.0
 electronMaxEta:                         2.3
 electronMaxNmissingHits:         1
-electronMaxHoverE_Barrel:         0.01
+electronMaxHoverE_Barrel:         0.005
 electronMaxHoverE_Endcap:      0.005
 electronMaxDetaSeedBarrel:      0.1
 electronMaxDetaSeedEndcap:   0.1
 electronMaxChargedIsoBarrel:    0.1
 electronMaxChargedIsoEndcap: 0.1
-electronMaxPhotonIsoBarrel:      0.045
+electronMaxPhotonIsoBarrel:      0.035
 electronMaxPhotonIsoEndcap:   0.035
 electronMaxNeutralIsoBarrel:      0.07
 electronMaxNeutralIsoEndcap:   0.07

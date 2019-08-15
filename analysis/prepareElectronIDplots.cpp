@@ -18,15 +18,15 @@ vector<tuple<string, int, double, double>> histParams = {
   // title                     nBins min   max
   {"nMissingHits"             , 10    , 0   , 10  },
   
-  {"HoverE_Barrel"            , 1000   , 0   , 2.5 },
-  {"HoverE_Endcap"            , 1000   , 0   , 2.5 },
+  {"HoverE_Barrel"            , 1000  , 0   , 2.5 },
+  {"HoverE_Endcap"            , 1000  , 0   , 2.5 },
   
-  {"chargedIsoBarrel"         , 500   , 0   , 15  },
-  {"photonIsoBarrel"          , 500   , 0   , 15  },
-  {"neutralIsoBarrel"         , 500   , 0   , 15  },
-  {"chargedIsoEndcap"         , 500   , 0   , 15  },
-  {"photonIsoEndcap"          , 500   , 0   , 15  },
-  {"neutralIsoEndcap"         , 500   , 0   , 15  },
+  {"chargedIsoBarrel"         , 2500  , 0   , 15  },
+  {"photonIsoBarrel"          , 2500  , 0   , 15  },
+  {"neutralIsoBarrel"         , 2500  , 0   , 15  },
+  {"chargedIsoEndcap"         , 2500  , 0   , 15  },
+  {"photonIsoEndcap"          , 2500  , 0   , 15  },
+  {"neutralIsoEndcap"         , 2500  , 0   , 15  },
   {"relIsoWithEA_Barrel"      , 240   , 0   , 120 },
   {"relIsoWithEA_Endcap"      , 240   , 0   , 120 },
   

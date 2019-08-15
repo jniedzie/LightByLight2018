@@ -1,27 +1,27 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/electronID_test.root";
-string outputPath = "../plots/electronID.pdf";
+string inputPath  = "../results/electronID.root";
+string outputPath = "../plots/electronID";
 
 vector<EDataset> datasetsToSkip = { kMCcep, kMClbl };
 
-vector<tuple<string, string, double, string, bool>> histParams = {
-// name                 title                                  threshold thresholdLabel logY
-  {"HoverE_Barrel"            , "H/E (barrel)"                , 0.02    , "0.02"    , true  },
-  {"HoverE_Endcap"            , "H/E (endcap)"                , 0.02    , "0.02"    , true  },
+vector<tuple<string, string, double, string, bool, bool, double>> histParams = {
+// name                 title                                  threshold tsldLabel logY withCuts maxX
+  {"chargedIsoBarrel"         ,  "Charged isolation (barrel)" , 0.1    , "0.1"    , true  , true  , 2.0  },
+  {"chargedIsoEndcap"         ,  "Charged isolation (endcap)" , 0.1    , "0.1"    , true  , true  , 2.0  },
+  {"photonIsoBarrel"          ,  "Photon isolation (barrel)"  , 0.035  , "0.035"  , true  , true  , 1.0  },
+  {"photonIsoEndcap"          ,  "Photon isolation (endcap)"  , 0.035  , "0.035"  , true  , true  , 1.0  },
+  {"neutralIsoBarrel"         ,  "Neutral isolation (barrel)" , 0.07   , "0.07"   , true  , true  , 2.0  },
+  {"neutralIsoEndcap"         ,  "Neutral isolation (endcap)" , 0.07   , "0.07"   , true  , true  , 2.0  },
   
-  {"chargedIsoBarrel"         ,  "Charged isolation (barrel)" , 9999    , ""        , true  },
-  {"chargedIsoEndcap"         ,  "Charged isolation (endcap)" , 9999    , ""        , true  },
-  {"photonIsoBarrel"          ,  "Photon isolation (barrel)"  , 9999    , ""        , true  },
-  {"photonIsoEndcap"          ,  "Photon isolation (endcap)"  , 9999    , ""        , true  },
-  {"neutralIsoBarrel"         ,  "Neutral isolation (barrel)" , 9999    , ""        , true  },
-  {"neutralIsoEndcap"         ,  "Neutral isolation (endcap)" , 9999    , ""        , true  },
+  {"HoverE_Barrel"            , "H/E (barrel)"                , 0.005  , "0.005"  , true  , true  , 0.1  },
+  {"HoverE_Endcap"            , "H/E (endcap)"                , 0.005  , "0.005"  , true  , true  , 0.1  },
   
-  {"relIsoWithEA_Barrel"      ,  "RelIso (barrel)"            , 9999    , ""        , true  },
-  {"relIsoWithEA_Endcap"      ,  "RelIso (endcap)"            , 9999    , ""        , true  },
+//  {"relIsoWithEA_Barrel"      ,  "RelIso (barrel)"            , 9999    , ""        , true  , true  , 10.0  },
+//  {"relIsoWithEA_Endcap"      ,  "RelIso (endcap)"            , 9999    , ""        , true  , true  , 10.0  },
   
-  {"dEtaSeedBarrel"           , "#Delta#eta seed (barrel)"    , 0.00377 , "0.00377" , true  },
-  {"dEtaSeedEndcap"           , "#Delta#eta seed (endcap)"    , 0.00674 , "0.00674" , true  },
+  {"dEtaSeedBarrel"           , "#Delta#eta seed (barrel)"    , 0.1    , "0.1"    , true  , true  , 0.12 },
+  {"dEtaSeedEndcap"           , "#Delta#eta seed (endcap)"    , 0.1    , "0.1"    , true  , true  , 0.12 },
 //  {"nMissingHits"             , "N missing hits"              , 1       , "1"       , false },
 };
 
@@ -66,10 +66,10 @@ void drawElectronIDplots()
   TFile *inFile = TFile::Open(inputPath.c_str());
   gStyle->SetOptStat(0);
   
-  TCanvas *canvas         = new TCanvas("Electon ID", "Electon ID", 2880, 1800);
-  TCanvas *canvasWithCuts = new TCanvas("Electon ID (after cuts) ", "Electon ID (after cuts)", 2880, 1800);
-  canvas->Divide(4,3);
-  canvasWithCuts->Divide(4,3);
+  TCanvas *canvas         = new TCanvas("Electon ID", "Electon ID", 1000, 1000);
+  TCanvas *canvasIso = new TCanvas("Electon ID isolation ", "Electon ID isolation", 1000, 1500);
+  canvas->Divide(2,2);
+  canvasIso->Divide(2,3);
 
   TLegend *legend = new TLegend(0.5, 0.7, 0.9, 0.9 );
   
@@ -83,33 +83,31 @@ void drawElectronIDplots()
     map<string, TH1D*> hists;
     
     int iPad=1;
-    for(auto &[histName, histTitle, threshold, thresholdLabel, logY] : histParams){
-      hists[histName] = (TH1D*)inFile->Get((histName+dataName).c_str());
-      hists[histName+"_withCuts"] = (TH1D*)inFile->Get((histName+dataName+"_withCuts").c_str());
-      if(!hists[histName] || !hists[histName+"_withCuts"]){
+    for(auto &[histName, histTitle, threshold, thresholdLabel, logY, withCuts, maxX] : histParams){
+      
+      hists[histName] = (TH1D*)inFile->Get((histName+dataName+(withCuts ? "_withCuts" : "")).c_str());
+      
+      if(!hists[histName]){
         cout<<"Could not open hist: "<<histName<<dataName<<endl;
         continue;
       }
-      if(hists[histName]->GetEntries()==0 || hists[histName+"_withCuts"]->GetEntries()==0){
+      if(hists[histName]->GetEntries()==0){
         cout<<"No entries in hist "<<histName<<dataName<<endl;
         continue;
       }
       
-      canvas->cd(iPad); preparePad();
+      if(iPad < 7) canvasIso->cd(iPad);
+      else         canvas->cd(iPad-6);
+      preparePad();
       gPad->SetLogy(logY);
       prepareHist(hists[histName], color);
       hists[histName]->SetTitle(histTitle.c_str());
+      hists[histName]->GetXaxis()->SetRangeUser(0, maxX);
       hists[histName]->Draw(first ? "" : "same");
       if(first) drawThreshold(threshold, thresholdLabel, logY ? 3e-2 : 0.5);
       
-      canvasWithCuts->cd(iPad); preparePad();
-      gPad->SetLogy(logY);
-      prepareHist(hists[histName+"_withCuts"], color);
-      hists[histName+"_withCuts"]->SetTitle(histTitle.c_str());
-      hists[histName+"_withCuts"]->Draw(first ? "" : "same");
-      if(first) drawThreshold(threshold, thresholdLabel, logY ? 3e-2 : 0.5);
-      
       iPad++;
+      
     }
     
     legend->AddEntry(hists.begin()->second, datasetDescription.at(dataset).c_str(), "l");
@@ -119,9 +117,9 @@ void drawElectronIDplots()
   
   for(int iPad=1; iPad<=histParams.size(); iPad++){
     canvas->cd(iPad); legend->Draw("same");
-    canvasWithCuts->cd(iPad); legend->Draw("same");
+    canvasIso->cd(iPad); legend->Draw("same");
   }
   
   canvas->SaveAs((outputPath+".pdf").c_str());
-  canvasWithCuts->SaveAs((outputPath+"_withCuts.pdf").c_str());
+  canvasIso->SaveAs((outputPath+"_isolation.pdf").c_str());
 }
