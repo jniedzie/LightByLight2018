@@ -8,6 +8,6 @@ inputPathQED_SC="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed/ntuples_
 
 inputPathQED_SL="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed/ntuples_sl/reco_mc_qed_sl/reco_mc_qed_sl/190731_115947/0000/HiForestAOD_mc_${1}.root"
 
-output="/eos/cms/store/group/phys_diffraction/lbyl_2018/HIForward_Reco/efficiency/efficienciesQED_${1}.root"
+output="/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis/efficienciesQED/efficienciesQED_${1}.root"
 
 /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/getEfficienciesQED $configPath $inputPathData &inputPathQED_SC &inputPathQED_SL $output
