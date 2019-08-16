@@ -64,17 +64,14 @@ public:
   /// Returns number of charged tracks with pt above threshold specifined in the config
   int GetNchargedTracks() const;
   
-  /// Returns true if any of the LbL triggers (as defined in Helpers.hpp) fired, false otherwise.
-  bool HasLbLTrigger() const;
-  
   /// Checks if SingleEG3 fired
-  bool HasSingleEG3Trigger();
+  bool HasSingleEG3Trigger() const;
   
   /// Checks if SingleEG5 fired
-  bool HasSingleEG5Trigger();
+  bool HasSingleEG5Trigger() const ;
   
   /// Checks if DoubleEG2 fired
-  bool HasDoubleEG2Trigger();
+  bool HasDoubleEG2Trigger() const;
   
   
 private:

@@ -152,7 +152,7 @@ void CheckCHEefficiency(Event &event,
   string name = "charged_exclusivity_eff"+datasetName;
   int cutLevel = 0;
   
-  if(!event.HasLbLTrigger()) return;
+  if(!event.HasSingleEG3Trigger()) return;
   cutThroughHists[name]->Fill(cutLevel++); // 0
   
   auto goodElectrons = event.GetGoodElectrons();
@@ -189,7 +189,7 @@ void CheckNEEefficiency(Event &event,
   string name = "neutral_exclusivity_eff"+datasetName;
   int cutLevel = 0;
   
-  if(!event.HasLbLTrigger()) return;
+  if(!event.HasSingleEG3Trigger()) return;
   cutThroughHists[name]->Fill(cutLevel++); // 0
   
   // Check that there are exaclty two electrons

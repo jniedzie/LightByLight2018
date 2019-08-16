@@ -14,27 +14,19 @@ Event::~Event()
   
 }
 
-bool Event::HasLbLTrigger() const
+bool Event::HasSingleEG3Trigger() const
 {
-  for(auto &fired : triggersLbL){
-    if(fired.second) return true;
-  }
-  return false;
+  return triggersLbL.at("HLT_HIUPC_SingleEG3_NotMBHF2AND_v1");
 }
 
-bool Event::HasSingleEG3Trigger()
+bool Event::HasSingleEG5Trigger() const
 {
-  return triggersLbL["HLT_HIUPC_SingleEG3_NotMBHF2AND_v1"];
+  return triggersLbL.at("HLT_HIUPC_SingleEG5_NotMBHF2AND_v1");
 }
 
-bool Event::HasSingleEG5Trigger()
+bool Event::HasDoubleEG2Trigger() const
 {
-  return triggersLbL["HLT_HIUPC_SingleEG5_NotMBHF2AND_v1"];
-}
-
-bool Event::HasDoubleEG2Trigger()
-{
-  return triggersLbL["HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1"];
+  return triggersLbL.at("HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1");
 }
 
 vector<shared_ptr<PhysObject>> Event::GetGoodGenPhotons() const

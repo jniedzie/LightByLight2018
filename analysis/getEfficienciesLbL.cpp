@@ -71,7 +71,7 @@ int main()
     
     // Check properties of this event
     bool hasTwoGoodGenPhotons     = goodGenPhotons.size() == 2;
-    bool hasLbLTrigger            = event->HasLbLTrigger();
+    bool hasLbLTrigger            = event->HasDoubleEG2Trigger();
     bool hasTwoPhotonsPassingID   = photonsPassing.size() == 2;
     bool passesNeutralExclusivity = ! event->HasAdditionalTowers();
     bool passesChargedExclusivity = ! event->HasChargedTracks();
