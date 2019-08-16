@@ -74,7 +74,6 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
       if(electron->GetNmissingHits() > config.params("electronMaxNmissingHits")) continue;
       
       string subdet = "";
-      
       if((eta < maxEtaEB)) subdet = "Barrel";
       else if((eta < maxEtaEE)) subdet = "Endcap";
       

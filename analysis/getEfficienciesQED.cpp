@@ -10,27 +10,29 @@
 #include "ConfigManager.hpp"
 
 string configPath = "configs/efficiencies.md";
+string outputPath = "results/efficienciesQED_test.root";
 
-EDataset dataset = kData;
+vector<EDataset> datasetsToAnalyze = { kData , kMCqedSC, kMCqedSL };
 
 bool doRecoEfficiency    = true;
 bool doTriggerEfficiency = false;
-bool doCHEefficiency     = true;
-bool doNEEefficiency     = true;
+bool doCHEefficiency     = false;
+bool doNEEefficiency     = false;
 
 vector<string> histParams = {
   "reco_id_eff", "trigger_eff", "charged_exclusivity_eff", "neutral_exclusivity_eff",
 };
 
-map<string, pair<int, int>> nEvents; ///< N events passing tag/probe criteria
-map<string, TH1D*> cutThroughHists;
-map<string, TH1D*> hists;
-
 /// Counts number of events passing tag and probe criteria for reco+ID efficiency
-void CheckRecoEfficiency(Event &event)
+void CheckRecoEfficiency(Event &event,
+                         map<string, pair<int, int>> &nEvents,
+                         map<string, TH1D*> &hists,
+                         map<string, TH1D*> &cutThroughHists,
+                         string datasetName)
 {
-  string name = "reco_id_eff";
+  string name = "reco_id_eff"+datasetName;
   int cutLevel = 0;
+  cutThroughHists[name]->Fill(cutLevel++);
   
   // Check trigger
   if(!event.HasSingleEG3Trigger()) return;
@@ -88,21 +90,27 @@ void CheckRecoEfficiency(Event &event)
 }
 
 /// Counts number of events passing tag and probe criteria for trigger efficiency
-void CheckTriggerEfficiency(Event &event)
+void CheckTriggerEfficiency(Event &event,
+                            map<string, pair<int, int>> &nEvents,
+                            map<string, TH1D*> &hists,
+                            map<string, TH1D*> &cutThroughHists,
+                            string datasetName)
 {
-  if(!event.HasSingleEG5Trigger()) return;
-  cutThroughHists["trigger_eff"]->Fill(1);
+  string name = "trigger_eff"+datasetName;
+  
+  if(!event.HasSingleEG3Trigger()) return;
+  cutThroughHists[name]->Fill(1);
   
   auto goodElectrons = event.GetGoodElectrons();
   
   if(goodElectrons.size() != 2) return;
-  cutThroughHists["trigger_eff"]->Fill(2);
+  cutThroughHists[name]->Fill(2);
   
   if(event.HasAdditionalTowers()) return;
-  cutThroughHists["trigger_eff"]->Fill(3);
+  cutThroughHists[name]->Fill(3);
         
   if(event.GetNchargedTracks() != 2) return;
-  cutThroughHists["trigger_eff"]->Fill(4);
+  cutThroughHists[name]->Fill(4);
     
   auto electron1 = goodElectrons[0];
   auto electron2 = goodElectrons[1];
@@ -130,14 +138,18 @@ void CheckTriggerEfficiency(Event &event)
   }
   
   if(!tag) return;
-  cutThroughHists["trigger_eff"]->Fill(4);
+  cutThroughHists[name]->Fill(4);
 
 }
 
 /// Counts number of events passing tag and probe criteria for charged exclusivity efficiency
-void CheckCHEefficiency(Event &event)
+void CheckCHEefficiency(Event &event,
+                        map<string, pair<int, int>> &nEvents,
+                        map<string, TH1D*> &hists,
+                        map<string, TH1D*> &cutThroughHists,
+                        string datasetName)
 {
-  string name = "charged_exclusivity_eff";
+  string name = "charged_exclusivity_eff"+datasetName;
   int cutLevel = 0;
   
   if(!event.HasLbLTrigger()) return;
@@ -168,9 +180,13 @@ void CheckCHEefficiency(Event &event)
 }
 
 /// Counts number of events passing tag and probe criteria for neutral exclusivity efficiency
-void CheckNEEefficiency(Event &event)
+void CheckNEEefficiency(Event &event,
+                        map<string, pair<int, int>> &nEvents,
+                        map<string, TH1D*> &hists,
+                        map<string, TH1D*> &cutThroughHists,
+                        string datasetName)
 {
-  string name = "neutral_exclusivity_eff";
+  string name = "neutral_exclusivity_eff"+datasetName;
   int cutLevel = 0;
   
   if(!event.HasLbLTrigger()) return;
@@ -218,71 +234,91 @@ void CheckNEEefficiency(Event &event)
 
 int main(int argc, char* argv[])
 {
-  if(argc != 1 && argc != 4){
-    cout<<"This app requires 0 or 2 parameters."<<endl;
-    cout<<"./getEfficienciesData configPath inputPath outputPath"<<endl;
+  if(argc != 1 && argc != 6){
+    cout<<"This app requires 0 or 5 parameters."<<endl;
+    cout<<"./getEfficienciesData configPath inputPathData inputPathQED_SC inputPathQED_SL outputPath"<<endl;
     exit(0);
   }
   
-  unique_ptr<EventProcessor> eventProcessor;
-  if(argc == 4){
-    eventProcessor = unique_ptr<EventProcessor>(new EventProcessor(argv[2]));
-    configPath = argv[1];
-  }
-  else{
-    eventProcessor = unique_ptr<EventProcessor>(new EventProcessor(dataset));
-  }
+  map<EDataset, string> inputPaths;
   
+  if(argc == 6){
+    configPath           = argv[1];
+    inputPaths[kData]    = argv[2];
+    inputPaths[kMCqedSC] = argv[3];
+    inputPaths[kMCqedSL] = argv[4];
+    outputPath           = argv[5];
+  }
   config = ConfigManager(configPath);
   
-  // Prepare counters and histograms
   float bins[] = { 0, 2, 3, 4, 5, 6, 8, 10, 13, 20 };
   
-  for(auto name : histParams){
-    hists[name]         = new TH1D( name.c_str()        ,  name.c_str()        , 9, bins);
-    hists[name+"_num"]  = new TH1D((name+"_num").c_str(), (name+"_num").c_str(), 9, bins);
-    hists[name+"_den"]  = new TH1D((name+"_den").c_str(), (name+"_den").c_str(), 9, bins);
-    hists[name+"_num"]->Sumw2();
-    hists[name+"_den"]->Sumw2();
-    
-    cutThroughHists[name] = new TH1D(("cut_through_"+name).c_str(), ("cut_through_"+name).c_str(), 10, 0, 10);
-    nEvents[name] = make_pair(0, 0);
-  }
+  map<string, pair<int, int>> nEvents; ///< N events passing tag/probe criteria
+  map<string, TH1D*> cutThroughHists;
+  map<string, TH1D*> hists;
   
-  // Loop over events
-  for(int iEvent=0; iEvent<eventProcessor->GetNevents(); iEvent++){
-    if(iEvent%10000 == 0) cout<<"Processing event "<<iEvent<<endl;
-    if(iEvent >= config.params("maxEvents")) break;
-    
-    auto event = eventProcessor->GetEvent(iEvent);
-    
-    if(doRecoEfficiency)      CheckRecoEfficiency(*event);
-    if(doTriggerEfficiency)   CheckTriggerEfficiency(*event);
-    if(doCHEefficiency)       CheckCHEefficiency(*event);
-    if(doNEEefficiency)       CheckNEEefficiency(*event);
-  }
+  TFile *outFile = new TFile(outputPath.c_str(), "recreate");
   
-  // Print the results and save histograms
-  cout<<"\n\n------------------------------------------------------------------------"<<endl;
+  for(EDataset dataset : datasetsToAnalyze){
+    
+    string name = datasetName.at(dataset);
+    
+    for(auto histName : histParams){
+      string title = histName+name;
+      
+      hists[title]         = new TH1D( title.c_str()        ,  title.c_str()        , 9, bins);
+      hists[title+"_num"]  = new TH1D((title+"_num").c_str(), (title+"_num").c_str(), 9, bins);
+      hists[title+"_den"]  = new TH1D((title+"_den").c_str(), (title+"_den").c_str(), 9, bins);
+      hists[title+"_num"]->Sumw2();
+      hists[title+"_den"]->Sumw2();
+      
+      cutThroughHists[title] = new TH1D(("cut_through_"+title).c_str(), ("cut_through_"+title).c_str(), 10, 0, 10);
+      nEvents[title] = make_pair(0, 0);
+    }
+    
+    
+    unique_ptr<EventProcessor> events;
+    if(argc == 4){
+      events = unique_ptr<EventProcessor>(new EventProcessor(inputPaths[dataset]));
+    }
+    else{
+      events = unique_ptr<EventProcessor>(new EventProcessor(dataset));
+    }
 
-  TFile *outFile = new TFile(argc==4 ? argv[3]  : "results/efficienciesQED.root", "recreate");
-  outFile->cd();
+    // Loop over events
+    for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
+      if(iEvent%10000 == 0) cout<<"Processing event "<<iEvent<<endl;
+      if(iEvent >= config.params("maxEvents")) break;
+      
+      auto event = events->GetEvent(iEvent);
+      
+      if(doRecoEfficiency)      CheckRecoEfficiency(*event, nEvents, hists, cutThroughHists, name);
+      if(doTriggerEfficiency)   CheckTriggerEfficiency(*event, nEvents, hists, cutThroughHists, name);
+      if(doCHEefficiency)       CheckCHEefficiency(*event, nEvents, hists, cutThroughHists, name);
+      if(doNEEefficiency)       CheckNEEefficiency(*event, nEvents, hists, cutThroughHists, name);
+    }
   
-  for(auto name : histParams){
-    hists[name]->Divide(hists[name+"_num"], hists[name+"_den"], 1, 1, "B");
-    hists[name]->Write();
-    hists[name+"_num"]->Write();
-    hists[name+"_den"]->Write();
-    cutThroughHists[name]->Write();
-    
-    cout<<"N tags, probes "<<name<<": "<<nEvents[name].first<<", "<<nEvents[name].second<<endl;
-    cout<<name<<" efficiency: "; PrintEfficiency(nEvents[name].second, nEvents[name].first);
+    // Print the results and save histograms
+    cout<<"\n\n------------------------------------------------------------------------"<<endl;
+
+    outFile->cd();
+  
+    for(auto histName : histParams){
+      string title = histName+name;
+      
+      hists[title]->Divide(hists[title+"_num"], hists[title+"_den"], 1, 1, "B");
+      hists[title]->Write();
+      hists[title+"_num"]->Write();
+      hists[title+"_den"]->Write();
+      cutThroughHists[title]->Write();
+      
+      cout<<"N tags, probes "<<title<<": "<<nEvents[title].first<<", "<<nEvents[title].second<<endl;
+      cout<<title<<" efficiency: "; PrintEfficiency(nEvents[title].second, nEvents[title].first);
+    }
+    cout<<"------------------------------------------------------------------------\n\n"<<endl;
   }
-  
   outFile->Close();
-  
-  cout<<"------------------------------------------------------------------------\n\n"<<endl;
-  
+
   return 0;
 }
 

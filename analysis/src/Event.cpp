@@ -90,26 +90,40 @@ vector<shared_ptr<PhysObject>> Event::GetGoodElectrons()
 {
   goodElectrons.clear();
   
-  for(int iElectron=0; iElectron<nElectrons; iElectron++){
-    auto electron = electrons[iElectron];
+  for(auto electron : electrons){
+
+    double eta = fabs(electron->GetEtaSC());
     
-    // Check eta and Et
-    if(fabs(electron->GetEta())   > config.params("electronMaxEta")) continue;
-    if(fabs(electron->GetEtaSC()) > config.params("electronMaxEta")) continue;
-    
-    if(fabs(electron->GetEtaSC()) > config.params("ecalCrackMin") &&
-       fabs(electron->GetEtaSC()) < config.params("ecalCrackMax"))   continue;
-    
+    // Check pt
     if(electron->GetPt() < config.params("electronMinPt")) continue;
     
-    // Check number of missing hits
-    if(electron->GetNmissingHits() > config.params("electronMaxMissingHits")) continue;
+    // Check eta
+    if(eta > config.params("ecalCrackMin") &&
+       eta < config.params("ecalCrackMax"))   continue;
+    if(eta >= config.params("electronMaxEta")) continue;
+    
+    // Check for HEM issue
+    if(electron->GetEtaSC() < -minEtaEE &&
+       electron->GetPhiSC() > config.params("ecalHEMmin") &&
+       electron->GetPhiSC() < config.params("ecalHEMmax")) continue;
+    
+    // Check n missing hits
+    if(electron->GetNmissingHits() > config.params("electronMaxNmissingHits")) continue;
+    
+    string subdet = "";
+    if((eta < maxEtaEB)) subdet = "Barrel";
+    else if((eta < maxEtaEE)) subdet = "Endcap";
     
     // Check H/E
-    if(electron->GetHoverE() > config.params("electronMaxHoverE")) continue;
+    if(electron->GetHoverE() >= config.params("electronMaxHoverE_"+subdet)) continue;
     
-    // Add isolation cuts here !!!
-    // ...
+    // Check Δη at vertex
+    if(electron->GetDetaSeed() >= config.params("electronMaxDetaSeed"+subdet)) continue;
+    
+    // Check isolation
+    if(electron->GetChargedIso() >= config.params("electronMaxChargedIso"+subdet)) continue;
+    if(electron->GetPhotonIso()  >= config.params("electronMaxPhotonIso"+subdet))  continue;
+    if(electron->GetNeutralIso() >= config.params("electronMaxNeutralIso"+subdet)) continue;
 
     goodElectrons.push_back(electron);
   }
