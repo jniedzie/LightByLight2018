@@ -278,7 +278,7 @@ int main(int argc, char* argv[])
     
     
     unique_ptr<EventProcessor> events;
-    if(argc == 4){
+    if(argc == 6){
       events = unique_ptr<EventProcessor>(new EventProcessor(inputPaths[dataset]));
     }
     else{

@@ -10,4 +10,4 @@ inputPathQED_SL="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed/ntuples_
 
 output="/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis/efficienciesQED/efficienciesQED_${1}.root"
 
-/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/getEfficienciesQED $configPath $inputPathData &inputPathQED_SC &inputPathQED_SL $output
+/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/getEfficienciesQED $configPath $inputPathData $inputPathQED_SC $inputPathQED_SL $output
