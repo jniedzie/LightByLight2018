@@ -75,6 +75,7 @@ void EventProcessor::SetupBranches(string inputPath)
   eventTree->SetBranchAddress("elePFRelIsoWithEA" , &electronRelIsoWithEA);
   eventTree->SetBranchAddress("eledEtaAtVtx"      , &electronDetaSeed);
   eventTree->SetBranchAddress("eleSCEta"          , &electronSCEta);
+//  eventTree->SetBranchAddress("eleSCEt"           , &electronSCEt);
   eventTree->SetBranchAddress("eleSCPhi"          , &electronSCPhi);
   eventTree->SetBranchAddress("eleSCEn"           , &electronSCEn);
   
@@ -175,6 +176,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     electron->relIsoWithEA = electronRelIsoWithEA->at(iElectron);
     electron->dEtaSeed     = electronDetaSeed->at(iElectron);
     electron->etaSC        = electronSCEta->at(iElectron);
+//    electron->etSC         = electronSCEt->at(iElectron);
     electron->phiSC        = electronSCPhi->at(iElectron);
     electron->energySC     = electronSCEn->at(iElectron);
     electron->chargedIso   = electronChIso->at(iElectron);

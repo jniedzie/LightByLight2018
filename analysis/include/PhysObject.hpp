@@ -24,6 +24,7 @@ public:
   double GetPt()  const;
   
   double GetEtaSC()     const;
+  double GetEtSC()      const;
   double GetPhiSC()     const;
   double GetEnergySC()  const;
   
@@ -56,6 +57,7 @@ private:
   double energy;    ///< Energy
   
   double etaSC;     ///< Pseudorapidity of the supercluster
+  double etSC;      ///< Transverse energy of the supercluster
   double phiSC;     ///< Azimuthal angle of the supercluster
   double energySC;  ///< Energy of the supercluster
   

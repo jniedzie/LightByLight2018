@@ -73,6 +73,7 @@ private:
   vector<double> *electronRelIsoWithEA = nullptr;
   vector<double> *electronDetaSeed     = nullptr;
   vector<double> *electronSCEta        = nullptr;
+  vector<double> *electronSCEt         = nullptr;
   vector<double> *electronSCPhi        = nullptr;
   vector<double> *electronSCEn         = nullptr;
   vector<double> *electronChIso        = nullptr;

@@ -12,16 +12,25 @@
 string configPath = "configs/efficiencies.md";
 string outputPath = "results/efficienciesQED_test.root";
 
-vector<EDataset> datasetsToAnalyze = { kData , kMCqedSC, kMCqedSL };
+const vector<EDataset> datasetsToAnalyze = {
+  kData ,
+  kMCqedSC,
+  kMCqedSL
+};
 
 bool doRecoEfficiency    = true;
-bool doTriggerEfficiency = false;
+bool doTriggerEfficiency = true;
 bool doCHEefficiency     = false;
 bool doNEEefficiency     = false;
 
 vector<string> histParams = {
   "reco_id_eff", "trigger_eff", "charged_exclusivity_eff", "neutral_exclusivity_eff",
 };
+
+map<string, int> matched;
+map<string, float> acoplanarity;
+map<string, float> SCEt;
+map<string, float> absEta;
 
 /// Counts number of events passing tag and probe criteria for reco+ID efficiency
 void CheckRecoEfficiency(Event &event,
@@ -49,9 +58,6 @@ void CheckRecoEfficiency(Event &event,
   auto track1     = event.GetGeneralTrack(0);
   auto track2     = event.GetGeneralTrack(1);
   
-  // Check electron cuts
-  cutThroughHists[name]->Fill(cutLevel++);
-      
   // Check if there is exactly one track matching electron
   double deltaR1 = physObjectProcessor.GetDeltaR(*electron, *track1);
   double deltaR2 = physObjectProcessor.GetDeltaR(*electron, *track2);
@@ -89,57 +95,85 @@ void CheckRecoEfficiency(Event &event,
   }
 }
 
+
+
 /// Counts number of events passing tag and probe criteria for trigger efficiency
 void CheckTriggerEfficiency(Event &event,
-                            map<string, pair<int, int>> &nEvents,
-                            map<string, TH1D*> &hists,
+                            map<string, TTree*> &trees,
                             map<string, TH1D*> &cutThroughHists,
                             string datasetName)
 {
   string name = "trigger_eff"+datasetName;
+  int cutLevel = 0;
   
+  // Check trigger
   if(!event.HasSingleEG3Trigger()) return;
-  cutThroughHists[name]->Fill(1);
+  cutThroughHists[name]->Fill(cutLevel++);
   
+  // Neutral exclusivity
+  if(event.HasAdditionalTowers()) return;
+  cutThroughHists[name]->Fill(cutLevel++);
+  
+  
+  // Preselect events with exactly two electrons (charged exclusivity)
   auto goodElectrons = event.GetGoodElectrons();
   
   if(goodElectrons.size() != 2) return;
-  cutThroughHists[name]->Fill(2);
-  
-  if(event.HasAdditionalTowers()) return;
-  cutThroughHists[name]->Fill(3);
-        
   if(event.GetNchargedTracks() != 2) return;
-  cutThroughHists[name]->Fill(4);
-    
+  cutThroughHists[name]->Fill(cutLevel++);
+  
+  
   auto electron1 = goodElectrons[0];
   auto electron2 = goodElectrons[1];
   
-  shared_ptr<PhysObject> tag;
-  shared_ptr<PhysObject> probe;
+  shared_ptr<PhysObject> tag = nullptr;
+  shared_ptr<PhysObject> passingProbe = nullptr;
+  shared_ptr<PhysObject> failedProbe = nullptr;
   
+  // Replace by L1 EG !!!
   for(auto &tower : event.GetCaloTowers()){
-    if(tower->GetEt() < 5.0) continue;
-    
+    if(tag && passingProbe) break;
+    if(tower->GetEt() < 3.0) continue;
+
     double deltaR1 = physObjectProcessor.GetDeltaR(*electron1, *tower);
     double deltaR2 = physObjectProcessor.GetDeltaR(*electron2, *tower);
     
-    if(deltaR1 < 0.1 && electron2->GetEt() > 2.0){
-      tag   = electron1;
-      probe = electron2;
-      break;
+    if(deltaR1 < 1.0){
+      if(!tag) tag = electron1;
+      else passingProbe = electron1;
     }
     
-    if(deltaR2 < 0.1 && electron1->GetEt() > 2.0){
-      tag   = electron2;
-      probe = electron1;
-      break;
+    if(deltaR2 < 1.0){
+      if(!tag) tag = electron2;
+      else passingProbe = electron2;
     }
   }
   
   if(!tag) return;
-  cutThroughHists[name]->Fill(4);
+  cutThroughHists[name]->Fill(cutLevel++);
+  
+  acoplanarity.at(datasetName) = physObjectProcessor.GetAcoplanarity(*electron1, *electron2);
+  
+  if(passingProbe){
+    matched.at(datasetName) = 1;
+    SCEt.at(datasetName) = passingProbe->GetPt();
+    //  SCEt.at(datasetName) = probe->GetEtSC();
+    absEta.at(datasetName) = fabs(passingProbe->GetEta());
+    
+  }
+  else{
+    if(tag == electron1) failedProbe = electron2;
+    else                 failedProbe = electron1;
+    
+    matched.at(datasetName) = 0;
+    SCEt.at(datasetName) = failedProbe->GetPt();
+    //  SCEt.at(datasetName) = probe->GetEtSC();
+    absEta.at(datasetName) = fabs(failedProbe->GetEta());
+    
+  }
+  trees.at(datasetName)->Fill();
 
+  
 }
 
 /// Counts number of events passing tag and probe criteria for charged exclusivity efficiency
@@ -256,12 +290,24 @@ int main(int argc, char* argv[])
   map<string, pair<int, int>> nEvents; ///< N events passing tag/probe criteria
   map<string, TH1D*> cutThroughHists;
   map<string, TH1D*> hists;
+  map<string, TTree*> triggerTrees;
   
   TFile *outFile = new TFile(outputPath.c_str(), "recreate");
+  
   
   for(EDataset dataset : datasetsToAnalyze){
     
     string name = datasetName.at(dataset);
+  
+    outFile->mkdir(("triggerTree_"+name).c_str());
+    triggerTrees[name] = new TTree("tree","");
+    
+    matched[name] = 0;
+    acoplanarity[name] = -1.0;
+    triggerTrees[name]->Branch("matched", &matched[name], "matched/I");
+    triggerTrees[name]->Branch("acoplanarity", &acoplanarity[name], "acoplanarity/F");
+    triggerTrees[name]->Branch("SCEt", &SCEt[name], "SCEt/F");
+    triggerTrees[name]->Branch("abseta", &absEta[name], "abseta/F");
     
     for(auto histName : histParams){
       string title = histName+name;
@@ -293,7 +339,7 @@ int main(int argc, char* argv[])
       auto event = events->GetEvent(iEvent);
       
       if(doRecoEfficiency)      CheckRecoEfficiency(*event, nEvents, hists, cutThroughHists, name);
-      if(doTriggerEfficiency)   CheckTriggerEfficiency(*event, nEvents, hists, cutThroughHists, name);
+      if(doTriggerEfficiency)   CheckTriggerEfficiency(*event, triggerTrees, cutThroughHists, name);
       if(doCHEefficiency)       CheckCHEefficiency(*event, nEvents, hists, cutThroughHists, name);
       if(doNEEefficiency)       CheckNEEefficiency(*event, nEvents, hists, cutThroughHists, name);
     }
@@ -315,6 +361,10 @@ int main(int argc, char* argv[])
       cout<<"N tags, probes "<<title<<": "<<nEvents[title].first<<", "<<nEvents[title].second<<endl;
       cout<<title<<" efficiency: "; PrintEfficiency(nEvents[title].second, nEvents[title].first);
     }
+    
+    outFile->cd(("triggerTree_"+name).c_str());
+    triggerTrees[name]->Write();
+    
     cout<<"------------------------------------------------------------------------\n\n"<<endl;
   }
   outFile->Close();

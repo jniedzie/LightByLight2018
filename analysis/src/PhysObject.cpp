@@ -10,6 +10,7 @@ phi(9999),
 energy(-1),
 
 etaSC(9999),
+etSC(-9999),
 phiSC(9999),
 energySC(-1),
 
@@ -82,7 +83,7 @@ double PhysObject::GetPhi() const
 
 double PhysObject::GetEt()  const
 {
-  if(et<0) cout<<"WARNING - carefull, et probably not set"<<endl;
+  if(et < 0) cout<<"WARNING - carefull, et probably not set"<<endl;
   return et;
 }
 
@@ -151,6 +152,12 @@ double PhysObject::GetEtaSC() const
 {
   if(etaSC > 999) cout<<"WARNING - carefull, etaSC probably not set"<<endl;
   return etaSC;
+}
+
+double PhysObject::GetEtSC() const
+{
+  if(etSC < 0) cout<<"WARNING - carefull, etSC probably not set"<<endl;
+  return etSC;
 }
 
 double PhysObject::GetPhiSC() const
