@@ -19,64 +19,58 @@ if (dataOrMC == "QED_SC") or (dataOrMC == "QED_SL"):
 print("Setting efficiency sets")
 
 EFFICIENCYSET =cms.PSet(
-        DoubleEG2_1bin = cms.PSet(
+        eff = cms.PSet(
 #            EfficiencyCategoryAndState = cms.vstring("doubleEG2","true","matched","true"),
             EfficiencyCategoryAndState = cms.vstring("matched","true"),
             UnbinnedVariables = cms.vstring("acoplanarity"),
             BinnedVariables = cms.PSet(
                 SCEt = cms.vdouble(2, 20),
                 # pt = cms.vdouble(0, 20),
-                abseta = cms.vdouble(0, 2.4),
+                abseta = cms.vdouble(0, 2.3),
             ),
          BinToPDFmap = cms.vstring(PDFName)
         ),
-#        DoubleEG2_EBEE = cms.PSet(
+        effVsEta = cms.PSet(
 #            EfficiencyCategoryAndState = cms.vstring("doubleEG2","true","matched","true"),
-#            UnbinnedVariables = cms.vstring("acoplanarity"),
-#            BinnedVariables = cms.PSet(
-#                # pt = cms.vdouble(0, 20),
-#                SCEt = cms.vdouble(2, 20),
-#                abseta = cms.vdouble(0, 1.5, 2.4),
-#            ),
-#         BinToPDFmap = cms.vstring(PDFName)
-#        ),
-#        DoubleEG2_abseta = cms.PSet(
-#            EfficiencyCategoryAndState = cms.vstring("doubleEG2","true","matched","true"),
-#            UnbinnedVariables = cms.vstring("acoplanarity"),
-#            BinnedVariables = cms.PSet(
-#                # pt = cms.vdouble(0, 20),
-#                SCEt = cms.vdouble(2, 20),
-#                abseta = cms.vdouble(0, 0.5, 1, 1.5, 2, 2.4),
-#            ),
-#         BinToPDFmap = cms.vstring(PDFName)
-#        ),
-#        DoubleEG2_pt0 = cms.PSet(
-#            EfficiencyCategoryAndState = cms.vstring("doubleEG2","true","matched","true"),
-#            UnbinnedVariables = cms.vstring("acoplanarity"),
-#            BinnedVariables = cms.PSet(
-#                # pt = cms.vdouble(0, 2, 3, 4, 5, 6, 7, 10, 14, 20),
-#                SCEt = cms.vdouble(2, 3, 4, 5, 6, 7, 10, 14, 20),
-#                abseta = cms.vdouble(0, 2.4),
-#            ),
-#         BinToPDFmap = cms.vstring(PDFName)
-#        ),
-#        DoubleEG2_pt1 = cms.PSet(
-#            EfficiencyCategoryAndState = cms.vstring("doubleEG2","true","matched","true"),
-#            UnbinnedVariables = cms.vstring("acoplanarity"),
-#            BinnedVariables = cms.PSet(
-#                # pt = cms.vdouble(0, 2, 3, 4, 5, 6, 7, 10, 14, 20),
+            EfficiencyCategoryAndState = cms.vstring("matched","true"),
+            UnbinnedVariables = cms.vstring("acoplanarity"),
+            BinnedVariables = cms.PSet(
+                # pt = cms.vdouble(0, 20),
+                SCEt = cms.vdouble(2, 20),
+                abseta = cms.vdouble(0, 0.5, 1, 1.5, 2, 2.3),
+            ),
+         BinToPDFmap = cms.vstring(PDFName)
+        ),
+        effVsPt_lowEta = cms.PSet(
+#          EfficiencyCategoryAndState = cms.vstring("doubleEG2","true","matched","true"),
+          EfficiencyCategoryAndState = cms.vstring("matched","true"),
+            UnbinnedVariables = cms.vstring("acoplanarity"),
+            BinnedVariables = cms.PSet(
+                # pt = cms.vdouble(0, 2, 3, 4, 5, 6, 7, 10, 14, 20),
+                SCEt = cms.vdouble(2, 3, 4, 5, 6, 7, 10, 14, 20),
+                abseta = cms.vdouble(0, 1.2),
+            ),
+         BinToPDFmap = cms.vstring(PDFName)
+        ),
+        effVsPt_highEta = cms.PSet(
+#          EfficiencyCategoryAndState = cms.vstring("doubleEG2","true","matched","true"),
+          EfficiencyCategoryAndState = cms.vstring("matched","true"),
+            UnbinnedVariables = cms.vstring("acoplanarity"),
+            BinnedVariables = cms.PSet(
+                # pt = cms.vdouble(0, 2, 3, 4, 5, 6, 7, 10, 14, 20),
+                SCEt = cms.vdouble(2, 3, 4, 5, 6, 7, 10, 14, 20),
 #                SCEt = cms.vdouble(2, 3.5, 5, 7, 10, 20),
-#                abseta = cms.vdouble(1.5, 2.4),
-#            ),
-#         BinToPDFmap = cms.vstring(PDFName)
-#        )
+                abseta = cms.vdouble(1.2, 2.3),
+            ),
+         BinToPDFmap = cms.vstring(PDFName)
+        )
 )
 
 print("Setting process")
 
 process.tagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     # IO parameters:
-    InputFileNames = cms.vstring("file:/afs/cern.ch/work/j/jniedzie/private/cmssw_lbl_tag_probe/CMSSW_10_3_2/src/efficienciesQED_test.root"),
+    InputFileNames = cms.vstring("file:/afs/cern.ch/work/j/jniedzie/private/efficienciesQED.root"),
     InputDirectoryName = cms.string("triggerTree_%s" % (dataOrMC)),
     InputTreeName = cms.string("tree"),
     OutputFileName = cms.string("triggerEfficiencyQED_%s.root" % (dataOrMC)),
