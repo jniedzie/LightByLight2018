@@ -12,6 +12,7 @@
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TGraph.h"
+#include "TGraphAsymmErrors.h"
 #include "TF1.h"
 #include "TTree.h"
 #include "TFile.h"
@@ -23,6 +24,10 @@
 #include "TStyle.h"
 #include "TLine.h"
 #include "TLatex.h"
+#include "RooFit.h"
+#include "RooRealVar.h"
+#include "RooDataSet.h"
+#include "RooArgSet.h"
 
 #pragma clang diagnostic pop // restores the saved state for diagnostics
 

@@ -105,6 +105,8 @@ void CheckTriggerEfficiency(Event &event,
 {
   string name = "trigger_eff"+datasetName;
   int cutLevel = 0;
+  cutThroughHists[name]->Fill(cutLevel++);
+  
   
   // Check trigger
   if(!event.HasSingleEG3Trigger()) return;
@@ -115,14 +117,16 @@ void CheckTriggerEfficiency(Event &event,
   cutThroughHists[name]->Fill(cutLevel++);
   
   
-  // Preselect events with exactly two electrons (charged exclusivity)
+  // Preselect events with exactly two electrons
   auto goodElectrons = event.GetGoodElectrons();
-  
   if(goodElectrons.size() != 2) return;
+  cutThroughHists[name]->Fill(cutLevel++);
+  
+  // Charged exclusivity
   if(event.GetNchargedTracks() != 2) return;
   cutThroughHists[name]->Fill(cutLevel++);
   
-  
+  // Tag and probe
   auto electron1 = goodElectrons[0];
   auto electron2 = goodElectrons[1];
   
@@ -172,8 +176,6 @@ void CheckTriggerEfficiency(Event &event,
     
   }
   trees.at(datasetName)->Fill();
-
-  
 }
 
 /// Counts number of events passing tag and probe criteria for charged exclusivity efficiency
