@@ -24,7 +24,7 @@ bool doCHEefficiency     = false;
 bool doNEEefficiency     = false;
 
 vector<string> histParams = {
-  "reco_id_eff", "trigger_eff", "charged_exclusivity_eff", "neutral_exclusivity_eff",
+  "reco_id_eff", "trigger_eff", "trigger_HFveto_eff", "charged_exclusivity_eff", "neutral_exclusivity_eff",
 };
 
 map<string, int> matched;
@@ -137,19 +137,18 @@ void CheckTriggerEfficiency(Event &event,
   // Replace by L1 EG !!!
   for(auto &tower : event.GetCaloTowers()){
     if(tag && passingProbe) break;
-    if(tower->GetEt() < 3.0) continue;
-
+    
     double deltaR1 = physObjectProcessor.GetDeltaR(*electron1, *tower);
     double deltaR2 = physObjectProcessor.GetDeltaR(*electron2, *tower);
     
     if(deltaR1 < 1.0){
-      if(!tag) tag = electron1;
-      else passingProbe = electron1;
+      if(!tag && tower->GetEt() > 3.0) tag = electron1;
+      else if(tower->GetEt() > 2.0) passingProbe = electron1;
     }
     
     if(deltaR2 < 1.0){
-      if(!tag) tag = electron2;
-      else passingProbe = electron2;
+      if(!tag && tower->GetEt() > 3.0) tag = electron2;
+      else if(tower->GetEt() > 2.0) passingProbe = electron2;
     }
   }
   
@@ -176,6 +175,63 @@ void CheckTriggerEfficiency(Event &event,
     
   }
   trees.at(datasetName)->Fill();
+}
+
+void CheckTriggerHFvetoEfficiency(Event &event,
+                                  map<string, pair<int, int>> &nEvents,
+                                  map<string, TH1D*> &hists,
+                                  map<string, TH1D*> &cutThroughHists,
+                                  string datasetName)
+{
+  string name = "trigger_HFveto_eff"+datasetName;
+  int cutLevel = 0;
+  cutThroughHists[name]->Fill(cutLevel++);
+  
+  // Check trigger with no HF veto
+  if(!event.HasSingleEG3noHFvetoTrigger()) return;
+  cutThroughHists[name]->Fill(cutLevel++);
+  
+  // Neutral exclusivity
+  if(event.HasAdditionalTowers()) return;
+  cutThroughHists[name]->Fill(cutLevel++);
+  
+  // Preselect events with exactly two electrons
+  auto goodElectrons = event.GetGoodElectrons();
+  if(goodElectrons.size() != 2) return;
+  cutThroughHists[name]->Fill(cutLevel++);
+  
+  // Charged exclusivity
+  if(event.GetNchargedTracks() != 2) return;
+  cutThroughHists[name]->Fill(cutLevel++);
+  
+  // Check if there are two electrons matched with L1 objects
+  auto electron1 = goodElectrons[0];
+  auto electron2 = goodElectrons[1];
+  vector<shared_ptr<PhysObject>> matchedElectrons;
+  
+  // Replace by L1 EG !!!
+  for(auto &tower : event.GetCaloTowers()){
+    if(matchedElectrons.size() == 2) break;
+    if(tower->GetEt() < 2.0) continue;
+    
+    double deltaR1 = physObjectProcessor.GetDeltaR(*electron1, *tower);
+    double deltaR2 = physObjectProcessor.GetDeltaR(*electron2, *tower);
+    
+    if(deltaR1 < 1.0) matchedElectrons.push_back(electron1);
+    if(deltaR2 < 1.0) matchedElectrons.push_back(electron2);
+  }
+  
+  if(matchedElectrons.size() != 2) return;
+  cutThroughHists[name]->Fill(cutLevel++);
+  
+  nEvents[name].first++;
+  hists[name+"_den"]->Fill(1);
+  
+  // Check if it also has double EG2 trigger
+  if(!event.HasDoubleEG2Trigger()) return;
+  
+  nEvents[name].second++;
+  hists[name+"_num"]->Fill(1);
 }
 
 /// Counts number of events passing tag and probe criteria for charged exclusivity efficiency
@@ -341,7 +397,10 @@ int main(int argc, char* argv[])
       auto event = events->GetEvent(iEvent);
       
       if(doRecoEfficiency)      CheckRecoEfficiency(*event, nEvents, hists, cutThroughHists, name);
-      if(doTriggerEfficiency)   CheckTriggerEfficiency(*event, triggerTrees, cutThroughHists, name);
+      if(doTriggerEfficiency){
+        CheckTriggerEfficiency(*event, triggerTrees, cutThroughHists, name);
+        CheckTriggerHFvetoEfficiency(*event, nEvents, hists, cutThroughHists, name);
+      }
       if(doCHEefficiency)       CheckCHEefficiency(*event, nEvents, hists, cutThroughHists, name);
       if(doNEEefficiency)       CheckNEEefficiency(*event, nEvents, hists, cutThroughHists, name);
     }

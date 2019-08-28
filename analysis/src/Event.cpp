@@ -29,6 +29,11 @@ bool Event::HasDoubleEG2Trigger() const
   return triggersLbL.at("HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1");
 }
 
+bool Event::HasSingleEG3noHFvetoTrigger() const
+{
+  return triggersLbL.at("HLT_HIUPC_SingleEG3_BptxAND_SinglePixelTrack_MaxPixelTrack_v1");
+}
+
 vector<shared_ptr<PhysObject>> Event::GetGoodGenPhotons() const
 {
   vector<shared_ptr<PhysObject>> goodGenPhotons;

@@ -25,8 +25,8 @@
 #include "TLine.h"
 #include "TLatex.h"
 #include "RooFit.h"
-#include "RooRealVar.h"
-#include "RooDataSet.h"
+//#include "RooRealVar.h"
+//#include "RooDataSet.h"
 #include "RooArgSet.h"
 
 #pragma clang diagnostic pop // restores the saved state for diagnostics
@@ -45,6 +45,7 @@ const vector<string> triggerNamesLbL = {
   "HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1",
   "HLT_HIUPC_SingleEG3_NotMBHF2AND_v1",
   "HLT_HIUPC_SingleEG5_NotMBHF2AND_v1",
+  "HLT_HIUPC_SingleEG3_BptxAND_SinglePixelTrack_MaxPixelTrack_v1",
 };
 
 enum EDataset{

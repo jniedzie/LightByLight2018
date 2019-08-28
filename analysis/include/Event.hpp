@@ -73,6 +73,8 @@ public:
   /// Checks if DoubleEG2 fired
   bool HasDoubleEG2Trigger() const;
   
+  /// Checks if SingleEG3 trigger with no veto on HF fired
+  bool HasSingleEG3noHFvetoTrigger() const;
   
 private:
   map<string, bool> triggersLbL; ///< Vactor of booleans corresponding to LbL triggers

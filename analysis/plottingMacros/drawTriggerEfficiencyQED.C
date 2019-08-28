@@ -1,5 +1,7 @@
 #include "../include/Helpers.hpp"
 
+string outputPath = "../plots/triggerEfficiencyDependanceL1.pdf";
+
 vector<EDataset> datasetsToDraw = {
   kData,
   kMCqedSC,
@@ -9,7 +11,7 @@ vector<EDataset> datasetsToDraw = {
 vector<tuple<string, string, string, string>> variables = {
   {"effVsPt_lowEta"   , "SCEt"    , "SC E_{t} (GeV)"  , "#splitline{|#eta|#in[0.0, 1.2]}{SC E_{t} > 2 GeV}" },
   {"effVsPt_highEta"  , "SCEt"    , "SC E_{t} (GeV)"  , "#splitline{|#eta|#in[1.2, 2.3]}{SC E_{t} > 2 GeV}" },
-  {"effVsEta"         , "abseta"  , "|#eta|"          , "SC E_{t} > 2 GeV"                      },
+  {"effVsEta"         , "abseta"  , "|#eta|"          , "SC E_{t} > 2 GeV"                                  },
 };
 
 TGraphAsymmErrors *getEfficiencyPlot(RooDataSet *fitResults, string xVarName){
@@ -104,4 +106,5 @@ void drawTriggerEfficiencyQED()
   canvas->cd(4);
   mainLegend->Draw();
   
+  canvas->SaveAs(outputPath.c_str());
 }
