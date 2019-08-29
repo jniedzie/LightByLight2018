@@ -20,8 +20,8 @@ const vector<EDataset> datasetsToAnalyze = {
 
 bool doRecoEfficiency    = true;
 bool doTriggerEfficiency = true;
-bool doCHEefficiency     = false;
-bool doNEEefficiency     = false;
+bool doCHEefficiency     = true;
+bool doNEEefficiency     = true;
 
 vector<string> histParams = {
   "reco_id_eff", "trigger_eff", "trigger_HFveto_eff", "charged_exclusivity_eff", "neutral_exclusivity_eff",
@@ -245,30 +245,32 @@ void CheckCHEefficiency(Event &event,
   int cutLevel = 0;
   
   if(!event.HasSingleEG3Trigger()) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 0
+  cutThroughHists[name]->Fill(cutLevel++);
   
+  // Check that there are exaclty two electrons
   auto goodElectrons = event.GetGoodElectrons();
-  if(goodElectrons.size() < 2) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 1
-      
-  int nPositiveElectrons = 0;
-  int nNegativeElectrons = 0;
+  if(goodElectrons.size() != 2) return;
+  cutThroughHists[name]->Fill(cutLevel++);
   
-  for(auto &electron : goodElectrons){
-    if(electron->GetCharge() > 0) nPositiveElectrons++;
-    if(electron->GetCharge() < 0) nNegativeElectrons++;
-  }
-      
-  if(nPositiveElectrons < 1 || nNegativeElectrons < 1) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 2
+  auto electron1 = goodElectrons[0];
+  auto electron2 = goodElectrons[1];
+  
+  // Opposite charges
+  if(electron1->GetCharge() == electron2->GetCharge()) return;
+  cutThroughHists[name]->Fill(cutLevel++);
+  
+  // Check dielectron properties
+  TLorentzVector dielectron = physObjectProcessor.GetObjectsSum(*electron1, *electron2);
+  if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || fabs(dielectron.Eta()) > 2.4) return;
+  cutThroughHists[name]->Fill(cutLevel++);
   hists[name+"_den"]->Fill(1);
   nEvents[name].first++;
-        
-  if(event.GetNchargedTracks() == 2){
-    cutThroughHists[name]->Fill(cutLevel++); // 3
-    hists[name+"_num"]->Fill(1);
-    nEvents[name].second++;
-  }
+  
+  // Charged exclusivity
+  if(event.GetNchargedTracks() != 2) return;
+  cutThroughHists[name]->Fill(cutLevel++);
+  hists[name+"_num"]->Fill(1);
+  nEvents[name].second++;
 }
 
 /// Counts number of events passing tag and probe criteria for neutral exclusivity efficiency
@@ -282,46 +284,36 @@ void CheckNEEefficiency(Event &event,
   int cutLevel = 0;
   
   if(!event.HasSingleEG3Trigger()) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 0
+  cutThroughHists[name]->Fill(cutLevel++);
   
   // Check that there are exaclty two electrons
   auto goodElectrons = event.GetGoodElectrons();
   if(goodElectrons.size() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 1
+  cutThroughHists[name]->Fill(cutLevel++);
   
   auto electron1 = goodElectrons[0];
   auto electron2 = goodElectrons[1];
   
-  // Check if electrons have opposite charges
-  // Check number of missing hits and H/E
+  // Opposite charges
   if(electron1->GetCharge() == electron2->GetCharge()) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 2
+  cutThroughHists[name]->Fill(cutLevel++);
   
-  if(electron1->GetNmissingHits() == 0  || electron2->GetNmissingHits() == 0) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 3
-  
-  if(electron1->GetHoverE() < 0.02      || electron2->GetHoverE() < 0.02) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 4
-  
-  TLorentzVector dielectron = physObjectProcessor.GetObjectsSum(*electron1, *electron2);
-        
   // Check dielectron properties
+  TLorentzVector dielectron = physObjectProcessor.GetObjectsSum(*electron1, *electron2);
   if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || fabs(dielectron.Eta()) > 2.4) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 5
-          
-          
-  // ...
-  // missing: |η(SC)| < 2.4 except |η(SC)| ∈ [1.4442, 1.566]
-  // missing: iso(rel,Ecal)< 0.3, iso(rel,Hcal)< 0.2, iso(rel,trk)< 0.05
+  cutThroughHists[name]->Fill(cutLevel++);
   
+  // Charged exclusivity
+  if(event.GetNchargedTracks() != 2) return;
+  cutThroughHists[name]->Fill(cutLevel++);
   hists[name+"_den"]->Fill(1);
   nEvents[name].first++;
   
-  if(event.GetNchargedTracks() == 2){
-    cutThroughHists[name]->Fill(cutLevel++); // 6
-    hists[name+"_num"]->Fill(1);
-    nEvents[name].second++;
-  }
+  // Neutral exclusivity
+  if(event.HasAdditionalTowers()) return;
+  cutThroughHists[name]->Fill(cutLevel++);
+  hists[name+"_num"]->Fill(1);
+  nEvents[name].second++;
 }
 
 int main(int argc, char* argv[])
