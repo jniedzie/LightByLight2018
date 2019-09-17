@@ -11,21 +11,22 @@
 class PhysObjectProcessor;
 extern PhysObjectProcessor physObjectProcessor;
 
+/// This class performs operations on instances of PhysObject class
 class PhysObjectProcessor {
 public:
   /// Default constructor
   PhysObjectProcessor();
   
-  // Default destructor
+  /// Default destructor
   ~PhysObjectProcessor();
   
-  // Returns ΔR=sqrt(Δη^2 + Δφ^2) between two PhysObjects
+  /// Returns ΔR=sqrt(Δη^2 + Δφ^2) between two PhysObjects
   double GetDeltaR(const PhysObject &a, const PhysObject &b);
   
-  // Returns a lorentz vector which is a sum of provided objects
+  /// Returns a lorentz vector which is a sum of provided objects
   TLorentzVector GetObjectsSum(const PhysObject &a, const PhysObject &b);
   
-  // Returns acoplanarity of pair of objects
+  /// Returns acoplanarity of pair of objects
   double GetAcoplanarity(const PhysObject &a, const PhysObject &b);
   
 private:

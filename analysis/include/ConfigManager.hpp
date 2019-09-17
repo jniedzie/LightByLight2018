@@ -18,12 +18,14 @@ struct ConfigManager {
   /// \param _path Path to the config file
   ConfigManager(string _path="");
   
+  /// Returns value of given parameter from the config file. Prints and error and returns 0
+  /// if parameter could not be found.
   double params(string name="");
   
   string outputPath;  ///< Output file path
   
 private:
-  unique_ptr<TEnv> configFile;
+  unique_ptr<TEnv> configFile; ///< ROOT object representing config file
   
   map<string, double> _params; ///< All bool, int and double parameters from the config file
 };
