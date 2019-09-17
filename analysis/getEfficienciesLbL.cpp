@@ -11,6 +11,12 @@
 string configPath = "configs/efficiencies.md";
 string outputPath = "results/efficienciesLbL.root";
 
+vector<string> histParams = {
+  "reco_id_eff", "trigger_eff", "trigger_single_eff", "trigger_double_eff", "charged_excl_eff", "neutral_excl_eff"
+};
+
+/// Checks if exactly two photon superclusters in the provided collections are matched
+/// with generated photons within ΔR specified in the config.
 bool HasTwoMatchingPhotons(const vector<shared_ptr<PhysObject>> &genPhotons,
                            const vector<shared_ptr<PhysObject>> &photonSCs)
 {
@@ -27,10 +33,7 @@ bool HasTwoMatchingPhotons(const vector<shared_ptr<PhysObject>> &genPhotons,
   return nMatched >= 2;
 }
 
-vector<string> histParams = {
-  "reco_id_eff", "trigger_eff", "trigger_single_eff", "trigger_double_eff", "charged_excl_eff", "neutral_excl_eff"
-};
-
+/// Application starting point
 int main()
 {
   config = ConfigManager(configPath);

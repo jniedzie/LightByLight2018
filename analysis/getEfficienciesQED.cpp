@@ -2,7 +2,7 @@
 //
 //  Created by Jeremi Niedziela on 24/07/2019.
 //
-//  Calculates data driven efficiencies, as defined in the Analysis Note
+//  Calculates QED efficiencies in MC and data, as defined in the Analysis Note
 
 #include "Helpers.hpp"
 #include "EventProcessor.hpp"
@@ -12,20 +12,24 @@
 string configPath = "configs/efficiencies.md";
 string outputPath = "results/efficienciesQED_test.root";
 
+// Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
   kData ,
   kMCqedSC,
   kMCqedSL
 };
 
+// Select which efficiencies to calculate
 bool doRecoEfficiency    = true;
 bool doTriggerEfficiency = true;
 bool doCHEefficiency     = true;
 bool doNEEefficiency     = true;
 
+// Names of efficiency histograms to create and save
 vector<string> histParams = {
   "reco_id_eff", "trigger_eff", "trigger_HFveto_eff", "charged_exclusivity_eff", "neutral_exclusivity_eff",
 };
+
 
 map<string, int> matched;
 map<string, float> acoplanarity;
@@ -107,7 +111,6 @@ void CheckTriggerEfficiency(Event &event,
   int cutLevel = 0;
   cutThroughHists[name]->Fill(cutLevel++);
   
-  
   // Check trigger
   if(!event.HasSingleEG3Trigger()) return;
   cutThroughHists[name]->Fill(cutLevel++);
@@ -115,7 +118,6 @@ void CheckTriggerEfficiency(Event &event,
   // Neutral exclusivity
   if(event.HasAdditionalTowers()) return;
   cutThroughHists[name]->Fill(cutLevel++);
-  
   
   // Preselect events with exactly two electrons
   auto goodElectrons = event.GetGoodElectrons();
@@ -200,13 +202,17 @@ void CheckTriggerHFvetoEfficiency(Event &event,
   if(goodElectrons.size() != 2) return;
   cutThroughHists[name]->Fill(cutLevel++);
   
+  // Opposite charges
+  auto electron1 = goodElectrons[0];
+  auto electron2 = goodElectrons[1];
+  if(electron1->GetCharge() == electron2->GetCharge()) return;
+  cutThroughHists[name]->Fill(cutLevel++);
+  
   // Charged exclusivity
   if(event.GetNchargedTracks() != 2) return;
   cutThroughHists[name]->Fill(cutLevel++);
   
   // Check if there are two electrons matched with L1 objects
-  auto electron1 = goodElectrons[0];
-  auto electron2 = goodElectrons[1];
   vector<shared_ptr<PhysObject>> matchedElectrons;
   
   // Replace by L1 EG !!!
@@ -243,8 +249,9 @@ void CheckCHEefficiency(Event &event,
 {
   string name = "charged_exclusivity_eff"+datasetName;
   int cutLevel = 0;
+  cutThroughHists[name]->Fill(cutLevel++);
   
-  if(!event.HasSingleEG3Trigger()) return;
+  if(!event.HasDoubleEG2Trigger()) return;
   cutThroughHists[name]->Fill(cutLevel++);
   
   // Check that there are exaclty two electrons
@@ -255,13 +262,12 @@ void CheckCHEefficiency(Event &event,
   auto electron1 = goodElectrons[0];
   auto electron2 = goodElectrons[1];
   
-  // Opposite charges
+  // Check dielectron properties
   if(electron1->GetCharge() == electron2->GetCharge()) return;
   cutThroughHists[name]->Fill(cutLevel++);
-  
-  // Check dielectron properties
+
   TLorentzVector dielectron = physObjectProcessor.GetObjectsSum(*electron1, *electron2);
-  if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || fabs(dielectron.Eta()) > 2.4) return;
+  if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || fabs(dielectron.Eta()) > 2.3) return;
   cutThroughHists[name]->Fill(cutLevel++);
   hists[name+"_den"]->Fill(1);
   nEvents[name].first++;
@@ -282,8 +288,9 @@ void CheckNEEefficiency(Event &event,
 {
   string name = "neutral_exclusivity_eff"+datasetName;
   int cutLevel = 0;
+  cutThroughHists[name]->Fill(cutLevel++);
   
-  if(!event.HasSingleEG3Trigger()) return;
+  if(!event.HasDoubleEG2Trigger()) return;
   cutThroughHists[name]->Fill(cutLevel++);
   
   // Check that there are exaclty two electrons
@@ -316,16 +323,81 @@ void CheckNEEefficiency(Event &event,
   nEvents[name].second++;
 }
 
-int main(int argc, char* argv[])
+/// Creates output trigger tree that will store information about matching, acoplanarity etc.
+void InitializeTriggerTrees(map<string, TTree*> &triggerTrees, const string &name)
+{
+  triggerTrees[name] = new TTree("tree","");
+  matched[name]      = 0;
+  acoplanarity[name] = -1.0;
+  SCEt[name]         = -1.0;
+  absEta[name]       = -1.0;
+  triggerTrees[name]->Branch("matched",       &matched[name]      , "matched/I"       );
+  triggerTrees[name]->Branch("acoplanarity",  &acoplanarity[name] , "acoplanarity/F"  );
+  triggerTrees[name]->Branch("SCEt",          &SCEt[name]         , "SCEt/F"          );
+  triggerTrees[name]->Branch("abseta",        &absEta[name]       , "abseta/F"        );
+}
+
+/// Creates histograms, cut through and event counters for given dataset name, for each
+/// histogram specified in `histParams` vector.
+void InitializeHistograms(map<string, TH1D*> &hists,
+                          map<string, TH1D*> &cutThroughHists,
+                          map<string, pair<int, int>> &nEvents,
+                          const string &name)
+{
+  float bins[] = { 0, 2, 3, 4, 5, 6, 8, 10, 13, 20 };
+  
+  for(auto histName : histParams){
+    string title = histName+name;
+    
+    hists[title]         = new TH1D( title.c_str()        ,  title.c_str()        , 9, bins);
+    hists[title+"_num"]  = new TH1D((title+"_num").c_str(), (title+"_num").c_str(), 9, bins);
+    hists[title+"_den"]  = new TH1D((title+"_den").c_str(), (title+"_den").c_str(), 9, bins);
+    hists[title+"_num"]->Sumw2();
+    hists[title+"_den"]->Sumw2();
+    
+    cutThroughHists[title] = new TH1D(("cut_through_"+title).c_str(), ("cut_through_"+title).c_str(), 10, 0, 10);
+    nEvents[title] = make_pair(0, 0);
+  }
+}
+
+/// Prints the results and saves histograms to file
+void PrintAndSaveResults(TFile *outFile,
+                         map<string, TH1D*> &hists,
+                         const map<string, TH1D*> &cutThroughHists,
+                         const map<string, pair<int, int>> &nEvents,
+                         const map<string, TTree*> &triggerTrees,
+                         const string &name)
+{
+  cout<<"\n\n------------------------------------------------------------------------"<<endl;
+  outFile->cd();
+  
+  for(auto histName : histParams){
+    string title = histName+name;
+    
+    hists[title]->Divide(hists[title+"_num"], hists[title+"_den"], 1, 1, "B");
+    hists[title]->Write();
+    hists[title+"_num"]->Write();
+    hists[title+"_den"]->Write();
+    cutThroughHists.at(title)->Write();
+    
+    cout<<"N tags, probes "<<title<<": "<<nEvents.at(title).first<<", "<<nEvents.at(title).second<<endl;
+    cout<<title<<" efficiency: "; PrintEfficiency(nEvents.at(title).second, nEvents.at(title).first);
+  }
+  
+  outFile->cd(("triggerTree_"+name).c_str());
+  triggerTrees.at(name)->Write();
+  
+  cout<<"------------------------------------------------------------------------\n\n"<<endl;
+}
+
+/// Checks that number of arguments provided is correct and sets corresponding variables
+void ReadInputArguments(int argc, char* argv[], map<EDataset, string> &inputPaths)
 {
   if(argc != 1 && argc != 6){
     cout<<"This app requires 0 or 5 parameters."<<endl;
     cout<<"./getEfficienciesData configPath inputPathData inputPathQED_SC inputPathQED_SL outputPath"<<endl;
     exit(0);
   }
-  
-  map<EDataset, string> inputPaths;
-  
   if(argc == 6){
     configPath           = argv[1];
     inputPaths[kData]    = argv[2];
@@ -333,9 +405,15 @@ int main(int argc, char* argv[])
     inputPaths[kMCqedSL] = argv[4];
     outputPath           = argv[5];
   }
+}
+
+/// Application starting point
+int main(int argc, char* argv[])
+{
   config = ConfigManager(configPath);
   
-  float bins[] = { 0, 2, 3, 4, 5, 6, 8, 10, 13, 20 };
+  map<EDataset, string> inputPaths;
+  ReadInputArguments(argc, argv, inputPaths);
   
   map<string, pair<int, int>> nEvents; ///< N events passing tag/probe criteria
   map<string, TH1D*> cutThroughHists;
@@ -344,42 +422,17 @@ int main(int argc, char* argv[])
   
   TFile *outFile = new TFile(outputPath.c_str(), "recreate");
   
-  
+  // Loop over all required datasets
   for(EDataset dataset : datasetsToAnalyze){
-    
     string name = datasetName.at(dataset);
-  
     outFile->mkdir(("triggerTree_"+name).c_str());
-    triggerTrees[name] = new TTree("tree","");
     
-    matched[name] = 0;
-    acoplanarity[name] = -1.0;
-    triggerTrees[name]->Branch("matched", &matched[name], "matched/I");
-    triggerTrees[name]->Branch("acoplanarity", &acoplanarity[name], "acoplanarity/F");
-    triggerTrees[name]->Branch("SCEt", &SCEt[name], "SCEt/F");
-    triggerTrees[name]->Branch("abseta", &absEta[name], "abseta/F");
-    
-    for(auto histName : histParams){
-      string title = histName+name;
-      
-      hists[title]         = new TH1D( title.c_str()        ,  title.c_str()        , 9, bins);
-      hists[title+"_num"]  = new TH1D((title+"_num").c_str(), (title+"_num").c_str(), 9, bins);
-      hists[title+"_den"]  = new TH1D((title+"_den").c_str(), (title+"_den").c_str(), 9, bins);
-      hists[title+"_num"]->Sumw2();
-      hists[title+"_den"]->Sumw2();
-      
-      cutThroughHists[title] = new TH1D(("cut_through_"+title).c_str(), ("cut_through_"+title).c_str(), 10, 0, 10);
-      nEvents[title] = make_pair(0, 0);
-    }
-    
+    InitializeTriggerTrees(triggerTrees, name);
+    InitializeHistograms(hists, cutThroughHists, nEvents, name);
     
     unique_ptr<EventProcessor> events;
-    if(argc == 6){
-      events = unique_ptr<EventProcessor>(new EventProcessor(inputPaths[dataset]));
-    }
-    else{
-      events = unique_ptr<EventProcessor>(new EventProcessor(dataset));
-    }
+    if(argc == 6) events = unique_ptr<EventProcessor>(new EventProcessor(inputPaths[dataset]));
+    else          events = unique_ptr<EventProcessor>(new EventProcessor(dataset));
 
     // Loop over events
     for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
@@ -397,28 +450,7 @@ int main(int argc, char* argv[])
       if(doNEEefficiency)       CheckNEEefficiency(*event, nEvents, hists, cutThroughHists, name);
     }
   
-    // Print the results and save histograms
-    cout<<"\n\n------------------------------------------------------------------------"<<endl;
-
-    outFile->cd();
-  
-    for(auto histName : histParams){
-      string title = histName+name;
-      
-      hists[title]->Divide(hists[title+"_num"], hists[title+"_den"], 1, 1, "B");
-      hists[title]->Write();
-      hists[title+"_num"]->Write();
-      hists[title+"_den"]->Write();
-      cutThroughHists[title]->Write();
-      
-      cout<<"N tags, probes "<<title<<": "<<nEvents[title].first<<", "<<nEvents[title].second<<endl;
-      cout<<title<<" efficiency: "; PrintEfficiency(nEvents[title].second, nEvents[title].first);
-    }
-    
-    outFile->cd(("triggerTree_"+name).c_str());
-    triggerTrees[name]->Write();
-    
-    cout<<"------------------------------------------------------------------------\n\n"<<endl;
+    PrintAndSaveResults(outFile, hists, cutThroughHists, nEvents, triggerTrees, name);
   }
   outFile->Close();
 
