@@ -31,6 +31,7 @@ void EventProcessor::SetupBranches(string inputPath)
   TFile *inFile = TFile::Open(inputPath.c_str());
   eventTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
   hltTree   = (TTree*)inFile->Get("hltanalysis/HltTree");
+  l1Tree    = (TTree*)inFile->Get("l1object/L1UpgradeFlatTree");
   
   for(int iTrigger=0; iTrigger<triggerNamesLbL.size(); iTrigger++){
     hltTree->SetBranchAddress(triggerNamesLbL[iTrigger].c_str(), &triggersLbL[iTrigger]);
@@ -83,6 +84,10 @@ void EventProcessor::SetupBranches(string inputPath)
   eventTree->SetBranchAddress("elePFPhoIso"       , &electronPhoIso);
   eventTree->SetBranchAddress("elePFNeuIso"       , &electronNeuIso);
   
+  l1Tree->SetBranchAddress("nEGs"                 , &currentEvent->nL1EGs);
+  l1Tree->SetBranchAddress("egEta"                , &L1EGeta);
+  l1Tree->SetBranchAddress("egPhi"                , &L1EGphi);
+  l1Tree->SetBranchAddress("egEt"                 , &L1EGet);
 }
 
 shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
@@ -90,6 +95,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   // Move to desired entry in all trees
   hltTree->GetEntry(iEvent);
   eventTree->GetEntry(iEvent);
+  l1Tree->GetEntry(iEvent);
   
   // Clear and fill in collection of gen particles
   currentEvent->genParticles.clear();
@@ -173,7 +179,8 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     electron->eta          = electronEta->at(iElectron);
     electron->phi          = electronPhi->at(iElectron);
     electron->hOverE       = electronHoverE->at(iElectron);
-    electron->relIsoWithEA = electronRelIsoWithEA->at(iElectron);
+    // TODO: fix missing RelIsoWithEA branch!!
+//    electron->relIsoWithEA = electronRelIsoWithEA->at(iElectron);
     electron->dEtaSeed     = electronDetaSeed->at(iElectron);
     electron->etaSC        = electronSCEta->at(iElectron);
 //    electron->etSC         = electronSCEt->at(iElectron);
@@ -184,6 +191,19 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     electron->neutralIso   = electronNeuIso->at(iElectron);
     
     currentEvent->electrons.push_back(electron);
+  }
+  
+  // Clear and fill in collection of L1 EG objects
+  currentEvent->L1EGs.clear();
+  
+  for(size_t iL1EG=0; iL1EG<currentEvent->nL1EGs; iL1EG++){
+    auto L1EG = make_shared<PhysObject>();
+    
+    L1EG->eta = L1EGeta->at(iL1EG);
+    L1EG->phi = L1EGphi->at(iL1EG);
+    L1EG->et  = L1EGet->at(iL1EG);
+    
+    currentEvent->L1EGs.push_back(L1EG);
   }
   
   return currentEvent;

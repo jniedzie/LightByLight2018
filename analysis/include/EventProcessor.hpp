@@ -31,6 +31,7 @@ public:
 private:
   TTree *hltTree;   ///< Pointer to the hlt tree
   TTree *eventTree; ///< Pointer to the event tree
+  TTree *l1Tree;    ///< Pointer to the L1 tree
   
   shared_ptr<Event> currentEvent; ///< Pointer to the current event
   
@@ -44,7 +45,6 @@ private:
   vector<double> *mcPID              = nullptr;
   
   vector<double> *photonHoverE       = nullptr;
-  
   vector<double> *photonSCEta        = nullptr;
   vector<double> *photonSCPhi        = nullptr;
   vector<double> *photonSCEt         = nullptr;
@@ -80,6 +80,10 @@ private:
   vector<double> *electronPhoIso       = nullptr;
   vector<double> *electronNeuIso       = nullptr;
 
+  vector<double> *L1EGeta              = nullptr;
+  vector<double> *L1EGphi              = nullptr;
+  vector<double> *L1EGet               = nullptr;
+  
   /// Opens input trees and sets branches
   void SetupBranches(string inputPath);
 };

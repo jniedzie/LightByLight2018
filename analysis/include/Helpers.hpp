@@ -60,7 +60,8 @@ enum EDataset{
 const vector<EDataset> datasets = { kData, kMCcep, kMCqedSC, kMCqedSL, kMClbl,  };
 
 const map<EDataset, string> inFileNames = {
-  {kData    , "ntuples/ntuples_data_small_sample_merged.root" },
+//  {kData    , "ntuples/ntuples_data_small_sample_merged.root" },
+  {kData    , "ntuples/ntuples_data_withL1_test.root"         },
   {kMCqedSC , "ntuples/ntuples_mc_qed_sc_merged.root"         },
   {kMCqedSL , "ntuples/ntuples_mc_qed_sl_merged.root"         },
   {kMClbl   , "ntuples/ntuples_mc_lbl_merged.root"            },

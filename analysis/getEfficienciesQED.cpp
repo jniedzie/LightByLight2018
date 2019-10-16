@@ -15,15 +15,15 @@ string outputPath = "results/efficienciesQED_test.root";
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
   kData ,
-  kMCqedSC,
-  kMCqedSL
+//  kMCqedSC,
+//  kMCqedSL
 };
 
 // Select which efficiencies to calculate
 bool doRecoEfficiency    = true;
-bool doTriggerEfficiency = true;
-bool doCHEefficiency     = true;
-bool doNEEefficiency     = true;
+bool doTriggerEfficiency = false;
+bool doCHEefficiency     = false;
+bool doNEEefficiency     = false;
 
 // Names of efficiency histograms to create and save
 vector<string> histParams = {
@@ -81,10 +81,21 @@ void CheckRecoEfficiency(Event &event,
   if(!matchingTrack) return;
   cutThroughHists[name]->Fill(cutLevel++);
         
-        // Make sure that tracks have opposite charges and that brem track has low momentum
+  // Make sure that tracks have opposite charges and that brem track has low momentum
   if(bremTrack->GetCharge() == electron->GetCharge() || bremTrack->GetPt() > 2.0) return;
   cutThroughHists[name]->Fill(cutLevel++);
-          
+  
+  // Check if the electron is also matched with one of the L1 EG objects
+  bool foundMatchingL1EG = false;
+  for(auto &L1EG : event.GetL1EGs()){
+    if(physObjectProcessor.GetDeltaR(*electron, *L1EG) < 0.3){
+      foundMatchingL1EG = true;
+      break;
+    }
+  }
+  if(!foundMatchingL1EG) return;
+  cutThroughHists[name]->Fill(cutLevel++);
+  
   // Count this event as a tag
   hists[name+"_den"]->Fill(1);
   nEvents[name].first++;

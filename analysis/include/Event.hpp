@@ -32,11 +32,13 @@ public:
   inline shared_ptr<PhysObject> GetElectron(size_t i)     const { return generalTracks[i]; }
   inline shared_ptr<PhysObject> GetCaloTower(size_t i)    const { return caloTowers[i];    }
   inline shared_ptr<PhysObject> GetGeneralTrack(size_t i) const { return generalTracks[i]; }
+  inline shared_ptr<PhysObject> GetL1EG(size_t i)         const { return L1EGs[i]; }
   
   
   inline vector<shared_ptr<PhysObject>> GetPhotons()      const { return photons;     }
   inline vector<shared_ptr<PhysObject>> GetElectrons()    const { return electrons;   }
   inline vector<shared_ptr<PhysObject>> GetCaloTowers()   const { return caloTowers;  }
+  inline vector<shared_ptr<PhysObject>> GetL1EGs()        const { return L1EGs;       }
   
   /// Returns vector of gen particles passing η and Et cuts specified in the config
   vector<shared_ptr<PhysObject>> GetGoodGenPhotons() const;
@@ -99,6 +101,9 @@ private:
   
   bool goodElectronsReady = false;              ///< Were electron cuts already applied?
   vector<shared_ptr<PhysObject>> goodElectrons; ///< Vector of electrons passing cuts
+  
+  int nL1EGs = 0;                               ///< Number of L1 EG objects
+  vector<shared_ptr<PhysObject>> L1EGs;         ///< Vector of L1 EG objects
   
   friend class EventProcessor;
 };
