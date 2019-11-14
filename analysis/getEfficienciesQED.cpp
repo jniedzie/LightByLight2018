@@ -9,13 +9,13 @@
 #include "PhysObjectProcessor.hpp"
 #include "ConfigManager.hpp"
 
-string configPath = "configs/efficiencies.md";
+string configPath = "/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/efficiencies.md";
 string outputPath = "results/efficienciesQED_test.root";
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
-  kData ,
-//  kMCqedSC,
+//  kData ,
+  kMCqedSC,
 //  kMCqedSL
 };
 
