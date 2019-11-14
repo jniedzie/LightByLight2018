@@ -60,11 +60,11 @@ void EventProcessor::SetupBranches(string inputPath)
   eventTree->SetBranchAddress("CaloTower_eta"     , &towerEta);
   eventTree->SetBranchAddress("CaloTower_phi"     , &towerPhi);
   
-  eventTree->SetBranchAddress("ngenTrk"           , &currentEvent->nGeneralTracks);
-  eventTree->SetBranchAddress("gentrkPt"          , &generalTrackPt);
-  eventTree->SetBranchAddress("gentrkEta"         , &generalTrackEta);
-  eventTree->SetBranchAddress("gentrkPhi"         , &generalTrackPhi);
-  eventTree->SetBranchAddress("gentrkcharge"      , &generalTrackCharge);
+  eventTree->SetBranchAddress("nTrk"              , &currentEvent->nGeneralTracks);
+  eventTree->SetBranchAddress("trkPt"             , &generalTrackPt);
+  eventTree->SetBranchAddress("trkEta"            , &generalTrackEta);
+  eventTree->SetBranchAddress("trkPhi"            , &generalTrackPhi);
+  eventTree->SetBranchAddress("trkcharge"         , &generalTrackCharge);
   
   eventTree->SetBranchAddress("nEle"              , &currentEvent->nElectrons);
   eventTree->SetBranchAddress("eleCharge"         , &electronCharge);

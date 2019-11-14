@@ -102,7 +102,7 @@ private:
   bool goodElectronsReady = false;              ///< Were electron cuts already applied?
   vector<shared_ptr<PhysObject>> goodElectrons; ///< Vector of electrons passing cuts
   
-  int nL1EGs = 0;                               ///< Number of L1 EG objects
+  unsigned short nL1EGs = 0;                    ///< Number of L1 EG objects
   vector<shared_ptr<PhysObject>> L1EGs;         ///< Vector of L1 EG objects
   
   friend class EventProcessor;
