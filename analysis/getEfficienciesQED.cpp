@@ -21,9 +21,9 @@ const vector<EDataset> datasetsToAnalyze = {
 
 // Select which efficiencies to calculate
 bool doRecoEfficiency    = true;
-bool doTriggerEfficiency = false;
-bool doCHEefficiency     = false;
-bool doNEEefficiency     = false;
+bool doTriggerEfficiency = true;
+bool doCHEefficiency     = true;
+bool doNEEefficiency     = true;
 
 // Names of efficiency histograms to create and save
 vector<string> histParams = {
@@ -45,17 +45,17 @@ void CheckRecoEfficiency(Event &event,
 {
   string name = "reco_id_eff"+datasetName;
   int cutLevel = 0;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 0
   
   // Check trigger
   if(!event.HasSingleEG3Trigger()) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 1
   
   auto goodElectrons = event.GetGoodElectrons();
   
   // Preselect events with one electron and one extra track not reconstructed as an electron
   if(goodElectrons.size() != 1 || event.GetNgeneralTracks() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 2
   
   // Get objects
   auto electron   = goodElectrons[0];
@@ -69,32 +69,32 @@ void CheckRecoEfficiency(Event &event,
   shared_ptr<PhysObject> matchingTrack = nullptr;
   shared_ptr<PhysObject> bremTrack     = nullptr;
   
-  if(deltaR1 < 0.3 && deltaR2 > 0.3){
-    matchingTrack = track1;
-    bremTrack     = track2;
-  }
-  if(deltaR1 > 0.3 && deltaR2 < 0.3){
+  if(deltaR1 < 0.3) matchingTrack = track1;
+  else              bremTrack     = track1;
+    
+  if(deltaR2 < 0.3){
+    if(matchingTrack) return; // this would mean both tracks match the electron
     matchingTrack = track2;
-    bremTrack     = track1;
+  }
+  else{
+    if(bremTrack) return; // this woudld mean both tracks are not matched
+    bremTrack = track2;
   }
       
-  if(!matchingTrack) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  if(!matchingTrack || !bremTrack) return;
+  cutThroughHists[name]->Fill(cutLevel++); // 3
         
   // Make sure that tracks have opposite charges and that brem track has low momentum
   if(bremTrack->GetCharge() == electron->GetCharge() || bremTrack->GetPt() > 2.0) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 4
   
   // Check if the electron is also matched with one of the L1 EG objects
-  bool foundMatchingL1EG = false;
+  int nMatchingL1EGs = 0;
   for(auto &L1EG : event.GetL1EGs()){
-    if(physObjectProcessor.GetDeltaR(*electron, *L1EG) < 0.3){
-      foundMatchingL1EG = true;
-      break;
-    }
+    if(physObjectProcessor.GetDeltaR(*electron, *L1EG) < 0.3) nMatchingL1EGs++;
   }
-  if(!foundMatchingL1EG) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  if(nMatchingL1EGs != 1) return;
+  cutThroughHists[name]->Fill(cutLevel++); // 5
   
   // Count this event as a tag
   hists[name+"_den"]->Fill(1);
@@ -102,7 +102,7 @@ void CheckRecoEfficiency(Event &event,
           
   // Check that there's exactly one photon passing ID cuts
   if(event.GetGoodPhotons().size() == 1){
-    cutThroughHists[name]->Fill(cutLevel++);
+    cutThroughHists[name]->Fill(cutLevel++); // 6
             
     // Count this event as a probe
     hists[name+"_num"]->Fill(1);
@@ -120,24 +120,24 @@ void CheckTriggerEfficiency(Event &event,
 {
   string name = "trigger_eff"+datasetName;
   int cutLevel = 0;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 0
   
   // Check trigger
   if(!event.HasSingleEG3Trigger()) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 1
   
   // Neutral exclusivity
   if(event.HasAdditionalTowers()) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 2
   
   // Preselect events with exactly two electrons
   auto goodElectrons = event.GetGoodElectrons();
   if(goodElectrons.size() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 3
   
   // Charged exclusivity
   if(event.GetNchargedTracks() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 4
   
   // Tag and probe
   auto electron1 = goodElectrons[0];
@@ -166,7 +166,7 @@ void CheckTriggerEfficiency(Event &event,
   }
   
   if(!tag) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 5
   
   acoplanarity.at(datasetName) = physObjectProcessor.GetAcoplanarity(*electron1, *electron2);
   
@@ -198,30 +198,30 @@ void CheckTriggerHFvetoEfficiency(Event &event,
 {
   string name = "trigger_HFveto_eff"+datasetName;
   int cutLevel = 0;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 0
   
   // Check trigger with no HF veto
   if(!event.HasSingleEG3noHFvetoTrigger()) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 1
   
   // Neutral exclusivity
   if(event.HasAdditionalTowers()) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 2
   
   // Preselect events with exactly two electrons
   auto goodElectrons = event.GetGoodElectrons();
   if(goodElectrons.size() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 3
   
   // Opposite charges
   auto electron1 = goodElectrons[0];
   auto electron2 = goodElectrons[1];
   if(electron1->GetCharge() == electron2->GetCharge()) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 4
   
   // Charged exclusivity
   if(event.GetNchargedTracks() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 5
   
   // Check if there are two electrons matched with L1 objects
   vector<shared_ptr<PhysObject>> matchedElectrons;
@@ -239,13 +239,14 @@ void CheckTriggerHFvetoEfficiency(Event &event,
   }
   
   if(matchedElectrons.size() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 6
   
   nEvents[name].first++;
   hists[name+"_den"]->Fill(1);
   
   // Check if it also has double EG2 trigger
   if(!event.HasDoubleEG2Trigger()) return;
+  cutThroughHists[name]->Fill(cutLevel++); // 7
   
   nEvents[name].second++;
   hists[name+"_num"]->Fill(1);
@@ -260,32 +261,32 @@ void CheckCHEefficiency(Event &event,
 {
   string name = "charged_exclusivity_eff"+datasetName;
   int cutLevel = 0;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 0
   
   if(!event.HasDoubleEG2Trigger()) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 1
   
   // Check that there are exaclty two electrons
   auto goodElectrons = event.GetGoodElectrons();
   if(goodElectrons.size() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 2
   
   auto electron1 = goodElectrons[0];
   auto electron2 = goodElectrons[1];
   
   // Check dielectron properties
   if(electron1->GetCharge() == electron2->GetCharge()) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 3
 
   TLorentzVector dielectron = physObjectProcessor.GetObjectsSum(*electron1, *electron2);
   if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || fabs(dielectron.Eta()) > 2.3) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 4
   hists[name+"_den"]->Fill(1);
   nEvents[name].first++;
   
   // Charged exclusivity
   if(event.GetNchargedTracks() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 5
   hists[name+"_num"]->Fill(1);
   nEvents[name].second++;
 }
@@ -299,37 +300,37 @@ void CheckNEEefficiency(Event &event,
 {
   string name = "neutral_exclusivity_eff"+datasetName;
   int cutLevel = 0;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 0
   
   if(!event.HasDoubleEG2Trigger()) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 1
   
   // Check that there are exaclty two electrons
   auto goodElectrons = event.GetGoodElectrons();
   if(goodElectrons.size() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 2
   
   auto electron1 = goodElectrons[0];
   auto electron2 = goodElectrons[1];
   
   // Opposite charges
   if(electron1->GetCharge() == electron2->GetCharge()) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 3
   
   // Check dielectron properties
   TLorentzVector dielectron = physObjectProcessor.GetObjectsSum(*electron1, *electron2);
   if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || fabs(dielectron.Eta()) > 2.4) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 4
   
   // Charged exclusivity
   if(event.GetNchargedTracks() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 5
   hists[name+"_den"]->Fill(1);
   nEvents[name].first++;
   
   // Neutral exclusivity
   if(event.HasAdditionalTowers()) return;
-  cutThroughHists[name]->Fill(cutLevel++);
+  cutThroughHists[name]->Fill(cutLevel++); // 6
   hists[name+"_num"]->Fill(1);
   nEvents[name].second++;
 }
