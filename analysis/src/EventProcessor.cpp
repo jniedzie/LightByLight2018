@@ -29,9 +29,13 @@ void EventProcessor::SetupBranches(string inputPath)
 {
   // Read trees from input files
   TFile *inFile = TFile::Open(inputPath.c_str());
-  eventTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
-  hltTree   = (TTree*)inFile->Get("hltanalysis/HltTree");
-  l1Tree    = (TTree*)inFile->Get("l1object/L1UpgradeFlatTree");
+  eventTree = (TTree*)inFile->Get("EventTree");
+  hltTree   = (TTree*)inFile->Get("HltTree");
+  l1Tree    = (TTree*)inFile->Get("L1UpgradeFlatTree");
+  
+//  eventTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
+//  hltTree   = (TTree*)inFile->Get("hltanalysis/HltTree");
+//  l1Tree    = (TTree*)inFile->Get("l1object/L1UpgradeFlatTree");
   
   for(int iTrigger=0; iTrigger<triggerNamesLbL.size(); iTrigger++){
     hltTree->SetBranchAddress(triggerNamesLbL[iTrigger].c_str(), &triggersLbL[iTrigger]);

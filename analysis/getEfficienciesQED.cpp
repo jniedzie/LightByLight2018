@@ -9,7 +9,8 @@
 #include "PhysObjectProcessor.hpp"
 #include "ConfigManager.hpp"
 
-string configPath = "/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/efficiencies.md";
+string configPath = "configs/efficiencies.md";
+//string configPath = "/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/efficiencies.md";
 string outputPath = "results/efficienciesQED_test.root";
 
 // Only those datasets will be analyzed
@@ -21,9 +22,9 @@ const vector<EDataset> datasetsToAnalyze = {
 
 // Select which efficiencies to calculate
 bool doRecoEfficiency    = true;
-bool doTriggerEfficiency = true;
-bool doCHEefficiency     = true;
-bool doNEEefficiency     = true;
+bool doTriggerEfficiency = false;
+bool doCHEefficiency     = false;
+bool doNEEefficiency     = false;
 
 // Names of efficiency histograms to create and save
 vector<string> histParams = {
@@ -41,6 +42,7 @@ void CheckRecoEfficiency(Event &event,
                          map<string, pair<int, int>> &nEvents,
                          map<string, TH1D*> &hists,
                          map<string, TH1D*> &cutThroughHists,
+                         map<string, TH1D*> &monitorHists,
                          string datasetName)
 {
   string name = "reco_id_eff"+datasetName;
@@ -50,7 +52,7 @@ void CheckRecoEfficiency(Event &event,
   // Check trigger
   if(!event.HasSingleEG3Trigger()) return;
   cutThroughHists[name]->Fill(cutLevel++); // 1
-  
+    
   auto goodElectrons = event.GetGoodElectrons();
   
   // Preselect events with one electron and one extra track not reconstructed as an electron
@@ -88,22 +90,38 @@ void CheckRecoEfficiency(Event &event,
   if(bremTrack->GetCharge() == electron->GetCharge() || bremTrack->GetPt() > 2.0) return;
   cutThroughHists[name]->Fill(cutLevel++); // 4
   
-  // Check if the electron is also matched with one of the L1 EG objects
+  // Check if the electron is also matched with (at least) one of the L1 EG objects
   int nMatchingL1EGs = 0;
   for(auto &L1EG : event.GetL1EGs()){
+    if(L1EG->GetEt() < 3.0) continue;
+    
     if(physObjectProcessor.GetDeltaR(*electron, *L1EG) < 0.3) nMatchingL1EGs++;
   }
-  if(nMatchingL1EGs != 1) return;
+  if(nMatchingL1EGs == 0) return;
   cutThroughHists[name]->Fill(cutLevel++); // 5
+  
+  // Check that there are no photons close to the electron
+  vector<shared_ptr<PhysObject>> photons = event.GetGoodPhotons();
+  unsigned long nPhotons = photons.size();
+  
+  if(nPhotons >= 0){
+    for(auto photon : photons){
+      if(fabs(photon->GetEta()-electron->GetEta()) < 0.15 ||
+         fabs(photon->GetPhi()-electron->GetPhi()) < 0.7) return;
+    }
+  }
+  cutThroughHists[name]->Fill(cutLevel++); // 6
   
   // Count this event as a tag
   hists[name+"_den"]->Fill(1);
   nEvents[name].first++;
-          
+    
+//  if(nPhotons > 0) saveEventDisplay(matchingTrack, bremTrack, electron, photons);
+  
   // Check that there's exactly one photon passing ID cuts
-  if(event.GetGoodPhotons().size() == 1){
-    cutThroughHists[name]->Fill(cutLevel++); // 6
-            
+  if(nPhotons == 1){
+    cutThroughHists[name]->Fill(cutLevel++); // 7
+    
     // Count this event as a probe
     hists[name+"_num"]->Fill(1);
     nEvents[name].second++;
@@ -353,6 +371,7 @@ void InitializeTriggerTrees(map<string, TTree*> &triggerTrees, const string &nam
 /// histogram specified in `histParams` vector.
 void InitializeHistograms(map<string, TH1D*> &hists,
                           map<string, TH1D*> &cutThroughHists,
+                          map<string, TH1D*> &monitorHists,
                           map<string, pair<int, int>> &nEvents,
                           const string &name)
 {
@@ -368,6 +387,11 @@ void InitializeHistograms(map<string, TH1D*> &hists,
     hists[title+"_den"]->Sumw2();
     
     cutThroughHists[title] = new TH1D(("cut_through_"+title).c_str(), ("cut_through_"+title).c_str(), 10, 0, 10);
+    
+    monitorHists[title+"_nPhotons"] = new TH1D(("nPhotons_"+title).c_str(), ("nPhotons_"+title).c_str(), 10, 0, 10);
+    monitorHists[title+"_photonsDeta"] = new TH1D(("photonsDeta_"+title).c_str(), ("photonsDeta_"+title).c_str(), 20, 0, 5);
+    monitorHists[title+"_photonsDphi"] = new TH1D(("photonsDphi_"+title).c_str(), ("photonsDphi_"+title).c_str(), 20, 0, 7);
+    
     nEvents[title] = make_pair(0, 0);
   }
 }
@@ -376,6 +400,7 @@ void InitializeHistograms(map<string, TH1D*> &hists,
 void PrintAndSaveResults(TFile *outFile,
                          map<string, TH1D*> &hists,
                          const map<string, TH1D*> &cutThroughHists,
+                         const map<string, TH1D*> &monitorHists,
                          const map<string, pair<int, int>> &nEvents,
                          const map<string, TTree*> &triggerTrees,
                          const string &name)
@@ -391,9 +416,13 @@ void PrintAndSaveResults(TFile *outFile,
     hists[title+"_num"]->Write();
     hists[title+"_den"]->Write();
     cutThroughHists.at(title)->Write();
-    
+
     cout<<"N tags, probes "<<title<<": "<<nEvents.at(title).first<<", "<<nEvents.at(title).second<<endl;
     cout<<title<<" efficiency: "; PrintEfficiency(nEvents.at(title).second, nEvents.at(title).first);
+  }
+  
+  for(auto &[name, hist] : monitorHists){
+    hist->Write();
   }
   
   outFile->cd(("triggerTree_"+name).c_str());
@@ -430,6 +459,7 @@ int main(int argc, char* argv[])
   map<string, pair<int, int>> nEvents; ///< N events passing tag/probe criteria
   map<string, TH1D*> cutThroughHists;
   map<string, TH1D*> hists;
+  map<string, TH1D*> monitorHists;
   map<string, TTree*> triggerTrees;
   
   TFile *outFile = new TFile(outputPath.c_str(), "recreate");
@@ -440,7 +470,7 @@ int main(int argc, char* argv[])
     outFile->mkdir(("triggerTree_"+name).c_str());
     
     InitializeTriggerTrees(triggerTrees, name);
-    InitializeHistograms(hists, cutThroughHists, nEvents, name);
+    InitializeHistograms(hists, cutThroughHists, monitorHists, nEvents, name);
     
     unique_ptr<EventProcessor> events;
     if(argc == 6) events = unique_ptr<EventProcessor>(new EventProcessor(inputPaths[dataset]));
@@ -453,7 +483,7 @@ int main(int argc, char* argv[])
       
       auto event = events->GetEvent(iEvent);
       
-      if(doRecoEfficiency)      CheckRecoEfficiency(*event, nEvents, hists, cutThroughHists, name);
+      if(doRecoEfficiency)      CheckRecoEfficiency(*event, nEvents, hists, cutThroughHists, monitorHists, name);
       if(doTriggerEfficiency){
         CheckTriggerEfficiency(*event, triggerTrees, cutThroughHists, name);
         CheckTriggerHFvetoEfficiency(*event, nEvents, hists, cutThroughHists, name);
@@ -462,7 +492,7 @@ int main(int argc, char* argv[])
       if(doNEEefficiency)       CheckNEEefficiency(*event, nEvents, hists, cutThroughHists, name);
     }
   
-    PrintAndSaveResults(outFile, hists, cutThroughHists, nEvents, triggerTrees, name);
+    PrintAndSaveResults(outFile, hists, cutThroughHists, monitorHists, nEvents, triggerTrees, name);
   }
   outFile->Close();
 
