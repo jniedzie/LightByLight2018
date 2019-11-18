@@ -52,47 +52,49 @@ const vector<string> triggerNamesLbL = {
 enum EDataset{
   kData,
   kMCqedSC,
+  kMCqedSC_SingleEG3,
   kMCqedSL,
   kMClbl,
   kMCcep,
   nDatasets
 };
 
-const vector<EDataset> datasets = { kData, kMCcep, kMCqedSC, kMCqedSL, kMClbl,  };
+const vector<EDataset> datasets = { kData, kMCcep, kMCqedSC, kMCqedSC_SingleEG3, kMCqedSL, kMClbl,  };
 
 const map<EDataset, string> inFileNames = {
-//  {kData    , "ntuples/ntuples_data_small_sample_merged.root" },
-  {kData    , "ntuples/ntuples_data_withL1_test.root"         },
-//  {kMCqedSC , "ntuples/ntuples_mc_qed_sc_merged.root"         },
-  {kMCqedSC , "ntuples/ntuples_mc_qed_withSingleEG3.root"         },
-//  {kMCqedSC , "ntuples/ntuples_mc_qed_sc_withL1_merged.root"  },
-  {kMCqedSL , "ntuples/ntuples_mc_qed_sl_merged.root"         },
-  {kMClbl   , "ntuples/ntuples_mc_lbl_merged.root"            },
-  {kMCcep   , "ntuples/ntuples_mc_cep_merged.root"            },
+  {kData              , "ntuples/ntuples_data_withL1_test.root"         },
+  {kMCqedSC_SingleEG3 , "ntuples/ntuples_mc_qed_withSingleEG3.root"     },
+  {kMCqedSC           , "ntuples/ntuples_mc_qed_sc_withL1_merged.root"  },
+  {kMCqedSL           , "ntuples/ntuples_mc_qed_sl_merged.root"         },
+  {kMClbl             , "ntuples/ntuples_mc_lbl_merged.root"            },
+  {kMCcep             , "ntuples/ntuples_mc_cep_merged.root"            },
 };
 
 const map<EDataset, int> datasetColor = {
-  {kData    , kBlack    },
-  {kMCqedSC , kRed      },
-  {kMCqedSL , kOrange+2 },
-  {kMClbl   , kViolet+2 },
-  {kMCcep   , kGreen+2  },
+  {kData              , kBlack    },
+  {kMCqedSC           , kRed      },
+  {kMCqedSC_SingleEG3 , kRed      },
+  {kMCqedSL           , kOrange+2 },
+  {kMClbl             , kViolet+2 },
+  {kMCcep             , kGreen+2  },
 };
 
 const map<EDataset, string> datasetName = {
-  {kData    , "Data"    },
-  {kMCqedSC , "QED_SC"  },
-  {kMCqedSL , "QED_SL"  },
-  {kMClbl   , "LbL"     },
-  {kMCcep   , "CEP"     },
+  {kData              , "Data"    },
+  {kMCqedSC           , "QED_SC"  },
+  {kMCqedSC_SingleEG3 , "QED_SC"  },
+  {kMCqedSL           , "QED_SL"  },
+  {kMClbl             , "LbL"     },
+  {kMCcep             , "CEP"     },
 };
 
 const map<EDataset, string> datasetDescription = {
-  {kData    , "Data"          },
-  {kMCqedSC , "QED MC (SC)"   },
-  {kMCqedSL , "QED MC (SL)"   },
-  {kMClbl   , "LbL MC"        },
-  {kMCcep   , "CEP MC"        },
+  {kData              , "Data"          },
+  {kMCqedSC           , "QED MC (SC)"   },
+  {kMCqedSC_SingleEG3 , "QED MC (SC)"   },
+  {kMCqedSL           , "QED MC (SL)"   },
+  {kMClbl             , "LbL MC"        },
+  {kMCcep             , "CEP MC"        },
 };
 
 enum ECaloType { kEB, kEE, kHB, kHE, kHFp, kHFm, nCaloTypes };

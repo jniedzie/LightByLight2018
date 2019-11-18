@@ -16,7 +16,8 @@ string outputPath = "results/efficienciesQED_test.root";
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
 //  kData ,
-  kMCqedSC,
+  kMCqedSC_SingleEG3,
+//  kMCqedSC,
 //  kMCqedSL
 };
 
@@ -52,7 +53,7 @@ void CheckRecoEfficiency(Event &event,
   // Check trigger
   if(!event.HasSingleEG3Trigger()) return;
   cutThroughHists[name]->Fill(cutLevel++); // 1
-    
+  
   auto goodElectrons = event.GetGoodElectrons();
   
   // Preselect events with one electron and one extra track not reconstructed as an electron
