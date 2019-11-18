@@ -67,3 +67,5 @@ analysis/condor/log/
 analysis/condor/output/
 analysis/prepareBasicPlots
 analysis/prepareElectronIDplots
+analysis/ntuples/*
+!analysis/ntuples/triggerSelect.C
