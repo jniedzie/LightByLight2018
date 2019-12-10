@@ -119,7 +119,7 @@ vector<shared_ptr<PhysObject>> Event::GetGoodElectrons()
     
     // Check isolation
     if(electron->GetChargedIso() >= config.params("electronMaxChargedIso"+subdet)) continue;
-    if(electron->GetPhotonIso()  >= config.params("electronMaxPhotonIso"+subdet))  continue;
+    if(electron->GetPhotonIso()  >= config.params("electronMaxPhotonIso" +subdet))  continue;
     if(electron->GetNeutralIso() >= config.params("electronMaxNeutralIso"+subdet)) continue;
 
     goodElectrons.push_back(electron);

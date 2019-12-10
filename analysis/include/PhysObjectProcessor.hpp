@@ -23,6 +23,8 @@ public:
   /// Returns ΔR=sqrt(Δη^2 + Δφ^2) between two PhysObjects
   double GetDeltaR(const PhysObject &a, const PhysObject &b);
   
+  double GetDeltaR_SC(const PhysObject &a, const PhysObject &b);
+  
   /// Returns a lorentz vector which is a sum of provided objects
   TLorentzVector GetObjectsSum(const PhysObject &a, const PhysObject &b);
   

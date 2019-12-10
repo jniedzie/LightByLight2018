@@ -29,7 +29,8 @@ bool doNEEefficiency     = false;
 
 // Names of efficiency histograms to create and save
 vector<string> histParams = {
-  "reco_id_eff", "trigger_eff", "trigger_HFveto_eff", "charged_exclusivity_eff", "neutral_exclusivity_eff",
+  "reco_id_eff", "reco_id_eff_vs_pt", "reco_id_eff_vs_eta",
+  "trigger_eff", "trigger_HFveto_eff", "charged_exclusivity_eff", "neutral_exclusivity_eff",
 };
 
 
@@ -56,75 +57,74 @@ void CheckRecoEfficiency(Event &event,
   
   auto goodElectrons = event.GetGoodElectrons();
   
-  // Preselect events with one electron and one extra track not reconstructed as an electron
-  if(goodElectrons.size() != 1 || event.GetNgeneralTracks() != 2) return;
+  vector<shared_ptr<PhysObject>> goodMatchedElectrons;
+  
+  for(auto electron : goodElectrons){
+    for(auto &L1EG : event.GetL1EGs()){
+      if(L1EG->GetEt() < 3.0) continue;
+
+      if(physObjectProcessor.GetDeltaR_SC(*electron, *L1EG) < 0.3){
+        goodMatchedElectrons.push_back(electron);
+        break;
+      }
+    }
+  }
+  
+  // Preselect events with two tracks and at least one good electron matched with L1EG
+  if(event.GetNgeneralTracks() != 2 || goodMatchedElectrons.size() < 1) return;
   cutThroughHists[name]->Fill(cutLevel++); // 2
   
-  // Get objects
-  auto electron   = goodElectrons[0];
+  // Make sure that tracks have opposite charges and that brem track has low momentum
   auto track1     = event.GetGeneralTrack(0);
   auto track2     = event.GetGeneralTrack(1);
+  if(track1->GetCharge() == track2->GetCharge()) return;
   
-  // Check if there is exactly one track matching electron
-  double deltaR1 = physObjectProcessor.GetDeltaR(*electron, *track1);
-  double deltaR2 = physObjectProcessor.GetDeltaR(*electron, *track2);
+  double estimatedPhotonEt = fabs(track1->GetPt()-track2->GetPt());
+  if(estimatedPhotonEt < 2.0) return;
   
-  shared_ptr<PhysObject> matchingTrack = nullptr;
-  shared_ptr<PhysObject> bremTrack     = nullptr;
-  
-  if(deltaR1 < 0.3) matchingTrack = track1;
-  else              bremTrack     = track1;
-    
-  if(deltaR2 < 0.3){
-    if(matchingTrack) return; // this would mean both tracks match the electron
-    matchingTrack = track2;
+  // Find tracks that match electrons
+  vector<shared_ptr<PhysObject>> matchingTracks;
+  for(auto electron : goodMatchedElectrons){
+    for(auto track : event.GetGeneralTracks()){
+      if(physObjectProcessor.GetDeltaR(*electron, *track) < 0.3){
+        matchingTracks.push_back(track);
+      }
+    }
   }
-  else{
-    if(bremTrack) return; // this woudld mean both tracks are not matched
-    bremTrack = track2;
-  }
-      
-  if(!matchingTrack || !bremTrack) return;
+  if(matchingTracks.size() < 1) return;
   cutThroughHists[name]->Fill(cutLevel++); // 3
-        
-  // Make sure that tracks have opposite charges and that brem track has low momentum
-  if(bremTrack->GetCharge() == electron->GetCharge() || bremTrack->GetPt() > 2.0) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 4
   
-  // Check if the electron is also matched with (at least) one of the L1 EG objects
-  int nMatchingL1EGs = 0;
-  for(auto &L1EG : event.GetL1EGs()){
-    if(L1EG->GetEt() < 3.0) continue;
-    
-    if(physObjectProcessor.GetDeltaR(*electron, *L1EG) < 0.3) nMatchingL1EGs++;
-  }
-  if(nMatchingL1EGs == 0) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 5
+  
+  // Count this event as a tag
+  hists[name+"_den"]->Fill(1);
+  hists["reco_id_eff_vs_pt"+datasetName+"_den"]->Fill(estimatedPhotonEt);
+  hists["reco_id_eff_vs_eta"+datasetName+"_den"]->Fill(fabs(matchingTracks[0]->GetEta()));
+  nEvents[name].first++;
   
   // Check that there are no photons close to the electron
-  vector<shared_ptr<PhysObject>> photons = event.GetGoodPhotons();
-  unsigned long nPhotons = photons.size();
+  auto photons = event.GetGoodPhotons();
+//  auto photons = event.GetPhotons();
+  int nBremPhotons = 0;
   
-  if(nPhotons >= 0){
-    for(auto photon : photons){
-      if(fabs(photon->GetEta()-electron->GetEta()) < 0.15 ||
-         fabs(photon->GetPhi()-electron->GetPhi()) < 0.7) return;
+  for(auto photon : photons){
+    for(auto electron : goodMatchedElectrons){
+      if(physObjectProcessor.GetDeltaR_SC(*electron, *photon) > 0.3){
+        nBremPhotons++;
+      }
     }
   }
   cutThroughHists[name]->Fill(cutLevel++); // 6
   
-  // Count this event as a tag
-  hists[name+"_den"]->Fill(1);
-  nEvents[name].first++;
-    
 //  if(nPhotons > 0) saveEventDisplay(matchingTrack, bremTrack, electron, photons);
   
   // Check that there's exactly one photon passing ID cuts
-  if(nPhotons == 1){
+  if(nBremPhotons > 0){
     cutThroughHists[name]->Fill(cutLevel++); // 7
     
     // Count this event as a probe
     hists[name+"_num"]->Fill(1);
+    hists["reco_id_eff_vs_pt"+datasetName+"_num"]->Fill(estimatedPhotonEt);
+    hists["reco_id_eff_vs_eta"+datasetName+"_num"]->Fill(fabs(matchingTracks[0]->GetEta()));
     nEvents[name].second++;
   }
 }
@@ -167,20 +167,20 @@ void CheckTriggerEfficiency(Event &event,
   shared_ptr<PhysObject> failedProbe = nullptr;
   
   // Replace by L1 EG !!!
-  for(auto &tower : event.GetCaloTowers()){
+  for(auto &L1EG : event.GetL1EGs()){
     if(tag && passingProbe) break;
     
-    double deltaR1 = physObjectProcessor.GetDeltaR(*electron1, *tower);
-    double deltaR2 = physObjectProcessor.GetDeltaR(*electron2, *tower);
+    double deltaR1 = physObjectProcessor.GetDeltaR_SC(*electron1, *L1EG);
+    double deltaR2 = physObjectProcessor.GetDeltaR_SC(*electron2, *L1EG);
     
     if(deltaR1 < 1.0){
-      if(!tag && tower->GetEt() > 3.0) tag = electron1;
-      else if(tower->GetEt() > 2.0) passingProbe = electron1;
+      if(!tag && L1EG->GetEt() > 3.0) tag = electron1;
+      else if(L1EG->GetEt() > 2.0) passingProbe = electron1;
     }
     
     if(deltaR2 < 1.0){
-      if(!tag && tower->GetEt() > 3.0) tag = electron2;
-      else if(tower->GetEt() > 2.0) passingProbe = electron2;
+      if(!tag && L1EG->GetEt() > 3.0) tag = electron2;
+      else if(L1EG->GetEt() > 2.0) passingProbe = electron2;
     }
   }
   
@@ -245,13 +245,13 @@ void CheckTriggerHFvetoEfficiency(Event &event,
   // Check if there are two electrons matched with L1 objects
   vector<shared_ptr<PhysObject>> matchedElectrons;
   
-  // Replace by L1 EG !!!
-  for(auto &tower : event.GetCaloTowers()){
+  // Check matching with L1 objects
+  for(auto &L1EG : event.GetL1EGs()){
     if(matchedElectrons.size() == 2) break;
-    if(tower->GetEt() < 2.0) continue;
+    if(L1EG->GetEt() < 2.0) continue;
     
-    double deltaR1 = physObjectProcessor.GetDeltaR(*electron1, *tower);
-    double deltaR2 = physObjectProcessor.GetDeltaR(*electron2, *tower);
+    double deltaR1 = physObjectProcessor.GetDeltaR(*electron1, *L1EG);
+    double deltaR2 = physObjectProcessor.GetDeltaR(*electron2, *L1EG);
     
     if(deltaR1 < 1.0) matchedElectrons.push_back(electron1);
     if(deltaR2 < 1.0) matchedElectrons.push_back(electron2);
@@ -376,14 +376,30 @@ void InitializeHistograms(map<string, TH1D*> &hists,
                           map<string, pair<int, int>> &nEvents,
                           const string &name)
 {
-  float bins[] = { 0, 2, 3, 4, 5, 6, 8, 10, 13, 20 };
+  
   
   for(auto histName : histParams){
     string title = histName+name;
+  
+    vector<float> bins;
+
+    if(histName.find("vs_pt") != string::npos){
+      bins  = { 0, 2, 4, 6, 8, 20 };
+    }
+    else if(histName.find("vs_eta") != string::npos){
+      bins  = { 0.5, 1.0, 1.5, 2.0 , 2.5 };
+    }
+    else{
+      bins = { 0, 2, 3, 4, 5, 6, 8, 10, 13, 20 };
+    }
     
-    hists[title]         = new TH1D( title.c_str()        ,  title.c_str()        , 9, bins);
-    hists[title+"_num"]  = new TH1D((title+"_num").c_str(), (title+"_num").c_str(), 9, bins);
-    hists[title+"_den"]  = new TH1D((title+"_den").c_str(), (title+"_den").c_str(), 9, bins);
+    float *binsArray = &bins[0];
+    int nBins = (int)bins.size()-1;
+    
+    hists[title]         = new TH1D( title.c_str()        ,  title.c_str()        , nBins, binsArray);
+    hists[title+"_num"]  = new TH1D((title+"_num").c_str(), (title+"_num").c_str(), nBins, binsArray);
+    hists[title+"_den"]  = new TH1D((title+"_den").c_str(), (title+"_den").c_str(), nBins, binsArray);
+    
     hists[title+"_num"]->Sumw2();
     hists[title+"_den"]->Sumw2();
     

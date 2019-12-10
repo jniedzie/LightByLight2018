@@ -35,10 +35,11 @@ public:
   inline shared_ptr<PhysObject> GetL1EG(size_t i)         const { return L1EGs[i]; }
   
   
-  inline vector<shared_ptr<PhysObject>> GetPhotons()      const { return photons;     }
-  inline vector<shared_ptr<PhysObject>> GetElectrons()    const { return electrons;   }
-  inline vector<shared_ptr<PhysObject>> GetCaloTowers()   const { return caloTowers;  }
-  inline vector<shared_ptr<PhysObject>> GetL1EGs()        const { return L1EGs;       }
+  inline vector<shared_ptr<PhysObject>> GetPhotons()      const { return photons;       }
+  inline vector<shared_ptr<PhysObject>> GetElectrons()    const { return electrons;     }
+  inline vector<shared_ptr<PhysObject>> GetCaloTowers()   const { return caloTowers;    }
+  inline vector<shared_ptr<PhysObject>> GetGeneralTracks()const { return generalTracks; }
+  inline vector<shared_ptr<PhysObject>> GetL1EGs()        const { return L1EGs;         }
   
   /// Returns vector of gen particles passing η and Et cuts specified in the config
   vector<shared_ptr<PhysObject>> GetGoodGenPhotons() const;

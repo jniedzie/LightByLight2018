@@ -22,6 +22,11 @@ double PhysObjectProcessor::GetDeltaR(const PhysObject &a, const PhysObject &b)
   return sqrt(pow(a.eta-b.eta, 2) + pow(a.phi-b.phi, 2));
 }
 
+double PhysObjectProcessor::GetDeltaR_SC(const PhysObject &a, const PhysObject &b)
+{
+  return sqrt(pow(a.etaSC-b.eta, 2) + pow(a.phiSC-b.phi, 2));
+}
+
 TLorentzVector PhysObjectProcessor::GetObjectsSum(const PhysObject &a, const PhysObject &b)
 {
   TLorentzVector aVec, bVec;

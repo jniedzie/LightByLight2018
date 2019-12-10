@@ -24,7 +24,8 @@ photonMinEt:                            2.0
 photonMaxEta:                         2.3
 photonMaxHoverEbarrel:          0.04596
 photonMaxHoverEendcap:       0.0590
-photonMaxEtaWidthBarrel:       0.0106
+#### here original was 0.0106, but we may need to make it more loose:
+photonMaxEtaWidthBarrel:       0.03
 photonMaxEtaWidthEndcap:    0.0272
 
 ### Electron ID cuts:
