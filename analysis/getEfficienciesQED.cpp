@@ -8,14 +8,15 @@
 #include "EventProcessor.hpp"
 #include "PhysObjectProcessor.hpp"
 #include "ConfigManager.hpp"
+#include "EventDisplay.hpp"
 
 string configPath = "configs/efficiencies.md";
 //string configPath = "/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/efficiencies.md";
-string outputPath = "results/efficienciesQED_test.root";
+string outputPath = "results/efficienciesQED_QED_SC_test.root";
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
-//  kData ,
+//  kData,
   kMCqedSC_SingleEG3,
 //  kMCqedSC,
 //  kMCqedSL
@@ -55,7 +56,15 @@ void CheckRecoEfficiency(Event &event,
   if(!event.HasSingleEG3Trigger()) return;
   cutThroughHists[name]->Fill(cutLevel++); // 1
   
+  // Check that there is at least one electon
+  if(event.GetNelectrons() < 1) return;
+  cutThroughHists[name]->Fill(cutLevel++); // 2
+  
   auto goodElectrons = event.GetGoodElectrons();
+  
+  // Check that there is at least one electron passing ID cuts
+  if(goodElectrons.size() < 1) return;
+  cutThroughHists[name]->Fill(cutLevel++); // 3
   
   vector<shared_ptr<PhysObject>> goodMatchedElectrons;
   
@@ -70,25 +79,32 @@ void CheckRecoEfficiency(Event &event,
     }
   }
   
-  // Preselect events with two tracks and at least one good electron matched with L1EG
-  if(event.GetNgeneralTracks() != 2 || goodMatchedElectrons.size() < 1) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 2
+  // Check if there is at least one good electron matched with L1EG
+  if(goodMatchedElectrons.size() < 1) return;
+  cutThroughHists[name]->Fill(cutLevel++); // 4
+  
+  // Preselect events with exactly two tracks
+  if(event.GetNgeneralTracks() != 2) return;
+  cutThroughHists[name]->Fill(cutLevel++); // 5
   
   // Make sure that tracks have opposite charges and that brem track has low momentum
-  auto track1     = event.GetGeneralTrack(0);
-  auto track2     = event.GetGeneralTrack(1);
+  auto track1 = event.GetGeneralTrack(0);
+  auto track2 = event.GetGeneralTrack(1);
   if(track1->GetCharge() == track2->GetCharge()) return;
   
   double estimatedPhotonEt = fabs(track1->GetPt()-track2->GetPt());
   if(estimatedPhotonEt < 2.0) return;
   
+  cutThroughHists[name]->Fill(cutLevel++); // 7
+  
   // Find tracks that match electrons
   vector<shared_ptr<PhysObject>> matchingTracks;
+  vector<shared_ptr<PhysObject>> bremTracks;
+  
   for(auto electron : goodMatchedElectrons){
     for(auto track : event.GetGeneralTracks()){
-      if(physObjectProcessor.GetDeltaR(*electron, *track) < 0.3){
-        matchingTracks.push_back(track);
-      }
+      if(physObjectProcessor.GetDeltaR(*electron, *track) < 0.3) matchingTracks.push_back(track);
+      else                                                       bremTracks.push_back(track);
     }
   }
   if(matchingTracks.size() < 1) return;
@@ -101,9 +117,8 @@ void CheckRecoEfficiency(Event &event,
   hists["reco_id_eff_vs_eta"+datasetName+"_den"]->Fill(fabs(matchingTracks[0]->GetEta()));
   nEvents[name].first++;
   
-  // Check that there are no photons close to the electron
+  // Count number of photons that are far from good, matched electrons
   auto photons = event.GetGoodPhotons();
-//  auto photons = event.GetPhotons();
   int nBremPhotons = 0;
   
   for(auto photon : photons){
@@ -113,19 +128,21 @@ void CheckRecoEfficiency(Event &event,
       }
     }
   }
-  cutThroughHists[name]->Fill(cutLevel++); // 6
-  
-//  if(nPhotons > 0) saveEventDisplay(matchingTrack, bremTrack, electron, photons);
   
   // Check that there's exactly one photon passing ID cuts
   if(nBremPhotons > 0){
-    cutThroughHists[name]->Fill(cutLevel++); // 7
+    cutThroughHists[name]->Fill(cutLevel++); // 9
     
     // Count this event as a probe
     hists[name+"_num"]->Fill(1);
     hists["reco_id_eff_vs_pt"+datasetName+"_num"]->Fill(estimatedPhotonEt);
     hists["reco_id_eff_vs_eta"+datasetName+"_num"]->Fill(fabs(matchingTracks[0]->GetEta()));
     nEvents[name].second++;
+  }
+  else{
+    auto allPhotons = event.GetPhotons();
+    
+    saveEventDisplay(matchingTracks, bremTracks, goodMatchedElectrons, photons, allPhotons, "~/Desktop/lbl_event_displays/", 10);
   }
 }
 

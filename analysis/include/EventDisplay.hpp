@@ -10,34 +10,33 @@ const int nPoints = 2000;
 
 pair<vector<double>, vector<double>> getTrackPoints(double pt, double phi, int charge)
 {
+  while(phi < 0)              phi += 2*TMath::Pi();
+  while(phi > 2*TMath::Pi())  phi -= 2*TMath::Pi();
+  
   double radius = pt/(B*3)*10;
   double vx = charge *  radius*sin(phi);
   double vy = charge * -radius*cos(phi);
+  double tShift = charge * TMath::Pi()/2. + phi;
   
-  double tShift=0;
-  if(charge > 0) tShift = TMath::Pi() - atan2(-vx, vy);
-  if(charge < 0) tShift = TMath::Pi() - atan2(-vy, vx);
+  vector<double> pointsR, pointsPhi;
   
-  vector<double> pointsPhi;
-  vector<double> pointsR;
-  
-  for(int iPoint=0; iPoint<nPoints; iPoint++){
-    double t;
-    if(charge > 0) t = -2*TMath::Pi() + iPoint*0.01 - tShift;
-    else           t =  2*TMath::Pi() + iPoint*0.01 + tShift;
-    
-    double xp = radius*cos(t) + vx;
-    double yp = radius*sin(t) + vy;
-    
+  auto fillRphi = [&](double t)->bool{
+    double xp =  radius * cos(t) + vx;
+    double yp =  radius * sin(t) + vy;
+          
     double tp = atan2(yp, xp);
     double rp = sqrt(xp*xp + yp*yp);
     
-    if(charge<0 && rp > trackerRadius) break;
-    if(charge>0 && tp > 0) break;
+    if(rp > trackerRadius) return true;
     
     pointsPhi.push_back(tp);
     pointsR.push_back(rp);
-  }
+    
+    return false;
+  };
+  
+  if(charge > 0) for(double t = tShift; t > -(2*TMath::Pi()+tShift); t -= 0.01){ if(fillRphi(t)) break; }
+  else           for(double t = tShift; t <  (2*TMath::Pi()+tShift); t += 0.01){ if(fillRphi(t)) break; }
 
   return make_pair(pointsPhi, pointsR);
 }
@@ -80,44 +79,77 @@ TGraphPolar* getPhotonGraph(double phi)
   return grP1;
 }
 
-void saveEventDisplay(const shared_ptr<PhysObject> &matchingTrack,
-                      const shared_ptr<PhysObject> &bremTrack,
-                      const shared_ptr<PhysObject> &electron,
-                      vector<shared_ptr<PhysObject>> &photons)
+void saveEventDisplay(vector<shared_ptr<PhysObject>>    &matchingTracks,
+                      vector<shared_ptr<PhysObject>>    &bremTracks,
+                      vector<shared_ptr<PhysObject>>    &electrons,
+                      vector<shared_ptr<PhysObject>>  &goodPhotons,
+                      vector<shared_ptr<PhysObject>>  &allPhotons,
+                      string basePath, int maxEvents=-1)
 {
   static int iCanvas=0;
-     
-     auto matchedTrackGraph  = getTrackGraph(1000*matchingTrack->GetPt(), matchingTrack->GetPhi(), matchingTrack->GetCharge());
-     auto bremTrackGraph     = getTrackGraph(1000*bremTrack->GetPt(), bremTrack->GetPhi(), bremTrack->GetCharge());
-     auto electronGraph      = getTrackGraph(1000*electron->GetPt(), electron->GetPhi(), electron->GetCharge());
-     
-     if(matchedTrackGraph && bremTrackGraph && electronGraph){
-       
-       matchedTrackGraph->SetMarkerColor(kRed);
-       matchedTrackGraph->SetMarkerStyle(20);
-       bremTrackGraph->SetMarkerColor(kRed);
-       bremTrackGraph->SetMarkerStyle(21);
-       electronGraph->SetMarkerColor(kBlue);
-       electronGraph->SetMarkerStyle(20);
-       
-       TCanvas *canvas = new TCanvas("c1","c1",800,600);
-       canvas->cd();
-       matchedTrackGraph->Draw("P");
-       bremTrackGraph->Draw("Psame");
-       electronGraph->Draw("Psame");
-       
-       for(auto photon : photons){
-         auto photonGraph = getPhotonGraph(photon->GetPhi());
-         photonGraph->Draw("Psame");
-       }
-
-       canvas->Update();
-       matchedTrackGraph->SetMinRadial(0);
-       matchedTrackGraph->SetMaxRadial(trackerRadius);
-       matchedTrackGraph->GetPolargram()->SetToRadian();
-       
-       canvas->SaveAs(("~/Desktop/canv_"+to_string(iCanvas++)+".pdf").c_str());
-     }
+  if(maxEvents > 0 && iCanvas > maxEvents) return;
+  
+  TLegend *leg = new TLegend(0.8, 0.8, 1.0, 1.0);
+  TCanvas *canvas = new TCanvas("c1","c1",800,600);
+  canvas->cd();
+  
+  bool first = true;
+  
+  for(auto matchingTrack : matchingTracks){
+    auto matchedTrackGraph  = getTrackGraph(1000*matchingTrack->GetPt(), matchingTrack->GetPhi(), matchingTrack->GetCharge());
+    matchedTrackGraph->SetMarkerColor(kRed);
+    matchedTrackGraph->SetMarkerStyle(20);
+    matchedTrackGraph->Draw(first ? "P" : "Psame");
+    if(first){
+      leg->AddEntry(matchedTrackGraph , "Matched tracks" , "p");
+      canvas->Update();
+      matchedTrackGraph->SetMinRadial(0);
+      matchedTrackGraph->SetMaxRadial(trackerRadius);
+      matchedTrackGraph->GetPolargram()->SetToRadian();
+    }
+    first = false;
+  }
+  first = true;
+  for(auto bremTrack : bremTracks){
+    auto bremTrackGraph = getTrackGraph(1000*bremTrack->GetPt(), bremTrack->GetPhi(), bremTrack->GetCharge());
+    bremTrackGraph->SetMarkerColor(kViolet);
+    bremTrackGraph->SetMarkerStyle(21);
+    if(first) leg->AddEntry(bremTrackGraph    , "Brem tracks"    , "p");
+    bremTrackGraph->Draw("Psame");
+  }
+  first = true;
+  for(auto electron : electrons){
+    auto electronGraph = getTrackGraph(1000*electron->GetPt(), electron->GetPhi(), electron->GetCharge());
+    electronGraph->SetMarkerColor(kBlue);
+    electronGraph->SetMarkerStyle(20);
+    electronGraph->Draw("Psame");
+    if(first) leg->AddEntry(electronGraph, "Good matched electrons", "p");
+    first = false;
+  }
+    
+  first = true;
+  for(auto photon : allPhotons){
+    auto photonGraph = getPhotonGraph(photon->GetPhi());
+    photonGraph->SetMarkerColor(kCyan);
+    photonGraph->Draw("Psame");
+    if(first) leg->AddEntry(photonGraph, "All photons", "p");
+    first = false;
+  }
+  
+  first = true;
+  for(auto photon : goodPhotons){
+    auto photonGraph = getPhotonGraph(photon->GetPhi());
+    photonGraph->Draw("Psame");
+    if(first) leg->AddEntry(photonGraph, "Good photons", "p");
+    first = false;
+  }
+  
+  leg->Draw();
+    
+  canvas->Update();
+  canvas->SaveAs((basePath+"/event_"+to_string(iCanvas)+".pdf").c_str());
+  
+  iCanvas++;
 }
 
 #endif /* EventDisplay_h */
