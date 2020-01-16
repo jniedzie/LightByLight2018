@@ -41,10 +41,20 @@ bool IsGoodForRecoEfficiency(Event &event)
 /// Application starting point
 int main(int argc, char* argv[])
 {
+  if(argc != 1 && argc != 4){
+    cout<<"This app requires 0 or 3 parameters."<<endl;
+    cout<<"./getEfficienciesData configPath inputPath outputPath"<<endl;
+    exit(0);
+  }
+  if(argc == 4){
+    configPath    = argv[1];
+    inFilePath    = argv[2];
+    outFilePath   = argv[3];
+  }
+ 
   config = ConfigManager(configPath);
-  
   auto events = make_unique<EventProcessor>(inFilePath, outFilePath);
-    
+  
   // Loop over events
   for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
     if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
