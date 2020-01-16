@@ -10,7 +10,7 @@ const char *triggerName = "HLT_HIUPC_SingleEG3_NotMBHF2AND_v1";
 //string inPath = "/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/data_ntuples/HIForward/ntuples_data_new/200105_192027/0000/";
 //string inFileName = inPath + "data_HiForestAOD_1-100.root";
 
-string outPath = "/eos/cms/store/group/phys_diffraction/lbyl_2018/data_withSingleEG3/ntuples/";
+string outPath = "/eos/cms/store/group/phys_diffraction/lbyl_2018/data_all_withSingleEG3/ntuples/";
 //string outFileName = outPath + "data_HiForestAOD_withSingleEG3_test.root";
 
 //const char* inFileName  = "ntuples_mc_qed_sc_withL1_merged.root";
