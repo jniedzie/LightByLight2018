@@ -57,12 +57,12 @@ vector<shared_ptr<PhysObject>> Event::GetGoodPhotons()
   
   for(int iPhoton=0; iPhoton<nPhotons; iPhoton++){
     auto photon = photons[iPhoton];
-    double absEta = fabs(photon->GetEtaSC());
     
     // Check Et
     if(photon->GetEt() < config.params("photonMinEt")) continue;
     
     // Check eta & phi (remove noisy region >2.3, remove cracks between EB and EE, remove HEM issue region)
+    double absEta = fabs(photon->GetEtaSC());
     if(absEta > config.params("photonMaxEta")) continue;
     if(absEta > config.params("ecalCrackMin") && absEta < config.params("ecalCrackMax")) continue;
     if(photon->GetEtaSC() < -minEtaEE &&
@@ -89,12 +89,11 @@ vector<shared_ptr<PhysObject>> Event::GetGoodElectrons()
   
   for(auto electron : electrons){
 
-    double eta = fabs(electron->GetEtaSC());
-    
     // Check pt
     if(electron->GetPt() < config.params("electronMinPt")) continue;
     
     // Check eta
+    double eta = fabs(electron->GetEtaSC());
     if(eta > config.params("ecalCrackMin") &&
        eta < config.params("ecalCrackMax"))   continue;
     if(eta >= config.params("electronMaxEta")) continue;

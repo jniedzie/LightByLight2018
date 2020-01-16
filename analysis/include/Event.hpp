@@ -51,6 +51,7 @@ public:
   vector<shared_ptr<PhysObject>> GetGoodElectrons();
   
   /// Finds two photons passing cuts (if not done yet) and returns diphoton invariant mass
+  /// If number of photons != 2, returns -1
   double GetDiphotonInvMass();
   
   /// Finds two photons passing cuts (if not done yet) and returns false if diphoton pt is

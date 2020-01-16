@@ -16,10 +16,11 @@ string outputPath = "results/efficienciesQED_QED_SC_test.root";
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
-//  kData,
-  kMCqedSC_SingleEG3,
-//  kMCqedSC,
-//  kMCqedSL
+  //  kData,
+//  kMCqedSC_SingleEG3,
+  kMCqedSC_recoEff,
+  //  kMCqedSC,
+  //  kMCqedSL
 };
 
 // Select which efficiencies to calculate
@@ -56,22 +57,28 @@ void CheckRecoEfficiency(Event &event,
   if(!event.HasSingleEG3Trigger()) return;
   cutThroughHists[name]->Fill(cutLevel++); // 1
   
-  // Check that there is at least one electon
-  if(event.GetNelectrons() < 1) return;
+  // Preselect events with exactly two tracks
+  if(event.GetNgeneralTracks() != 2) return;
   cutThroughHists[name]->Fill(cutLevel++); // 2
   
-  auto goodElectrons = event.GetGoodElectrons();
-  
-  // Check that there is at least one electron passing ID cuts
-  if(goodElectrons.size() < 1) return;
+  // Make sure that tracks have opposite charges and that brem track has low momentum
+  auto track1 = event.GetGeneralTrack(0);
+  auto track2 = event.GetGeneralTrack(1);
+  if(track1->GetCharge() == track2->GetCharge()) return;
   cutThroughHists[name]->Fill(cutLevel++); // 3
   
+  double estimatedPhotonEt = fabs(track1->GetPt()-track2->GetPt());
+//  if(estimatedPhotonEt < 2.0) return;
+  cutThroughHists[name]->Fill(cutLevel++); // 4
+  
+  // Check if there is one good electron matched with L1EG
   vector<shared_ptr<PhysObject>> goodMatchedElectrons;
+  auto goodElectrons = event.GetGoodElectrons();
   
   for(auto electron : goodElectrons){
     for(auto &L1EG : event.GetL1EGs()){
       if(L1EG->GetEt() < 3.0) continue;
-
+      
       if(physObjectProcessor.GetDeltaR_SC(*electron, *L1EG) < 0.3){
         goodMatchedElectrons.push_back(electron);
         break;
@@ -79,37 +86,30 @@ void CheckRecoEfficiency(Event &event,
     }
   }
   
-  // Check if there is at least one good electron matched with L1EG
-  if(goodMatchedElectrons.size() < 1) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 4
-  
-  // Preselect events with exactly two tracks
-  if(event.GetNgeneralTracks() != 2) return;
+  if(goodMatchedElectrons.size() != 1) return;
+  auto theElectron = goodMatchedElectrons[0];
   cutThroughHists[name]->Fill(cutLevel++); // 5
-  
-  // Make sure that tracks have opposite charges and that brem track has low momentum
-  auto track1 = event.GetGeneralTrack(0);
-  auto track2 = event.GetGeneralTrack(1);
-  if(track1->GetCharge() == track2->GetCharge()) return;
-  
-  double estimatedPhotonEt = fabs(track1->GetPt()-track2->GetPt());
-  if(estimatedPhotonEt < 2.0) return;
-  
-  cutThroughHists[name]->Fill(cutLevel++); // 7
   
   // Find tracks that match electrons
   vector<shared_ptr<PhysObject>> matchingTracks;
   vector<shared_ptr<PhysObject>> bremTracks;
   
-  for(auto electron : goodMatchedElectrons){
-    for(auto track : event.GetGeneralTracks()){
-      if(physObjectProcessor.GetDeltaR(*electron, *track) < 0.3) matchingTracks.push_back(track);
-      else                                                       bremTracks.push_back(track);
-    }
+  for(auto track : event.GetGeneralTracks()){
+    if(physObjectProcessor.GetDeltaR(*theElectron, *track) < 0.3) matchingTracks.push_back(track);
+    else                                                          bremTracks.push_back(track);
   }
-  if(matchingTracks.size() < 1) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 3
   
+  // Check that only one track matches the electron
+  if(matchingTracks.size() != 1 || bremTracks.size() != 1) return;
+  auto matchingTrack  = matchingTracks[0];
+  auto bremTrack      = bremTracks[0];
+  cutThroughHists[name]->Fill(cutLevel++); // 6
+  
+  // Check separation between brem track and photon:
+  if(fabs(2*bremTrack->GetPt()-matchingTrack->GetPt()) < 2.0) return;
+  
+//  if(bremTrack->GetPt() > 2.0) return;
+  cutThroughHists[name]->Fill(cutLevel++); // 7
   
   // Count this event as a tag
   hists[name+"_den"]->Fill(1);
@@ -119,19 +119,16 @@ void CheckRecoEfficiency(Event &event,
   
   // Count number of photons that are far from good, matched electrons
   auto photons = event.GetGoodPhotons();
+//  auto photons = event.GetPhotons();
   int nBremPhotons = 0;
   
   for(auto photon : photons){
-    for(auto electron : goodMatchedElectrons){
-      if(physObjectProcessor.GetDeltaR_SC(*electron, *photon) > 0.3){
-        nBremPhotons++;
-      }
-    }
+    if(physObjectProcessor.GetDeltaR_SC(*theElectron, *photon) > 0.3) nBremPhotons++;
   }
   
   // Check that there's exactly one photon passing ID cuts
   if(nBremPhotons > 0){
-    cutThroughHists[name]->Fill(cutLevel++); // 9
+    cutThroughHists[name]->Fill(cutLevel++); // 8
     
     // Count this event as a probe
     hists[name+"_num"]->Fill(1);
@@ -141,7 +138,6 @@ void CheckRecoEfficiency(Event &event,
   }
   else{
     auto allPhotons = event.GetPhotons();
-    
     saveEventDisplay(matchingTracks, bremTracks, goodMatchedElectrons, photons, allPhotons, "~/Desktop/lbl_event_displays/", 10);
   }
 }
@@ -183,7 +179,6 @@ void CheckTriggerEfficiency(Event &event,
   shared_ptr<PhysObject> passingProbe = nullptr;
   shared_ptr<PhysObject> failedProbe = nullptr;
   
-  // Replace by L1 EG !!!
   for(auto &L1EG : event.GetL1EGs()){
     if(tag && passingProbe) break;
     
@@ -313,7 +308,7 @@ void CheckCHEefficiency(Event &event,
   // Check dielectron properties
   if(electron1->GetCharge() == electron2->GetCharge()) return;
   cutThroughHists[name]->Fill(cutLevel++); // 3
-
+  
   TLorentzVector dielectron = physObjectProcessor.GetObjectsSum(*electron1, *electron2);
   if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || fabs(dielectron.Eta()) > 2.3) return;
   cutThroughHists[name]->Fill(cutLevel++); // 4
@@ -397,9 +392,9 @@ void InitializeHistograms(map<string, TH1D*> &hists,
   
   for(auto histName : histParams){
     string title = histName+name;
-  
+    
     vector<float> bins;
-
+    
     if(histName.find("vs_pt") != string::npos){
       bins  = { 0, 2, 4, 6, 8, 20 };
     }
@@ -450,7 +445,7 @@ void PrintAndSaveResults(TFile *outFile,
     hists[title+"_num"]->Write();
     hists[title+"_den"]->Write();
     cutThroughHists.at(title)->Write();
-
+    
     cout<<"N tags, probes "<<title<<": "<<nEvents.at(title).first<<", "<<nEvents.at(title).second<<endl;
     cout<<title<<" efficiency: "; PrintEfficiency(nEvents.at(title).second, nEvents.at(title).first);
   }
@@ -506,10 +501,8 @@ int main(int argc, char* argv[])
     InitializeTriggerTrees(triggerTrees, name);
     InitializeHistograms(hists, cutThroughHists, monitorHists, nEvents, name);
     
-    unique_ptr<EventProcessor> events;
-    if(argc == 6) events = unique_ptr<EventProcessor>(new EventProcessor(inputPaths[dataset]));
-    else          events = unique_ptr<EventProcessor>(new EventProcessor(dataset));
-
+    auto events = make_unique<EventProcessor>(argc == 6 ? inputPaths[dataset] : inFileNames.at(dataset));
+    
     // Loop over events
     for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
       if(iEvent%10000 == 0) cout<<"Processing event "<<iEvent<<endl;
@@ -525,11 +518,11 @@ int main(int argc, char* argv[])
       if(doCHEefficiency)       CheckCHEefficiency(*event, nEvents, hists, cutThroughHists, name);
       if(doNEEefficiency)       CheckNEEefficiency(*event, nEvents, hists, cutThroughHists, name);
     }
-  
+    
     PrintAndSaveResults(outFile, hists, cutThroughHists, monitorHists, nEvents, triggerTrees, name);
   }
   outFile->Close();
-
+  
   return 0;
 }
 

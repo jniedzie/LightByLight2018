@@ -53,18 +53,20 @@ enum EDataset{
   kData,
   kMCqedSC,
   kMCqedSC_SingleEG3,
+  kMCqedSC_recoEff,
   kMCqedSL,
   kMClbl,
   kMCcep,
   nDatasets
 };
 
-const vector<EDataset> datasets = { kData, kMCcep, kMCqedSC, kMCqedSC_SingleEG3, kMCqedSL, kMClbl,  };
+const vector<EDataset> datasets = { kData, kMCcep, kMCqedSC, kMCqedSC_SingleEG3, kMCqedSC_recoEff, kMCqedSL, kMClbl,  };
 
 const map<EDataset, string> inFileNames = {
   {kData              , "ntuples/ntuples_data_withSingleEG3.root"         },
 //  {kData              , "ntuples/data_HiForestAOD_withSingleEG3_test.root"  },
   {kMCqedSC_SingleEG3 , "ntuples/ntuples_mc_qed_withSingleEG3.root"         },
+  {kMCqedSC_recoEff   , "ntuples/ntuples_mc_qed_recoEffEvents.root"         },
   {kMCqedSC           , "ntuples/ntuples_mc_qed_sc_withL1_merged.root"      },
   {kMCqedSL           , "ntuples/ntuples_mc_qed_sl_merged.root"             },
   {kMClbl             , "ntuples/ntuples_mc_lbl_merged.root"                },
@@ -75,6 +77,7 @@ const map<EDataset, int> datasetColor = {
   {kData              , kBlack    },
   {kMCqedSC           , kRed      },
   {kMCqedSC_SingleEG3 , kRed      },
+  {kMCqedSC_recoEff   , kRed      },
   {kMCqedSL           , kOrange+2 },
   {kMClbl             , kViolet+2 },
   {kMCcep             , kGreen+2  },
@@ -84,6 +87,7 @@ const map<EDataset, string> datasetName = {
   {kData              , "Data"    },
   {kMCqedSC           , "QED_SC"  },
   {kMCqedSC_SingleEG3 , "QED_SC"  },
+  {kMCqedSC_recoEff   , "QED_SC"  },
   {kMCqedSL           , "QED_SL"  },
   {kMClbl             , "LbL"     },
   {kMCcep             , "CEP"     },
@@ -93,6 +97,7 @@ const map<EDataset, string> datasetDescription = {
   {kData              , "Data"          },
   {kMCqedSC           , "QED MC (SC)"   },
   {kMCqedSC_SingleEG3 , "QED MC (SC)"   },
+  {kMCqedSC_recoEff   , "QED MC (SC)"   },
   {kMCqedSL           , "QED MC (SL)"   },
   {kMClbl             , "LbL MC"        },
   {kMCcep             , "CEP MC"        },

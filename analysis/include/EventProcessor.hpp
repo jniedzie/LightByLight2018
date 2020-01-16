@@ -13,14 +13,15 @@
 class EventProcessor {
 public:
   /// Default constructor.
-  /// \param dataset Determines which events will be kept here (data, MC lbl, MC cep etc.)
-  EventProcessor(EDataset dataset);
-  
-  /// Alternative constructor, taking directly path to the file
-  EventProcessor(string inputPath);
+  /// \param inputPath Path to the file
+  /// \param outputPath Path to the output file (in case one wants to save selected events to a new tree)
+  EventProcessor(string inputPath, string outputPath="");
   
   /// Default destructor
   ~EventProcessor();
+
+  void AddEventToOutputTree(int iEvent);
+  void SaveOutputTree();
   
   /// Returns number of events
   inline long long GetNevents() const { return eventTree->GetEntries(); }
@@ -29,63 +30,67 @@ public:
   shared_ptr<Event> GetEvent(int iEvent);
   
 private:
-  TTree *hltTree;   ///< Pointer to the hlt tree
-  TTree *eventTree; ///< Pointer to the event tree
-  TTree *l1Tree;    ///< Pointer to the L1 tree
+  TTree *eventTree, *hltTree, *l1Tree;          ///< Input trees
+  TTree *outEventTree, *outHltTree, *outL1Tree; ///< Output trees
+  TDirectory *dirEvent, *dirHLT, *dirL1;        ///< Output directories
+  TFile *outFile;                               ///< Output file
   
   shared_ptr<Event> currentEvent; ///< Pointer to the current event
   
   // Handles to variables stored in ntuple trees
   vector<int>    triggersLbL;
   
-  vector<double> *mcEta              = nullptr;
-  vector<double> *mcPhi              = nullptr;
-  vector<double> *mcEt               = nullptr;
-  vector<double> *mcE                = nullptr;
-  vector<double> *mcPID              = nullptr;
+  vector<float> *mcEta              = nullptr;
+  vector<float> *mcPhi              = nullptr;
+  vector<float> *mcEt               = nullptr;
+  vector<float> *mcE                = nullptr;
+  vector<float> *mcPID              = nullptr;
   
-  vector<double> *photonHoverE       = nullptr;
-  vector<double> *photonSCEta        = nullptr;
-  vector<double> *photonSCPhi        = nullptr;
-  vector<double> *photonSCEt         = nullptr;
-  vector<double> *photonSCE          = nullptr;
-  vector<double> *photonSCEtaWidth   = nullptr;
-  vector<double> *photonSCPhiWidth   = nullptr;
+  vector<float> *photonHoverE       = nullptr;
+  vector<float> *photonSCEta        = nullptr;
+  vector<float> *photonSCPhi        = nullptr;
+  vector<float> *photonSCEt         = nullptr;
+  vector<float> *photonSCE          = nullptr;
+  vector<float> *photonSCEtaWidth   = nullptr;
+  vector<float> *photonSCPhiWidth   = nullptr;
   
-  vector<double> *towerEta           = nullptr;
-  vector<double> *towerPhi           = nullptr;
-  vector<double> *towerEnergy        = nullptr;
-  vector<double> *towerEt            = nullptr;
-  vector<double> *towerEnergyHad     = nullptr;
-  vector<double> *towerEnergyEm      = nullptr;
+  vector<float> *towerEta           = nullptr;
+  vector<float> *towerPhi           = nullptr;
+  vector<float> *towerEnergy        = nullptr;
+  vector<float> *towerEt            = nullptr;
+  vector<float> *towerEnergyHad     = nullptr;
+  vector<float> *towerEnergyEm      = nullptr;
   
-  vector<int>    *generalTrackCharge = nullptr;
-  vector<double> *generalTrackPt     = nullptr;
-  vector<double> *generalTrackEta    = nullptr;
-  vector<double> *generalTrackPhi    = nullptr;
+  vector<int>   *generalTrackCharge = nullptr;
+  vector<float> *generalTrackPt     = nullptr;
+  vector<float> *generalTrackEta    = nullptr;
+  vector<float> *generalTrackPhi    = nullptr;
   
-  vector<int>    *electronCharge       = nullptr;
-  vector<int>    *electronNmissing     = nullptr;
-  vector<double> *electronPt           = nullptr;
-  vector<double> *electronEta          = nullptr;
-  vector<double> *electronPhi          = nullptr;
-  vector<double> *electronHoverE       = nullptr;
-  vector<double> *electronRelIsoWithEA = nullptr;
-  vector<double> *electronDetaSeed     = nullptr;
-  vector<double> *electronSCEta        = nullptr;
-  vector<double> *electronSCEt         = nullptr;
-  vector<double> *electronSCPhi        = nullptr;
-  vector<double> *electronSCEn         = nullptr;
-  vector<double> *electronChIso        = nullptr;
-  vector<double> *electronPhoIso       = nullptr;
-  vector<double> *electronNeuIso       = nullptr;
+  vector<int>   *electronCharge       = nullptr;
+  vector<int>   *electronNmissing     = nullptr;
+  vector<float> *electronPt           = nullptr;
+  vector<float> *electronEta          = nullptr;
+  vector<float> *electronPhi          = nullptr;
+  vector<float> *electronHoverE       = nullptr;
+  vector<float> *electronRelIsoWithEA = nullptr;
+  vector<float> *electronDetaSeed     = nullptr;
+  vector<float> *electronSCEta        = nullptr;
+  vector<float> *electronSCEt         = nullptr;
+  vector<float> *electronSCPhi        = nullptr;
+  vector<float> *electronSCEn         = nullptr;
+  vector<float> *electronChIso        = nullptr;
+  vector<float> *electronPhoIso       = nullptr;
+  vector<float> *electronNeuIso       = nullptr;
 
-  vector<double> *L1EGeta              = nullptr;
-  vector<double> *L1EGphi              = nullptr;
-  vector<double> *L1EGet               = nullptr;
+  vector<float> *L1EGeta              = nullptr;
+  vector<float> *L1EGphi              = nullptr;
+  vector<float> *L1EGet               = nullptr;
   
   /// Opens input trees and sets branches
-  void SetupBranches(string inputPath);
+  void SetupBranches(string inputPath, string outputPath);
+  
+  /// Creates output file and copies intput trees to it (without copying the entries)
+  void SetupOutputTree(string outFileName);
 };
 
 #endif /* EventProcessor_hpp */

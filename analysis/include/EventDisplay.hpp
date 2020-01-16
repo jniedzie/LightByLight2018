@@ -99,6 +99,7 @@ void saveEventDisplay(vector<shared_ptr<PhysObject>>    &matchingTracks,
     auto matchedTrackGraph  = getTrackGraph(1000*matchingTrack->GetPt(), matchingTrack->GetPhi(), matchingTrack->GetCharge());
     matchedTrackGraph->SetMarkerColor(kRed);
     matchedTrackGraph->SetMarkerStyle(20);
+//    matchedTrackGraph->SetMarkerSize(1.0);
     matchedTrackGraph->Draw(first ? "P" : "Psame");
     if(first){
       leg->AddEntry(matchedTrackGraph , "Matched tracks" , "p");
@@ -114,8 +115,9 @@ void saveEventDisplay(vector<shared_ptr<PhysObject>>    &matchingTracks,
     auto bremTrackGraph = getTrackGraph(1000*bremTrack->GetPt(), bremTrack->GetPhi(), bremTrack->GetCharge());
     bremTrackGraph->SetMarkerColor(kViolet);
     bremTrackGraph->SetMarkerStyle(21);
-    if(first) leg->AddEntry(bremTrackGraph    , "Brem tracks"    , "p");
+    if(first) leg->AddEntry(bremTrackGraph, "Brem tracks", "p");
     bremTrackGraph->Draw("Psame");
+    first = false;
   }
   first = true;
   for(auto electron : electrons){
@@ -147,7 +149,8 @@ void saveEventDisplay(vector<shared_ptr<PhysObject>>    &matchingTracks,
   leg->Draw();
     
   canvas->Update();
-  canvas->SaveAs((basePath+"/event_"+to_string(iCanvas)+".pdf").c_str());
+  int randInt = static_cast<int>(rand())/(static_cast<int>(RAND_MAX/(1000000)));
+  canvas->SaveAs((basePath+"/event_"+to_string(randInt)+".pdf").c_str());
   
   iCanvas++;
 }

@@ -5,7 +5,7 @@ string outputPath = "../plots/triggerEfficiencyDependanceL1.pdf";
 vector<EDataset> datasetsToDraw = {
   kData,
   kMCqedSC,
-  kMCqedSL
+//  kMCqedSL
 };
 
 vector<tuple<string, string, string, string>> variables = {
