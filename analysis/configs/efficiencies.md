@@ -29,7 +29,7 @@ photonMaxEtaWidthBarrel:       0.0106
 photonMaxEtaWidthEndcap:    0.0272
 
 ### Electron ID cuts:
-electronMinPt:                            3.0
+electronMinPt:                            5.0
 electronMaxEta:                         2.3
 electronMaxNmissingHits:         1
 electronMaxHoverE_Barrel:         0.005

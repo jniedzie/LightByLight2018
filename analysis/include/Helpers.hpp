@@ -63,8 +63,9 @@ enum EDataset{
 const vector<EDataset> datasets = { kData, kMCcep, kMCqedSC, kMCqedSC_SingleEG3, kMCqedSC_recoEff, kMCqedSL, kMClbl,  };
 
 const map<EDataset, string> inFileNames = {
-  {kData              , "ntuples/ntuples_data_withSingleEG3.root"         },
+//  {kData              , "ntuples/ntuples_data_withSingleEG3.root"         },
 //  {kData              , "ntuples/data_HiForestAOD_withSingleEG3_test.root"  },
+  {kData              , "ntuples/ntuples_data_forRecoEff.root"  },
   {kMCqedSC_SingleEG3 , "ntuples/ntuples_mc_qed_withSingleEG3.root"         },
   {kMCqedSC_recoEff   , "ntuples/ntuples_mc_qed_recoEffEvents.root"         },
   {kMCqedSC           , "ntuples/ntuples_mc_qed_sc_withL1_merged.root"      },

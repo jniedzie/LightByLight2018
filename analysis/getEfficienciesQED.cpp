@@ -12,11 +12,11 @@
 
 string configPath = "configs/efficiencies.md";
 //string configPath = "/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/efficiencies.md";
-string outputPath = "results/efficienciesQED_QED_SC_test.root";
+string outputPath = "results/efficienciesQED_test.root";
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
-  //  kData,
+  kData,
 //  kMCqedSC_SingleEG3,
   kMCqedSC_recoEff,
   //  kMCqedSC,
@@ -33,6 +33,7 @@ bool doNEEefficiency     = false;
 vector<string> histParams = {
   "reco_id_eff", "reco_id_eff_vs_pt", "reco_id_eff_vs_eta",
   "trigger_eff", "trigger_HFveto_eff", "charged_exclusivity_eff", "neutral_exclusivity_eff",
+  "ele_acoplanarity", "brem_track_pt"
 };
 
 
@@ -77,7 +78,7 @@ void CheckRecoEfficiency(Event &event,
   
   for(auto electron : goodElectrons){
     for(auto &L1EG : event.GetL1EGs()){
-      if(L1EG->GetEt() < 3.0) continue;
+      if(L1EG->GetEt() < 5.0) continue;
       
       if(physObjectProcessor.GetDeltaR_SC(*electron, *L1EG) < 0.3){
         goodMatchedElectrons.push_back(electron);
@@ -106,9 +107,9 @@ void CheckRecoEfficiency(Event &event,
   cutThroughHists[name]->Fill(cutLevel++); // 6
   
   // Check separation between brem track and photon:
-  if(fabs(2*bremTrack->GetPt()-matchingTrack->GetPt()) < 2.0) return;
+//  if(fabs(2*bremTrack->GetPt()-matchingTrack->GetPt()) < 2.0) return;
   
-//  if(bremTrack->GetPt() > 2.0) return;
+  if(bremTrack->GetPt() < 2.0) return;
   cutThroughHists[name]->Fill(cutLevel++); // 7
   
   // Count this event as a tag
@@ -117,7 +118,10 @@ void CheckRecoEfficiency(Event &event,
   hists["reco_id_eff_vs_eta"+datasetName+"_den"]->Fill(fabs(matchingTracks[0]->GetEta()));
   nEvents[name].first++;
   
-  // Count number of photons that are far from good, matched electrons
+  hists["ele_acoplanarity"+datasetName+"_den"]->Fill(physObjectProcessor.GetAcoplanarity(*matchingTrack, *bremTrack));
+  hists["brem_track_pt"+datasetName+"_den"]->Fill(bremTrack->GetPt());
+  
+//   Count number of photons that are far from good, matched electrons
   auto photons = event.GetGoodPhotons();
 //  auto photons = event.GetPhotons();
   int nBremPhotons = 0;
@@ -138,7 +142,7 @@ void CheckRecoEfficiency(Event &event,
   }
   else{
     auto allPhotons = event.GetPhotons();
-    saveEventDisplay(matchingTracks, bremTracks, goodMatchedElectrons, photons, allPhotons, "~/Desktop/lbl_event_displays/", 10);
+//    saveEventDisplay(matchingTracks, bremTracks, goodMatchedElectrons, photons, allPhotons, "~/Desktop/lbl_event_displays_"+datasetName+"/");
   }
 }
 
@@ -401,6 +405,12 @@ void InitializeHistograms(map<string, TH1D*> &hists,
     else if(histName.find("vs_eta") != string::npos){
       bins  = { 0.5, 1.0, 1.5, 2.0 , 2.5 };
     }
+    else if(histName.find("acoplanarity") != string::npos){
+      bins  = { 0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10 };
+    }
+    else if(histName.find("brem_track_pt") != string::npos){
+      bins  = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20 };
+    }
     else{
       bins = { 0, 2, 3, 4, 5, 6, 8, 10, 13, 20 };
     }
@@ -438,6 +448,19 @@ void PrintAndSaveResults(TFile *outFile,
   outFile->cd();
   
   for(auto histName : histParams){
+    if(histName == "reco_id_eff" || histName == "reco_id_eff_vs_pt" || histName == "reco_id_eff_vs_eta"){
+      if(!doRecoEfficiency) continue;
+    }
+    if(histName == "trigger_eff" || histName == "trigger_HFveto_eff"){
+      if(!doTriggerEfficiency) continue;
+    }
+    if(histName == "charged_exclusivity_eff"){
+      if(!doCHEefficiency) continue;
+    }
+    if(histName == "neutral_exclusivity_eff"){
+      if(!doNEEefficiency) continue;
+    }
+    
     string title = histName+name;
     
     hists[title]->Divide(hists[title+"_num"], hists[title+"_den"], 1, 1, "B");
@@ -505,7 +528,7 @@ int main(int argc, char* argv[])
     
     // Loop over events
     for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
-      if(iEvent%10000 == 0) cout<<"Processing event "<<iEvent<<endl;
+      if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
       if(iEvent >= config.params("maxEvents")) break;
       
       auto event = events->GetEvent(iEvent);

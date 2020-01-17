@@ -38,6 +38,22 @@ bool IsGoodForRecoEfficiency(Event &event)
   return true;
 }
 
+/// Check if this event is a good candidate for reco+ID efficiency estimation
+bool IsGoodForTrigger(Event &event)
+{
+  // Check trigger
+  if(!event.HasSingleEG3Trigger()) return false;
+  
+  // Check if there are at least two electrons
+  if(event.GetNelectrons() < 2) return false;
+  
+  // Check exclusivity criteria
+  if(event.HasAdditionalTowers()) return false;
+  if(event.GetNchargedTracks() != 2) return false;
+  
+  return true;
+}
+
 /// Application starting point
 int main(int argc, char* argv[])
 {
@@ -60,7 +76,8 @@ int main(int argc, char* argv[])
     if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
     
     auto event = events->GetEvent(iEvent);
-    if(IsGoodForRecoEfficiency(*event)) events->AddEventToOutputTree(iEvent);
+//    if(IsGoodForRecoEfficiency(*event)) events->AddEventToOutputTree(iEvent);
+    if(IsGoodForTrigger(*event)) events->AddEventToOutputTree(iEvent);
   }
 
   events->SaveOutputTree();
