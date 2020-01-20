@@ -23,7 +23,7 @@ const vector<EDataset> datasetsToAnalyze = {
   //  kMCqedSC,
 //  kMCqedSC_SingleEG3,
 //  kMCqedSC_recoEff,
-//  kMCqedSC_triggerEff,
+  kMCqedSC_triggerEff,
   //  kMCqedSL
 };
 
@@ -503,10 +503,9 @@ void ReadInputArguments(int argc, char* argv[], map<EDataset, string> &inputPath
 /// Application starting point
 int main(int argc, char* argv[])
 {
-  config = ConfigManager(configPath);
-  
   map<EDataset, string> inputPaths;
   ReadInputArguments(argc, argv, inputPaths);
+  config = ConfigManager(configPath);
   
   map<string, pair<int, int>> nEvents; ///< N events passing tag/probe criteria
   map<string, TH1D*> cutThroughHists;

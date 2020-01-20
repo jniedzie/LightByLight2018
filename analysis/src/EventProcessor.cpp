@@ -131,8 +131,9 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   eventTree->GetEntry(iEvent);
   l1Tree->GetEntry(iEvent);
   
-  // Clear and fill in collection of gen particles
-  currentEvent->genParticles.clear();
+  currentEvent->Reset();
+  
+  // Fill in collection of gen particles
   
   for(int iTrigger=0; iTrigger<triggerNamesLbL.size(); iTrigger++){
     currentEvent->triggersLbL[triggerNamesLbL[iTrigger]] = triggersLbL[iTrigger];
@@ -149,8 +150,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     currentEvent->genParticles.push_back(genParticle);
   }
   
-  // Clear and fill in collection of photon superclusters
-  currentEvent->photons.clear();
+  // Fill in collection of photon superclusters
   
   for(size_t iPhoton=0; iPhoton<currentEvent->nPhotons; iPhoton++){
     auto photon = make_shared<PhysObject>();
@@ -170,8 +170,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     currentEvent->photons.push_back(photon);
   }
   
-  // Clear and fill in collection of calo towers
-  currentEvent->caloTowers.clear();
+  // Fill in collection of calo towers
   
   for(size_t iTower=0; iTower<currentEvent->nCaloTowers; iTower++){
     auto tower = make_shared<PhysObject>();
@@ -187,8 +186,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     currentEvent->caloTowers.push_back(tower);
   }
   
-  // Clear and fill in collection of general tracks
-  currentEvent->generalTracks.clear();
+  // Fill in collection of general tracks
   
   for(size_t iTrack=0; iTrack<currentEvent->nGeneralTracks; iTrack++){
     auto track = make_shared<PhysObject>();
@@ -201,8 +199,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     currentEvent->generalTracks.push_back(track);
   }
   
-  // Clear and fill in collection of electrons
-  currentEvent->electrons.clear();
+  // Fill in collection of electrons
   
   for(size_t iElectron=0; iElectron<currentEvent->nElectrons; iElectron++){
     auto electron = make_shared<PhysObject>();
@@ -227,8 +224,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     currentEvent->electrons.push_back(electron);
   }
   
-  // Clear and fill in collection of L1 EG objects
-  currentEvent->L1EGs.clear();
+  // Fill in collection of L1 EG objects
   
   for(size_t iL1EG=0; iL1EG<currentEvent->nL1EGs; iL1EG++){
     auto L1EG = make_shared<PhysObject>();

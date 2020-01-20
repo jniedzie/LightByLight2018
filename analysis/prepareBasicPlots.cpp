@@ -10,6 +10,21 @@
 string configPath = "configs/efficiencies.md";
 string outputPath = "results/basicPlots.root";
 
+// Only those datasets will be analyzed
+const vector<EDataset> datasetsToAnalyze = {
+//  kData,
+  kData_SingleEG3,
+//  kData_recoEff,
+//  kData_triggerEff,
+  //  kMCqedSC,
+  kMCqedSC_SingleEG3,
+//  kMCqedSC_recoEff,
+//  kMCqedSC_triggerEff,
+//    kMCqedSL,
+//  kMClbl,
+//  kMCcep
+};
+
 vector<tuple<string, int, double, double>> histParams = {
   // title                   nBins min   max
   {"acoplanarity"           , 200 , 0   , 1.0   },
@@ -27,10 +42,15 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
     if(iEvent%10000==0) cout<<"Processing event "<<iEvent<<endl;
     if(iEvent >= config.params("maxEvents")) break;
     
+    auto event = events->GetEvent(iEvent);
+    
     // Add all necessary selection criteria here
     // ...
     
-    auto event = events->GetEvent(iEvent);
+    if(!event->HasDoubleEG2Trigger()) continue;
+    if(event->HasAdditionalTowers()) continue;
+    if(event->GetNchargedTracks() != 0) continue;
+    
     auto photons = event->GetGoodPhotons();
     
     if(photons.size() == 2){
@@ -67,7 +87,7 @@ int main()
   
   TFile *outFile = new TFile(outputPath.c_str(), "recreate");
   
-  for(auto dataset : datasets){
+  for(auto dataset : datasetsToAnalyze){
     string title = datasetName.at(dataset);
     
     for(auto &[histName, nBins, min, max] : histParams){
@@ -78,7 +98,7 @@ int main()
     
     cout<<"Creating "<<title<<" plots"<<endl;
     
-    unique_ptr<EventProcessor> events(new EventProcessor(dataset));
+    auto events = make_unique<EventProcessor>(inFileNames.at(dataset));
     fillHistograms(events, hists, title);
     
     outFile->cd();

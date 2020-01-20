@@ -11,7 +11,22 @@ Event::Event()
 
 Event::~Event()
 {
+
+}
+
+void Event::Reset()
+{
+  genParticles.clear();
+  photons.clear();
+  goodPhotons.clear();
+  caloTowers.clear();
+  generalTracks.clear();
+  electrons.clear();
+  goodElectrons.clear();
+  L1EGs.clear();
   
+  goodPhotonsReady = false;
+  goodElectronsReady = false;
 }
 
 bool Event::HasSingleEG3Trigger() const

@@ -3,7 +3,20 @@
 string inputPath  = "../results/basicPlots.root";
 string outputPath = "../plots/acoplanarity.pdf";
 
-vector<EDataset> datasetsToSkip = { kMCqedSL };
+// Only those datasets will be analyzed
+const vector<EDataset> datasetsToAnalyze = {
+  kData,
+//  kData_SingleEG3,
+//  kData_recoEff,
+//  kData_triggerEff,
+    kMCqedSC,
+//  kMCqedSC_SingleEG3,
+//  kMCqedSC_recoEff,
+//  kMCqedSC_triggerEff,
+//    kMCqedSL,
+//  kMClbl,
+//  kMCcep
+};
 
 void prepareHist(TH1D *hist, int color)
 {
@@ -35,9 +48,7 @@ void drawAcoplanarity()
   map<EDataset, TH1D*> hists;
   THStack *backgroundsStack = new THStack();
   
-  for(EDataset dataset : datasets){
-    if(find(datasetsToSkip.begin(), datasetsToSkip.end(), dataset) != datasetsToSkip.end()) continue;
-    
+  for(EDataset dataset : datasetsToAnalyze){
     string legendOption = legendOptions[dataset];
     
     hists[dataset] = (TH1D*)inFile->Get(("acoplanarity"+datasetName.at(dataset)).c_str());

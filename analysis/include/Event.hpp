@@ -19,6 +19,8 @@ public:
   /// Default destructor
   ~Event();
   
+  void Reset();
+  
   // Those return number of objects in this event:
   inline int GetNgenParticles()   const { return nGenParticles;   }
   inline int GetNphotons()        const { return nPhotons;        }
