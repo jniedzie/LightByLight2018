@@ -16,16 +16,20 @@ string outputPath = "results/efficienciesQED_test.root";
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
-  kData,
-//  kMCqedSC_SingleEG3,
-  kMCqedSC_recoEff,
+//  kData,
+//  kData_SingleEG3,
+//  kData_recoEff,
+  kData_triggerEff,
   //  kMCqedSC,
+//  kMCqedSC_SingleEG3,
+//  kMCqedSC_recoEff,
+//  kMCqedSC_triggerEff,
   //  kMCqedSL
 };
 
 // Select which efficiencies to calculate
-bool doRecoEfficiency    = true;
-bool doTriggerEfficiency = false;
+bool doRecoEfficiency    = false;
+bool doTriggerEfficiency = true;
 bool doCHEefficiency     = false;
 bool doNEEefficiency     = false;
 
@@ -190,12 +194,12 @@ void CheckTriggerEfficiency(Event &event,
     double deltaR2 = physObjectProcessor.GetDeltaR_SC(*electron2, *L1EG);
     
     if(deltaR1 < 1.0){
-      if(!tag && L1EG->GetEt() > 3.0) tag = electron1;
+      if(!tag && L1EG->GetEt() > 5.0) tag = electron1;
       else if(L1EG->GetEt() > 2.0) passingProbe = electron1;
     }
     
     if(deltaR2 < 1.0){
-      if(!tag && L1EG->GetEt() > 3.0) tag = electron2;
+      if(!tag && L1EG->GetEt() > 5.0) tag = electron2;
       else if(L1EG->GetEt() > 2.0) passingProbe = electron2;
     }
   }
@@ -208,9 +212,7 @@ void CheckTriggerEfficiency(Event &event,
   if(passingProbe){
     matched.at(datasetName) = 1;
     SCEt.at(datasetName) = passingProbe->GetPt();
-    //  SCEt.at(datasetName) = probe->GetEtSC();
     absEta.at(datasetName) = fabs(passingProbe->GetEta());
-    
   }
   else{
     if(tag == electron1) failedProbe = electron2;
@@ -218,9 +220,7 @@ void CheckTriggerEfficiency(Event &event,
     
     matched.at(datasetName) = 0;
     SCEt.at(datasetName) = failedProbe->GetPt();
-    //  SCEt.at(datasetName) = probe->GetEtSC();
     absEta.at(datasetName) = fabs(failedProbe->GetEta());
-    
   }
   trees.at(datasetName)->Fill();
 }

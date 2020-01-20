@@ -11,15 +11,7 @@
 string configPath = "configs/efficiencies.md";
 
 string inFilePath   = "ntuples/ntuples_mc_qed_withSingleEG3.root";
-string outFilePath  = "ntuples/ntuples_mc_qed_recoEffEvents.root";
-
-// Only those datasets will be analyzed
-const vector<EDataset> datasetsToAnalyze = {
-  //  kData,
-  kMCqedSC_SingleEG3,
-  //  kMCqedSC,
-  //  kMCqedSL
-};
+string outFilePath  = "ntuples/ntuples_mc_qed_triggerEffEvents.root";
 
 /// Check if this event is a good candidate for reco+ID efficiency estimation
 bool IsGoodForRecoEfficiency(Event &event)
