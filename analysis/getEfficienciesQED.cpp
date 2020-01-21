@@ -18,26 +18,48 @@ string outputPath = "results/efficienciesQED_test.root";
 const vector<EDataset> datasetsToAnalyze = {
 //  kData,
 //  kData_SingleEG3,
-//  kData_recoEff,
-  kData_triggerEff,
+  kData_recoEff,
+//  kData_triggerEff,
   //  kMCqedSC,
 //  kMCqedSC_SingleEG3,
-//  kMCqedSC_recoEff,
-  kMCqedSC_triggerEff,
+  kMCqedSC_recoEff,
+//  kMCqedSC_triggerEff,
   //  kMCqedSL
 };
 
 // Select which efficiencies to calculate
-bool doRecoEfficiency    = false;
-bool doTriggerEfficiency = true;
+bool doRecoEfficiency    = true;
+bool doTriggerEfficiency = false;
 bool doCHEefficiency     = false;
 bool doNEEefficiency     = false;
 
 // Names of efficiency histograms to create and save
 vector<string> histParams = {
-  "reco_id_eff", "reco_id_eff_vs_pt", "reco_id_eff_vs_eta",
-  "trigger_eff", "trigger_HFveto_eff", "charged_exclusivity_eff", "neutral_exclusivity_eff",
-  "ele_acoplanarity", "brem_track_pt"
+  // reco+ID efficiency histograms
+  "reco_id_eff_cut_through",
+  "reco_id_eff_num",
+  "reco_id_eff_den",
+  "reco_id_eff_vs_pt_num",
+  "reco_id_eff_vs_pt_den",
+  "reco_id_eff_vs_eta_num",
+  "reco_id_eff_vs_eta_den",
+  "ele_acoplanarity",
+  "brem_track_pt",
+  "failingPhotonEta",
+  
+  // trigger efficiency histograms
+  "trigger_eff_cut_through",
+  "trigger_HFveto_eff_cut_through",
+  "trigger_HFveto_eff_num",
+  "trigger_HFveto_eff_den",
+  
+  // exclusivity efficiency histograms
+  "charged_exclusivity_eff_cut_through",
+  "charged_exclusivity_eff_num",
+  "charged_exclusivity_eff_den",
+  "neutral_exclusivity_eff_cut_through",
+  "neutral_exclusivity_eff_num",
+  "neutral_exclusivity_eff_den",
 };
 
 
@@ -47,34 +69,29 @@ map<string, float> SCEt;
 map<string, float> absEta;
 
 /// Counts number of events passing tag and probe criteria for reco+ID efficiency
-void CheckRecoEfficiency(Event &event,
-                         map<string, pair<int, int>> &nEvents,
-                         map<string, TH1D*> &hists,
-                         map<string, TH1D*> &cutThroughHists,
-                         map<string, TH1D*> &monitorHists,
-                         string datasetName)
+void CheckRecoEfficiency(Event &event, map<string, TH1D*> &hists, string datasetName)
 {
-  string name = "reco_id_eff"+datasetName;
+  string cutThouthName = "reco_id_eff_cut_through_"+datasetName;
   int cutLevel = 0;
-  cutThroughHists[name]->Fill(cutLevel++); // 0
+  hists[cutThouthName]->Fill(cutLevel++); // 0
   
   // Check trigger
   if(!event.HasSingleEG3Trigger()) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 1
+  hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Preselect events with exactly two tracks
   if(event.GetNgeneralTracks() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 2
+  hists[cutThouthName]->Fill(cutLevel++); // 2
   
   // Make sure that tracks have opposite charges and that brem track has low momentum
   auto track1 = event.GetGeneralTrack(0);
   auto track2 = event.GetGeneralTrack(1);
   if(track1->GetCharge() == track2->GetCharge()) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 3
+  hists[cutThouthName]->Fill(cutLevel++); // 3
   
   double estimatedPhotonEt = fabs(track1->GetPt()-track2->GetPt());
 //  if(estimatedPhotonEt < 2.0) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 4
+  hists[cutThouthName]->Fill(cutLevel++); // 4
   
   // Check if there is one good electron matched with L1EG
   vector<shared_ptr<PhysObject>> goodMatchedElectrons;
@@ -93,7 +110,7 @@ void CheckRecoEfficiency(Event &event,
   
   if(goodMatchedElectrons.size() != 1) return;
   auto theElectron = goodMatchedElectrons[0];
-  cutThroughHists[name]->Fill(cutLevel++); // 5
+  hists[cutThouthName]->Fill(cutLevel++); // 5
   
   // Find tracks that match electrons
   vector<shared_ptr<PhysObject>> matchingTracks;
@@ -108,26 +125,24 @@ void CheckRecoEfficiency(Event &event,
   if(matchingTracks.size() != 1 || bremTracks.size() != 1) return;
   auto matchingTrack  = matchingTracks[0];
   auto bremTrack      = bremTracks[0];
-  cutThroughHists[name]->Fill(cutLevel++); // 6
+  hists[cutThouthName]->Fill(cutLevel++); // 6
   
   // Check separation between brem track and photon:
 //  if(fabs(2*bremTrack->GetPt()-matchingTrack->GetPt()) < 2.0) return;
   
   if(bremTrack->GetPt() < 2.0) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 7
+  hists[cutThouthName]->Fill(cutLevel++); // 7
   
   // Count this event as a tag
-  hists[name+"_den"]->Fill(1);
-  hists["reco_id_eff_vs_pt"+datasetName+"_den"]->Fill(estimatedPhotonEt);
-  hists["reco_id_eff_vs_eta"+datasetName+"_den"]->Fill(fabs(matchingTracks[0]->GetEta()));
-  nEvents[name].first++;
-  
-  hists["ele_acoplanarity"+datasetName+"_den"]->Fill(physObjectProcessor.GetAcoplanarity(*matchingTrack, *bremTrack));
-  hists["brem_track_pt"+datasetName+"_den"]->Fill(bremTrack->GetPt());
+  hists["reco_id_eff_den_"+datasetName]->Fill(1);
+  hists["reco_id_eff_vs_pt_den_"+datasetName]->Fill(estimatedPhotonEt);
+  hists["reco_id_eff_vs_eta_den_"+datasetName]->Fill(fabs(matchingTracks[0]->GetEta()));
+  hists["ele_acoplanarity_"+datasetName]->Fill(physObjectProcessor.GetAcoplanarity(*matchingTrack, *bremTrack));
+  hists["brem_track_pt_"+datasetName]->Fill(bremTrack->GetPt());
   
 //   Count number of photons that are far from good, matched electrons
-  auto photons = event.GetGoodPhotons();
-//  auto photons = event.GetPhotons();
+//  auto photons = event.GetGoodPhotons();
+  auto photons = event.GetPhotons();
   int nBremPhotons = 0;
   
   for(auto photon : photons){
@@ -136,48 +151,45 @@ void CheckRecoEfficiency(Event &event,
   
   // Check that there's exactly one photon passing ID cuts
   if(nBremPhotons > 0){
-    cutThroughHists[name]->Fill(cutLevel++); // 8
+    hists[cutThouthName]->Fill(cutLevel++); // 8
     
     // Count this event as a probe
-    hists[name+"_num"]->Fill(1);
-    hists["reco_id_eff_vs_pt"+datasetName+"_num"]->Fill(estimatedPhotonEt);
-    hists["reco_id_eff_vs_eta"+datasetName+"_num"]->Fill(fabs(matchingTracks[0]->GetEta()));
-    nEvents[name].second++;
+    hists["reco_id_eff_num_"+datasetName]->Fill(1);
+    hists["reco_id_eff_vs_pt_num_"+datasetName]->Fill(estimatedPhotonEt);
+    hists["reco_id_eff_vs_eta_num_"+datasetName]->Fill(fabs(matchingTracks[0]->GetEta()));
   }
   else{
     auto allPhotons = event.GetPhotons();
-//    saveEventDisplay(matchingTracks, bremTracks, goodMatchedElectrons, photons, allPhotons, "~/Desktop/lbl_event_displays_"+datasetName+"/");
+    saveEventDisplay(matchingTracks, bremTracks, goodMatchedElectrons, photons, allPhotons, "~/Desktop/lbl_event_displays_"+datasetName+"/");
+    for(auto photon : photons){
+      hists["failingPhotonEta_"+datasetName]->Fill(fabs(photon->GetEta()));
+    }
   }
 }
 
-
-
 /// Counts number of events passing tag and probe criteria for trigger efficiency
-void CheckTriggerEfficiency(Event &event,
-                            map<string, TTree*> &trees,
-                            map<string, TH1D*> &cutThroughHists,
-                            string datasetName)
+void CheckTriggerEfficiency(Event &event, map<string, TTree*> &trees, map<string, TH1D*> &hists, string datasetName)
 {
-  string name = "trigger_eff"+datasetName;
+  string cutThouthName = "trigger_eff_cut_through_"+datasetName;
   int cutLevel = 0;
-  cutThroughHists[name]->Fill(cutLevel++); // 0
+  hists[cutThouthName]->Fill(cutLevel++); // 0
   
   // Check trigger
   if(!event.HasSingleEG3Trigger()) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 1
+  hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Neutral exclusivity
   if(event.HasAdditionalTowers()) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 2
+  hists[cutThouthName]->Fill(cutLevel++); // 2
   
   // Preselect events with exactly two electrons
   auto goodElectrons = event.GetGoodElectrons();
   if(goodElectrons.size() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 3
+  hists[cutThouthName]->Fill(cutLevel++); // 3
   
   // Charged exclusivity
   if(event.GetNchargedTracks() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 4
+  hists[cutThouthName]->Fill(cutLevel++); // 4
   
   // Tag and probe
   auto electron1 = goodElectrons[0];
@@ -205,7 +217,7 @@ void CheckTriggerEfficiency(Event &event,
   }
   
   if(!tag) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 5
+  hists[cutThouthName]->Fill(cutLevel++); // 5
   
   acoplanarity.at(datasetName) = physObjectProcessor.GetAcoplanarity(*electron1, *electron2);
   
@@ -225,38 +237,34 @@ void CheckTriggerEfficiency(Event &event,
   trees.at(datasetName)->Fill();
 }
 
-void CheckTriggerHFvetoEfficiency(Event &event,
-                                  map<string, pair<int, int>> &nEvents,
-                                  map<string, TH1D*> &hists,
-                                  map<string, TH1D*> &cutThroughHists,
-                                  string datasetName)
+void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, string datasetName)
 {
-  string name = "trigger_HFveto_eff"+datasetName;
+  string cutThouthName = "trigger_HFveto_eff_cut_through_"+datasetName;
   int cutLevel = 0;
-  cutThroughHists[name]->Fill(cutLevel++); // 0
+  hists[cutThouthName]->Fill(cutLevel++); // 0
   
   // Check trigger with no HF veto
   if(!event.HasSingleEG3noHFvetoTrigger()) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 1
+  hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Neutral exclusivity
   if(event.HasAdditionalTowers()) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 2
+  hists[cutThouthName]->Fill(cutLevel++); // 2
   
   // Preselect events with exactly two electrons
   auto goodElectrons = event.GetGoodElectrons();
   if(goodElectrons.size() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 3
+  hists[cutThouthName]->Fill(cutLevel++); // 3
   
   // Opposite charges
   auto electron1 = goodElectrons[0];
   auto electron2 = goodElectrons[1];
   if(electron1->GetCharge() == electron2->GetCharge()) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 4
+  hists[cutThouthName]->Fill(cutLevel++); // 4
   
   // Charged exclusivity
   if(event.GetNchargedTracks() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 5
+  hists[cutThouthName]->Fill(cutLevel++); // 5
   
   // Check if there are two electrons matched with L1 objects
   vector<shared_ptr<PhysObject>> matchedElectrons;
@@ -274,100 +282,84 @@ void CheckTriggerHFvetoEfficiency(Event &event,
   }
   
   if(matchedElectrons.size() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 6
-  
-  nEvents[name].first++;
-  hists[name+"_den"]->Fill(1);
+  hists[cutThouthName]->Fill(cutLevel++); // 6
+  hists["trigger_HFveto_eff_den_"+datasetName]->Fill(1);
   
   // Check if it also has double EG2 trigger
   if(!event.HasDoubleEG2Trigger()) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 7
-  
-  nEvents[name].second++;
-  hists[name+"_num"]->Fill(1);
+  hists[cutThouthName]->Fill(cutLevel++); // 7
+  hists["trigger_HFveto_eff_num_"+datasetName]->Fill(1);
 }
 
 /// Counts number of events passing tag and probe criteria for charged exclusivity efficiency
-void CheckCHEefficiency(Event &event,
-                        map<string, pair<int, int>> &nEvents,
-                        map<string, TH1D*> &hists,
-                        map<string, TH1D*> &cutThroughHists,
-                        string datasetName)
+void CheckCHEefficiency(Event &event, map<string, TH1D*> &hists, string datasetName)
 {
-  string name = "charged_exclusivity_eff"+datasetName;
+  string cutThouthName = "charged_exclusivity_eff_cut_through_"+datasetName;
   int cutLevel = 0;
-  cutThroughHists[name]->Fill(cutLevel++); // 0
+  hists[cutThouthName]->Fill(cutLevel++); // 0
   
   if(!event.HasDoubleEG2Trigger()) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 1
+  hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Check that there are exaclty two electrons
   auto goodElectrons = event.GetGoodElectrons();
   if(goodElectrons.size() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 2
+  hists[cutThouthName]->Fill(cutLevel++); // 2
   
   auto electron1 = goodElectrons[0];
   auto electron2 = goodElectrons[1];
   
   // Check dielectron properties
   if(electron1->GetCharge() == electron2->GetCharge()) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 3
+  hists[cutThouthName]->Fill(cutLevel++); // 3
   
   TLorentzVector dielectron = physObjectProcessor.GetObjectsSum(*electron1, *electron2);
   if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || fabs(dielectron.Eta()) > 2.3) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 4
-  hists[name+"_den"]->Fill(1);
-  nEvents[name].first++;
+  hists[cutThouthName]->Fill(cutLevel++); // 4
+  hists["charged_exclusivity_eff_den"+datasetName]->Fill(1);
   
   // Charged exclusivity
   if(event.GetNchargedTracks() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 5
-  hists[name+"_num"]->Fill(1);
-  nEvents[name].second++;
+  hists[cutThouthName]->Fill(cutLevel++); // 5
+  hists["charged_exclusivity_eff_num"+datasetName]->Fill(1);
 }
 
 /// Counts number of events passing tag and probe criteria for neutral exclusivity efficiency
-void CheckNEEefficiency(Event &event,
-                        map<string, pair<int, int>> &nEvents,
-                        map<string, TH1D*> &hists,
-                        map<string, TH1D*> &cutThroughHists,
-                        string datasetName)
+void CheckNEEefficiency(Event &event, map<string, TH1D*> &hists, string datasetName)
 {
-  string name = "neutral_exclusivity_eff"+datasetName;
+  string cutThouthName = "neutral_exclusivity_eff_cut_through_"+datasetName;
   int cutLevel = 0;
-  cutThroughHists[name]->Fill(cutLevel++); // 0
+  hists[cutThouthName]->Fill(cutLevel++); // 0
   
   if(!event.HasDoubleEG2Trigger()) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 1
+  hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Check that there are exaclty two electrons
   auto goodElectrons = event.GetGoodElectrons();
   if(goodElectrons.size() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 2
+  hists[cutThouthName]->Fill(cutLevel++); // 2
   
   auto electron1 = goodElectrons[0];
   auto electron2 = goodElectrons[1];
   
   // Opposite charges
   if(electron1->GetCharge() == electron2->GetCharge()) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 3
+  hists[cutThouthName]->Fill(cutLevel++); // 3
   
   // Check dielectron properties
   TLorentzVector dielectron = physObjectProcessor.GetObjectsSum(*electron1, *electron2);
   if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || fabs(dielectron.Eta()) > 2.4) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 4
+  hists[cutThouthName]->Fill(cutLevel++); // 4
   
   // Charged exclusivity
   if(event.GetNchargedTracks() != 2) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 5
-  hists[name+"_den"]->Fill(1);
-  nEvents[name].first++;
-  
+  hists[cutThouthName]->Fill(cutLevel++); // 5
+  hists["neutral_exclusivity_eff_den"+datasetName]->Fill(1);
+
   // Neutral exclusivity
   if(event.HasAdditionalTowers()) return;
-  cutThroughHists[name]->Fill(cutLevel++); // 6
-  hists[name+"_num"]->Fill(1);
-  nEvents[name].second++;
+  hists[cutThouthName]->Fill(cutLevel++); // 6
+  hists["neutral_exclusivity_eff_num"+datasetName]->Fill(1);
 }
 
 /// Creates output trigger tree that will store information about matching, acoplanarity etc.
@@ -386,23 +378,17 @@ void InitializeTriggerTrees(map<string, TTree*> &triggerTrees, const string &nam
 
 /// Creates histograms, cut through and event counters for given dataset name, for each
 /// histogram specified in `histParams` vector.
-void InitializeHistograms(map<string, TH1D*> &hists,
-                          map<string, TH1D*> &cutThroughHists,
-                          map<string, TH1D*> &monitorHists,
-                          map<string, pair<int, int>> &nEvents,
-                          const string &name)
+void InitializeHistograms(map<string, TH1D*> &hists, const string &datasetType)
 {
-  
-  
   for(auto histName : histParams){
-    string title = histName+name;
+    string title = histName + "_" + datasetType;
     
     vector<float> bins;
     
-    if(histName.find("vs_pt") != string::npos){
+    if(histName.find("pt") != string::npos){
       bins  = { 0, 2, 4, 6, 8, 20 };
     }
-    else if(histName.find("vs_eta") != string::npos){
+    else if((histName.find("eta") != string::npos) || (histName.find("Eta") != string::npos)){
       bins  = { 0.5, 1.0, 1.5, 2.0 , 2.5 };
     }
     else if(histName.find("acoplanarity") != string::npos){
@@ -411,6 +397,9 @@ void InitializeHistograms(map<string, TH1D*> &hists,
     else if(histName.find("brem_track_pt") != string::npos){
       bins  = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20 };
     }
+    else if(histName.find("cut_through") != string::npos){
+      bins  = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    }
     else{
       bins = { 0, 2, 3, 4, 5, 6, 8, 10, 13, 20 };
     }
@@ -418,67 +407,36 @@ void InitializeHistograms(map<string, TH1D*> &hists,
     float *binsArray = &bins[0];
     int nBins = (int)bins.size()-1;
     
-    hists[title]         = new TH1D( title.c_str()        ,  title.c_str()        , nBins, binsArray);
-    hists[title+"_num"]  = new TH1D((title+"_num").c_str(), (title+"_num").c_str(), nBins, binsArray);
-    hists[title+"_den"]  = new TH1D((title+"_den").c_str(), (title+"_den").c_str(), nBins, binsArray);
-    
-    hists[title+"_num"]->Sumw2();
-    hists[title+"_den"]->Sumw2();
-    
-    cutThroughHists[title] = new TH1D(("cut_through_"+title).c_str(), ("cut_through_"+title).c_str(), 10, 0, 10);
-    
-    monitorHists[title+"_nPhotons"] = new TH1D(("nPhotons_"+title).c_str(), ("nPhotons_"+title).c_str(), 10, 0, 10);
-    monitorHists[title+"_photonsDeta"] = new TH1D(("photonsDeta_"+title).c_str(), ("photonsDeta_"+title).c_str(), 20, 0, 5);
-    monitorHists[title+"_photonsDphi"] = new TH1D(("photonsDphi_"+title).c_str(), ("photonsDphi_"+title).c_str(), 20, 0, 7);
-    
-    nEvents[title] = make_pair(0, 0);
+    hists[title] = new TH1D(title.c_str(), title.c_str(), nBins, binsArray);
+    hists[title]->Sumw2();
   }
 }
 
 /// Prints the results and saves histograms to file
-void PrintAndSaveResults(TFile *outFile,
-                         map<string, TH1D*> &hists,
-                         const map<string, TH1D*> &cutThroughHists,
-                         const map<string, TH1D*> &monitorHists,
-                         const map<string, pair<int, int>> &nEvents,
-                         const map<string, TTree*> &triggerTrees,
-                         const string &name)
+void PrintAndSaveResults(TFile *outFile, map<string, TH1D*> &hists,
+                         const map<string, TTree*> &triggerTrees, const string &datasetType)
 {
   cout<<"\n\n------------------------------------------------------------------------"<<endl;
   outFile->cd();
   
   for(auto histName : histParams){
-    if(histName == "reco_id_eff" || histName == "reco_id_eff_vs_pt" || histName == "reco_id_eff_vs_eta"){
-      if(!doRecoEfficiency) continue;
-    }
-    if(histName == "trigger_eff" || histName == "trigger_HFveto_eff"){
-      if(!doTriggerEfficiency) continue;
-    }
-    if(histName == "charged_exclusivity_eff"){
-      if(!doCHEefficiency) continue;
-    }
-    if(histName == "neutral_exclusivity_eff"){
-      if(!doNEEefficiency) continue;
-    }
+    if(!doRecoEfficiency    && histName.find("reco_id_eff") != string::npos)              continue;
+    if(!doTriggerEfficiency && histName.find("trigger") != string::npos)                  continue;
+    if(!doCHEefficiency     && histName.find("charged_exclusivity_eff") != string::npos)  continue;
+    if(!doNEEefficiency     && histName.find("neutral_exclusivity_eff") != string::npos)  continue;
     
-    string title = histName+name;
-    
-    hists[title]->Divide(hists[title+"_num"], hists[title+"_den"], 1, 1, "B");
+    string title = histName + "_" + datasetType;
     hists[title]->Write();
-    hists[title+"_num"]->Write();
-    hists[title+"_den"]->Write();
-    cutThroughHists.at(title)->Write();
-    
-    cout<<"N tags, probes "<<title<<": "<<nEvents.at(title).first<<", "<<nEvents.at(title).second<<endl;
-    cout<<title<<" efficiency: "; PrintEfficiency(nEvents.at(title).second, nEvents.at(title).first);
   }
   
-  for(auto &[name, hist] : monitorHists){
-    hist->Write();
-  }
+  int nTagReco    = hists["reco_id_eff_den_"+datasetType]->GetBinContent(1);
+  int nProbeReco  = hists["reco_id_eff_num_"+datasetType]->GetBinContent(1);
   
-  outFile->cd(("triggerTree_"+name).c_str());
-  triggerTrees.at(name)->Write();
+  cout<<"Reco N tags, probes "<<datasetType<<": "<<nTagReco<<", "<<nProbeReco<<endl;
+  cout<<" efficiency: "; PrintEfficiency(nProbeReco, nTagReco);
+  
+  outFile->cd(("triggerTree_"+datasetType).c_str());
+  triggerTrees.at(datasetType)->Write();
   
   cout<<"------------------------------------------------------------------------\n\n"<<endl;
 }
@@ -507,10 +465,7 @@ int main(int argc, char* argv[])
   ReadInputArguments(argc, argv, inputPaths);
   config = ConfigManager(configPath);
   
-  map<string, pair<int, int>> nEvents; ///< N events passing tag/probe criteria
-  map<string, TH1D*> cutThroughHists;
   map<string, TH1D*> hists;
-  map<string, TH1D*> monitorHists;
   map<string, TTree*> triggerTrees;
   
   TFile *outFile = new TFile(outputPath.c_str(), "recreate");
@@ -521,7 +476,7 @@ int main(int argc, char* argv[])
     outFile->mkdir(("triggerTree_"+name).c_str());
     
     InitializeTriggerTrees(triggerTrees, name);
-    InitializeHistograms(hists, cutThroughHists, monitorHists, nEvents, name);
+    InitializeHistograms(hists, name);
     
     auto events = make_unique<EventProcessor>(argc == 6 ? inputPaths[dataset] : inFileNames.at(dataset));
     
@@ -532,16 +487,16 @@ int main(int argc, char* argv[])
       
       auto event = events->GetEvent(iEvent);
       
-      if(doRecoEfficiency)      CheckRecoEfficiency(*event, nEvents, hists, cutThroughHists, monitorHists, name);
+      if(doRecoEfficiency) CheckRecoEfficiency(*event, hists, name);
       if(doTriggerEfficiency){
-        CheckTriggerEfficiency(*event, triggerTrees, cutThroughHists, name);
-        CheckTriggerHFvetoEfficiency(*event, nEvents, hists, cutThroughHists, name);
+        CheckTriggerEfficiency(*event, triggerTrees, hists, name);
+        CheckTriggerHFvetoEfficiency(*event, hists, name);
       }
-      if(doCHEefficiency)       CheckCHEefficiency(*event, nEvents, hists, cutThroughHists, name);
-      if(doNEEefficiency)       CheckNEEefficiency(*event, nEvents, hists, cutThroughHists, name);
+      if(doCHEefficiency) CheckCHEefficiency(*event, hists, name);
+      if(doNEEefficiency) CheckNEEefficiency(*event, hists, name);
     }
     
-    PrintAndSaveResults(outFile, hists, cutThroughHists, monitorHists, nEvents, triggerTrees, name);
+    PrintAndSaveResults(outFile, hists, triggerTrees, name);
   }
   outFile->Close();
   

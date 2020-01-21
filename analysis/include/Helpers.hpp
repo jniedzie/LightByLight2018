@@ -76,7 +76,7 @@ const map<EDataset, string> inFileNames = {
   {kMCqedSC           , "ntuples/ntuples_mc_qed_sc_withL1_merged.root"      },
   {kMCqedSC_SingleEG3 , "ntuples/ntuples_mc_qed_withSingleEG3.root"         },
   {kMCqedSC_recoEff   , "ntuples/ntuples_mc_qed_recoEffEvents.root"         },
-  {kMCqedSC_triggerEff, "ntuples/ntuples_mc_qed_triggerEffEvents.root"      },
+  {kMCqedSC_triggerEff, "ntuples/ntuples_mc_qed_sc_forTriggerEff.root"      },
   {kMCqedSL           , "ntuples/ntuples_mc_qed_sl_merged.root"             },
   {kMClbl             , "ntuples/ntuples_mc_lbl_merged.root"                },
   {kMCcep             , "ntuples/ntuples_mc_cep_merged.root"                },
