@@ -46,6 +46,37 @@ bool IsGoodForTrigger(Event &event)
   return true;
 }
 
+/// Check if this event is a good candidate for HF veto efficiency estimation
+bool IsGoodForHFveto(Event &event)
+{
+  // Check trigger
+  if(!event.HasSingleEG3noHFvetoTrigger()) return;
+  
+  // Check if there are at least two electrons
+  if(event.GetNelectrons() < 2) return false;
+  
+  // Check exclusivity criteria
+  if(event.HasAdditionalTowers()) return false;
+  if(event.GetNchargedTracks() != 2) return false;
+  
+  return true;
+}
+
+/// Check if this event is a good candidate for exclusivity efficiency estimation
+bool IsGoodForExclusivity(Event &event)
+{
+  // Check trigger
+  if(!event.HasDoubleEG2Trigger()) return;
+  
+  // Check if there are at least two electrons
+  if(event.GetNelectrons() < 2) return false;
+  
+  // Check exclusivity criteria
+  if(event.GetNchargedTracks() != 2) return false;
+  
+  return true;
+}
+
 /// Application starting point
 int main(int argc, char* argv[])
 {
@@ -69,7 +100,8 @@ int main(int argc, char* argv[])
     
     auto event = events->GetEvent(iEvent);
 //    if(IsGoodForRecoEfficiency(*event)) events->AddEventToOutputTree(iEvent);
-    if(IsGoodForTrigger(*event)) events->AddEventToOutputTree(iEvent);
+//    if(IsGoodForTrigger(*event)) events->AddEventToOutputTree(iEvent);
+    if(IsGoodForHFveto(*event)) events->AddEventToOutputTree(iEvent);
   }
 
   events->SaveOutputTree();

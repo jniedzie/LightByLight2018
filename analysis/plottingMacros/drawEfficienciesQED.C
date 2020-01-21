@@ -9,10 +9,10 @@
 const string  inputPath    = "../results/efficienciesQED_test.root";
 const string  outputPath   = "../plots/efficienciesQED_test.pdf";
 
-const double  canvasWidth  = 1200;
-const double  canvasHeight = 800;
-const int     nRaws        = 2;
-const int     nColumns     = 3;
+const double  canvasWidth  = 2880;
+const double  canvasHeight = 1800;
+const int     nRaws        = 4;
+const int     nColumns     = 4;
 
 TFile *inFile;
 
@@ -89,6 +89,40 @@ void drawEfficienciesQED()
   canvas->cd(5);
   plotSingleHistogram("brem_track_pt_Data"   , true  , kBlue);
   plotSingleHistogram("brem_track_pt_QED_SC" , false , kGreen+2);
+  
+  canvas->cd(6);
+  plotSingleHistogram("failingPhotonEt_Data"   , true  , kBlue);
+  plotSingleHistogram("failingPhotonEt_QED_SC" , false , kGreen+2);
+  
+  canvas->cd(7);
+  plotSingleHistogram("failingPhotonEta_Data"   , true  , kBlue);
+  plotSingleHistogram("failingPhotonEta_QED_SC" , false , kGreen+2);
+  
+  canvas->cd(8);
+  plotSingleHistogram("failingPhotonSigmaBarrel_Data"   , true  , kBlue);
+  plotSingleHistogram("failingPhotonSigmaBarrel_QED_SC" , false , kGreen+2);
+  
+  canvas->cd(9);
+  plotSingleHistogram("failingPhotonSigmaEndcap_Data"   , true  , kBlue);
+  plotSingleHistogram("failingPhotonSigmaEndcap_QED_SC" , false , kGreen+2);
+  
+  canvas->cd(10);
+  plotSingleHistogram("failingPhotonHEbarrel_Data"   , true  , kBlue);
+  plotSingleHistogram("failingPhotonHEbarrel_QED_SC" , false , kGreen+2);
+  
+  canvas->cd(11);
+  plotSingleHistogram("failingPhotonHEendcap_Data"   , true  , kBlue);
+  plotSingleHistogram("failingPhotonHEendcap_QED_SC" , false , kGreen+2);
+  
+  canvas->cd(12);
+  plotSingleHistogram("delta_pt_tracks_Data"   , true  , kBlue);
+  plotSingleHistogram("delta_pt_tracks_QED_SC" , false , kGreen+2);
+  
+  canvas->cd(13);
+  plotSingleHistogram("delta_phi_electron_photon_Data"   , true  , kBlue);
+  plotSingleHistogram("delta_phi_electron_photon_QED_SC" , false , kGreen+2);
+  
+  
   
   printEfficiencies("Data");
   printEfficiencies("QED_SC");

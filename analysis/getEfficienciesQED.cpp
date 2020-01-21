@@ -45,7 +45,14 @@ vector<string> histParams = {
   "reco_id_eff_vs_eta_den",
   "ele_acoplanarity",
   "brem_track_pt",
+  "failingPhotonEt",
   "failingPhotonEta",
+  "failingPhotonHEbarrel",
+  "failingPhotonHEendcap",
+  "failingPhotonSigmaBarrel",
+  "failingPhotonSigmaEndcap",
+  "delta_pt_tracks",
+  "delta_phi_electron_photon",
   
   // trigger efficiency histograms
   "trigger_eff_cut_through",
@@ -127,10 +134,12 @@ void CheckRecoEfficiency(Event &event, map<string, TH1D*> &hists, string dataset
   auto bremTrack      = bremTracks[0];
   hists[cutThouthName]->Fill(cutLevel++); // 6
   
+  if(fabs(bremTrack->GetPt() - matchingTrack->GetPt()) > 4) return;
+  
   // Check separation between brem track and photon:
 //  if(fabs(2*bremTrack->GetPt()-matchingTrack->GetPt()) < 2.0) return;
   
-  if(bremTrack->GetPt() < 2.0) return;
+//  if(bremTrack->GetPt() < 2.0) return;
   hists[cutThouthName]->Fill(cutLevel++); // 7
   
   // Count this event as a tag
@@ -139,14 +148,18 @@ void CheckRecoEfficiency(Event &event, map<string, TH1D*> &hists, string dataset
   hists["reco_id_eff_vs_eta_den_"+datasetName]->Fill(fabs(matchingTracks[0]->GetEta()));
   hists["ele_acoplanarity_"+datasetName]->Fill(physObjectProcessor.GetAcoplanarity(*matchingTrack, *bremTrack));
   hists["brem_track_pt_"+datasetName]->Fill(bremTrack->GetPt());
+  hists["delta_pt_tracks_"+datasetName]->Fill(fabs(bremTrack->GetPt() - matchingTrack->GetPt()));
   
 //   Count number of photons that are far from good, matched electrons
-//  auto photons = event.GetGoodPhotons();
-  auto photons = event.GetPhotons();
+  auto photons = event.GetGoodPhotons();
+//  auto photons = event.GetPhotons();
   int nBremPhotons = 0;
   
   for(auto photon : photons){
-    if(physObjectProcessor.GetDeltaR_SC(*theElectron, *photon) > 0.3) nBremPhotons++;
+    if(physObjectProcessor.GetDeltaR_SC(*theElectron, *photon) > 0.3){
+      nBremPhotons++;
+      hists["delta_phi_electron_photon_"+datasetName]->Fill(fabs(theElectron->GetCharge()*theElectron->GetPhi() - photon->GetPhi()));
+    }
   }
   
   // Check that there's exactly one photon passing ID cuts
@@ -160,9 +173,25 @@ void CheckRecoEfficiency(Event &event, map<string, TH1D*> &hists, string dataset
   }
   else{
     auto allPhotons = event.GetPhotons();
-    saveEventDisplay(matchingTracks, bremTracks, goodMatchedElectrons, photons, allPhotons, "~/Desktop/lbl_event_displays_"+datasetName+"/");
-    for(auto photon : photons){
-      hists["failingPhotonEta_"+datasetName]->Fill(fabs(photon->GetEta()));
+//    saveEventDisplay(matchingTracks, bremTracks, goodMatchedElectrons, photons, allPhotons, "~/Desktop/lbl_event_displays_"+datasetName+"/");
+    
+    for(auto photon : allPhotons){
+      if(find(photons.begin(), photons.end(), photon) != photons.end()) continue; // this was a good photon
+      if(physObjectProcessor.GetDeltaR_SC(*theElectron, *photon) < 0.3) continue; // this one it matched with electron
+      
+      double eta = fabs(photon->GetEta());
+      
+      hists["failingPhotonEt_"+datasetName]->Fill(photon->GetEt());
+      hists["failingPhotonEta_"+datasetName]->Fill(eta);
+      
+      if(eta < maxEtaEB){
+        hists["failingPhotonSigmaBarrel_"+datasetName]->Fill(photon->GetEtaWidth());
+        hists["failingPhotonHEbarrel_"+datasetName]->Fill(photon->GetHoverE());
+      }
+      else{
+        hists["failingPhotonSigmaEndcap_"+datasetName]->Fill(photon->GetEtaWidth());
+        hists["failingPhotonHEendcap_"+datasetName]->Fill(photon->GetHoverE());
+      }
     }
   }
 }
@@ -382,32 +411,53 @@ void InitializeHistograms(map<string, TH1D*> &hists, const string &datasetType)
 {
   for(auto histName : histParams){
     string title = histName + "_" + datasetType;
-    
     vector<float> bins;
     
-    if(histName.find("pt") != string::npos){
+    if(histName.find("vs_pt") != string::npos){
       bins  = { 0, 2, 4, 6, 8, 20 };
+      hists[title] = new TH1D(title.c_str(), title.c_str(), (int)bins.size()-1, (float*)&bins[0]);
     }
-    else if((histName.find("eta") != string::npos) || (histName.find("Eta") != string::npos)){
-      bins  = { 0.5, 1.0, 1.5, 2.0 , 2.5 };
+    else if(histName.find("vs_eta") != string::npos){
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 5, 0.0, 2.5);
+    }
+    else if(histName == "failingPhotonEt"){
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 20, 0, 20);
+    }
+    else if(histName == "failingPhotonEta"){
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 20, 0, 5.0);
+    }
+    else if(histName == "failingPhotonHEbarrel"){
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 50, 0, 0.5);
+    }
+    else if(histName == "failingPhotonHEendcap"){
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 50, 0, 0.5);
+    }
+    else if(histName == "failingPhotonSigmaBarrel"){
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 50, 0, 0.2);
+    }
+    else if(histName == "failingPhotonSigmaEndcap"){
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 50, 0, 0.2);
+    }
+    else if(histName == "delta_pt_tracks"){
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 20, 0, 10);
+    }
+    else if(histName == "delta_phi_electron_photon"){
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 100, 0, 2*TMath::Pi());
     }
     else if(histName.find("acoplanarity") != string::npos){
-      bins  = { 0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.10 };
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 10, 0, 0.1);
     }
     else if(histName.find("brem_track_pt") != string::npos){
-      bins  = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20 };
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 30, 0, 10);
     }
     else if(histName.find("cut_through") != string::npos){
-      bins  = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 20, 0, 20);
     }
     else{
       bins = { 0, 2, 3, 4, 5, 6, 8, 10, 13, 20 };
+      hists[title] = new TH1D(title.c_str(), title.c_str(), (int)bins.size()-1, (float*)&bins[0]);
     }
     
-    float *binsArray = &bins[0];
-    int nBins = (int)bins.size()-1;
-    
-    hists[title] = new TH1D(title.c_str(), title.c_str(), nBins, binsArray);
     hists[title]->Sumw2();
   }
 }
