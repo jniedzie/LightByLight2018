@@ -50,7 +50,7 @@ bool IsGoodForTrigger(Event &event)
 bool IsGoodForHFveto(Event &event)
 {
   // Check trigger
-  if(!event.HasSingleEG3noHFvetoTrigger()) return;
+  if(!event.HasSingleEG3noHFvetoTrigger()) return false;
   
   // Check if there are at least two electrons
   if(event.GetNelectrons() < 2) return false;
@@ -66,12 +66,38 @@ bool IsGoodForHFveto(Event &event)
 bool IsGoodForExclusivity(Event &event)
 {
   // Check trigger
-  if(!event.HasDoubleEG2Trigger()) return;
+  if(!event.HasDoubleEG2Trigger()) return false;
   
   // Check if there are at least two electrons
   if(event.GetNelectrons() < 2) return false;
   
   // Check exclusivity criteria
+  if(event.GetNchargedTracks() != 2) return false;
+  
+  return true;
+}
+
+/// Check if this event is a good candidate for the signal extraction
+bool IsGoodForSignalExtraction(Event &event)
+{
+  // Check trigger
+  if(!event.HasDoubleEG2Trigger()) return false;
+  
+  // Check exclusivity criteria
+  if(event.HasAdditionalTowers()) return false;
+  if(event.GetNchargedTracks() != 0) return false;
+  
+  return true;
+}
+
+/// Check if this event is a good candidate for the signal extraction
+bool IsGoodForQED(Event &event)
+{
+  // Check trigger
+  if(!event.HasDoubleEG2Trigger()) return false;
+  
+  // Check exclusivity criteria
+  if(event.HasAdditionalTowers()) return false;
   if(event.GetNchargedTracks() != 2) return false;
   
   return true;
@@ -101,7 +127,10 @@ int main(int argc, char* argv[])
     auto event = events->GetEvent(iEvent);
 //    if(IsGoodForRecoEfficiency(*event)) events->AddEventToOutputTree(iEvent);
 //    if(IsGoodForTrigger(*event)) events->AddEventToOutputTree(iEvent);
-    if(IsGoodForHFveto(*event)) events->AddEventToOutputTree(iEvent);
+//    if(IsGoodForHFveto(*event)) events->AddEventToOutputTree(iEvent);
+//    if(IsGoodForExclusivity(*event)) events->AddEventToOutputTree(iEvent);
+//    if(IsGoodForSignalExtraction(*event)) events->AddEventToOutputTree(iEvent);
+    if(IsGoodForQED(*event)) events->AddEventToOutputTree(iEvent);
   }
 
   events->SaveOutputTree();
