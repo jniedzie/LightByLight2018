@@ -5,11 +5,11 @@
 #include "Helpers.hpp"
 #include "EventProcessor.hpp"
 
-EventProcessor::EventProcessor(string inputPath, string outputPath) :
+EventProcessor::EventProcessor(string inputPath, vector<string> outputPaths) :
 currentEvent(new Event())
 {
   for(auto triggerName : triggerNamesLbL) triggersLbL.push_back(0);
-  SetupBranches(inputPath, outputPath);
+  SetupBranches(inputPath, outputPaths);
 }
 
 EventProcessor::~EventProcessor()
@@ -17,7 +17,7 @@ EventProcessor::~EventProcessor()
   
 }
 
-void EventProcessor::SetupBranches(string inputPath, string outputPath)
+void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
 {
   // Read trees from input files
   TFile *inFile = TFile::Open(inputPath.c_str());
@@ -25,7 +25,7 @@ void EventProcessor::SetupBranches(string inputPath, string outputPath)
   hltTree   = (TTree*)inFile->Get("hltanalysis/HltTree");
   l1Tree    = (TTree*)inFile->Get("l1object/L1UpgradeFlatTree");
   
-  if(outputPath != "") SetupOutputTree(outputPath);
+  for(string outputPath : outputPaths) SetupOutputTree(outputPath);
   
   for(int iTrigger=0; iTrigger<triggerNamesLbL.size(); iTrigger++){
     hltTree->SetBranchAddress(triggerNamesLbL[iTrigger].c_str(), &triggersLbL[iTrigger]);
@@ -86,42 +86,42 @@ void EventProcessor::SetupBranches(string inputPath, string outputPath)
 
 void EventProcessor::SetupOutputTree(string outFileName)
 {
-  outFile = new TFile(outFileName.c_str(), "recreate");
-  outFile->cd();
+  outFile[outFileName] = new TFile(outFileName.c_str(), "recreate");
+  outFile[outFileName]->cd();
   
-  dirEvent  = outFile->mkdir("ggHiNtuplizer");
-  dirHLT    = outFile->mkdir("hltanalysis");
-  dirL1     = outFile->mkdir("l1object");
+  dirEvent[outFileName]  = outFile[outFileName]->mkdir("ggHiNtuplizer");
+  dirHLT[outFileName]    = outFile[outFileName]->mkdir("hltanalysis");
+  dirL1[outFileName]     = outFile[outFileName]->mkdir("l1object");
   
-  outEventTree = eventTree->CloneTree(0);
-  outHltTree   = hltTree->CloneTree(0);
-  outL1Tree    = l1Tree->CloneTree(0);
+  outEventTree[outFileName] = eventTree->CloneTree(0);
+  outHltTree[outFileName]   = hltTree->CloneTree(0);
+  outL1Tree[outFileName]    = l1Tree->CloneTree(0);
   
-  outEventTree->Reset();
-  outHltTree->Reset();
-  outL1Tree->Reset();
+  outEventTree[outFileName]->Reset();
+  outHltTree[outFileName]->Reset();
+  outL1Tree[outFileName]->Reset();
 }
 
-void EventProcessor::AddEventToOutputTree(int iEvent)
+void EventProcessor::AddEventToOutputTree(int iEvent, string outFileName)
 {
   eventTree->GetEntry(iEvent);
   hltTree->GetEntry(iEvent);
   l1Tree->GetEntry(iEvent);
   
-  outEventTree->Fill();
-  outHltTree->Fill();
-  outL1Tree->Fill();
+  outEventTree[outFileName]->Fill();
+  outHltTree[outFileName]->Fill();
+  outL1Tree[outFileName]->Fill();
 }
 
-void EventProcessor::SaveOutputTree()
+void EventProcessor::SaveOutputTree(string outFileName)
 {
-  dirHLT->cd();
-  outHltTree->Write();
-  dirL1->cd();
-  outL1Tree->Write();
-  dirEvent->cd();
-  outEventTree->Write();
-  outFile->Close();
+  dirHLT[outFileName]->cd();
+  outHltTree[outFileName]->Write();
+  dirL1[outFileName]->cd();
+  outL1Tree[outFileName]->Write();
+  dirEvent[outFileName]->cd();
+  outEventTree[outFileName]->Write();
+  outFile[outFileName]->Close();
 }
 
 shared_ptr<Event> EventProcessor::GetEvent(int iEvent)

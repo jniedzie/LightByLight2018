@@ -41,6 +41,8 @@ vector<tuple<string, int, double, double>> histParams = {
   {"lbl_diphoton_rapidity"  , 6   ,-3.0 , 3.0   },
   {"lbl_diphoton_pt"        , 5   , 0   , 1.0   },
   {"qed_acoplanarity"       , 30  , 0   , 0.06  },
+  {"lbl_cut_through"        , 10  , 0   , 10    },
+  {"qed_cut_through"        , 10  , 0   , 10    },
   {"nTracks"                , 100 , 0   , 100   },
   {"nTracks_pt_geq_100_MeV" , 100 , 0   , 100   },
   {"nTracks_pt_lt_100_MeV"  , 100 , 0   , 100   },
@@ -51,35 +53,57 @@ void fillHistograms(Event &event, const map<string, TH1D*> &hists, string datase
 {
   // Add all necessary selection criteria here
   // ...
+  int cutThroughLbL=0;
+  int cutThroughQED=0;
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThroughLbL++); // LbL 0
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThroughQED++); // QED 0
   
   if(!event.HasDoubleEG2Trigger()) return;
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThroughLbL++); // LbL 1
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThroughQED++); // QED 1
+  
   if(event.HasAdditionalTowers()) return;
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThroughLbL++); // LbL 2
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThroughQED++); // QED 2
   
-  auto photons = event.GetGoodPhotons();
-  
-  if(photons.size() == 2 && event.GetNchargedTracks() == 0){
-    double aco = physObjectProcessor.GetAcoplanarity(*photons[0], *photons[1]);
-    hists.at("lbl_acoplanarity_"+datasetName)->Fill(aco);
+  if(event.GetNchargedTracks() == 0){
+    hists.at("lbl_cut_through_"+datasetName)->Fill(cutThroughLbL++); // LbL 3
+
+    //  auto photons = event.GetGoodPhotons();
+    auto photons = event.GetPhotons();
     
-    hists.at("lbl_photon_et_"+datasetName)->Fill(photons[0]->GetEt());
-    hists.at("lbl_photon_et_"+datasetName)->Fill(photons[1]->GetEt());
-    hists.at("lbl_photon_eta_"+datasetName)->Fill(photons[0]->GetEta());
-    hists.at("lbl_photon_eta_"+datasetName)->Fill(photons[1]->GetEta());
-    hists.at("lbl_photon_phi_"+datasetName)->Fill(photons[0]->GetPhi());
-    hists.at("lbl_photon_phi_"+datasetName)->Fill(photons[1]->GetPhi());
-    
-    TLorentzVector diphoton = physObjectProcessor.GetObjectsSum(*photons[0], *photons[1]);
-    
-    hists.at("lbl_diphoton_mass_"+datasetName)->Fill(diphoton.M());
-    hists.at("lbl_diphoton_rapidity_"+datasetName)->Fill(diphoton.Y());
-    hists.at("lbl_diphoton_pt_"+datasetName)->Fill(diphoton.Pt());
+    if(photons.size() == 2){
+      hists.at("lbl_cut_through_"+datasetName)->Fill(cutThroughLbL++); // LbL 4
+
+      double aco = physObjectProcessor.GetAcoplanarity(*photons[0], *photons[1]);
+      hists.at("lbl_acoplanarity_"+datasetName)->Fill(aco);
+      
+      hists.at("lbl_photon_et_"+datasetName)->Fill(photons[0]->GetEt());
+      hists.at("lbl_photon_et_"+datasetName)->Fill(photons[1]->GetEt());
+      hists.at("lbl_photon_eta_"+datasetName)->Fill(photons[0]->GetEta());
+      hists.at("lbl_photon_eta_"+datasetName)->Fill(photons[1]->GetEta());
+      hists.at("lbl_photon_phi_"+datasetName)->Fill(photons[0]->GetPhi());
+      hists.at("lbl_photon_phi_"+datasetName)->Fill(photons[1]->GetPhi());
+      
+      TLorentzVector diphoton = physObjectProcessor.GetObjectsSum(*photons[0], *photons[1]);
+      
+      hists.at("lbl_diphoton_mass_"+datasetName)->Fill(diphoton.M());
+      hists.at("lbl_diphoton_rapidity_"+datasetName)->Fill(diphoton.Y());
+      hists.at("lbl_diphoton_pt_"+datasetName)->Fill(diphoton.Pt());
+    }
   }
   
   auto electrons = event.GetGoodElectrons();
   
-  if(electrons.size() == 2 && event.GetNchargedTracks() == 2){
-    double aco = physObjectProcessor.GetAcoplanarity(*electrons[0], *electrons[1]);
-    hists.at("qed_acoplanarity_"+datasetName)->Fill(aco);
+  if(electrons.size() == 2){
+    hists.at("qed_cut_through_"+datasetName)->Fill(cutThroughQED++); // QED 3
+    
+    if(event.GetNchargedTracks() == 2){
+      hists.at("qed_cut_through_"+datasetName)->Fill(cutThroughQED++); // QED 4
+      
+      double aco = physObjectProcessor.GetAcoplanarity(*electrons[0], *electrons[1]);
+      hists.at("qed_acoplanarity_"+datasetName)->Fill(aco);
+    }
   }
   
   

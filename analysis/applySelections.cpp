@@ -10,9 +10,6 @@
 
 string configPath = "configs/efficiencies.md";
 
-string inFilePath   = "ntuples/ntuples_mc_qed_withSingleEG3.root";
-string outFilePath  = "ntuples/ntuples_mc_qed_triggerEffEvents.root";
-
 /// Check if this event is a good candidate for reco+ID efficiency estimation
 bool IsGoodForRecoEfficiency(Event &event)
 {
@@ -40,7 +37,7 @@ bool IsGoodForTrigger(Event &event)
   if(event.GetNelectrons() < 2) return false;
   
   // Check exclusivity criteria
-  if(event.HasAdditionalTowers()) return false;
+//  if(event.HasAdditionalTowers()) return false;
   if(event.GetNchargedTracks() != 2) return false;
   
   return true;
@@ -56,7 +53,7 @@ bool IsGoodForHFveto(Event &event)
   if(event.GetNelectrons() < 2) return false;
   
   // Check exclusivity criteria
-  if(event.HasAdditionalTowers()) return false;
+//  if(event.HasAdditionalTowers()) return false;
   if(event.GetNchargedTracks() != 2) return false;
   
   return true;
@@ -78,26 +75,26 @@ bool IsGoodForExclusivity(Event &event)
 }
 
 /// Check if this event is a good candidate for the signal extraction
-bool IsGoodForSignalExtraction(Event &event)
+bool IsGoodForLbLsignal(Event &event)
 {
   // Check trigger
   if(!event.HasDoubleEG2Trigger()) return false;
   
   // Check exclusivity criteria
-  if(event.HasAdditionalTowers()) return false;
+//  if(event.HasAdditionalTowers()) return false;
   if(event.GetNchargedTracks() != 0) return false;
   
   return true;
 }
 
 /// Check if this event is a good candidate for the signal extraction
-bool IsGoodForQED(Event &event)
+bool IsGoodForQEDsignal(Event &event)
 {
   // Check trigger
   if(!event.HasDoubleEG2Trigger()) return false;
   
   // Check exclusivity criteria
-  if(event.HasAdditionalTowers()) return false;
+//  if(event.HasAdditionalTowers()) return false;
   if(event.GetNchargedTracks() != 2) return false;
   
   return true;
@@ -106,34 +103,43 @@ bool IsGoodForQED(Event &event)
 /// Application starting point
 int main(int argc, char* argv[])
 {
-  if(argc != 1 && argc != 4){
+  if(argc != 1 && argc != 9){
     cout<<"This app requires 0 or 3 parameters."<<endl;
-    cout<<"./getEfficienciesData configPath inputPath outputPath"<<endl;
+    cout<<"./getEfficienciesData configPath inputPath outputPathReco outputPathTrigger outputPathHFveto outputPathExclusivity outputPathLbLsignal outputPathQEDsignal"<<endl;
     exit(0);
   }
+  
+  string inFilePath;
+  vector<string> outFilePaths;
+  
   if(argc == 4){
-    configPath    = argv[1];
-    inFilePath    = argv[2];
-    outFilePath   = argv[3];
+    configPath = argv[1];
+    inFilePath = argv[2];
+    outFilePaths.push_back(argv[3]); // reco
+    outFilePaths.push_back(argv[4]); // trigger
+    outFilePaths.push_back(argv[5]); // HF veto
+    outFilePaths.push_back(argv[6]); // exclusivity
+    outFilePaths.push_back(argv[7]); // LbL signal extraction
+    outFilePaths.push_back(argv[8]); // QED signal extraction
   }
  
   config = ConfigManager(configPath);
-  auto events = make_unique<EventProcessor>(inFilePath, outFilePath);
+  auto events = make_unique<EventProcessor>(inFilePath, outFilePaths);
   
   // Loop over events
   for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
     if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
     
     auto event = events->GetEvent(iEvent);
-//    if(IsGoodForRecoEfficiency(*event)) events->AddEventToOutputTree(iEvent);
-//    if(IsGoodForTrigger(*event)) events->AddEventToOutputTree(iEvent);
-//    if(IsGoodForHFveto(*event)) events->AddEventToOutputTree(iEvent);
-//    if(IsGoodForExclusivity(*event)) events->AddEventToOutputTree(iEvent);
-//    if(IsGoodForSignalExtraction(*event)) events->AddEventToOutputTree(iEvent);
-    if(IsGoodForQED(*event)) events->AddEventToOutputTree(iEvent);
+    if(IsGoodForRecoEfficiency(*event))     events->AddEventToOutputTree(iEvent, outFilePaths[0]);
+    if(IsGoodForTrigger(*event))            events->AddEventToOutputTree(iEvent, outFilePaths[1]);
+    if(IsGoodForHFveto(*event))             events->AddEventToOutputTree(iEvent, outFilePaths[2]);
+    if(IsGoodForExclusivity(*event))        events->AddEventToOutputTree(iEvent, outFilePaths[3]);
+    if(IsGoodForLbLsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[4]);
+    if(IsGoodForQEDsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[5]);
   }
 
-  events->SaveOutputTree();
+  for(string outFilePath : outFilePaths) events->SaveOutputTree(outFilePath);
   
   return 0;
 }

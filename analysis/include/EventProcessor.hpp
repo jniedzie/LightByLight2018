@@ -14,14 +14,17 @@ class EventProcessor {
 public:
   /// Default constructor.
   /// \param inputPath Path to the file
-  /// \param outputPath Path to the output file (in case one wants to save selected events to a new tree)
-  EventProcessor(string inputPath, string outputPath="");
+  /// \param outputPaths Paths to the output files, in case one wants to save selected events to a new tree(s)
+  EventProcessor(string inputPath, vector<string> outputPaths = {});
   
   /// Default destructor
   ~EventProcessor();
 
-  void AddEventToOutputTree(int iEvent);
-  void SaveOutputTree();
+  /// Add event with number iEvent to output tree in file outFileName
+  void AddEventToOutputTree(int iEvent, string outFileName);
+  
+  /// Save file with name outFileName
+  void SaveOutputTree(string outFileName);
   
   /// Returns number of events
   inline long long GetNevents() const { return eventTree->GetEntries(); }
@@ -30,10 +33,10 @@ public:
   shared_ptr<Event> GetEvent(int iEvent);
   
 private:
-  TTree *eventTree, *hltTree, *l1Tree;          ///< Input trees
-  TTree *outEventTree, *outHltTree, *outL1Tree; ///< Output trees
-  TDirectory *dirEvent, *dirHLT, *dirL1;        ///< Output directories
-  TFile *outFile;                               ///< Output file
+  TTree *eventTree, *hltTree, *l1Tree;                      ///< Input trees
+  map<string, TTree*> outEventTree, outHltTree, outL1Tree;  ///< Output trees
+  map<string, TDirectory*> dirEvent, dirHLT, dirL1;         ///< Output directories
+  map<string, TFile*> outFile;                              ///< Output files
   
   shared_ptr<Event> currentEvent; ///< Pointer to the current event
   
@@ -87,7 +90,7 @@ private:
   vector<float> *L1EGet               = nullptr;
   
   /// Opens input trees and sets branches
-  void SetupBranches(string inputPath, string outputPath);
+  void SetupBranches(string inputPath, vector<string> outputPaths);
   
   /// Creates output file and copies intput trees to it (without copying the entries)
   void SetupOutputTree(string outFileName);
