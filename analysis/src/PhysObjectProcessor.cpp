@@ -30,8 +30,20 @@ double PhysObjectProcessor::GetDeltaR_SC(const PhysObject &a, const PhysObject &
 TLorentzVector PhysObjectProcessor::GetObjectsSum(const PhysObject &a, const PhysObject &b)
 {
   TLorentzVector aVec, bVec;
+  
   aVec.SetPtEtaPhiE(a.pt, a.eta, a.phi, a.energy);
   bVec.SetPtEtaPhiE(b.pt, b.eta, b.phi, b.energy);
+
+  return aVec + bVec;
+}
+
+TLorentzVector PhysObjectProcessor::GetDielectron(const PhysObject &a, const PhysObject &b)
+{
+  TLorentzVector aVec, bVec;
+  
+  double eleMass = 0.5109989461e-3;
+  aVec.SetPtEtaPhiM(a.pt, a.eta, a.phi, eleMass);
+  bVec.SetPtEtaPhiM(b.pt, b.eta, b.phi, eleMass);
 
   return aVec + bVec;
 }

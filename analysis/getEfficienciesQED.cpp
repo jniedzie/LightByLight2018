@@ -18,20 +18,26 @@ string outputPath = "results/efficienciesQED_test.root";
 const vector<EDataset> datasetsToAnalyze = {
 //  kData,
 //  kData_SingleEG3,
-  kData_recoEff,
+//  kData_recoEff,
 //  kData_triggerEff,
-  //  kMCqedSC,
+//  kData_HFveto,
+//  kData_exclusivity,
+//  kData_signal,
+//  kMCqedSC,
 //  kMCqedSC_SingleEG3,
-  kMCqedSC_recoEff,
+//  kMCqedSC_recoEff,
 //  kMCqedSC_triggerEff,
-  //  kMCqedSL
+//  kMCqedSC_HFveto,
+  kMCqedSC_exclusivity,
+//  kMCqedSC_signal,
+//  kMCqedSL
 };
 
 // Select which efficiencies to calculate
-bool doRecoEfficiency    = true;
+bool doRecoEfficiency    = false;
 bool doTriggerEfficiency = false;
 bool doCHEefficiency     = false;
-bool doNEEefficiency     = false;
+bool doNEEefficiency     = true;
 
 // Names of efficiency histograms to create and save
 vector<string> histParams = {
@@ -64,6 +70,8 @@ vector<string> histParams = {
   "charged_exclusivity_eff_cut_through",
   "charged_exclusivity_eff_num",
   "charged_exclusivity_eff_den",
+  "dielectron_mass",
+  
   "neutral_exclusivity_eff_cut_through",
   "neutral_exclusivity_eff_num",
   "neutral_exclusivity_eff_den",
@@ -303,8 +311,8 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
     if(matchedElectrons.size() == 2) break;
     if(L1EG->GetEt() < 2.0) continue;
     
-    double deltaR1 = physObjectProcessor.GetDeltaR(*electron1, *L1EG);
-    double deltaR2 = physObjectProcessor.GetDeltaR(*electron2, *L1EG);
+    double deltaR1 = physObjectProcessor.GetDeltaR_SC(*electron1, *L1EG);
+    double deltaR2 = physObjectProcessor.GetDeltaR_SC(*electron2, *L1EG);
     
     if(deltaR1 < 1.0) matchedElectrons.push_back(electron1);
     if(deltaR2 < 1.0) matchedElectrons.push_back(electron2);
@@ -342,15 +350,25 @@ void CheckCHEefficiency(Event &event, map<string, TH1D*> &hists, string datasetN
   if(electron1->GetCharge() == electron2->GetCharge()) return;
   hists[cutThouthName]->Fill(cutLevel++); // 3
   
-  TLorentzVector dielectron = physObjectProcessor.GetObjectsSum(*electron1, *electron2);
-  if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || fabs(dielectron.Eta()) > 2.3) return;
+  TLorentzVector dielectron = physObjectProcessor.GetDielectron(*electron1, *electron2);
+  hists["dielectron_mass_"+datasetName]->Fill(dielectron.M());
+  
+  if(dielectron.M() < 5.0) return;
   hists[cutThouthName]->Fill(cutLevel++); // 4
-  hists["charged_exclusivity_eff_den"+datasetName]->Fill(1);
+  
+  if(dielectron.Pt() > 1.0) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 5
+  
+  if(fabs(dielectron.Eta()) > 2.3) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 6
+  
+  
+  hists["charged_exclusivity_eff_den_"+datasetName]->Fill(1);
   
   // Charged exclusivity
   if(event.GetNchargedTracks() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 5
-  hists["charged_exclusivity_eff_num"+datasetName]->Fill(1);
+  hists["charged_exclusivity_eff_num_"+datasetName]->Fill(1);
 }
 
 /// Counts number of events passing tag and probe criteria for neutral exclusivity efficiency
@@ -376,19 +394,19 @@ void CheckNEEefficiency(Event &event, map<string, TH1D*> &hists, string datasetN
   hists[cutThouthName]->Fill(cutLevel++); // 3
   
   // Check dielectron properties
-  TLorentzVector dielectron = physObjectProcessor.GetObjectsSum(*electron1, *electron2);
-  if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || fabs(dielectron.Eta()) > 2.4) return;
+  TLorentzVector dielectron = physObjectProcessor.GetDielectron(*electron1, *electron2);
+  if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || fabs(dielectron.Eta()) > 2.3) return;
   hists[cutThouthName]->Fill(cutLevel++); // 4
   
   // Charged exclusivity
   if(event.GetNchargedTracks() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 5
-  hists["neutral_exclusivity_eff_den"+datasetName]->Fill(1);
+  hists["neutral_exclusivity_eff_den_"+datasetName]->Fill(1);
 
   // Neutral exclusivity
   if(event.HasAdditionalTowers()) return;
   hists[cutThouthName]->Fill(cutLevel++); // 6
-  hists["neutral_exclusivity_eff_num"+datasetName]->Fill(1);
+  hists["neutral_exclusivity_eff_num_"+datasetName]->Fill(1);
 }
 
 /// Creates output trigger tree that will store information about matching, acoplanarity etc.
@@ -453,6 +471,9 @@ void InitializeHistograms(map<string, TH1D*> &hists, const string &datasetType)
     else if(histName.find("cut_through") != string::npos){
       hists[title] = new TH1D(title.c_str(), title.c_str(), 20, 0, 20);
     }
+    else if(histName.find("dielectron_mass") != string::npos){
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 50, 0, 20);
+    }
     else{
       bins = { 0, 2, 3, 4, 5, 6, 8, 10, 13, 20 };
       hists[title] = new TH1D(title.c_str(), title.c_str(), (int)bins.size()-1, (float*)&bins[0]);
@@ -479,11 +500,33 @@ void PrintAndSaveResults(TFile *outFile, map<string, TH1D*> &hists,
     hists[title]->Write();
   }
   
-  int nTagReco    = hists["reco_id_eff_den_"+datasetType]->GetBinContent(1);
-  int nProbeReco  = hists["reco_id_eff_num_"+datasetType]->GetBinContent(1);
+  int nTag=0, nProbe=0;
   
-  cout<<"Reco N tags, probes "<<datasetType<<": "<<nTagReco<<", "<<nProbeReco<<endl;
-  cout<<" efficiency: "; PrintEfficiency(nProbeReco, nTagReco);
+  if(doRecoEfficiency){
+    nTag    = hists["reco_id_eff_den_"+datasetType]->GetBinContent(1);
+    nProbe  = hists["reco_id_eff_num_"+datasetType]->GetBinContent(1);
+    cout<<"Reco N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<endl;
+    cout<<" efficiency: "; PrintEfficiency(nProbe, nTag);
+  }
+  if(doTriggerEfficiency){
+    nTag    = hists["trigger_HFveto_eff_den_"+datasetType]->GetBinContent(1);
+    nProbe  = hists["trigger_HFveto_eff_num_"+datasetType]->GetBinContent(1);
+    cout<<"HF veto N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<endl;
+    cout<<" efficiency: "; PrintEfficiency(nProbe, nTag);
+  }
+  if(doCHEefficiency){
+    nTag    = hists["charged_exclusivity_eff_den_"+datasetType]->GetBinContent(1);
+    nProbe  = hists["charged_exclusivity_eff_num_"+datasetType]->GetBinContent(1);
+    cout<<"Charged exclusivity N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<endl;
+    cout<<" efficiency: "; PrintEfficiency(nProbe, nTag);
+  }
+  if(doNEEefficiency){
+    nTag    = hists["neutral_exclusivity_eff_den_"+datasetType]->GetBinContent(1);
+    nProbe  = hists["neutral_exclusivity_eff_num_"+datasetType]->GetBinContent(1);
+    cout<<"Neutral N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<endl;
+    cout<<" efficiency: "; PrintEfficiency(nProbe, nTag);
+  }
+  
   
   outFile->cd(("triggerTree_"+datasetType).c_str());
   triggerTrees.at(datasetType)->Write();
