@@ -9,6 +9,7 @@
 #include "EventDisplay.hpp"
 
 string configPath = "configs/efficiencies.md";
+bool storeHLTtrees = false;
 
 /// Check if this event is a good candidate for reco+ID efficiency estimation
 bool IsGoodForRecoEfficiency(Event &event)
@@ -104,7 +105,7 @@ bool IsGoodForQEDsignal(Event &event)
 int main(int argc, char* argv[])
 {
   if(argc != 1 && argc != 9){
-    cout<<"This app requires 0 or 3 parameters."<<endl;
+    cout<<"This app requires 0 or 8 parameters."<<endl;
     cout<<"./getEfficienciesData configPath inputPath outputPathReco outputPathTrigger outputPathHFveto outputPathExclusivity outputPathLbLsignal outputPathQEDsignal"<<endl;
     exit(0);
   }
@@ -112,7 +113,7 @@ int main(int argc, char* argv[])
   string inFilePath;
   vector<string> outFilePaths;
   
-  if(argc == 4){
+  if(argc == 9){
     configPath = argv[1];
     inFilePath = argv[2];
     outFilePaths.push_back(argv[3]); // reco
@@ -129,14 +130,15 @@ int main(int argc, char* argv[])
   // Loop over events
   for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
     if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
+    if(iEvent >= config.params("maxEvents")) break;
     
     auto event = events->GetEvent(iEvent);
-    if(IsGoodForRecoEfficiency(*event))     events->AddEventToOutputTree(iEvent, outFilePaths[0]);
-    if(IsGoodForTrigger(*event))            events->AddEventToOutputTree(iEvent, outFilePaths[1]);
-    if(IsGoodForHFveto(*event))             events->AddEventToOutputTree(iEvent, outFilePaths[2]);
-    if(IsGoodForExclusivity(*event))        events->AddEventToOutputTree(iEvent, outFilePaths[3]);
-    if(IsGoodForLbLsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[4]);
-    if(IsGoodForQEDsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[5]);
+    if(IsGoodForRecoEfficiency(*event))     events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
+    if(IsGoodForTrigger(*event))            events->AddEventToOutputTree(iEvent, outFilePaths[1], storeHLTtrees);
+    if(IsGoodForHFveto(*event))             events->AddEventToOutputTree(iEvent, outFilePaths[2], storeHLTtrees);
+    if(IsGoodForExclusivity(*event))        events->AddEventToOutputTree(iEvent, outFilePaths[3], storeHLTtrees);
+    if(IsGoodForLbLsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[4], storeHLTtrees);
+    if(IsGoodForQEDsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[5], storeHLTtrees);
   }
 
   for(string outFilePath : outFilePaths) events->SaveOutputTree(outFilePath);

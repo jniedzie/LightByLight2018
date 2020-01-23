@@ -15,19 +15,19 @@
 //double effData = 1.0;
 //double effDataErr = 0.243;
 //double effMC = 1.0;
-//double effMCerr = 0.077;
+//double effMCerr = 0.047;
 
 // Charged exclusivity
-double effData = ;
-double effDataErr = ;
-double effMC = 1.000;
-double effMCerr = 0.224;
+//double effData = 1.000;
+//double effDataErr = 0.059;
+//double effMC = 1.000;
+//double effMCerr = 0.117;
 
 // Neutral exclusivity
-//double effData = ;
-//double effDataErr = ;
-//double effMC = 0.850;
-//double effMCerr = 0.198;
+double effData = 0.634;
+double effDataErr = 0.043;
+double effMC = 0.823;
+double effMCerr = 0.101;
 
 void getScaleFactor()
 {

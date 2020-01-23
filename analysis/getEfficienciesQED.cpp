@@ -16,28 +16,30 @@ string outputPath = "results/efficienciesQED_test.root";
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
-//  kData,
+  kData,
 //  kData_SingleEG3,
 //  kData_recoEff,
 //  kData_triggerEff,
 //  kData_HFveto,
 //  kData_exclusivity,
-//  kData_signal,
+//  kData_LbLsignal,
+//  kData_QEDsignal,
 //  kMCqedSC,
 //  kMCqedSC_SingleEG3,
 //  kMCqedSC_recoEff,
 //  kMCqedSC_triggerEff,
 //  kMCqedSC_HFveto,
-  kMCqedSC_exclusivity,
+//  kMCqedSC_exclusivity,
 //  kMCqedSC_signal,
 //  kMCqedSL
 };
 
 // Select which efficiencies to calculate
-bool doRecoEfficiency    = false;
+bool doRecoEfficiency    = true;
 bool doTriggerEfficiency = false;
+bool doHFvetoEfficiency  = false;
 bool doCHEefficiency     = false;
-bool doNEEefficiency     = true;
+bool doNEEefficiency     = false;
 
 // Names of efficiency histograms to create and save
 vector<string> histParams = {
@@ -113,6 +115,8 @@ void CheckRecoEfficiency(Event &event, map<string, TH1D*> &hists, string dataset
   auto goodElectrons = event.GetGoodElectrons();
   
   for(auto electron : goodElectrons){
+    if(electron->GetPt() < 5.0) continue;
+    
     for(auto &L1EG : event.GetL1EGs()){
       if(L1EG->GetEt() < 5.0) continue;
       
@@ -508,7 +512,7 @@ void PrintAndSaveResults(TFile *outFile, map<string, TH1D*> &hists,
     cout<<"Reco N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<endl;
     cout<<" efficiency: "; PrintEfficiency(nProbe, nTag);
   }
-  if(doTriggerEfficiency){
+  if(doHFvetoEfficiency){
     nTag    = hists["trigger_HFveto_eff_den_"+datasetType]->GetBinContent(1);
     nProbe  = hists["trigger_HFveto_eff_num_"+datasetType]->GetBinContent(1);
     cout<<"HF veto N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<endl;
@@ -580,13 +584,11 @@ int main(int argc, char* argv[])
       
       auto event = events->GetEvent(iEvent);
       
-      if(doRecoEfficiency) CheckRecoEfficiency(*event, hists, name);
-      if(doTriggerEfficiency){
-        CheckTriggerEfficiency(*event, triggerTrees, hists, name);
-        CheckTriggerHFvetoEfficiency(*event, hists, name);
-      }
-      if(doCHEefficiency) CheckCHEefficiency(*event, hists, name);
-      if(doNEEefficiency) CheckNEEefficiency(*event, hists, name);
+      if(doRecoEfficiency)    CheckRecoEfficiency(*event, hists, name);
+      if(doTriggerEfficiency) CheckTriggerEfficiency(*event, triggerTrees, hists, name);
+      if(doHFvetoEfficiency)  CheckTriggerHFvetoEfficiency(*event, hists, name);
+      if(doCHEefficiency)     CheckCHEefficiency(*event, hists, name);
+      if(doNEEefficiency)     CheckNEEefficiency(*event, hists, name);
     }
     
     PrintAndSaveResults(outFile, hists, triggerTrees, name);

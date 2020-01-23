@@ -18,14 +18,16 @@ const vector<EDataset> datasetsToAnalyze = {
 //  kData_triggerEff,
 //  kData_HFveto,
 //  kData_exclusivity,
-  kData_signal,
+  kData_LbLsignal,
+  kData_QEDsignal,
 //  kMCqedSC,
 //  kMCqedSC_SingleEG3,
 //  kMCqedSC_recoEff,
 //  kMCqedSC_triggerEff,
 //  kMCqedSC_HFveto,
 //  kMCqedSC_exclusivity,
-  kMCqedSC_signal,
+  kMCqedSC_LbLsignal,
+  kMCqedSC_QEDsignal,
 //  kMCqedSL,
 //  kMClbl,
 //  kMCcep
@@ -37,76 +39,74 @@ vector<tuple<string, int, double, double>> histParams = {
   {"lbl_photon_et"          , 10  , 0   , 10.0  },
   {"lbl_photon_eta"         , 6   , -2.3, 2.3   },
   {"lbl_photon_phi"         , 8   , -4.0, 4.0   },
-  {"lbl_diphoton_mass"      , 8   , 0   , 20.0  },
-  {"lbl_diphoton_rapidity"  , 6   ,-3.0 , 3.0   },
+  {"lbl_diphoton_mass"      , 20  , 0   , 20.0  },
+  {"lbl_diphoton_rapidity"  , 12  ,-3.0 , 3.0   },
   {"lbl_diphoton_pt"        , 5   , 0   , 1.0   },
-  {"qed_acoplanarity"       , 30  , 0   , 0.06  },
   {"lbl_cut_through"        , 10  , 0   , 10    },
+  
+  {"qed_acoplanarity"       , 30  , 0   , 0.06  },
+  {"qed_electron_pt"        , 40  , 0   , 20.0  },
+  {"qed_electron_eta"       , 23  , -2.3, 2.3   },
+  {"qed_electron_phi"       , 20   , -4.0, 4.0  },
+  {"qed_dielectron_mass"    , 40  , 0   , 40.0  },
+  {"qed_dielectron_rapidity", 30   ,-3.0 , 3.0  },
+  {"qed_dielectron_pt"      , 20   , 0   , 2.0  },
   {"qed_cut_through"        , 10  , 0   , 10    },
+  
   {"nTracks"                , 100 , 0   , 100   },
   {"nTracks_pt_geq_100_MeV" , 100 , 0   , 100   },
   {"nTracks_pt_lt_100_MeV"  , 100 , 0   , 100   },
   {"track_pt"               , 500 , 0   , 5     },
 };
 
-void fillHistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)
+void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)
 {
   // Add all necessary selection criteria here
   // ...
-  int cutThroughLbL=0;
-  int cutThroughQED=0;
-  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThroughLbL++); // LbL 0
-  hists.at("qed_cut_through_"+datasetName)->Fill(cutThroughQED++); // QED 0
+  int cutThrough=0;
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 0
   
   if(!event.HasDoubleEG2Trigger()) return;
-  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThroughLbL++); // LbL 1
-  hists.at("qed_cut_through_"+datasetName)->Fill(cutThroughQED++); // QED 1
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 1
   
   if(event.HasAdditionalTowers()) return;
-  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThroughLbL++); // LbL 2
-  hists.at("qed_cut_through_"+datasetName)->Fill(cutThroughQED++); // QED 2
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 2
   
-  if(event.GetNchargedTracks() == 0){
-    hists.at("lbl_cut_through_"+datasetName)->Fill(cutThroughLbL++); // LbL 3
+  if(event.GetNchargedTracks() != 0) return;
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 3
+  
+  auto photons = event.GetGoodPhotons();
+  
+  if(photons.size() != 2) return;
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 4
+  
+  TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*photons[0], *photons[1]);
+  double aco = physObjectProcessor.GetAcoplanarity(*photons[0], *photons[1]);
+  
+  if(diphoton.M() < 5.0) return;
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 5
+  
+  if(diphoton.Pt() > 1.0) return;
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 6
+  
+//  if(diphoton.Eta() > 2.3) return;
+//  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 7
+  
+  hists.at("lbl_acoplanarity_"+datasetName)->Fill(aco);
+  hists.at("lbl_photon_et_"+datasetName)->Fill(photons[0]->GetEt());
+  hists.at("lbl_photon_et_"+datasetName)->Fill(photons[1]->GetEt());
+  hists.at("lbl_photon_eta_"+datasetName)->Fill(photons[0]->GetEta());
+  hists.at("lbl_photon_eta_"+datasetName)->Fill(photons[1]->GetEta());
+  hists.at("lbl_photon_phi_"+datasetName)->Fill(photons[0]->GetPhi());
+  hists.at("lbl_photon_phi_"+datasetName)->Fill(photons[1]->GetPhi());
+  hists.at("lbl_diphoton_mass_"+datasetName)->Fill(diphoton.M());
+  hists.at("lbl_diphoton_rapidity_"+datasetName)->Fill(diphoton.Y());
+  hists.at("lbl_diphoton_pt_"+datasetName)->Fill(diphoton.Pt());
+  
+}
 
-    //  auto photons = event.GetGoodPhotons();
-    auto photons = event.GetPhotons();
-    
-    if(photons.size() == 2){
-      hists.at("lbl_cut_through_"+datasetName)->Fill(cutThroughLbL++); // LbL 4
-
-      double aco = physObjectProcessor.GetAcoplanarity(*photons[0], *photons[1]);
-      hists.at("lbl_acoplanarity_"+datasetName)->Fill(aco);
-      
-      hists.at("lbl_photon_et_"+datasetName)->Fill(photons[0]->GetEt());
-      hists.at("lbl_photon_et_"+datasetName)->Fill(photons[1]->GetEt());
-      hists.at("lbl_photon_eta_"+datasetName)->Fill(photons[0]->GetEta());
-      hists.at("lbl_photon_eta_"+datasetName)->Fill(photons[1]->GetEta());
-      hists.at("lbl_photon_phi_"+datasetName)->Fill(photons[0]->GetPhi());
-      hists.at("lbl_photon_phi_"+datasetName)->Fill(photons[1]->GetPhi());
-      
-      TLorentzVector diphoton = physObjectProcessor.GetObjectsSum(*photons[0], *photons[1]);
-      
-      hists.at("lbl_diphoton_mass_"+datasetName)->Fill(diphoton.M());
-      hists.at("lbl_diphoton_rapidity_"+datasetName)->Fill(diphoton.Y());
-      hists.at("lbl_diphoton_pt_"+datasetName)->Fill(diphoton.Pt());
-    }
-  }
-  
-  auto electrons = event.GetGoodElectrons();
-  
-  if(electrons.size() == 2){
-    hists.at("qed_cut_through_"+datasetName)->Fill(cutThroughQED++); // QED 3
-    
-    if(event.GetNchargedTracks() == 2){
-      hists.at("qed_cut_through_"+datasetName)->Fill(cutThroughQED++); // QED 4
-      
-      double aco = physObjectProcessor.GetAcoplanarity(*electrons[0], *electrons[1]);
-      hists.at("qed_acoplanarity_"+datasetName)->Fill(aco);
-    }
-  }
-  
-  
+void fillTracksHistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)
+{
   int nTracks = event.GetNgeneralTracks();
   hists.at("nTracks_"+datasetName)->Fill(nTracks);
   
@@ -124,12 +124,70 @@ void fillHistograms(Event &event, const map<string, TH1D*> &hists, string datase
   }
 }
 
+void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)
+{
+  // Add all necessary selection criteria here
+  // ...
+  int cutThrough=0;
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 0
+  
+  if(!event.HasDoubleEG2Trigger()) return;
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 1
+  
+  if(event.HasAdditionalTowers()) return;
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 2
+  
+  if(event.GetNchargedTracks() != 2) return;
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 3
+  
+  auto goodElectrons = event.GetGoodElectrons();
+  vector<shared_ptr<PhysObject>> goodMatchedElectrons;
+  
+  for(auto electron : goodElectrons){
+    for(auto &L1EG : event.GetL1EGs()){
+      if(L1EG->GetEt() < 2.0) continue;
+      
+      if(physObjectProcessor.GetDeltaR_SC(*electron, *L1EG) < 0.3){
+        goodMatchedElectrons.push_back(electron);
+        break;
+      }
+    }
+  }
+  
+  if(goodMatchedElectrons.size() != 2) return;
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 4
+    
+  auto electron1 = goodMatchedElectrons[0];
+  auto electron2 = goodMatchedElectrons[1];
+  
+  TLorentzVector dielectron = physObjectProcessor.GetDielectron(*electron1, *electron2);
+  double aco = physObjectProcessor.GetAcoplanarity(*electron1, *electron2);
+  
+  // add QED specific cuts here:
+  if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || dielectron.Eta() > 2.3) return;
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 5
+  
+  
+  hists.at("qed_acoplanarity_"+datasetName)->Fill(aco);
+  hists.at("qed_electron_pt_"+datasetName)->Fill(electron1->GetPt());
+  hists.at("qed_electron_pt_"+datasetName)->Fill(electron2->GetPt());
+  hists.at("qed_electron_eta_"+datasetName)->Fill(electron1->GetEta());
+  hists.at("qed_electron_eta_"+datasetName)->Fill(electron2->GetEta());
+  hists.at("qed_electron_phi_"+datasetName)->Fill(electron1->GetPhi());
+  hists.at("qed_electron_phi_"+datasetName)->Fill(electron2->GetPhi());
+  
+  hists.at("qed_dielectron_mass_"+datasetName)->Fill(dielectron.M());
+  hists.at("qed_dielectron_rapidity_"+datasetName)->Fill(dielectron.Y());
+  hists.at("qed_dielectron_pt_"+datasetName)->Fill(dielectron.Pt());
+}
+
 /// Creates histograms, cut through and event counters for given dataset name, for each
 /// histogram specified in `histParams` vector.
 void InitializeHistograms(map<string, TH1D*> &hists, const string &datasetType)
 {
   for(auto &[histName, nBins, min, max] : histParams){
     string title = histName + "_" + datasetType;
+    if(hists.find(title) != hists.end()) continue;
     hists[title] = new TH1D(title.c_str(), title.c_str(), nBins, min, max);
   }
 }
@@ -143,21 +201,25 @@ int main()
   TFile *outFile = new TFile(outputPath.c_str(), "recreate");
   
   for(auto dataset : datasetsToAnalyze){
+    InitializeHistograms(hists, datasetName.at(dataset));
+  }
+  
+  for(auto dataset : datasetsToAnalyze){
     string name = datasetName.at(dataset);
-    
-    InitializeHistograms(hists, name);
     
     cout<<"Creating "<<name<<" plots"<<endl;
     
     auto events = make_unique<EventProcessor>(inFileNames.at(dataset));
     
     for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
-         if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
-         if(iEvent >= config.params("maxEvents")) break;
-         
-         auto event = events->GetEvent(iEvent);
-    
-        fillHistograms(*event, hists, name);
+      if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
+      if(iEvent >= config.params("maxEvents")) break;
+      
+      auto event = events->GetEvent(iEvent);
+      
+      
+      if(dataset == kData_LbLsignal || dataset == kMCqedSC_LbLsignal) fillLbLHistograms(*event, hists, name);
+      if(dataset == kData_QEDsignal || dataset == kMCqedSC_QEDsignal) fillQEDHistograms(*event, hists, name);
     }
     
     outFile->cd();

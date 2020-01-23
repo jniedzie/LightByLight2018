@@ -27,12 +27,15 @@ double PhysObjectProcessor::GetDeltaR_SC(const PhysObject &a, const PhysObject &
   return sqrt(pow(a.etaSC-b.eta, 2) + pow(a.phiSC-b.phi, 2));
 }
 
-TLorentzVector PhysObjectProcessor::GetObjectsSum(const PhysObject &a, const PhysObject &b)
+TLorentzVector PhysObjectProcessor::GetDiphoton(const PhysObject &a, const PhysObject &b)
 {
   TLorentzVector aVec, bVec;
   
-  aVec.SetPtEtaPhiE(a.pt, a.eta, a.phi, a.energy);
-  bVec.SetPtEtaPhiE(b.pt, b.eta, b.phi, b.energy);
+//  aVec.SetPtEtaPhiE(a.GetEtSC(), a.GetEtaSC(), a.GetPhiSC(), a.GetEnergySC());
+//  bVec.SetPtEtaPhiE(b.GetEtSC(), b.GetEtaSC(), b.GetPhiSC(), b.GetEnergySC());
+  
+  aVec.SetPtEtaPhiE(a.GetEtSC(), a.GetEtaSC(), a.GetPhiSC(), a.GetEnergySC());
+  bVec.SetPtEtaPhiE(b.GetEtSC(), b.GetEtaSC(), b.GetPhiSC(), b.GetEnergySC());
 
   return aVec + bVec;
 }

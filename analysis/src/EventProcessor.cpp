@@ -102,14 +102,14 @@ void EventProcessor::SetupOutputTree(string outFileName)
   outL1Tree[outFileName]->Reset();
 }
 
-void EventProcessor::AddEventToOutputTree(int iEvent, string outFileName)
+void EventProcessor::AddEventToOutputTree(int iEvent, string outFileName, bool saveHLTtree)
 {
   eventTree->GetEntry(iEvent);
   hltTree->GetEntry(iEvent);
   l1Tree->GetEntry(iEvent);
   
   outEventTree[outFileName]->Fill();
-  outHltTree[outFileName]->Fill();
+  if(saveHLTtree) outHltTree[outFileName]->Fill();
   outL1Tree[outFileName]->Fill();
 }
 
@@ -161,6 +161,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     photon->phi      = photonSCPhi->at(iPhoton);
     photon->phiSC    = photonSCPhi->at(iPhoton);
     photon->et       = photonSCEt->at(iPhoton);
+    photon->etSC     = photonSCEt->at(iPhoton);
     photon->pt       = photonSCEt->at(iPhoton);
     photon->energy   = photonSCE->at(iPhoton);
     photon->energySC = photonSCE->at(iPhoton);

@@ -11,6 +11,7 @@ outputPathExclusivity=""
 outputPathLbLsignal=""
 outputPathQEDsignal=""
 
+# data
 if [ $2 -eq 0 ]
 then
   inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
@@ -21,6 +22,7 @@ then
   outputPathLbLsignal="/eos/cms/store/group/phys_diffraction/lbyl_2018/data_forLbLsignal"
   outputPathQEDsignal="/eos/cms/store/group/phys_diffraction/lbyl_2018/data_forQEDsignal"
 else
+ # MC
   inputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
   outputPathReco="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed_sc_forRecoEff"
   outputPathTrigger="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed_sc_forTriggerEff"

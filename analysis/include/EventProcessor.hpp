@@ -21,7 +21,7 @@ public:
   ~EventProcessor();
 
   /// Add event with number iEvent to output tree in file outFileName
-  void AddEventToOutputTree(int iEvent, string outFileName);
+  void AddEventToOutputTree(int iEvent, string outFileName, bool saveHLTtree=true);
   
   /// Save file with name outFileName
   void SaveOutputTree(string outFileName);
