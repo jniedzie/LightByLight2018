@@ -32,7 +32,13 @@ else
   outputPathQEDsignal="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed_sc_forQEDsignal"
 fi
 
-#mkdir -p $outputPath
+mkdir -p $outputPathReco
+mkdir -p $outputPathTrigger
+mkdir -p $outputPathHFveto
+mkdir -p $outputPathExclusivity
+mkdir -p $outputPathLbLsignal
+mkdir -p $outputPathQEDsignal
+
 outputReco="${outputPathReco}/ntuples_forRecoEff_${1}.root"
 outputTrigger="${outputPathTrigger}/ntuples_forTriggerEff_${1}.root"
 outputHFveto="${outputPathHFveto}/ntuples_forHFvetoEff_${1}.root"
