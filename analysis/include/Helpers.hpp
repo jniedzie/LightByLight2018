@@ -80,7 +80,7 @@ const vector<EDataset> datasets = { kData, kData_SingleEG3, kData_recoEff, kData
 
 const map<EDataset, string> inFileNames = {
 //  {kData                , "ntuples/ntuples_data_small_sample_merged.root"     },
-  {kData                , "ntuples/ntuplesTest.root"     },
+  {kData                , "ntuples/ntuples_data_small_sample.root"            },
   {kData_SingleEG3      , "ntuples/ntuples_data_withSingleEG3.root"           },
   {kData_recoEff        , "ntuples/ntuples_data_forRecoEff.root"              },
   {kData_triggerEff     , "ntuples/ntuples_data_forTriggerEff.root"           },

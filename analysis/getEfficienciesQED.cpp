@@ -18,26 +18,26 @@ string outputPath = "results/efficienciesQED_test.root";
 const vector<EDataset> datasetsToAnalyze = {
 //  kData,
 //  kData_SingleEG3,
-  kData_recoEff,
+//  kData_recoEff,
 //  kData_triggerEff,
-//  kData_HFveto,
+  kData_HFveto,
 //  kData_exclusivity,
 //  kData_LbLsignal,
 //  kData_QEDsignal,
 //  kMCqedSC,
 //  kMCqedSC_SingleEG3,
-  kMCqedSC_recoEff,
+//  kMCqedSC_recoEff,
 //  kMCqedSC_triggerEff,
-//  kMCqedSC_HFveto,
+  kMCqedSC_HFveto,
 //  kMCqedSC_exclusivity,
 //  kMCqedSC_signal,
 //  kMCqedSL
 };
 
 // Select which efficiencies to calculate
-bool doRecoEfficiency    = true;
+bool doRecoEfficiency    = false;
 bool doTriggerEfficiency = false;
-bool doHFvetoEfficiency  = false;
+bool doHFvetoEfficiency  = true;
 bool doCHEefficiency     = false;
 bool doNEEefficiency     = false;
 

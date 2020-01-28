@@ -12,25 +12,25 @@ string outputPath = "results/basicPlots.root";
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
-//  kData,
-//  kData_SingleEG3,
-//  kData_recoEff,
-//  kData_triggerEff,
-//  kData_HFveto,
-//  kData_exclusivity,
-  kData_LbLsignal,
-//  kData_QEDsignal,
-//  kMCqedSC,
-//  kMCqedSC_SingleEG3,
-//  kMCqedSC_recoEff,
-//  kMCqedSC_triggerEff,
-//  kMCqedSC_HFveto,
-//  kMCqedSC_exclusivity,
-  kMCqedSC_LbLsignal,
-//  kMCqedSC_QEDsignal,
-//  kMCqedSL,
-//  kMClbl,
-//  kMCcep
+  kData,
+  //  kData_SingleEG3,
+  //  kData_recoEff,
+  //  kData_triggerEff,
+  //  kData_HFveto,
+  //  kData_exclusivity,
+  //  kData_LbLsignal,
+  //  kData_QEDsignal,
+  //  kMCqedSC,
+  //  kMCqedSC_SingleEG3,
+  //  kMCqedSC_recoEff,
+  //  kMCqedSC_triggerEff,
+  //  kMCqedSC_HFveto,
+  //  kMCqedSC_exclusivity,
+//  kMCqedSC_LbLsignal,
+  //  kMCqedSC_QEDsignal,
+  //  kMCqedSL,
+  //  kMClbl,
+  //  kMCcep
 };
 
 vector<tuple<string, int, double, double>> histParams = {
@@ -54,6 +54,8 @@ vector<tuple<string, int, double, double>> histParams = {
   {"qed_cut_through"        , 10  , 0   , 10    },
   
   {"nTracks"                , 100 , 0   , 100   },
+  {"nTracks_withDoubleEG2"  , 100 , 0   , 100   },
+  {"tracks_cut_through"     , 10  , 0   , 10    },
   {"nTracks_pt_geq_100_MeV" , 100 , 0   , 100   },
   {"nTracks_pt_lt_100_MeV"  , 100 , 0   , 100   },
   {"track_pt"               , 500 , 0   , 5     },
@@ -66,13 +68,13 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   int cutThrough=0;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 0
   
-//  if(!event.HasDoubleEG2Trigger()) return;
+  if(!event.HasDoubleEG2Trigger()) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 1
   
-  if(event.HasAdditionalTowers()) return;
+  if(event.GetNchargedTracks() != 0) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 2
   
-  if(event.GetNchargedTracks() != 0) return;
+  if(event.HasAdditionalTowers()) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 3
   
   auto photons = event.GetGoodPhotons();
@@ -83,14 +85,14 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*photons[0], *photons[1]);
   double aco = physObjectProcessor.GetAcoplanarity(*photons[0], *photons[1]);
   
-  if(diphoton.M() < 5.0) return;
+    if(diphoton.M() < 5.0) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 5
   
-  if(diphoton.Pt() > 1.0) return;
+    if(diphoton.Pt() > 1.0) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 6
   
-//  if(fabs(diphoton.Eta()) > 2.3) return;
-//  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 7
+  //  if(fabs(diphoton.Eta()) > 2.3) return;
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 7
   
   hists.at("lbl_acoplanarity_"+datasetName)->Fill(aco);
   
@@ -113,6 +115,19 @@ void fillTracksHistograms(Event &event, const map<string, TH1D*> &hists, string 
 {
   int nTracks = event.GetNgeneralTracks();
   hists.at("nTracks_"+datasetName)->Fill(nTracks);
+  
+  hists.at("tracks_cut_through_"+datasetName)->Fill(0); // has Double EG2 trigger
+  
+  if(event.HasDoubleEG2Trigger()){
+    hists.at("nTracks_withDoubleEG2_"+datasetName)->Fill(nTracks);
+    
+    hists.at("tracks_cut_through_"+datasetName)->Fill(1); // has Double EG2 trigger
+    
+    if(nTracks==0) hists.at("tracks_cut_through_"+datasetName)->Fill(2); // has Double EG2 trigger and no tracks
+  }
+  
+  if(nTracks==0) hists.at("tracks_cut_through_"+datasetName)->Fill(3); // has no tracks
+  
   
   for(int iTrack=0; iTrack<nTracks; iTrack++){
     double trackPt = event.GetGeneralTrack(iTrack)->GetPt();
@@ -160,7 +175,7 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   
   if(goodMatchedElectrons.size() != 2) return;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 4
-    
+  
   auto electron1 = goodMatchedElectrons[0];
   auto electron2 = goodMatchedElectrons[1];
   
@@ -202,8 +217,20 @@ void InitializeHistograms(map<string, TH1D*> &hists, const string &datasetType)
   }
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+  if(argc != 1 && argc != 4){
+    cout<<"This app requires 0 or 3 parameters."<<endl;
+    cout<<"./prepareBasicPlots configPath inputPath outputPath"<<endl;
+    exit(0);
+  }
+  string inputPath = "";
+  
+  if(argc == 4){
+    configPath = argv[1];
+    inputPath  = argv[2];
+    outputPath = argv[3];
+  }
   config = ConfigManager(configPath);
   
   map<string, TH1D*> hists;
@@ -219,7 +246,7 @@ int main()
     
     cout<<"Creating "<<name<<" plots"<<endl;
     
-    auto events = make_unique<EventProcessor>(inFileNames.at(dataset));
+    auto events = make_unique<EventProcessor>(inputPath=="" ? inFileNames.at(dataset) : inputPath);
     
     for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
       if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
@@ -230,10 +257,17 @@ int main()
       
       if(dataset == kData_LbLsignal || dataset == kMCqedSC_LbLsignal) fillLbLHistograms(*event, hists, name);
       if(dataset == kData_QEDsignal || dataset == kMCqedSC_QEDsignal) fillQEDHistograms(*event, hists, name);
+      if(dataset == kData){
+        fillLbLHistograms(*event, hists, name);
+        fillTracksHistograms(*event, hists, name);
+        fillQEDHistograms(*event, hists, name);
+      }
     }
     
     outFile->cd();
     for(auto &[name, hist] : hists) hist->Write();
+    
+    if(inputPath != "") break;
   }
   
   outFile->Close();
