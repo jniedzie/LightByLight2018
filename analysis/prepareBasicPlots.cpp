@@ -19,7 +19,7 @@ const vector<EDataset> datasetsToAnalyze = {
 //  kData_HFveto,
 //  kData_exclusivity,
   kData_LbLsignal,
-  kData_QEDsignal,
+//  kData_QEDsignal,
 //  kMCqedSC,
 //  kMCqedSC_SingleEG3,
 //  kMCqedSC_recoEff,
@@ -27,7 +27,7 @@ const vector<EDataset> datasetsToAnalyze = {
 //  kMCqedSC_HFveto,
 //  kMCqedSC_exclusivity,
   kMCqedSC_LbLsignal,
-  kMCqedSC_QEDsignal,
+//  kMCqedSC_QEDsignal,
 //  kMCqedSL,
 //  kMClbl,
 //  kMCcep
@@ -37,20 +37,20 @@ vector<tuple<string, int, double, double>> histParams = {
   // title                   nBins min   max
   {"lbl_acoplanarity"       , 20  , 0   , 0.1   },
   {"lbl_photon_et"          , 10  , 0   , 10.0  },
-  {"lbl_photon_eta"         , 6   , -2.3, 2.3   },
+  {"lbl_photon_eta"         , 6   ,-2.4 , 2.4   },
   {"lbl_photon_phi"         , 8   , -4.0, 4.0   },
-  {"lbl_diphoton_mass"      , 20  , 0   , 20.0  },
-  {"lbl_diphoton_rapidity"  , 12  ,-3.0 , 3.0   },
+  {"lbl_diphoton_mass"      , 8   , 0   , 20.0  },
+  {"lbl_diphoton_rapidity"  , 6   ,-2.4 , 2.4   },
   {"lbl_diphoton_pt"        , 5   , 0   , 1.0   },
   {"lbl_cut_through"        , 10  , 0   , 10    },
   
   {"qed_acoplanarity"       , 30  , 0   , 0.06  },
   {"qed_electron_pt"        , 40  , 0   , 20.0  },
   {"qed_electron_eta"       , 23  , -2.3, 2.3   },
-  {"qed_electron_phi"       , 20   , -4.0, 4.0  },
-  {"qed_dielectron_mass"    , 40  , 0   , 40.0  },
-  {"qed_dielectron_rapidity", 30   ,-3.0 , 3.0  },
-  {"qed_dielectron_pt"      , 20   , 0   , 2.0  },
+  {"qed_electron_phi"       , 20  , -4.0, 4.0   },
+  {"qed_dielectron_mass"    , 200 , 0   , 200.0 },
+  {"qed_dielectron_rapidity", 30  ,-3.0 , 3.0   },
+  {"qed_dielectron_pt"      , 20  , 0   , 2.0   },
   {"qed_cut_through"        , 10  , 0   , 10    },
   
   {"nTracks"                , 100 , 0   , 100   },
@@ -66,7 +66,7 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   int cutThrough=0;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 0
   
-  if(!event.HasDoubleEG2Trigger()) return;
+//  if(!event.HasDoubleEG2Trigger()) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 1
   
   if(event.HasAdditionalTowers()) return;
@@ -89,10 +89,14 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   if(diphoton.Pt() > 1.0) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 6
   
-//  if(diphoton.Eta() > 2.3) return;
+//  if(fabs(diphoton.Eta()) > 2.3) return;
 //  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 7
   
   hists.at("lbl_acoplanarity_"+datasetName)->Fill(aco);
+  
+  if(aco > 0.01) return;
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 8
+  
   hists.at("lbl_photon_et_"+datasetName)->Fill(photons[0]->GetEt());
   hists.at("lbl_photon_et_"+datasetName)->Fill(photons[1]->GetEt());
   hists.at("lbl_photon_eta_"+datasetName)->Fill(photons[0]->GetEta());
@@ -164,9 +168,14 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   double aco = physObjectProcessor.GetAcoplanarity(*electron1, *electron2);
   
   // add QED specific cuts here:
-  if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || dielectron.Eta() > 2.3) return;
+  if(dielectron.M() < 5.0) return;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 5
   
+  if(dielectron.Pt() > 1.0) return;
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 6
+  
+  if(fabs(dielectron.Eta()) > 2.3) return;
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 7
   
   hists.at("qed_acoplanarity_"+datasetName)->Fill(aco);
   hists.at("qed_electron_pt_"+datasetName)->Fill(electron1->GetPt());
@@ -175,6 +184,7 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   hists.at("qed_electron_eta_"+datasetName)->Fill(electron2->GetEta());
   hists.at("qed_electron_phi_"+datasetName)->Fill(electron1->GetPhi());
   hists.at("qed_electron_phi_"+datasetName)->Fill(electron2->GetPhi());
+  
   
   hists.at("qed_dielectron_mass_"+datasetName)->Fill(dielectron.M());
   hists.at("qed_dielectron_rapidity_"+datasetName)->Fill(dielectron.Y());

@@ -87,6 +87,7 @@ const map<EDataset, string> inFileNames = {
   {kData_HFveto         , "ntuples/ntuples_data_forHFveto.root"               },
   {kData_exclusivity    , "ntuples/ntuples_data_forExclusivity.root"          },
   {kData_LbLsignal      , "ntuples/ntuples_data_forSignalExtraction.root"     },
+//  {kData_LbLsignal      , "ntuples/ntuples_data_forLbLsignal_noNEEapplied.root"  },
   {kData_QEDsignal      , "ntuples/ntuples_data_forQEDsignal.root"            },
   {kMCqedSC             , "ntuples/ntuples_mc_qed_sc.root"                    },
   {kMCqedSC_SingleEG3   , "ntuples/ntuples_mc_qed_withSingleEG3.root"         },
@@ -168,6 +169,15 @@ const map<EDataset, string> datasetDescription = {
 };
 
 enum ECaloType { kEB, kEE, kHB, kHE, kHFp, kHFm, nCaloTypes };
+
+const map<ECaloType, string> caloName = {
+  { kEB  , "EB"  },
+  { kEE  , "EE"  },
+  { kHB  , "HB"  },
+  { kHE  , "HE"  },
+  { kHFp , "HFp" },
+  { kHFm , "HFm" },
+};
 
 const map<ECaloType, double> caloNoiseThreshold = { // in GeV
   {kEB, 0.8},

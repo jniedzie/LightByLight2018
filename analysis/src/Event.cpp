@@ -68,6 +68,8 @@ vector<shared_ptr<PhysObject>> Event::GetGoodGenPhotons() const
 
 vector<shared_ptr<PhysObject>> Event::GetGoodPhotons()
 {
+  if(goodPhotonsReady) return goodPhotons;
+  
   goodPhotons.clear();
   
   for(int iPhoton=0; iPhoton<nPhotons; iPhoton++){
@@ -77,12 +79,12 @@ vector<shared_ptr<PhysObject>> Event::GetGoodPhotons()
     if(photon->GetEt() < config.params("photonMinEt")) continue;
     
     // Check eta & phi (remove noisy region >2.3, remove cracks between EB and EE, remove HEM issue region)
-    double absEta = fabs(photon->GetEtaSC());
+    double absEta = fabs(photon->GetEta());
     if(absEta > config.params("photonMaxEta")) continue;
     if(absEta > config.params("ecalCrackMin") && absEta < config.params("ecalCrackMax")) continue;
-    if(photon->GetEtaSC() < -minEtaEE &&
-       photon->GetPhiSC() > config.params("ecalHEMmin") &&
-       photon->GetPhiSC() < config.params("ecalHEMmax")) continue;
+    if(photon->GetEta() < -minEtaEE &&
+       photon->GetPhi() > config.params("ecalHEMmin") &&
+       photon->GetPhi() < config.params("ecalHEMmax")) continue;
     
     // Check η shower shape
     if((absEta < maxEtaEB) && (photon->GetEtaWidth() > config.params("photonMaxEtaWidthBarrel"))) continue;
@@ -143,7 +145,7 @@ vector<shared_ptr<PhysObject>> Event::GetGoodElectrons()
 
 double Event::GetDiphotonInvMass()
 {
-  if(!goodPhotonsReady) GetGoodPhotons();
+  GetGoodPhotons();
   
   if(goodPhotons.size() !=2 ) return -1;
   
@@ -166,7 +168,7 @@ double Event::GetDiphotonInvMass()
 
 bool Event::DiphotonPtAboveThreshold()
 {
-  if(!goodPhotonsReady) GetGoodPhotons();
+  GetGoodPhotons();
   
   if(goodPhotons.size() != 2) return true;
   
@@ -182,7 +184,7 @@ bool Event::DiphotonPtAboveThreshold()
 
 bool Event::HasAdditionalTowers()
 {
-  if(!goodPhotonsReady) GetGoodPhotons();
+  GetGoodPhotons();
   
   for(int iTower=0; iTower<nCaloTowers; iTower++){
     auto tower = caloTowers[iTower];
@@ -190,7 +192,8 @@ bool Event::HasAdditionalTowers()
     double energyHad = tower->GetEnergyHad();
     
     if(energyHad > 0){
-      if(energyHad > caloNoiseThreshold.at(tower->GetTowerSubdetHad())) return true;
+      string name = caloName.at(tower->GetTowerSubdetHad());
+      if(energyHad > config.params("noiseThreshold"+name)) return true;
     }
     
     // Check if tower is above the noise threshold
@@ -216,7 +219,8 @@ bool Event::HasAdditionalTowers()
     }
     
     if(!overlapsWithPhoton){
-      if(tower->GetEnergyEm() > caloNoiseThreshold.at(subdetEm)) return true;
+      string name = caloName.at(subdetEm);
+      if(tower->GetEnergyEm() > config.params("noiseThreshold"+name)) return true;
     }
   }
   return false;

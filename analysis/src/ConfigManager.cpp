@@ -63,6 +63,13 @@ ConfigManager::ConfigManager(string _path)
   _params["ecalCrackMax"] = configFile->GetValue("ecalCrackMax", 9999.9);
   _params["ecalHEMmin"]   = configFile->GetValue("ecalHEMmin", 9999.9);
   _params["ecalHEMmax"]   = configFile->GetValue("ecalHEMmax", 9999.9);
+  
+  _params["noiseThresholdEB"]     = configFile->GetValue("noiseThresholdEB", 9999.9);
+  _params["noiseThresholdEE"]     = configFile->GetValue("noiseThresholdEE", 9999.9);
+  _params["noiseThresholdHB"]     = configFile->GetValue("noiseThresholdHB", 9999.9);
+  _params["noiseThresholdHE"]     = configFile->GetValue("noiseThresholdHE", 9999.9);
+  _params["noiseThresholdHFp"]    = configFile->GetValue("noiseThresholdHFp", 9999.9);
+  _params["noiseThresholdHFm"]    = configFile->GetValue("noiseThresholdHFm", 9999.9);
 }
 
 double ConfigManager::params(string name)

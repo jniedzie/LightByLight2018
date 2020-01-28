@@ -16,9 +16,9 @@ string outputPath = "results/efficienciesQED_test.root";
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
-  kData,
+//  kData,
 //  kData_SingleEG3,
-//  kData_recoEff,
+  kData_recoEff,
 //  kData_triggerEff,
 //  kData_HFveto,
 //  kData_exclusivity,
@@ -26,7 +26,7 @@ const vector<EDataset> datasetsToAnalyze = {
 //  kData_QEDsignal,
 //  kMCqedSC,
 //  kMCqedSC_SingleEG3,
-//  kMCqedSC_recoEff,
+  kMCqedSC_recoEff,
 //  kMCqedSC_triggerEff,
 //  kMCqedSC_HFveto,
 //  kMCqedSC_exclusivity,

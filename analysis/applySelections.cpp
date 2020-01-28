@@ -15,7 +15,7 @@ bool storeHLTtrees = false;
 bool IsGoodForRecoEfficiency(Event &event)
 {
   // Check trigger
-  if(!event.HasSingleEG3Trigger()) return false;
+  if(!event.HasSingleEG3Trigger() && !event.HasSingleEG5Trigger()) return false;
   
   // Make sure that there are 2 tracks with opposite charges
   if(event.GetNgeneralTracks() != 2) return false;
@@ -32,7 +32,7 @@ bool IsGoodForRecoEfficiency(Event &event)
 bool IsGoodForTrigger(Event &event)
 {
   // Check trigger
-  if(!event.HasSingleEG3Trigger()) return false;
+  if(!event.HasSingleEG3Trigger() && !event.HasSingleEG5Trigger()) return false;
   
   // Check if there are at least two electrons
   if(event.GetNelectrons() < 2) return false;

@@ -1,7 +1,7 @@
 ##  Efficiencies config
 
 ### Max number of events to analyze
-maxEvents: 10000
+maxEvents: 99999999999
 
 ### Criteria to match calo tower with photon SC for neutral exclusivity
 maxDeltaEtaEB:  0.15
@@ -51,3 +51,10 @@ ecalCrackMax: 1.566
 ecalHEMmin:  -1.5
 ecalHEMmax: -1.0
  
+ ### Calorimeter noise thresolds (GeV)
+ noiseThresholdEB:        0.8
+ noiseThresholdEE:        3.7
+ noiseThresholdHB:        2.9
+ noiseThresholdHE:        2.5
+ noiseThresholdHFp:      7.3
+ noiseThresholdHFm:     7.6

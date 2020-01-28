@@ -25,9 +25,6 @@ public:
   
   double GetDeltaR_SC(const PhysObject &a, const PhysObject &b);
   
-  /// Returns a lorentz vector which is a sum of provided objects
-  TLorentzVector GetObjectsSum(const PhysObject &a, const PhysObject &b);
-  
   /// Returns a lorentz vector which is a sum of provided objects, assuming they are photons
   TLorentzVector GetDiphoton(const PhysObject &a, const PhysObject &b);
   

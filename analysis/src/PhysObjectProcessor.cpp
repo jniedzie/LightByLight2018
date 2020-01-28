@@ -31,11 +31,8 @@ TLorentzVector PhysObjectProcessor::GetDiphoton(const PhysObject &a, const PhysO
 {
   TLorentzVector aVec, bVec;
   
-//  aVec.SetPtEtaPhiE(a.GetEtSC(), a.GetEtaSC(), a.GetPhiSC(), a.GetEnergySC());
-//  bVec.SetPtEtaPhiE(b.GetEtSC(), b.GetEtaSC(), b.GetPhiSC(), b.GetEnergySC());
-  
-  aVec.SetPtEtaPhiE(a.GetEtSC(), a.GetEtaSC(), a.GetPhiSC(), a.GetEnergySC());
-  bVec.SetPtEtaPhiE(b.GetEtSC(), b.GetEtaSC(), b.GetPhiSC(), b.GetEnergySC());
+  aVec.SetPtEtaPhiE(a.GetEt(), a.GetEta(), a.GetPhi(), a.GetEnergy());
+  bVec.SetPtEtaPhiE(b.GetEt(), b.GetEta(), b.GetPhi(), b.GetEnergy());
 
   return aVec + bVec;
 }
@@ -53,8 +50,8 @@ TLorentzVector PhysObjectProcessor::GetDielectron(const PhysObject &a, const Phy
 
 double PhysObjectProcessor::GetAcoplanarity(const PhysObject &a, const PhysObject &b)
 {
-  double phi1 = a.phi;
-  double phi2 = b.phi;
+  double phi1 = a.GetPhi();
+  double phi2 = b.GetPhi();
   
   // Make sure that angles are in range [0, 2π)
   while(phi1 < 0)               phi1 += 2*TMath::Pi();
