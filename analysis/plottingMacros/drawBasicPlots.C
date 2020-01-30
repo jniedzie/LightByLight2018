@@ -14,14 +14,14 @@ const vector<EDataset> datasetsToAnalyze = {
 
 vector<tuple<string, string, bool, bool>> histParams = {
   // title                  x axis title                  log Y   normalize
-  { "lbl_acoplanarity"       , "A_{#phi}^{#gamma#gamma}" , false, false },
-  { "lbl_photon_et"          , "photon E_{t} (GeV)"      , false, false },
-  { "lbl_photon_eta"         , "photon #eta"             , false, false },
-  { "lbl_photon_phi"         , "photon #phi"             , false, false },
-  { "lbl_diphoton_mass"      , "diphoton m_{inv} (GeV)"  , false, false },
-  { "lbl_diphoton_rapidity"  , "diphoton rapidity"       , false, false },
-  { "lbl_diphoton_pt"        , "diphoton p_{t}"          , false, false },
-  { "lbl_cut_through"        , "# cut"                   , true , true  },
+//  { "lbl_acoplanarity"       , "A_{#phi}^{#gamma#gamma}" , false, false },
+//  { "lbl_photon_et"          , "photon E_{t} (GeV)"      , false, false },
+//  { "lbl_photon_eta"         , "photon #eta"             , false, false },
+//  { "lbl_photon_phi"         , "photon #phi"             , false, false },
+//  { "lbl_diphoton_mass"      , "diphoton m_{inv} (GeV)"  , false, false },
+//  { "lbl_diphoton_rapidity"  , "diphoton rapidity"       , false, false },
+//  { "lbl_diphoton_pt"        , "diphoton p_{t}"          , false, false },
+//  { "lbl_cut_through"        , "# cut"                   , true , true  },
   
   { "qed_acoplanarity"       , "A_{#phi}^{e^{+}e^{-}}"   , true , false },
   { "qed_electron_pt"        , "electron p_{t} (GeV)"    , false, false },
@@ -120,22 +120,31 @@ void drawBasicPlots()
         hists[dataset]->Sumw2(false);
       }
       backgroundsStack->Draw();
-      hists[kData]->DrawNormalized("samePE");
+      hists[kData]->DrawNormalized(backgroundsStack->GetNhists()==0 ? "PE" : "samePE");
     }
     else{
       backgroundsStack->Draw();
-      hists[kData]->Draw("samePE");
+      hists[kData]->Draw(backgroundsStack->GetNhists()==0 ? "PE" : "samePE");
       backgroundsStack->SetMaximum(1.5*maxYvalue);
     }
     
     
     
+    if(backgroundsStack->GetYaxis()){
+      backgroundsStack->SetTitle(histName.c_str());
+      backgroundsStack->GetYaxis()->SetTitle("# events");
+      backgroundsStack->GetYaxis()->SetTitleSize(0.06);
+      backgroundsStack->GetXaxis()->SetTitle(xAxisTitle.c_str());
+      backgroundsStack->GetXaxis()->SetTitleSize(0.06);
+    }
+    else{
+      hists[kData]->SetTitle(histName.c_str());
+      hists[kData]->GetYaxis()->SetTitle("# events");
+      hists[kData]->GetYaxis()->SetTitleSize(0.06);
+      hists[kData]->GetXaxis()->SetTitle(xAxisTitle.c_str());
+      hists[kData]->GetXaxis()->SetTitleSize(0.06);
+    }
     
-    backgroundsStack->SetTitle(histName.c_str());
-    backgroundsStack->GetYaxis()->SetTitle("# events");
-    backgroundsStack->GetYaxis()->SetTitleSize(0.06);
-    backgroundsStack->GetXaxis()->SetTitle(xAxisTitle.c_str());
-    backgroundsStack->GetXaxis()->SetTitleSize(0.06);
     
     
     
