@@ -204,4 +204,13 @@ inline void PrintEfficiency(double num, double den)
   cout<<(double)num/den<<"\t#pm "<<sqrt(1./num+1./den)*(double)num/den<<endl;
 }
 
+template <typename T>
+string to_string_with_precision(const T a_value, const int n = 6)
+{
+  ostringstream out;
+  out.precision(n);
+  out << fixed << a_value;
+  return out.str();
+}
+
 #endif /* Helpers_h */

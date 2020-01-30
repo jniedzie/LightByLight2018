@@ -219,8 +219,32 @@ bool Event::HasAdditionalTowers()
     }
     
     if(!overlapsWithPhoton){
-      string name = caloName.at(subdetEm);
-      if(tower->GetEnergyEm() > config.params("noiseThreshold"+name)) return true;
+      double threshold = -1;
+      
+      if(subdetEm==kEE && config.params("doNoiseEEetaDependant")){
+        double etaStep = config.params("noiseEEetaStep");
+        double etaMin = config.params("noiseEEetaMin");
+        double etaMax = config.params("noiseEEetaMax");
+        
+        double towerEta = fabs(tower->GetEta());
+        
+        if(towerEta < etaMin || towerEta > etaMax) threshold = 99999;
+        
+        for(double eta=etaMin; eta<etaMax; eta += etaStep){
+          if(towerEta > eta && towerEta < eta+etaStep){
+            threshold = config.params("noiseThresholdEE_"+to_string_with_precision(eta, 1));
+          }
+        }
+        
+      }
+      else{
+        string name = caloName.at(subdetEm);
+        threshold = config.params("noiseThreshold"+name);
+      }
+      if(threshold < 0) cout<<"ERROR - could not find threshold for thower !!"<<endl;
+      
+      if(tower->GetEnergyEm() > threshold) return true;
+      
     }
   }
   return false;

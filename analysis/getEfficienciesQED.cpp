@@ -13,31 +13,34 @@
 string configPath = "configs/efficiencies.md";
 //string configPath = "/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/efficiencies.md";
 string outputPath = "results/efficienciesQED_test.root";
+//string outputPath = "results/efficienciesQED_trigger.root";
+
+
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
 //  kData,
 //  kData_SingleEG3,
-//  kData_recoEff,
+  kData_recoEff,
 //  kData_triggerEff,
-  kData_HFveto,
+//  kData_HFveto,
 //  kData_exclusivity,
 //  kData_LbLsignal,
 //  kData_QEDsignal,
 //  kMCqedSC,
 //  kMCqedSC_SingleEG3,
-//  kMCqedSC_recoEff,
+  kMCqedSC_recoEff,
 //  kMCqedSC_triggerEff,
-  kMCqedSC_HFveto,
+//  kMCqedSC_HFveto,
 //  kMCqedSC_exclusivity,
 //  kMCqedSC_signal,
 //  kMCqedSL
 };
 
 // Select which efficiencies to calculate
-bool doRecoEfficiency    = false;
+bool doRecoEfficiency    = true;
 bool doTriggerEfficiency = false;
-bool doHFvetoEfficiency  = true;
+bool doHFvetoEfficiency  = false;
 bool doCHEefficiency     = false;
 bool doNEEefficiency     = false;
 
@@ -115,10 +118,10 @@ void CheckRecoEfficiency(Event &event, map<string, TH1D*> &hists, string dataset
   auto goodElectrons = event.GetGoodElectrons();
   
   for(auto electron : goodElectrons){
-    if(electron->GetPt() < 5.0) continue;
+    if(electron->GetPt() < 3.0) continue;
     
     for(auto &L1EG : event.GetL1EGs()){
-      if(L1EG->GetEt() < 5.0) continue;
+      if(L1EG->GetEt() < 3.0) continue;
       
       if(physObjectProcessor.GetDeltaR_SC(*electron, *L1EG) < 0.3){
         goodMatchedElectrons.push_back(electron);
@@ -216,7 +219,8 @@ void CheckTriggerEfficiency(Event &event, map<string, TTree*> &trees, map<string
   hists[cutThouthName]->Fill(cutLevel++); // 0
   
   // Check trigger
-  if(!event.HasSingleEG3Trigger()) return;
+//  if(!event.HasSingleEG3Trigger()) return;
+  if(!event.HasSingleEG5Trigger()) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Neutral exclusivity

@@ -12,14 +12,14 @@ string outputPath = "results/basicPlots.root";
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
-  kData,
+//  kData,
   //  kData_SingleEG3,
   //  kData_recoEff,
   //  kData_triggerEff,
   //  kData_HFveto,
   //  kData_exclusivity,
-  //  kData_LbLsignal,
-  //  kData_QEDsignal,
+//    kData_LbLsignal,
+    kData_QEDsignal,
   //  kMCqedSC,
   //  kMCqedSC_SingleEG3,
   //  kMCqedSC_recoEff,
@@ -27,7 +27,7 @@ const vector<EDataset> datasetsToAnalyze = {
   //  kMCqedSC_HFveto,
   //  kMCqedSC_exclusivity,
 //  kMCqedSC_LbLsignal,
-  //  kMCqedSC_QEDsignal,
+    kMCqedSC_QEDsignal,
   //  kMCqedSL,
   //  kMClbl,
   //  kMCcep
@@ -189,7 +189,8 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   if(dielectron.Pt() > 1.0) return;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 6
   
-  if(fabs(dielectron.Eta()) > 2.3) return;
+//  if(fabs(dielectron.Eta()) > 2.4) return;
+  if(fabs(dielectron.Rapidity()) > 2.4) return;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 7
   
   hists.at("qed_acoplanarity_"+datasetName)->Fill(aco);
@@ -265,9 +266,14 @@ int main(int argc, char* argv[])
     }
     
     outFile->cd();
-    for(auto &[name, hist] : hists) hist->Write();
+    for(auto &[histName, hist] : hists){
+      if(histName.find(name) != string::npos){
+        cout<<"writing hist: "<<histName<<endl;
+        hist->Write();
+      }
+    }
     
-    if(inputPath != "") break;
+//    if(inputPath != "") break;
   }
   
   outFile->Close();

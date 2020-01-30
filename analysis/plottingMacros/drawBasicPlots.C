@@ -23,14 +23,14 @@ vector<tuple<string, string, bool, bool>> histParams = {
   { "lbl_diphoton_pt"        , "diphoton p_{t}"          , false, false },
   { "lbl_cut_through"        , "# cut"                   , true , true  },
   
-  { "qed_acoplanarity"       , "A_{#phi}^{e^{+}e^{-}}"   , true , true },
-  { "qed_electron_pt"        , "electron p_{t} (GeV)"    , false, true },
-  { "qed_electron_eta"       , "electron #eta"           , false, true },
-  { "qed_electron_phi"       , "electron #phi"           , false, true },
-  { "qed_dielectron_mass"    , "dielectron m_{inv} (GeV)", false, true },
-  { "qed_dielectron_rapidity", "dielectron rapidity"     , false, true },
-  { "qed_dielectron_pt"      , "dielectron p_{t}"        , false, true },
-  { "qed_cut_through"        , "# cut"                   , true , true },
+  { "qed_acoplanarity"       , "A_{#phi}^{e^{+}e^{-}}"   , true , false },
+  { "qed_electron_pt"        , "electron p_{t} (GeV)"    , false, false },
+  { "qed_electron_eta"       , "electron #eta"           , false, false },
+  { "qed_electron_phi"       , "electron #phi"           , false, false },
+  { "qed_dielectron_mass"    , "dielectron m_{inv} (GeV)", false, false },
+  { "qed_dielectron_rapidity", "dielectron rapidity"     , false, false },
+  { "qed_dielectron_pt"      , "dielectron p_{t}"        , false, false },
+  { "qed_cut_through"        , "# cut"                   , true , false },
 };
 
 void prepareHist(TH1D *hist, EDataset dataset)
@@ -39,9 +39,9 @@ void prepareHist(TH1D *hist, EDataset dataset)
   hist->SetFillColorAlpha(datasetColor.at(dataset), 0.2);
   
   if(dataset == kData){
-    hist->SetMarkerStyle(21);
+    hist->SetMarkerStyle(20);
     hist->SetMarkerColor(datasetColor.at(dataset));
-    hist->SetMarkerSize(1);
+    hist->SetMarkerSize(0.5);
   }
   
 //  hist->Scale(1./hist->GetEntries());

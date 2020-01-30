@@ -70,6 +70,29 @@ ConfigManager::ConfigManager(string _path)
   _params["noiseThresholdHE"]     = configFile->GetValue("noiseThresholdHE", 9999.9);
   _params["noiseThresholdHFp"]    = configFile->GetValue("noiseThresholdHFp", 9999.9);
   _params["noiseThresholdHFm"]    = configFile->GetValue("noiseThresholdHFm", 9999.9);
+  
+  
+  _params["doNoiseEEetaDependant"]    = configFile->GetValue("doNoiseEEetaDependant", 0);
+  _params["noiseEEetaStep"]   = configFile->GetValue("noiseEEetaStep", 9999.9);
+  _params["noiseEEetaMin"]    = configFile->GetValue("noiseEEetaMin", 9999.9);
+  _params["noiseEEetaMax"]    = configFile->GetValue("noiseEEetaMax", 9999.9);
+  
+  _params["noiseThresholdEE_1.5"]    = configFile->GetValue("noiseThresholdEE_1.5", 9999.9);
+  _params["noiseThresholdEE_1.6"]    = configFile->GetValue("noiseThresholdEE_1.6", 9999.9);
+  _params["noiseThresholdEE_1.7"]    = configFile->GetValue("noiseThresholdEE_1.7", 9999.9);
+  _params["noiseThresholdEE_1.8"]    = configFile->GetValue("noiseThresholdEE_1.8", 9999.9);
+  _params["noiseThresholdEE_1.9"]    = configFile->GetValue("noiseThresholdEE_1.9", 9999.9);
+  _params["noiseThresholdEE_2.0"]    = configFile->GetValue("noiseThresholdEE_2.0", 9999.9);
+  _params["noiseThresholdEE_2.1"]    = configFile->GetValue("noiseThresholdEE_2.1", 9999.9);
+  _params["noiseThresholdEE_2.2"]    = configFile->GetValue("noiseThresholdEE_2.2", 9999.9);
+  _params["noiseThresholdEE_2.3"]    = configFile->GetValue("noiseThresholdEE_2.3", 9999.9);
+  _params["noiseThresholdEE_2.4"]    = configFile->GetValue("noiseThresholdEE_2.4", 9999.9);
+  _params["noiseThresholdEE_2.5"]    = configFile->GetValue("noiseThresholdEE_2.5", 9999.9);
+  _params["noiseThresholdEE_2.6"]    = configFile->GetValue("noiseThresholdEE_2.6", 9999.9);
+  _params["noiseThresholdEE_2.7"]    = configFile->GetValue("noiseThresholdEE_2.7", 9999.9);
+  _params["noiseThresholdEE_2.8"]    = configFile->GetValue("noiseThresholdEE_2.8", 9999.9);
+  _params["noiseThresholdEE_2.9"]    = configFile->GetValue("noiseThresholdEE_2.9", 9999.9);
+  _params["noiseThresholdEE_3.0"]    = configFile->GetValue("noiseThresholdEE_3.0", 9999.9);
 }
 
 double ConfigManager::params(string name)

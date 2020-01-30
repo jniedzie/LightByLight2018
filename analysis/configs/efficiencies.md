@@ -52,9 +52,33 @@ ecalHEMmin:  -1.5
 ecalHEMmax: -1.0
  
  ### Calorimeter noise thresolds (GeV)
- noiseThresholdEB:        0.8
- noiseThresholdEE:        3.7
- noiseThresholdHB:        2.9
- noiseThresholdHE:        2.5
- noiseThresholdHFp:      7.3
- noiseThresholdHFm:     7.6
+noiseThresholdEB:        0.8
+noiseThresholdEE:        3.7
+noiseThresholdHB:        2.9
+noiseThresholdHE:        2.5
+noiseThresholdHFp:      7.3
+noiseThresholdHFm:     7.6
+
+
+### eta dependant EE noise thresholds (GeV)
+doNoiseEEetaDependant:    1
+noiseEEetaStep: 0.1
+noiseEEetaMin: 1.5
+noiseEEetaMax: 3.0
+
+noiseThresholdEE_1.5:   9.61
+noiseThresholdEE_1.6:   1.5
+noiseThresholdEE_1.7:   1.2
+noiseThresholdEE_1.8:   1.5
+noiseThresholdEE_1.9:   1.5
+noiseThresholdEE_2.0:   1.8
+noiseThresholdEE_2.1:   2.11
+noiseThresholdEE_2.2:   4.41
+noiseThresholdEE_2.3:   7.91
+noiseThresholdEE_2.4:   9.21
+noiseThresholdEE_2.5:   9.71
+noiseThresholdEE_2.6:   9.91
+noiseThresholdEE_2.7:   10.01
+noiseThresholdEE_2.8:   10.01
+noiseThresholdEE_2.9:   10.01
+noiseThresholdEE_3.0:   10.01
