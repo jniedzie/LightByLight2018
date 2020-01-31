@@ -61,7 +61,7 @@ noiseThresholdHFm:     7.6
 
 
 ### eta dependant EE noise thresholds (GeV)
-doNoiseEEetaDependant:    1
+doNoiseEEetaDependant:    0
 noiseEEetaStep: 0.1
 noiseEEetaMin: 1.5
 noiseEEetaMax: 3.0

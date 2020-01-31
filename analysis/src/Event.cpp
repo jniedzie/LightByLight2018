@@ -182,7 +182,7 @@ bool Event::DiphotonPtAboveThreshold()
   return false;
 }
 
-bool Event::HasAdditionalTowers()
+bool Event::HasAdditionalTowers(ECaloType *failingCalo)
 {
   GetGoodPhotons();
   
@@ -191,9 +191,14 @@ bool Event::HasAdditionalTowers()
     
     double energyHad = tower->GetEnergyHad();
     
+    ECaloType subdetHad = tower->GetTowerSubdetHad();
+    
     if(energyHad > 0){
-      string name = caloName.at(tower->GetTowerSubdetHad());
-      if(energyHad > config.params("noiseThreshold"+name)) return true;
+      string name = caloName.at(subdetHad);
+      if(energyHad > config.params("noiseThreshold"+name)){
+        *failingCalo = subdetHad;
+        return true;
+      }
     }
     
     // Check if tower is above the noise threshold
@@ -235,7 +240,6 @@ bool Event::HasAdditionalTowers()
             threshold = config.params("noiseThresholdEE_"+to_string_with_precision(eta, 1));
           }
         }
-        
       }
       else{
         string name = caloName.at(subdetEm);
@@ -243,7 +247,10 @@ bool Event::HasAdditionalTowers()
       }
       if(threshold < 0) cout<<"ERROR - could not find threshold for thower !!"<<endl;
       
-      if(tower->GetEnergyEm() > threshold) return true;
+      if(tower->GetEnergyEm() > threshold){
+        *failingCalo = subdetEm;
+        return true;
+      }
       
     }
   }

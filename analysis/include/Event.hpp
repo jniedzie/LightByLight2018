@@ -62,7 +62,7 @@ public:
   
   /// Finds two photons passing cuts (if not done yet) and checks if there are towers above
   /// threshold not overlapping with reconstructed photons
-  bool HasAdditionalTowers();
+  bool HasAdditionalTowers(ECaloType *failingCalo=nullptr);
   
   /// Checks if there are any charged tracks in the event (above pt specified in config)
   bool HasChargedTracks() const;
