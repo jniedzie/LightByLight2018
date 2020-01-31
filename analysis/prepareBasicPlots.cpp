@@ -220,17 +220,19 @@ void InitializeHistograms(map<string, TH1D*> &hists, const string &datasetType)
 
 int main(int argc, char* argv[])
 {
-  if(argc != 1 && argc != 4){
-    cout<<"This app requires 0 or 3 parameters."<<endl;
-    cout<<"./prepareBasicPlots configPath inputPath outputPath"<<endl;
+  if(argc != 1 && argc != 5){
+    cout<<"This app requires 0 or 4 parameters."<<endl;
+    cout<<"./prepareBasicPlots configPath inputPath outputPath isMC"<<endl;
     exit(0);
   }
   string inputPath = "";
+  bool isMC = false;
   
-  if(argc == 4){
+  if(argc == 5){
     configPath = argv[1];
     inputPath  = argv[2];
     outputPath = argv[3];
+    isMC       = atoi(argv[4]);
   }
   config = ConfigManager(configPath);
   
@@ -242,12 +244,40 @@ int main(int argc, char* argv[])
     InitializeHistograms(hists, datasetName.at(dataset));
   }
   
-  for(auto dataset : datasetsToAnalyze){
-    string name = datasetName.at(dataset);
+  if(inputPath==""){
     
-    cout<<"Creating "<<name<<" plots"<<endl;
+    for(auto dataset : datasetsToAnalyze){
+      string name = datasetName.at(dataset);
+      
+      cout<<"Creating "<<name<<" plots"<<endl;
+      
+      auto events = make_unique<EventProcessor>(inFileNames.at(dataset));
+      
+      for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
+        if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
+        if(iEvent >= config.params("maxEvents")) break;
+        
+        auto event = events->GetEvent(iEvent);
+        
+        if(dataset == kData_LbLsignal || dataset == kMCqedSC_LbLsignal) fillLbLHistograms(*event, hists, name);
+        if(dataset == kData_QEDsignal || dataset == kMCqedSC_QEDsignal) fillQEDHistograms(*event, hists, name);
+        if(dataset == kData){
+          fillLbLHistograms(*event, hists, name);
+          fillTracksHistograms(*event, hists, name);
+          fillQEDHistograms(*event, hists, name);
+        }
+      }
+      
+      outFile->cd();
+      for(auto &[histName, hist] : hists){
+        if(histName.find(name) != string::npos) hist->Write();
+      }
+    }
+  }
+  else{
+    auto events = make_unique<EventProcessor>(inputPath);
     
-    auto events = make_unique<EventProcessor>(inputPath=="" ? inFileNames.at(dataset) : inputPath);
+    string name = isMC ? datasetName.at(kMCqedSC) : datasetName.at(kData);
     
     for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
       if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
@@ -255,27 +285,15 @@ int main(int argc, char* argv[])
       
       auto event = events->GetEvent(iEvent);
       
-      
-      if(dataset == kData_LbLsignal || dataset == kMCqedSC_LbLsignal) fillLbLHistograms(*event, hists, name);
-      if(dataset == kData_QEDsignal || dataset == kMCqedSC_QEDsignal) fillQEDHistograms(*event, hists, name);
-      if(dataset == kData){
-        fillLbLHistograms(*event, hists, name);
-        fillTracksHistograms(*event, hists, name);
-        fillQEDHistograms(*event, hists, name);
-      }
+      fillLbLHistograms(*event, hists, name);
+      fillTracksHistograms(*event, hists, name);
+      fillQEDHistograms(*event, hists, name);
     }
     
     outFile->cd();
-    for(auto &[histName, hist] : hists){
-      if(histName.find(name) != string::npos){
-        cout<<"writing hist: "<<histName<<endl;
-        hist->Write();
-      }
-    }
-    
-//    if(inputPath != "") break;
+    for(auto &[histName, hist] : hists) hist->Write();
   }
-  
+
   outFile->Close();
   
 }
