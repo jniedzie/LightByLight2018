@@ -52,7 +52,7 @@ ecalHEMmin:  -1.5
 ecalHEMmax: -1.0
  
  ### Calorimeter noise thresolds (GeV)
-noiseThresholdEB:        0.8
+ noiseThresholdEB:        0.8
 noiseThresholdEE:        3.7
 noiseThresholdHB:        2.9
 noiseThresholdHE:        2.5
