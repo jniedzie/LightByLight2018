@@ -50,7 +50,7 @@ public:
   vector<shared_ptr<PhysObject>> GetGoodPhotons();
   
   /// Updates and returns vector of electrons passing all electron ID cuts
-  vector<shared_ptr<PhysObject>> GetGoodElectrons();
+  vector<shared_ptr<PhysObject>> GetGoodElectrons(TH1D *cutFlowHist=nullptr);
   
   /// Finds two photons passing cuts (if not done yet) and returns diphoton invariant mass
   /// If number of photons != 2, returns -1
