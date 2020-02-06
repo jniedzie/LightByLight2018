@@ -8,7 +8,7 @@
 #include "ConfigManager.hpp"
 
 string configPath = "configs/efficiencies.md";
-string outputPath = "results/basicPlots.root";
+string outputPath = "results/basicPlots_HEM.root";
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
@@ -52,6 +52,7 @@ vector<tuple<string, int, double, double>> histParams = {
   {"qed_dielectron_rapidity", 30  ,-3.0 , 3.0   },
   {"qed_dielectron_pt"      , 20  , 0   , 2.0   },
   {"qed_cut_through"        , 15  , 0   , 15    },
+  {"qed_electron_cutflow"   , 15  , 0   , 15    },
   
   {"nTracks"                , 100 , 0   , 100   },
   {"nTracks_withDoubleEG2"  , 100 , 0   , 100   },
@@ -61,65 +62,74 @@ vector<tuple<string, int, double, double>> histParams = {
   {"track_pt"               , 500 , 0   , 5     },
 };
 
+void fillNEEcutFlowHist(TH1D *hist, int &cutFlow, ECaloType failingCalo)
+{
+  // in this order: HB, HE, HFp, HFm, EB, EE
+  
+  if(failingCalo != kHB){
+    hist->Fill(cutFlow);
+  }
+  cutFlow++;
+  if(failingCalo != kHB && failingCalo != kHE){
+    hist->Fill(cutFlow);
+  }
+  cutFlow++;
+  if(failingCalo != kHB && failingCalo != kHE && failingCalo != kHFp){
+    hist->Fill(cutFlow);
+  }
+  cutFlow++;
+  if(failingCalo != kHB && failingCalo != kHE && failingCalo != kHFp && failingCalo != kHFm){
+    hist->Fill(cutFlow);
+    cutFlow++;
+  }
+  if(failingCalo != kHB && failingCalo != kHE && failingCalo != kHFp && failingCalo != kHFm && failingCalo != kEB){
+    hist->Fill(cutFlow);
+  }
+  cutFlow++;
+  if(failingCalo != kHB && failingCalo != kHE && failingCalo != kHFp && failingCalo != kHFm && failingCalo != kEB && failingCalo != kEE){
+    hist->Fill(cutFlow);
+  }
+  cutFlow++;
+}
+
 void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)
 {
-  // Add all necessary selection criteria here
-  // ...
   int cutThrough=0;
-  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 0
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 0
   
   if(!event.HasDoubleEG2Trigger()) return;
-  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 1
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 1
   
   if(event.GetNchargedTracks() != 0) return;
-  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 2
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 2
   
-   ECaloType failingCalo = nCaloTypes;
-   bool failedNEE = event.HasAdditionalTowers(&failingCalo);
-   
-   if(failingCalo != kEB)
-     hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough); // lbl 2
-   cutThrough++;
-   if(failingCalo != kEB && failingCalo != kEE)
-     hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough); // lbl 3
-   cutThrough++;
-   if(failingCalo != kEB && failingCalo != kEE && failingCalo != kHB)
-     hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough); // lbl 4
-   cutThrough++;
-   if(failingCalo != kEB && failingCalo != kEE && failingCalo != kHB && failingCalo != kHE)
-     hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough); // lbl 5
-   cutThrough++;
-   if(failingCalo != kEB && failingCalo != kEE && failingCalo != kHB && failingCalo != kHE && failingCalo != kHFp)
-     hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough); // lbl 6
-   cutThrough++;
-   if(failingCalo != kEB && failingCalo != kEE && failingCalo != kHB && failingCalo != kHE && failingCalo != kHFp && failingCalo != kHFm)
-     hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough); // lbl 7
-   cutThrough++;
-   
-   if(failedNEE) return;
+  ECaloType failingCalo = nCaloTypes;
+  bool failedNEE = event.HasAdditionalTowers(&failingCalo);
+  fillNEEcutFlowHist(hists.at("lbl_cut_through_"+datasetName), cutThrough, failingCalo); // 3 - 8
+  if(failedNEE) return;
   
   
   auto photons = event.GetGoodPhotons();
   
   if(photons.size() != 2) return;
-  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 9
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 9
   
   TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*photons[0], *photons[1]);
   double aco = physObjectProcessor.GetAcoplanarity(*photons[0], *photons[1]);
   
     if(diphoton.M() < 5.0) return;
-  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 10
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 10
   
     if(diphoton.Pt() > 1.0) return;
-  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 11
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 11
   
   //  if(fabs(diphoton.Eta()) > 2.3) return;
-  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 12
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 12
   
   hists.at("lbl_acoplanarity_"+datasetName)->Fill(aco);
   
   if(aco > 0.01) return;
-  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // LbL 13
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 13
   
   hists.at("lbl_photon_et_"+datasetName)->Fill(photons[0]->GetEt());
   hists.at("lbl_photon_et_"+datasetName)->Fill(photons[1]->GetEt());
@@ -165,45 +175,28 @@ void fillTracksHistograms(Event &event, const map<string, TH1D*> &hists, string 
   }
 }
 
+int tooFew = 0;
+int tooMany = 0;
+
 void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)
 {
   // Add all necessary selection criteria here
   // ...
   int cutThrough=0;
-  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 0
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 0
   
-  if(!event.HasDoubleEG2Trigger()) return;
-  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 1
+//  if(!event.HasDoubleEG2Trigger()) return;
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 1
   
   ECaloType failingCalo = nCaloTypes;
   bool failedNEE = event.HasAdditionalTowers(&failingCalo);
-  
-  if(failingCalo != kEB)
-    hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough); // QED 2
-  cutThrough++;
-  if(failingCalo != kEB && failingCalo != kEE)
-    hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough); // QED 3
-  cutThrough++;
-  if(failingCalo != kEB && failingCalo != kEE && failingCalo != kHB)
-    hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough); // QED 4
-  cutThrough++;
-  if(failingCalo != kEB && failingCalo != kEE && failingCalo != kHB && failingCalo != kHE)
-    hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough); // QED 5
-  cutThrough++;
-  if(failingCalo != kEB && failingCalo != kEE && failingCalo != kHB && failingCalo != kHE && failingCalo != kHFp)
-    hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough); // QED 6
-  cutThrough++;
-  if(failingCalo != kEB && failingCalo != kEE && failingCalo != kHB && failingCalo != kHE && failingCalo != kHFp && failingCalo != kHFm)
-    hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough); // QED 7
-  cutThrough++;
-  
+  fillNEEcutFlowHist(hists.at("qed_cut_through_"+datasetName), cutThrough, failingCalo); // 2-7
   if(failedNEE) return;
   
-  
   if(event.GetNchargedTracks() != 2) return;
-  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 8
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 8
   
-  auto goodElectrons = event.GetGoodElectrons();
+  auto goodElectrons = event.GetGoodElectrons(hists.at("qed_electron_cutflow_"+datasetName));
   vector<shared_ptr<PhysObject>> goodMatchedElectrons;
   
   for(auto electron : goodElectrons){
@@ -217,8 +210,11 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string dat
     }
   }
   
+  if(goodMatchedElectrons.size() < 2) tooFew++;
+  if(goodMatchedElectrons.size() > 2) tooMany++;
+  
   if(goodMatchedElectrons.size() != 2) return;
-  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 9
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 9
   
   auto electron1 = goodMatchedElectrons[0];
   auto electron2 = goodMatchedElectrons[1];
@@ -228,14 +224,13 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   
   // add QED specific cuts here:
   if(dielectron.M() < 5.0) return;
-  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 10
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 10
   
   if(dielectron.Pt() > 1.0) return;
-  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 11
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 11
   
-//  if(fabs(dielectron.Eta()) > 2.4) return;
   if(fabs(dielectron.Rapidity()) > 2.4) return;
-  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // QED 12
+  hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 12
   
   hists.at("qed_acoplanarity_"+datasetName)->Fill(aco);
   hists.at("qed_electron_pt_"+datasetName)->Fill(electron1->GetPt());
@@ -247,7 +242,7 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   
   
   hists.at("qed_dielectron_mass_"+datasetName)->Fill(dielectron.M());
-  hists.at("qed_dielectron_rapidity_"+datasetName)->Fill(dielectron.Y());
+  hists.at("qed_dielectron_rapidity_"+datasetName)->Fill(dielectron.Rapidity());
   hists.at("qed_dielectron_pt_"+datasetName)->Fill(dielectron.Pt());
 }
 
@@ -338,6 +333,8 @@ int main(int argc, char* argv[])
     for(auto &[histName, hist] : hists) hist->Write();
   }
 
+  cout<<"Too few: "<<tooFew<<"\ttoo many: "<<tooMany<<endl;
+  
   outFile->Close();
   
 }

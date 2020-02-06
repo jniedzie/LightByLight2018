@@ -157,15 +157,7 @@ int main(int argc, char* argv[])
     }
     
     cout<<"Creating "<<name<<" plots"<<endl;
-    
-    unique_ptr<EventProcessor> events;
-    if(argc == 8){
-      events = unique_ptr<EventProcessor>(new EventProcessor(inputPaths[dataset]));
-    }
-    else{
-      events = unique_ptr<EventProcessor>(new EventProcessor(dataset));
-    }
-    
+    auto events = make_unique<EventProcessor>(argc == 8 ? inputPaths[dataset] : inFileNames.at(dataset));
     fillHistograms(events, hists, hists2D, name);
     
     outFile->cd();

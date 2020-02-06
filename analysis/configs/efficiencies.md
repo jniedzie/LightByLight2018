@@ -1,7 +1,7 @@
 ##  Efficiencies config
 
 ### Max number of events to analyze
-maxEvents: 99999999999
+maxEvents: 9999999999
 
 ### Criteria to match calo tower with photon SC for neutral exclusivity
 maxDeltaEtaEB:  0.15
@@ -10,7 +10,7 @@ maxDeltaEtaEE:  0.15
 maxDeltaPhiEE:  0.4
 
 ### Don't look at towers that are in very noisy region of EE
-maxEtaEEtower:      2.3
+maxEtaEEtower:      2.4
 
 ### Charged exclusivity cuts (GeV)
 trackMinPt:              0.1 
@@ -21,7 +21,7 @@ maxDeltaR:              0.3
 
 ### Photon ID cuts:
 photonMinEt:                            2.0
-photonMaxEta:                         2.3
+photonMaxEta:                         2.4
 photonMaxHoverEbarrel:          0.04596
 photonMaxHoverEendcap:       0.0590
 #### here original was 0.0106, but we may need to make it more loose:
@@ -30,7 +30,7 @@ photonMaxEtaWidthEndcap:    0.0272
 
 ### Electron ID cuts:
 electronMinPt:                            2.0
-electronMaxEta:                         2.3
+electronMaxEta:                         2.4
 electronMaxNmissingHits:         1
 electronMaxHoverE_Barrel:         0.005
 electronMaxHoverE_Endcap:      0.005
@@ -38,8 +38,8 @@ electronMaxDetaSeedBarrel:      0.1
 electronMaxDetaSeedEndcap:   0.1
 electronMaxChargedIsoBarrel:    0.1
 electronMaxChargedIsoEndcap: 0.1
-electronMaxPhotonIsoBarrel:      0.035
-electronMaxPhotonIsoEndcap:   0.035
+electronMaxPhotonIsoBarrel:      0.3
+electronMaxPhotonIsoEndcap:   0.3
 electronMaxNeutralIsoBarrel:      0.07
 electronMaxNeutralIsoEndcap:   0.07
 
@@ -51,13 +51,13 @@ ecalCrackMax: 1.566
 ecalHEMmin:  -1.5
 ecalHEMmax: -1.0
  
- ### Calorimeter noise thresolds (GeV)
- noiseThresholdEB:        0.8
-noiseThresholdEE:        3.7
-noiseThresholdHB:        2.9
-noiseThresholdHE:        2.5
-noiseThresholdHFp:      7.3
-noiseThresholdHFm:     7.6
+### Calorimeter noise thresolds (GeV)
+noiseThresholdEB:        2.0
+noiseThresholdEE:        7.6
+noiseThresholdHB:        2.8
+noiseThresholdHE:        2.4
+noiseThresholdHFp:      7.2
+noiseThresholdHFm:     7.5
 
 
 ### eta dependant EE noise thresholds (GeV)

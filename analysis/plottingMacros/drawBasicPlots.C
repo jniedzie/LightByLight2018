@@ -1,7 +1,14 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/basicPlots.root";
+string inputPath  = "../results/basicPlots_HEM.root";
 string outputPath = "../plots/distributions";
+
+//double qedInitialNevents = 67820000; // total
+double qedInitialNevents = 960000; // currently avaiable
+double qedCrossSection = 8830; // μb
+//double luminosity = 1847.99; // from CMS pages, 1/μb
+double luminosity = 1609.910015010; // from brilcalc, 1/μb
+//double luminosity = 1847.99; // from brilcalc, 1/μb
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
@@ -12,26 +19,39 @@ const vector<EDataset> datasetsToAnalyze = {
 //  kMCcep
 };
 
-vector<tuple<string, string, bool, bool>> histParams = {
-  // title                  x axis title                  log Y   normalize
-//  { "lbl_acoplanarity"       , "A_{#phi}^{#gamma#gamma}" , false, false },
-//  { "lbl_photon_et"          , "photon E_{t} (GeV)"      , false, false },
-//  { "lbl_photon_eta"         , "photon #eta"             , false, false },
-//  { "lbl_photon_phi"         , "photon #phi"             , false, false },
-//  { "lbl_diphoton_mass"      , "diphoton m_{inv} (GeV)"  , false, false },
-//  { "lbl_diphoton_rapidity"  , "diphoton rapidity"       , false, false },
-//  { "lbl_diphoton_pt"        , "diphoton p_{t}"          , false, false },
-//  { "lbl_cut_through"        , "# cut"                   , true , true  },
+vector<tuple<string, string, bool, bool, int>> histParams = {
+  // title                  x axis title                  log Y   normalize iPad
+  { "lbl_acoplanarity"       , "A_{#phi}^{#gamma#gamma}" , false, false , 1 },
+  { "lbl_photon_et"          , "photon E_{t} (GeV)"      , false, false , 2 },
+  { "lbl_photon_eta"         , "photon #eta"             , false, false , 3 },
+  { "lbl_photon_phi"         , "photon #phi"             , false, false , 4 },
+  { "lbl_diphoton_mass"      , "diphoton m_{inv} (GeV)"  , false, false , 5 },
+  { "lbl_diphoton_rapidity"  , "diphoton rapidity"       , false, false , 6 },
+  { "lbl_diphoton_pt"        , "diphoton p_{t}"          , false, false , 7 },
+  { "lbl_cut_through"        , "# cut"                   , true , true  , 8 },
   
-  { "qed_acoplanarity"       , "A_{#phi}^{e^{+}e^{-}}"   , true , false },
-  { "qed_electron_pt"        , "electron p_{t} (GeV)"    , false, false },
-  { "qed_electron_eta"       , "electron #eta"           , false, false },
-  { "qed_electron_phi"       , "electron #phi"           , false, false },
-  { "qed_dielectron_mass"    , "dielectron m_{inv} (GeV)", false, false },
-  { "qed_dielectron_rapidity", "dielectron rapidity"     , false, false },
-  { "qed_dielectron_pt"      , "dielectron p_{t}"        , false, false },
-  { "qed_cut_through"        , "# cut"                   , true , false },
+  { "qed_acoplanarity"       , "A_{#phi}^{e^{+}e^{-}}"   , true , false , 1 },
+  { "qed_electron_pt"        , "electron p_{t} (GeV)"    , false, false , 2 },
+  { "qed_electron_eta"       , "electron #eta"           , false, false , 3 },
+  { "qed_electron_phi"       , "electron #phi"           , false, false , 7 },
+  { "qed_dielectron_mass"    , "dielectron m_{inv} (GeV)", false, false , 8 },
+  { "qed_dielectron_rapidity", "dielectron rapidity"     , false, false , 9  },
+  { "qed_dielectron_pt"      , "dielectron p_{t}"        , false, false , 13 },
+  { "qed_cut_through"        , ""                        , false, false , 14 },
+  { "qed_electron_cutflow"   , "# cut"                   , false, false , 15 },
 };
+
+void getCutflowLabels(TH1D *hist)
+{
+  const int nx = 13;
+  const char *people[nx] = {
+    "Initial", "Trigger", "HB NEE", "HE NEE", "HF+ NEE", "HF- NEE", "EB NEE",
+    "EE NEE", "CHE", "2 good electrons", "dielectron m_{inv}",
+    "dielectron p_{t}", "dielectron y"
+  };
+  for(int i=1; i<=nx; i++) hist->GetXaxis()->SetBinLabel(i, people[i-1]);
+  hist->LabelsOption("u", "X");
+}
 
 void prepareHist(TH1D *hist, EDataset dataset)
 {
@@ -45,14 +65,14 @@ void prepareHist(TH1D *hist, EDataset dataset)
   }
   
 //  hist->Scale(1./hist->GetEntries());
-  hist->Sumw2(false);
+//  hist->Sumw2(false);
 }
 
 map<EDataset, string> legendOptions = {
   {kData,     "elp" },
   {kMCcep,    "f"   },
   {kMCqedSL,  "f"   },
-  {kMCqedSC,  "f"   },
+  {kMCqedSC,  "elp" },
   {kMClbl,    "f"   },
 };
 
@@ -61,15 +81,15 @@ void drawBasicPlots()
   TFile *inFile = TFile::Open(inputPath.c_str());
   
   TCanvas *canvasLbL = new TCanvas("Canvas LbL", "Canvas LbL", 1000, 1800);
-  TCanvas *canvasQED = new TCanvas("Canvas QED", "Canvas QED", 1000, 1800);
+  TCanvas *canvasQED = new TCanvas("Canvas QED", "Canvas QED", 2800, 1800);
   canvasLbL->Divide(2,4);
-  canvasQED->Divide(2,4);
+  canvasQED->Divide(3,6);
   gStyle->SetOptStat(0);
   
   int iCanvasLbL=1;
   int iCanvasQED=1;
   
-  for(auto &[histName, xAxisTitle, logY, normalize] : histParams){
+  for(auto &[histName, xAxisTitle, logY, normalize, iPad] : histParams){
     map<EDataset, TH1D*> hists;
     TLegend *legend = new TLegend(0.6, 0.6, 0.9, 0.9 );
     THStack *backgroundsStack = new THStack();
@@ -102,33 +122,45 @@ void drawBasicPlots()
       }
     }
     
-    if(histName.find("lbl") != string::npos) canvasLbL->cd(iCanvasLbL++);
-    else if(histName.find("qed") != string::npos) canvasQED->cd(iCanvasQED++);
+    if(histName.find("lbl") != string::npos) canvasLbL->cd(iPad);
+    else if(histName.find("qed") != string::npos) canvasQED->cd(iPad);
     else cout<<"\n\nERROR -- Cannot determine which canvas to use!!\n\n"<<endl;
     
-
     gPad->SetLeftMargin(0.15);
     gPad->SetBottomMargin(0.15);
-    
     gPad->SetLogy(logY);
     
     if(normalize){
-      
       for(EDataset dataset : datasetsToAnalyze){
         if(dataset == kData) continue;
         hists[dataset]->Scale(1./totalBackgroundEntries);
-        hists[dataset]->Sumw2(false);
+//        hists[dataset]->Sumw2(false);
       }
       backgroundsStack->Draw();
       hists[kData]->DrawNormalized(backgroundsStack->GetNhists()==0 ? "PE" : "samePE");
     }
     else{
+      for(EDataset dataset : datasetsToAnalyze){
+        if(dataset == kData) continue;
+        hists[dataset]->Scale(luminosity*qedCrossSection/qedInitialNevents);
+//        hists[dataset]->Sumw2(false);
+      }
       backgroundsStack->Draw();
       hists[kData]->Draw(backgroundsStack->GetNhists()==0 ? "PE" : "samePE");
       backgroundsStack->SetMaximum(1.5*maxYvalue);
     }
-    
-    
+    if(histName == "qed_cut_through"){
+      getCutflowLabels((TH1D*)(backgroundsStack->GetHistogram()));
+      gPad->SetLeftMargin(0.17);
+      gPad->SetBottomMargin(0.22);
+      backgroundsStack->GetHistogram()->GetXaxis()->SetLabelOffset(0.011);
+      
+      for(int i=1; i<=13; i++){
+        backgroundsStack->GetHistogram()->GetXaxis()->ChangeLabel(i, 45);
+      }
+    }
+    backgroundsStack->GetHistogram()->GetXaxis()->SetLabelSize(0.06);
+    backgroundsStack->GetHistogram()->GetYaxis()->SetLabelSize(0.06);
     
     if(backgroundsStack->GetYaxis()){
       backgroundsStack->SetTitle(histName.c_str());
@@ -146,12 +178,23 @@ void drawBasicPlots()
     }
     
     
+    if(histName.find("lbl") != string::npos) canvasLbL->cd(iPad+3);
+    else if(histName.find("qed") != string::npos) canvasQED->cd(iPad+3);
+    else cout<<"\n\nERROR -- Cannot determine which canvas to use!!\n\n"<<endl;
     
+    gPad->SetLeftMargin(0.15);
+    gPad->SetBottomMargin(0.15);
     
+    TH1D *ratio = new TH1D(*hists[kData]);
+    ratio->Divide(hists[kMCqedSC]);
+    ratio->Draw();
+    
+    ratio->GetYaxis()->SetTitle("ratio Data/MC");
+    ratio->GetYaxis()->SetTitleSize(0.06);
+    ratio->GetXaxis()->SetTitle(xAxisTitle.c_str());
+    ratio->GetXaxis()->SetTitleSize(0.06);
     
     legend->Draw("same");
-    
-    
   }
     
     
