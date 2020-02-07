@@ -1,6 +1,15 @@
 #include "../include/Helpers.hpp"
 
+string basePath = "../results/triggerEfficiencyQED";
 string outputPath = "../plots/triggerEfficiencyDependanceL1.pdf";
+
+vector<string> triggerCombinations = {
+  "EG3",
+  "EG5",
+  "EG3_only",
+//  "EG5_only",
+  "EG3_or_EG5"
+};
 
 vector<EDataset> datasetsToDraw = {
   kData,
@@ -55,54 +64,59 @@ void drawTriggerEfficiencyQED()
   
   bool first = true;
   for(EDataset dataset : datasetsToDraw){
-    string filePath = "../results/triggerEfficiencyQED_"+datasetName.at(dataset)+".root";
-    TFile *inFile = TFile::Open(filePath.c_str());
-  
-    int iPad = 1;
-    bool firstVar = true;
-    for(auto &[dirName, varName, axisName, legendText] : variables){
+    int iTriggerCombination = 0;
+    
+    for(string triggerCombination : triggerCombinations){
       
-      string resultsPath = "triggerTree_"+datasetName.at(dataset)+"/"+dirName+"/fit_eff";
-      RooDataSet *fitResults = (RooDataSet*)inFile->Get(resultsPath.c_str());
+      string filePath = basePath + "_" + triggerCombination + "_" + datasetName.at(dataset)+".root";
+      TFile *inFile = TFile::Open(filePath.c_str());
       
-      if(!fitResults){
-        cout<<"Could not find fit results: "<<resultsPath<<endl;
-        continue;
+      int iPad = 1;
+      bool firstVar = true;
+      for(auto &[dirName, varName, axisName, legendText] : variables){
+        
+        string resultsPath = "triggerTree_"+datasetName.at(dataset)+"/"+dirName+"/fit_eff";
+        RooDataSet *fitResults = (RooDataSet*)inFile->Get(resultsPath.c_str());
+        
+        if(!fitResults){
+          cout<<"Could not find fit results: "<<resultsPath<<endl;
+          continue;
+        }
+        
+        auto graph = getEfficiencyPlot(fitResults, varName);
+        
+        graph->SetMaximum(1.1);
+        graph->SetMinimum(0.0);
+        
+        graph->SetMarkerStyle(dataset == kData ? 20 : 21);
+        graph->SetMarkerSize(1.0);
+        graph->SetMarkerColor(kBlack + iTriggerCombination);
+        graph->SetLineColor(kBlack + iTriggerCombination);
+        
+        graph->SetTitle("");
+        //      graph->GetXaxis()->SetTitleSize(0.1);
+        //      graph->GetYaxis()->SetTitleSize(0.1);
+        graph->GetXaxis()->SetTitle(axisName.c_str());
+        graph->GetYaxis()->SetTitle("Efficiency");
+        graph->GetXaxis()->CenterTitle();
+        
+        canvas->cd(iPad++);
+        graph->Draw(first ? "APZ" : "PZsame");
+        
+        if(firstVar){
+          mainLegend->AddEntry(graph, (datasetDescription.at(dataset)+" "+triggerCombination).c_str(), "elp");
+          firstVar=false;
+        }
+        if(first){
+          TLatex *text = new TLatex((graph->GetXaxis()->GetXmax() - graph->GetXaxis()->GetXmin())/2.,
+                                    0.1, legendText.c_str());
+          text->Draw("same");
+        }
       }
-      
-      auto graph = getEfficiencyPlot(fitResults, varName);
-      
-      graph->SetMaximum(1.1);
-      graph->SetMinimum(0.0);
-      
-      graph->SetMarkerStyle(20);
-      graph->SetMarkerSize(1.0);
-      graph->SetMarkerColor(datasetColor.at(dataset));
-      graph->SetLineColor(datasetColor.at(dataset));
-      
-      graph->SetTitle("");
-//      graph->GetXaxis()->SetTitleSize(0.1);
-//      graph->GetYaxis()->SetTitleSize(0.1);
-      graph->GetXaxis()->SetTitle(axisName.c_str());
-      graph->GetYaxis()->SetTitle("Efficiency");
-      graph->GetXaxis()->CenterTitle();
-
-      canvas->cd(iPad++);
-      graph->Draw(first ? "APZ" : "PZsame");
-      
-      if(firstVar){
-        mainLegend->AddEntry(graph, datasetDescription.at(dataset).c_str(), "elp");
-        firstVar=false;
-      }
-      if(first){
-        TLatex *text = new TLatex((graph->GetXaxis()->GetXmax() - graph->GetXaxis()->GetXmin())/2.,
-                                  0.1, legendText.c_str());
-        text->Draw("same");
-      }
+      first = false;
+      iTriggerCombination++;
     }
-    first = false;
   }
-
   canvas->cd(4);
   mainLegend->Draw();
   
