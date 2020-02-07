@@ -12,8 +12,8 @@
 
 string configPath = "configs/efficiencies.md";
 //string configPath = "/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/efficiencies.md";
-string outputPath = "results/efficienciesQED_test.root";
-//string outputPath = "results/efficienciesQED_trigger.root";
+//string outputPath = "results/efficienciesQED_test.root";
+string outputPath = "results/efficienciesQED_trigger_EG3_or_EG5.root";
 
 
 
@@ -21,16 +21,16 @@ string outputPath = "results/efficienciesQED_test.root";
 const vector<EDataset> datasetsToAnalyze = {
 //  kData,
 //  kData_SingleEG3,
-  kData_recoEff,
-//  kData_triggerEff,
+//  kData_recoEff,
+  kData_triggerEff,
 //  kData_HFveto,
 //  kData_exclusivity,
 //  kData_LbLsignal,
 //  kData_QEDsignal,
 //  kMCqedSC,
 //  kMCqedSC_SingleEG3,
-  kMCqedSC_recoEff,
-//  kMCqedSC_triggerEff,
+//  kMCqedSC_recoEff,
+  kMCqedSC_triggerEff,
 //  kMCqedSC_HFveto,
 //  kMCqedSC_exclusivity,
 //  kMCqedSC_signal,
@@ -38,8 +38,8 @@ const vector<EDataset> datasetsToAnalyze = {
 };
 
 // Select which efficiencies to calculate
-bool doRecoEfficiency    = true;
-bool doTriggerEfficiency = false;
+bool doRecoEfficiency    = false;
+bool doTriggerEfficiency = true;
 bool doHFvetoEfficiency  = false;
 bool doCHEefficiency     = false;
 bool doNEEefficiency     = false;
@@ -219,8 +219,31 @@ void CheckTriggerEfficiency(Event &event, map<string, TTree*> &trees, map<string
   hists[cutThouthName]->Fill(cutLevel++); // 0
   
   // Check trigger
+  
+  // has EG3
+//    if(!event.HasSingleEG3Trigger()) return;
+//    double threshold = 3.0;
+  
+  // has EG5
+//  if(!event.HasSingleEG5Trigger()) return;
+//  double threshold = 5.0;
+  
+  // has only EG3
+//  if(!event.HasSingleEG3Trigger() || event.HasSingleEG5Trigger()) return;
+//  double threshold = 3.0;
+  
+  // has only EG5
+//  if(event.HasSingleEG3Trigger() || !event.HasSingleEG5Trigger()) return;
+//  double threshold = 5.0;
+  
+  // has either of the triggers
+  if(!event.HasSingleEG3Trigger() && !event.HasSingleEG5Trigger()) return;
+  double threshold = 3.0;
+  if(event.HasSingleEG3Trigger()) threshold = 3.0;
+  if(event.HasSingleEG5Trigger()) threshold = 5.0;
+  
 //  if(!event.HasSingleEG3Trigger()) return;
-  if(!event.HasSingleEG5Trigger()) return;
+//  if(!event.HasSingleEG5Trigger()) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Neutral exclusivity
@@ -251,12 +274,12 @@ void CheckTriggerEfficiency(Event &event, map<string, TTree*> &trees, map<string
     double deltaR2 = physObjectProcessor.GetDeltaR_SC(*electron2, *L1EG);
     
     if(deltaR1 < 1.0){
-      if(!tag && L1EG->GetEt() > 5.0) tag = electron1;
+      if(!tag && L1EG->GetEt() > threshold) tag = electron1;
       else if(L1EG->GetEt() > 2.0) passingProbe = electron1;
     }
     
     if(deltaR2 < 1.0){
-      if(!tag && L1EG->GetEt() > 5.0) tag = electron2;
+      if(!tag && L1EG->GetEt() > threshold) tag = electron2;
       else if(L1EG->GetEt() > 2.0) passingProbe = electron2;
     }
   }
