@@ -11,12 +11,11 @@ struct ConfigManager;
 extern ConfigManager config;
 
 /// Wrapper on a config file that provides access to options from the code.
-/// Reads a config file in markdown format. For all options that are not specified in the config
-/// default values will be used.
+/// Reads a config file in text/markdown format.
 struct ConfigManager {
   /// Default constructor
-  /// \param _path Path to the config file
-  ConfigManager(string _path="");
+  /// \param path Path to the config file
+  ConfigManager(string path="");
   
   /// Returns value of given parameter from the config file. Prints and error and returns 0
   /// if parameter could not be found.
@@ -25,8 +24,6 @@ struct ConfigManager {
   string outputPath;  ///< Output file path
   
 private:
-  unique_ptr<TEnv> configFile; ///< ROOT object representing config file
-  
   map<string, double> _params; ///< All bool, int and double parameters from the config file
 };
 
