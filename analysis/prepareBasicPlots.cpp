@@ -8,7 +8,7 @@
 #include "ConfigManager.hpp"
 
 string configPath = "configs/efficiencies.md";
-string outputPath = "results/basicPlots_HEM.root";
+string outputPath = "results/basicPlots.root";
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
@@ -53,6 +53,20 @@ vector<tuple<string, int, double, double>> histParams = {
   {"qed_dielectron_pt"      , 20  , 0   , 2.0   },
   {"qed_cut_through"        , 15  , 0   , 15    },
   {"qed_electron_cutflow"   , 15  , 0   , 15    },
+  
+  {"qed_HFp"                , 200 , 0   , 20    },
+  {"qed_HFm"                , 200 , 0   , 20    },
+  {"qed_HFp_leading_tower"  , 200 , 0   , 20    },
+  {"qed_HFm_leading_tower"  , 200 , 0   , 20    },
+  
+  {"qed_acoplanarity_no_cuts"       , 30  , 0   , 0.06  },
+  {"qed_electron_pt_no_cuts"        , 40  , 0   , 20.0  },
+  {"qed_electron_eta_no_cuts"       , 23  , -2.3, 2.3   },
+  {"qed_electron_phi_no_cuts"       , 20  , -4.0, 4.0   },
+  {"qed_dielectron_mass_no_cuts"    , 1000 , 0   , 200.0 },
+  {"qed_dielectron_mass_low_no_cuts", 2400 , 0   , 12.0 },
+  {"qed_dielectron_rapidity_no_cuts", 30  ,-3.0 , 3.0   },
+  {"qed_dielectron_pt_no_cuts"      , 20  , 0   , 2.0   },
   
   {"nTracks"                , 100 , 0   , 100   },
   {"nTracks_withDoubleEG2"  , 100 , 0   , 100   },
@@ -103,8 +117,9 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   if(event.GetNchargedTracks() != 0) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 2
   
+  bool checkHF = false;
   ECaloType failingCalo = nCaloTypes;
-  bool failedNEE = event.HasAdditionalTowers(&failingCalo);
+  bool failedNEE = event.HasAdditionalTowers(checkHF, &failingCalo);
   fillNEEcutFlowHist(hists.at("lbl_cut_through_"+datasetName), cutThrough, failingCalo); // 3 - 8
   if(failedNEE) return;
   
@@ -185,18 +200,61 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   int cutThrough=0;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 0
   
+  // Put this in the beginning, as good electrons won't be re-computed again later on
+  auto goodElectrons = event.GetGoodElectrons(hists.at("qed_electron_cutflow_"+datasetName));
+  
+  auto track1 = event.GetGeneralTrack(0);
+  auto track2 = event.GetGeneralTrack(1);
+  
+  TLorentzVector ditrack = physObjectProcessor.GetDielectron(*track1, *track2);
+  double trackAco = physObjectProcessor.GetAcoplanarity(*track1, *track2);
+  
+  hists.at("qed_acoplanarity_no_cuts_"+datasetName)->Fill(trackAco);
+  hists.at("qed_electron_pt_no_cuts_"+datasetName)->Fill(track1->GetPt());
+  hists.at("qed_electron_pt_no_cuts_"+datasetName)->Fill(track2->GetPt());
+  hists.at("qed_electron_eta_no_cuts_"+datasetName)->Fill(track1->GetEta());
+  hists.at("qed_electron_eta_no_cuts_"+datasetName)->Fill(track2->GetEta());
+  hists.at("qed_electron_phi_no_cuts_"+datasetName)->Fill(track1->GetPhi());
+  hists.at("qed_electron_phi_no_cuts_"+datasetName)->Fill(track2->GetPhi());
+  hists.at("qed_dielectron_mass_no_cuts_"+datasetName)->Fill(ditrack.M());
+  hists.at("qed_dielectron_mass_low_no_cuts_"+datasetName)->Fill(ditrack.M());
+  hists.at("qed_dielectron_rapidity_no_cuts_"+datasetName)->Fill(ditrack.Rapidity());
+  hists.at("qed_dielectron_pt_no_cuts_"+datasetName)->Fill(ditrack.Pt());
+  
+  event.SortCaloTowersByEnergy();
+  bool leadingHFpFilled = false;
+  bool leadingHFmFilled = false;
+  for(auto tower : event.GetCaloTowers()){
+    
+    if(tower->GetEta() > minEtaHF && tower->GetEta() < maxEtaHF){
+      hists.at("qed_HFp_"+datasetName)->Fill(tower->GetEnergy());
+      
+      if(!leadingHFpFilled){
+        hists.at("qed_HFp_leading_tower_"+datasetName)->Fill(tower->GetEnergy());
+        leadingHFpFilled = true;
+      }
+    }
+    if(tower->GetEta() > -maxEtaHF && tower->GetEta() < -minEtaHF){
+      hists.at("qed_HFm_"+datasetName)->Fill(tower->GetEnergy());
+      if(!leadingHFmFilled){
+        hists.at("qed_HFm_leading_tower_"+datasetName)->Fill(tower->GetEnergy());
+        leadingHFmFilled = true;
+      }
+    }
+  }
+  
 //  if(!event.HasDoubleEG2Trigger()) return;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 1
   
+  bool checkHF = false;
   ECaloType failingCalo = nCaloTypes;
-  bool failedNEE = event.HasAdditionalTowers(&failingCalo);
+  bool failedNEE = event.HasAdditionalTowers(checkHF, &failingCalo);
   fillNEEcutFlowHist(hists.at("qed_cut_through_"+datasetName), cutThrough, failingCalo); // 2-7
   if(failedNEE) return;
   
   if(event.GetNchargedTracks() != 2) return;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 8
   
-  auto goodElectrons = event.GetGoodElectrons(hists.at("qed_electron_cutflow_"+datasetName));
   vector<shared_ptr<PhysObject>> goodMatchedElectrons;
   
   for(auto electron : goodElectrons){
