@@ -11,6 +11,11 @@
 //double effMC = 0.91;
 //double effMCerr = 0.02;
 
+double effData = 0.851;
+double effDataErr = 0.004;
+double effMC = 0.86;
+double effMCerr = 0.01;
+
 // HF veto
 //double effData = 1.0;
 //double effDataErr = 0.243;
@@ -24,10 +29,10 @@
 //double effMCerr = 0.117;
 
 // Neutral exclusivity
-double effData = 0.634;
-double effDataErr = 0.043;
-double effMC = 0.823;
-double effMCerr = 0.101;
+//double effData = 0.634;
+//double effDataErr = 0.043;
+//double effMC = 0.823;
+//double effMCerr = 0.101;
 
 void getScaleFactor()
 {

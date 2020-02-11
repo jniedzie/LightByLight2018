@@ -34,6 +34,12 @@ public:
   /// Returns acoplanarity of pair of objects
   double GetAcoplanarity(const PhysObject &a, const PhysObject &b);
   
+  struct CompareByEnergy{
+    bool operator() (const shared_ptr<PhysObject> &o1, const shared_ptr<PhysObject> &o2){
+      return (o1->GetEnergy() > o2->GetEnergy());
+    }
+  };
+  
 private:
   
   

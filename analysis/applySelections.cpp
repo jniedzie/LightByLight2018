@@ -82,7 +82,8 @@ bool IsGoodForLbLsignal(Event &event)
   if(!event.HasDoubleEG2Trigger()) return false;
   
   // Check exclusivity criteria
-//  if(event.HasAdditionalTowers()) return false;
+  bool checkHF = false;
+  if(event.HasAdditionalTowers(checkHF)) return false;
   if(event.GetNchargedTracks() != 0) return false;
   
   return true;

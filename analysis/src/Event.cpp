@@ -3,6 +3,7 @@
 //  Created by Jeremi Niedziela on 22/07/2019.
 
 #include "Event.hpp"
+#include "PhysObjectProcessor.hpp"
 
 Event::Event()
 {
@@ -198,7 +199,7 @@ bool Event::DiphotonPtAboveThreshold()
   return false;
 }
 
-bool Event::HasAdditionalTowers(ECaloType *failingCalo)
+bool Event::HasAdditionalTowers(bool checkHF, ECaloType *failingCalo)
 {
   for(int iTower=0; iTower<nCaloTowers; iTower++){
     auto tower = caloTowers[iTower];
@@ -212,10 +213,11 @@ bool Event::HasAdditionalTowers(ECaloType *failingCalo)
     
     ECaloType subdetHad = tower->GetTowerSubdetHad();
     
-    if(energyHad > 0){
+    if((energyHad > 0) &&
+       (checkHF || (subdetHad!=kHFp && subdetHad!=kHFm))){
       string name = caloName.at(subdetHad);
       if(energyHad > config.params("noiseThreshold"+name)){
-        *failingCalo = subdetHad;
+        if(failingCalo) *failingCalo = subdetHad;
         return true;
       }
     }
@@ -284,8 +286,9 @@ bool Event::HasAdditionalTowers(ECaloType *failingCalo)
     }
     if(threshold < 0) cout<<"ERROR - could not find threshold for thower !!"<<endl;
     
-    if(tower->GetEnergyEm() > threshold){
-      *failingCalo = subdetEm;
+    if((tower->GetEnergyEm() > threshold) &&
+       (checkHF || (subdetEm!=kHFp && subdetEm!=kHFm))){
+      if(failingCalo) *failingCalo = subdetEm;
       return true;
     }
       
@@ -312,4 +315,9 @@ int Event::GetNchargedTracks() const
     if(generalTracks[iTrack]->GetPt() > config.params("trackMinPt")) nTracks++;
   }
   return nTracks;
+}
+
+void Event::SortCaloTowersByEnergy()
+{
+  sort(caloTowers.begin(), caloTowers.end(), PhysObjectProcessor::CompareByEnergy());
 }

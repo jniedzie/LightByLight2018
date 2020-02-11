@@ -72,3 +72,8 @@ analysis/ntuples/*
 applySelections
 analysis/results/reco_eff_event_displays_Data/*
 analysis/results/reco_eff_event_displays_QED_SC/*
+generatorsConfigs/input_ee.DAT
+generatorsConfigs/input_mumu.DAT
+generatorsConfigs/slight_mumu.in
+analysis/plots/*
+analysis/results/*

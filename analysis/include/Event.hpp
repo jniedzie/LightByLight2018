@@ -62,7 +62,7 @@ public:
   
   /// Finds two photons passing cuts (if not done yet) and checks if there are towers above
   /// threshold not overlapping with reconstructed photons
-  bool HasAdditionalTowers(ECaloType *failingCalo=nullptr);
+  bool HasAdditionalTowers(bool checkHF = true, ECaloType *failingCalo=nullptr);
   
   /// Checks if there are any charged tracks in the event (above pt specified in config)
   bool HasChargedTracks() const;
@@ -81,6 +81,9 @@ public:
   
   /// Checks if SingleEG3 trigger with no veto on HF fired
   bool HasSingleEG3noHFvetoTrigger() const;
+  
+  /// Sorts calo towers by energy, from highest to lowest
+  void SortCaloTowersByEnergy();
   
 private:
   map<string, bool> triggersLbL; ///< Vactor of booleans corresponding to LbL triggers

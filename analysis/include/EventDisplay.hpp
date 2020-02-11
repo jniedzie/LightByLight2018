@@ -68,7 +68,7 @@ TGraphPolar* getTrackGraph(double pt, double phi, int charge)
 TGraphPolar* getPhotonGraph(double phi)
 {
   double phiPoints[2] = {phi, phi};
-  double rPoints[2] = {trackerRadius, trackerRadius-20};
+  double rPoints[2] = {trackerRadius, trackerRadius};
 
   auto grP1 = new TGraphPolar(2, phiPoints, rPoints);
   grP1->SetTitle("");
@@ -79,9 +79,9 @@ TGraphPolar* getPhotonGraph(double phi)
   return grP1;
 }
 
-void saveEventDisplay(vector<shared_ptr<PhysObject>>    &matchingTracks,
-                      vector<shared_ptr<PhysObject>>    &bremTracks,
-                      vector<shared_ptr<PhysObject>>    &electrons,
+void saveEventDisplay(vector<shared_ptr<PhysObject>>  &matchingTracks,
+                      vector<shared_ptr<PhysObject>>  &bremTracks,
+                      vector<shared_ptr<PhysObject>>  &electrons,
                       vector<shared_ptr<PhysObject>>  &goodPhotons,
                       vector<shared_ptr<PhysObject>>  &allPhotons,
                       string basePath, int maxEvents=-1)
@@ -142,7 +142,13 @@ void saveEventDisplay(vector<shared_ptr<PhysObject>>    &matchingTracks,
   for(auto photon : goodPhotons){
     auto photonGraph = getPhotonGraph(photon->GetPhi());
     photonGraph->Draw("Psame");
-    if(first) leg->AddEntry(photonGraph, "Good photons", "p");
+    if(first){
+      leg->AddEntry(photonGraph, "Good photons", "p");
+      canvas->Update();
+      photonGraph->SetMinRadial(0);
+      photonGraph->SetMaxRadial(trackerRadius);
+      photonGraph->GetPolargram()->SetToRadian();
+    }
     first = false;
   }
   
