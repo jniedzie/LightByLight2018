@@ -28,6 +28,9 @@ public:
   /// Returns a lorentz vector which is a sum of provided objects, assuming they are photons
   TLorentzVector GetDiphoton(const PhysObject &a, const PhysObject &b);
   
+  /// Returns a lorentz vector which is a sum of provided objects, assuming they are photons
+  TLorentzVector GetTriphoton(const PhysObject &a, const PhysObject &b, const PhysObject &c);
+  
   /// Returns a lorentz vector which is a sum of provided objects, assuming they are electrons
   TLorentzVector GetDielectron(const PhysObject &a, const PhysObject &b);
   

@@ -9,7 +9,7 @@
 #include "EventDisplay.hpp"
 
 string configPath = "configs/efficiencies.md";
-string outputPath = "results/basicPlots_LbL.root";
+string outputPath = "results/basicPlots_test.root";
 
 int nThreePhotonEvents = 0;
 
@@ -134,7 +134,7 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   if(event.GetNchargedTracks() != 0) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 2
   
-  bool checkHF = false;
+  bool checkHF = true;
   ECaloType failingCalo = nCaloTypes;
   bool failedNEE = event.HasAdditionalTowers(checkHF, &failingCalo);
   fillNEEcutFlowHist(hists.at("lbl_cut_through_"+datasetName), cutThrough, failingCalo); // 3 - 8
@@ -143,46 +143,45 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   
   auto photons = event.GetGoodPhotons();
   
-  vector<shared_ptr<PhysObject>> isolatedPhotons;
-  
-  for(int i=0; i<photons.size(); i++){
-    
-    
-    bool hasNerbyPhotons = false;
-    for(int j=0; j<photons.size(); j++){
-      if(i==j) continue;
-      
-      double deltaR = physObjectProcessor.GetDeltaR(*photons[i], *photons[j]);
-//      double deltaPhi = fabs(photons[i]->GetPhi()-photons[j]->GetPhi());
-      
-      if(deltaR < 0.3){
-        hasNerbyPhotons = true;
-        break;
-      }
-    }
-    if(!hasNerbyPhotons) isolatedPhotons.push_back(photons[i]);
-  }
-  
-  if(isolatedPhotons.size() == 3){
-    nThreePhotonEvents++;
-    TLorentzVector triphoton = physObjectProcessor.GetTriphoton(*isolatedPhotons[0],
-                                                                *isolatedPhotons[1],
-                                                                *isolatedPhotons[2]);
-    
-    hists.at("lbl_triphoton_mass_"+datasetName)->Fill(triphoton.M());
-    hists.at("lbl_triphoton_rapidity_"+datasetName)->Fill(triphoton.Rapidity());
-    hists.at("lbl_triphoton_pt_"+datasetName)->Fill(triphoton.Pt());
-    
-    vector<shared_ptr<PhysObject>> emptyVector;
-    
-//    saveEventDisplay(emptyVector, emptyVector, emptyVector, isolatedPhotons, emptyVector, "~/Desktop/lbl_triphoton_event_displays_"+datasetName+"/");
-  }
+//  vector<shared_ptr<PhysObject>> isolatedPhotons;
+//
+//  for(int i=0; i<photons.size(); i++){
+//
+//
+//    bool hasNerbyPhotons = false;
+//    for(int j=0; j<photons.size(); j++){
+//      if(i==j) continue;
+//
+//      double deltaR = physObjectProcessor.GetDeltaR(*photons[i], *photons[j]);
+////      double deltaPhi = fabs(photons[i]->GetPhi()-photons[j]->GetPhi());
+//
+//      if(deltaR < 0.3){
+//        hasNerbyPhotons = true;
+//        break;
+//      }
+//    }
+//    if(!hasNerbyPhotons) isolatedPhotons.push_back(photons[i]);
+//  }
+//
+//  if(isolatedPhotons.size() == 3){
+//    nThreePhotonEvents++;
+//    TLorentzVector triphoton = physObjectProcessor.GetTriphoton(*isolatedPhotons[0],
+//                                                                *isolatedPhotons[1],
+//                                                                *isolatedPhotons[2]);
+//
+//    hists.at("lbl_triphoton_mass_"+datasetName)->Fill(triphoton.M());
+//    hists.at("lbl_triphoton_rapidity_"+datasetName)->Fill(triphoton.Rapidity());
+//    hists.at("lbl_triphoton_pt_"+datasetName)->Fill(triphoton.Pt());
+//
+//    vector<shared_ptr<PhysObject>> emptyVector;
+//
+////    saveEventDisplay(emptyVector, emptyVector, emptyVector, isolatedPhotons, emptyVector, "~/Desktop/lbl_triphoton_event_displays_"+datasetName+"/");
+//  }
   
   if(photons.size() != 2) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 9
   
   TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*photons[0], *photons[1]);
-  double aco = physObjectProcessor.GetAcoplanarity(*photons[0], *photons[1]);
   
   if(diphoton.M() < 5.0) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 10
@@ -193,6 +192,7 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   //  if(fabs(diphoton.Rapidity()) > 2.4) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 12
   
+  double aco = physObjectProcessor.GetAcoplanarity(*photons[0], *photons[1]);
   hists.at("lbl_acoplanarity_"+datasetName)->Fill(aco);
   
   if(aco > 0.01) return;
