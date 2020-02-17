@@ -37,6 +37,17 @@ TLorentzVector PhysObjectProcessor::GetDiphoton(const PhysObject &a, const PhysO
   return aVec + bVec;
 }
 
+TLorentzVector PhysObjectProcessor::GetTriphoton(const PhysObject &a, const PhysObject &b, const PhysObject &c)
+{
+  TLorentzVector aVec, bVec, cVec;
+  
+  aVec.SetPtEtaPhiE(a.GetEt(), a.GetEta(), a.GetPhi(), a.GetEnergy());
+  bVec.SetPtEtaPhiE(b.GetEt(), b.GetEta(), b.GetPhi(), b.GetEnergy());
+  cVec.SetPtEtaPhiE(c.GetEt(), c.GetEta(), c.GetPhi(), c.GetEnergy());
+
+  return aVec + bVec + cVec;
+}
+
 TLorentzVector PhysObjectProcessor::GetDielectron(const PhysObject &a, const PhysObject &b)
 {
   TLorentzVector aVec, bVec;

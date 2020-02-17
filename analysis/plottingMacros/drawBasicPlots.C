@@ -1,6 +1,6 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/basicPlots_LbL.root";
+string inputPath  = "../results/basicPlots_test.root";
 string outputPath = "../plots/distributions";
 
 //double qedInitialNevents = 67820000; // total
@@ -30,7 +30,7 @@ vector<tuple<string, string, bool, bool, int, int, int>> histParams = {
   { "lbl_diphoton_mass"      , "diphoton m_{inv} (GeV)"  , false, false ,   0   , 5 , 1},
   { "lbl_diphoton_rapidity"  , "diphoton rapidity"       , false, false ,   0   , 6 , 1},
   { "lbl_diphoton_pt"        , "diphoton p_{t}"          , false, false ,   0   , 7 , 1},
-  { "lbl_cut_through"        , "# cut"                   , true , true  ,   0   , 8 , 1},
+  { "lbl_cut_through"        , "# cut"                   , false, false ,   0   , 8 , 1},
   
   { "lbl_triphoton_mass"      , "triphoton m_{inv} (GeV)"  , false, false ,   0   , 9 , 1},
   { "lbl_triphoton_rapidity"  , "triphoton rapidity"       , false, false ,   0   , 10 , 1},
