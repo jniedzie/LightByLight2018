@@ -57,10 +57,11 @@ ECaloType PhysObject::GetTowerSubdetHad() const
 
 ECaloType PhysObject::GetTowerSubdetEm() const
 {
-  if(fabs(eta) > 0 && fabs(eta) < maxEtaEB) return kEB;
-  if(fabs(eta) > minEtaEE && fabs(eta) < maxEtaEE) return kEE;
   if(eta > -maxEtaHF && eta < -minEtaHF) return kHFm;
   if(eta >  minEtaHF && eta <  maxEtaHF) return kHFp;
+  
+  if(fabs(eta) > 0 && fabs(eta) < maxEtaEB) return kEB;
+  if(fabs(eta) > minEtaEE && fabs(eta) < maxEtaEE) return kEE;
   
   cout<<"ERROR - could not determine calo tower sub-det!!"<<endl;
   

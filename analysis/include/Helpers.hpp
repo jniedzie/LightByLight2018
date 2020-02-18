@@ -98,8 +98,8 @@ const map<EDataset, string> inFileNames = {
   {kMCqedSC_LbLsignal   , "ntuples/ntuples_mc_qed_sc_forLbLsignal.root"               },
   {kMCqedSC_QEDsignal   , "ntuples/ntuples_mc_qed_sc_forQEDsignal_noNEEapplied.root"  },
   {kMCqedSL             , "ntuples/ntuples_mc_qed_sl.root"                            },
-  {kMClbl               , "ntuples/ntuples_mc_lbl_sc.root"                            },
-  {kMCcep               , "ntuples/ntuples_mc_cep_sc.root"                            },
+  {kMClbl               , "ntuples/ntuples_mc_lbl_sc_forLbLsignal.root"               },
+  {kMCcep               , "ntuples/ntuples_mc_cep_sc_forLbLsignal.root"               },
 };
 
 const map<EDataset, int> datasetColor = {

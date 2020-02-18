@@ -112,6 +112,15 @@ private:
   unsigned short nL1EGs = 0;                    ///< Number of L1 EG objects
   vector<shared_ptr<PhysObject>> L1EGs;         ///< Vector of L1 EG objects
   
+  /// Checks if given tower overlaps with one of the photons passing selections
+  bool IsOverlappingWithGoodPhoton(const PhysObject &tower);
+  
+  /// Checks if given tower overlaps with one of the electrons passing selections
+  bool IsOverlappingWithGoodElectron(const PhysObject &tower);
+  
+  /// Returns noise threshold for given tower in EM calos
+  double GetEmThresholdForTower(const PhysObject &tower);
+  
   friend class EventProcessor;
 };
 

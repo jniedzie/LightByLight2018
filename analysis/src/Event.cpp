@@ -204,87 +204,35 @@ bool Event::HasAdditionalTowers(bool checkHF, ECaloType *failingCalo)
   for(int iTower=0; iTower<nCaloTowers; iTower++){
     auto tower = caloTowers[iTower];
     
-    if(fabs(tower->GetEta()) > config.params("ecalCrackMin") && fabs(tower->GetEta()) < config.params("ecalCrackMax")) continue;
-    if(tower->GetEta() < -minEtaEE &&
-       tower->GetPhi() > config.params("ecalHEMmin") &&
-       tower->GetPhi() < config.params("ecalHEMmax")) continue;
-    
-    double energyHad = tower->GetEnergyHad();
+    if(physObjectProcessor.IsInCrackOrHEM(*tower)) continue;
     
     ECaloType subdetHad = tower->GetTowerSubdetHad();
     
-    if((energyHad > 0) &&
-       (checkHF || (subdetHad!=kHFp && subdetHad!=kHFm))){
-      string name = caloName.at(subdetHad);
-      if(energyHad > config.params("noiseThreshold"+name)){
+    // Check HF exclusivity
+    if(checkHF && (subdetHad==kHFp || subdetHad==kHFm)){
+      if(tower->GetEnergy() > config.params("noiseThreshold"+caloName.at(subdetHad))){
+        if(failingCalo) *failingCalo = subdetHad;
+        return true;
+      }
+    }
+
+    // Check HB and HE exclusivity
+    if(subdetHad==kHB || subdetHad==kHE){
+      if(tower->GetEnergyHad() > config.params("noiseThreshold"+caloName.at(subdetHad))){
         if(failingCalo) *failingCalo = subdetHad;
         return true;
       }
     }
     
-    // Check if tower is above the noise threshold
-    
+    // Check EB and EE exclusivity
     ECaloType subdetEm = tower->GetTowerSubdetEm();
     
     if(subdetEm == kEE && fabs(tower->GetEta()) > config.params("maxEtaEEtower")) continue;
     
-    double maxDeltaEta = (subdetEm == kEB ) ? config.params("maxDeltaEtaEB") : config.params("maxDeltaEtaEE");
-    double maxDeltaPhi = (subdetEm == kEB ) ? config.params("maxDeltaPhiEB") : config.params("maxDeltaPhiEE");
+    if(IsOverlappingWithGoodPhoton(*tower)) continue;
+    if(IsOverlappingWithGoodElectron(*tower)) continue;
     
-    bool overlapsWithPhoton = false;
-    
-    for(int iPhoton=0; iPhoton<GetGoodPhotons().size(); iPhoton++){
-      auto photon = GetGoodPhotons()[iPhoton];
-//      auto photon = GetPhoton(iPhoton);
-      
-      double deltaEta = fabs(photon->GetEta() - tower->GetEta());
-      double deltaPhi = fabs(photon->GetPhi() - tower->GetPhi());
-      
-      if(deltaEta < maxDeltaEta && deltaPhi < maxDeltaPhi){
-        overlapsWithPhoton = true;
-        break;
-      }
-    }
-    
-    if(overlapsWithPhoton) continue;
-    
-    bool overlapsWithElectron = false;
-    
-    for(auto electron : GetGoodElectrons()){
-      double deltaEta = fabs(electron->GetEta() - tower->GetEta());
-      double deltaPhi = fabs(electron->GetPhi() - tower->GetPhi());
-      
-      if(deltaEta < maxDeltaEta && deltaPhi < maxDeltaPhi){
-        overlapsWithElectron = true;
-        break;
-      }
-    }
-    
-    if(overlapsWithElectron) continue;
-    
-    
-    double threshold = -1;
-      
-    if(subdetEm==kEE && config.params("doNoiseEEetaDependant")){
-      double etaStep = config.params("noiseEEetaStep");
-      double etaMin = config.params("noiseEEetaMin");
-      double etaMax = config.params("noiseEEetaMax");
-      
-      double towerEta = fabs(tower->GetEta());
-      
-      if(towerEta < etaMin || towerEta > etaMax) threshold = 99999;
-      
-      for(double eta=etaMin; eta<etaMax; eta += etaStep){
-        if(towerEta > eta && towerEta < eta+etaStep){
-          threshold = config.params("noiseThresholdEE_"+to_string_with_precision(eta, 1));
-        }
-      }
-    }
-    else{
-      string name = caloName.at(subdetEm);
-      threshold = config.params("noiseThreshold"+name);
-    }
-    if(threshold < 0) cout<<"ERROR - could not find threshold for thower !!"<<endl;
+    double threshold = GetEmThresholdForTower(*tower);
     
     if((tower->GetEnergyEm() > threshold) &&
        (checkHF || (subdetEm!=kHFp && subdetEm!=kHFm))){
@@ -320,4 +268,75 @@ int Event::GetNchargedTracks() const
 void Event::SortCaloTowersByEnergy()
 {
   sort(caloTowers.begin(), caloTowers.end(), PhysObjectProcessor::CompareByEnergy());
+}
+
+
+bool Event::IsOverlappingWithGoodPhoton(const PhysObject &tower)
+{
+  bool overlapsWithPhoton = false;
+  
+  ECaloType subdet = tower.GetTowerSubdetEm();
+  double maxDeltaEta = (subdet == kEB ) ? config.params("maxDeltaEtaEB") : config.params("maxDeltaEtaEE");
+  double maxDeltaPhi = (subdet == kEB ) ? config.params("maxDeltaPhiEB") : config.params("maxDeltaPhiEE");
+  
+  for(int iPhoton=0; iPhoton<GetGoodPhotons().size(); iPhoton++){
+    auto photon = GetGoodPhotons()[iPhoton];
+    
+    double deltaEta = fabs(photon->GetEta() - tower.GetEta());
+    double deltaPhi = fabs(photon->GetPhi() - tower.GetPhi());
+    
+    if(deltaEta < maxDeltaEta && deltaPhi < maxDeltaPhi){
+      overlapsWithPhoton = true;
+      break;
+    }
+  }
+  return overlapsWithPhoton;
+}
+
+bool Event::IsOverlappingWithGoodElectron(const PhysObject &tower)
+{
+  bool overlapsWithElectron = false;
+  
+  ECaloType subdet = tower.GetTowerSubdetEm();
+  double maxDeltaEta = (subdet == kEB ) ? config.params("maxDeltaEtaEB") : config.params("maxDeltaEtaEE");
+  double maxDeltaPhi = (subdet == kEB ) ? config.params("maxDeltaPhiEB") : config.params("maxDeltaPhiEE");
+  
+  for(auto electron : GetGoodElectrons()){
+    double deltaEta = fabs(electron->GetEta() - tower.GetEta());
+    double deltaPhi = fabs(electron->GetPhi() - tower.GetPhi());
+    
+    if(deltaEta < maxDeltaEta && deltaPhi < maxDeltaPhi){
+      overlapsWithElectron = true;
+      break;
+    }
+  }
+  return overlapsWithElectron;
+}
+
+double Event::GetEmThresholdForTower(const PhysObject &tower)
+{
+  double threshold = -1;
+  
+  ECaloType subdet = tower.GetTowerSubdetEm();
+  
+  if(subdet==kEE && config.params("doNoiseEEetaDependant")){
+    double etaStep = config.params("noiseEEetaStep");
+    double etaMin = config.params("noiseEEetaMin");
+    double etaMax = config.params("noiseEEetaMax");
+    
+    double towerEta = fabs(tower.GetEta());
+    
+    if(towerEta < etaMin || towerEta > etaMax) threshold = 99999;
+    
+    for(double eta=etaMin; eta<etaMax; eta += etaStep){
+      if(towerEta > eta && towerEta < eta+etaStep){
+        threshold = config.params("noiseThresholdEE_"+to_string_with_precision(eta, 1));
+      }
+    }
+  }
+  else{
+    threshold = config.params("noiseThreshold"+caloName.at(subdet));
+  }
+  if(threshold < 0) cout<<"ERROR - could not find threshold for thower !!"<<endl;
+  return threshold;
 }

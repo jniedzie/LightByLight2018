@@ -9,7 +9,7 @@
 #include "EventDisplay.hpp"
 
 string configPath = "configs/efficiencies.md";
-string outputPath = "results/basicPlots_test.root";
+string outputPath = "results/basicPlots_withHFcheck.root";
 
 int nThreePhotonEvents = 0;
 
@@ -29,11 +29,11 @@ const vector<EDataset> datasetsToAnalyze = {
   //  kMCqedSC_triggerEff,
   //  kMCqedSC_HFveto,
   //  kMCqedSC_exclusivity,
-//  kMCqedSC_LbLsignal,
+  kMCqedSC_LbLsignal,
 //  kMCqedSC_QEDsignal,
   //  kMCqedSL,
-  //  kMClbl,
-  //  kMCcep
+    kMClbl,
+    kMCcep
 };
 
 vector<tuple<string, int, double, double>> histParams = {
@@ -51,6 +51,18 @@ vector<tuple<string, int, double, double>> histParams = {
   {"lbl_triphoton_pt"       , 500 , 0   , 100.0   },
   
   {"lbl_cut_through"        , 15  , 0   , 15    },
+  
+  {"lbl_photon_et_high_aco"          , 10  , 0   , 10.0  },
+  {"lbl_photon_eta_high_aco"         , 6   ,-2.4 , 2.4   },
+  {"lbl_photon_phi_high_aco"         , 8   , -4.0, 4.0   },
+  {"lbl_diphoton_mass_high_aco"      , 8   , 0   , 20.0  },
+  {"lbl_diphoton_rapidity_high_aco"  , 6   ,-2.4 , 2.4   },
+  {"lbl_diphoton_pt_high_aco"        , 5   , 0   , 1.0   },
+  {"lbl_HFp_high_aco"                , 200 , 0   , 20    },
+  {"lbl_HFm_high_aco"                , 200 , 0   , 20    },
+  {"lbl_HFp_leading_tower_high_aco"  , 200 , 0   , 20    },
+  {"lbl_HFm_leading_tower_high_aco"  , 200 , 0   , 20    },
+  
   
   {"qed_acoplanarity"       , 30  , 0   , 0.06  },
   {"qed_electron_pt"        , 40  , 0   , 20.0  },
@@ -195,6 +207,44 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   double aco = physObjectProcessor.GetAcoplanarity(*photons[0], *photons[1]);
   hists.at("lbl_acoplanarity_"+datasetName)->Fill(aco);
   
+  if(aco > 0.04){
+    hists.at("lbl_photon_et_high_aco_"+datasetName)->Fill(photons[0]->GetEt());
+    hists.at("lbl_photon_et_high_aco_"+datasetName)->Fill(photons[1]->GetEt());
+    
+    hists.at("lbl_photon_eta_high_aco_"+datasetName)->Fill(photons[0]->GetEta());
+    hists.at("lbl_photon_eta_high_aco_"+datasetName)->Fill(photons[1]->GetEta());
+    
+    hists.at("lbl_photon_phi_high_aco_"+datasetName)->Fill(photons[0]->GetPhi());
+    hists.at("lbl_photon_phi_high_aco_"+datasetName)->Fill(photons[1]->GetPhi());
+    
+    hists.at("lbl_diphoton_mass_high_aco_"+datasetName)->Fill(diphoton.M());
+    hists.at("lbl_diphoton_rapidity_high_aco_"+datasetName)->Fill(diphoton.Rapidity());
+    hists.at("lbl_diphoton_pt_high_aco_"+datasetName)->Fill(diphoton.Pt());
+    
+    event.SortCaloTowersByEnergy();
+    bool leadingHFpFilled = false;
+    bool leadingHFmFilled = false;
+    
+    for(auto tower : event.GetCaloTowers()){
+      
+      if(tower->GetEta() > minEtaHF && tower->GetEta() < maxEtaHF){
+        hists.at("lbl_HFp_high_aco_"+datasetName)->Fill(tower->GetEnergy());
+        
+        if(!leadingHFpFilled){
+          hists.at("lbl_HFp_leading_tower_high_aco_"+datasetName)->Fill(tower->GetEnergy());
+          leadingHFpFilled = true;
+        }
+      }
+      if(tower->GetEta() > -maxEtaHF && tower->GetEta() < -minEtaHF){
+        hists.at("lbl_HFm_high_aco_"+datasetName)->Fill(tower->GetEnergy());
+        if(!leadingHFmFilled){
+          hists.at("lbl_HFm_leading_tower_high_aco_"+datasetName)->Fill(tower->GetEnergy());
+          leadingHFmFilled = true;
+        }
+      }
+    }
+  }
+    
   if(aco > 0.01) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 13
   
@@ -431,7 +481,12 @@ int main(int argc, char* argv[])
         
         auto event = events->GetEvent(iEvent);
         
-        if(dataset == kData_LbLsignal || dataset == kMCqedSC_LbLsignal) fillLbLHistograms(*event, hists, name);
+        if(dataset == kData_LbLsignal ||
+           dataset == kMCqedSC_LbLsignal ||
+           dataset == kMClbl ||
+           dataset == kMCcep){
+          fillLbLHistograms(*event, hists, name);
+        }
         if(dataset == kData_QEDsignal || dataset == kMCqedSC_QEDsignal) fillQEDHistograms(*event, hists, name);
         if(dataset == kData){
           fillLbLHistograms(*event, hists, name);
