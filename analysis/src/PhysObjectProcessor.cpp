@@ -3,6 +3,7 @@
 //  Created by Jeremi Niedziela on 29/07/2019.
 
 #include "PhysObjectProcessor.hpp"
+#include "ConfigManager.hpp"
 
 PhysObjectProcessor physObjectProcessor = PhysObjectProcessor();
 
@@ -84,4 +85,15 @@ double PhysObjectProcessor::GetAcoplanarity(const PhysObject &a, const PhysObjec
   }
   
   return aco;
+}
+
+bool PhysObjectProcessor::IsInCrackOrHEM(const PhysObject &a)
+{
+  if(fabs(a.GetEta()) > config.params("ecalCrackMin") && fabs(a.GetEta()) < config.params("ecalCrackMax")) return true;
+  
+  if(a.GetEta() < -minEtaEE &&
+     a.GetPhi() > config.params("ecalHEMmin") &&
+     a.GetPhi() < config.params("ecalHEMmax")) return true;
+  
+  return false;
 }
