@@ -19,6 +19,10 @@ pt(-1),
 
 energyHad(-9999),
 energyEm(-9999),
+energyTop(-9999),
+energyBottom(-9999),
+energyLeft(-9999),
+energyRight(-9999),
 
 etaWidth(-9999),
 phiWidth(-9999),
@@ -141,6 +145,30 @@ double PhysObject::GetEnergyHad() const
 {
   if(energyHad < -999) cout<<"WARNING - carefull, energyHad probably not set"<<endl;
   return energyHad;
+}
+
+double PhysObject::GetEnergyCrystalTop() const
+{
+  if(energyTop < -999) cout<<"WARNING - carefull, energyTop probably not set"<<endl;
+  return energyTop;
+}
+
+double PhysObject::GetEnergyCrystalBottom() const
+{
+  if(energyBottom < -999) cout<<"WARNING - carefull, energyBottom probably not set"<<endl;
+  return energyBottom;
+}
+
+double PhysObject::GetEnergyCrystalLeft() const
+{
+  if(energyLeft < -999) cout<<"WARNING - carefull, energyLeft probably not set"<<endl;
+  return energyLeft;
+}
+
+double PhysObject::GetEnergyCrystalRight() const
+{
+  if(energyRight < -999) cout<<"WARNING - carefull, energyRight probably not set"<<endl;
+  return energyRight;
 }
 
 double PhysObject::GetEnergyEm() const

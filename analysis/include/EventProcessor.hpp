@@ -57,6 +57,11 @@ private:
   vector<float> *photonSCEtaWidth   = nullptr;
   vector<float> *photonSCPhiWidth   = nullptr;
   
+  vector<float> *photonEtop         = nullptr;
+  vector<float> *photonEbottom      = nullptr;
+  vector<float> *photonEleft        = nullptr;
+  vector<float> *photonEright       = nullptr;
+  
   vector<float> *towerEta           = nullptr;
   vector<float> *towerPhi           = nullptr;
   vector<float> *towerEnergy        = nullptr;

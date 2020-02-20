@@ -85,6 +85,9 @@ public:
   /// Sorts calo towers by energy, from highest to lowest
   void SortCaloTowersByEnergy();
   
+  /// Returns map of towers by subdetector which are above threshold and do not overlap with good photons nor electrons
+  map<ECaloType, vector<shared_ptr<PhysObject>>> GetCaloTowersAboveThresholdByDet();
+
 private:
   map<string, bool> triggersLbL; ///< Vactor of booleans corresponding to LbL triggers
   

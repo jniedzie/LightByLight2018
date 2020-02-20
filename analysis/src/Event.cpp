@@ -79,6 +79,15 @@ vector<shared_ptr<PhysObject>> Event::GetGoodPhotons()
     // Check Et
     if(photon->GetEt() < config.params("photonMinEt")) continue;
     
+    // Check swiss cross
+    double E4 = photon->GetEnergyCrystalTop() +
+    photon->GetEnergyCrystalBottom() +
+    photon->GetEnergyCrystalLeft() +
+    photon->GetEnergyCrystalRight();
+    
+    double swissCross = E4/photon->GetEnergy();
+    if(swissCross < 0.005) continue;
+    
     // Check eta & phi (remove noisy region >2.3, remove cracks between EB and EE, remove HEM issue region)
     double absEta = fabs(photon->GetEta());
     if(absEta > config.params("photonMaxEta")) continue;
@@ -244,6 +253,8 @@ bool Event::HasAdditionalTowers(bool checkHF, ECaloType *failingCalo)
   return false;
 }
 
+
+
 bool Event::HasChargedTracks() const
 {
   if(nElectrons != 0) return true;
@@ -339,4 +350,39 @@ double Event::GetEmThresholdForTower(const PhysObject &tower)
   }
   if(threshold < 0) cout<<"ERROR - could not find threshold for thower !!"<<endl;
   return threshold;
+}
+
+map<ECaloType, vector<shared_ptr<PhysObject>>> Event::GetCaloTowersAboveThresholdByDet()
+{
+  map<ECaloType, vector<shared_ptr<PhysObject>>> caloTowersByDet;
+  
+  for(int iTower=0; iTower<nCaloTowers; iTower++){
+    auto tower = caloTowers[iTower];
+    
+    if(physObjectProcessor.IsInCrackOrHEM(*tower))  continue;
+    if(IsOverlappingWithGoodPhoton(*tower))         continue;
+    if(IsOverlappingWithGoodElectron(*tower))       continue;
+    
+    ECaloType subdetHad = tower->GetTowerSubdetHad();
+    ECaloType subdetEm  = tower->GetTowerSubdetEm();
+    
+    if(subdetEm == kEE && fabs(tower->GetEta()) > config.params("maxEtaEEtower")) continue;
+    
+    if(subdetHad==kHFp || subdetHad==kHFm){
+      if(tower->GetEnergy() > config.params("noiseThreshold"+caloName.at(subdetHad))){
+        caloTowersByDet[subdetHad].push_back(tower);
+      }
+    }
+    else if(subdetHad==kHB || subdetHad==kHE){
+      if(tower->GetEnergyHad() > config.params("noiseThreshold"+caloName.at(subdetHad))){
+        caloTowersByDet[subdetHad].push_back(tower);
+      }
+    }
+    else if(subdetEm == kEB || subdetEm == kEE){
+      if((tower->GetEnergyEm() > GetEmThresholdForTower(*tower))){
+        caloTowersByDet[subdetHad].push_back(tower);
+      }
+    }
+  }
+  return caloTowersByDet;
 }

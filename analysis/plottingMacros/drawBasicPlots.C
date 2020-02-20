@@ -1,6 +1,6 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/basicPlots_noHFcheck.root";
+string inputPath  = "../results/basicPlots_withHFcheck_withSwissCross.root";
 string outputPath = "../plots/distributions";
 
 //double qedInitialNevents = 67820000; // total
@@ -30,7 +30,7 @@ const double markerSize = 0.5;
 const vector<EDataset> datasetsToAnalyze = {
   kData,
   kMCcep,
-  kMCqedSC,
+//  kMCqedSC,
 //  kMCqedSL,
   kMClbl,
   
@@ -227,7 +227,7 @@ void normalizeHists(map<EDataset, TH1D*> hists, bool normalize, bool cutFlow)
     for(EDataset dataset : datasetsToAnalyze){
       if(dataset == kData) continue;
       hists[dataset]->Scale(luminosity*crossSection[dataset]/initialNevents[dataset]);
-      hists[dataset]->Sumw2(false);
+//      hists[dataset]->Sumw2(false);
     }
   }
 }

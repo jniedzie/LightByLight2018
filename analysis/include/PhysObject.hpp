@@ -40,6 +40,11 @@ public:
   double GetEnergyHad()  const;
   double GetEnergyEm()   const;
   
+  double GetEnergyCrystalTop()    const;
+  double GetEnergyCrystalBottom() const;
+  double GetEnergyCrystalLeft()   const;
+  double GetEnergyCrystalRight()  const;
+  
   double GetChargedIso() const;
   double GetPhotonIso()  const;
   double GetNeutralIso() const;
@@ -66,6 +71,11 @@ private:
   
   double energyHad; ///< Energy in hadronic part of calo
   double energyEm;  ///< Energy in EM part of calo
+  
+  double energyTop;   ///< Energy in the crytal on the top of the photon seed
+  double energyBottom;///< Energy in the crytal on the bottom of the photon seed
+  double energyLeft;  ///< Energy in the crytal on the left of the photon seed
+  double energyRight; ///< Energy in the crytal on the right of the photon seed
   
   double etaWidth;  ///< Width in eta direction
   double phiWidth;  ///< Width in phi direction

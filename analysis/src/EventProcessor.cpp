@@ -46,6 +46,11 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   eventTree->SetBranchAddress("phoSCEtaWidth"     , &photonSCEtaWidth);
   eventTree->SetBranchAddress("phoSCPhiWidth"     , &photonSCPhiWidth);
   
+  eventTree->SetBranchAddress("phoETop"           , &photonEtop);
+  eventTree->SetBranchAddress("phoEBottom"        , &photonEbottom);
+  eventTree->SetBranchAddress("phoELeft"          , &photonEleft);
+  eventTree->SetBranchAddress("phoERight"         , &photonEright);
+  
   eventTree->SetBranchAddress("nTower"            , &currentEvent->nCaloTowers);
   eventTree->SetBranchAddress("CaloTower_hadE"    , &towerEnergyHad);
   eventTree->SetBranchAddress("CaloTower_emE"     , &towerEnergyEm);
@@ -167,6 +172,11 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     photon->energySC = photonSCE->at(iPhoton);
     photon->etaWidth = photonSCEtaWidth->at(iPhoton);
     photon->phiWidth = photonSCPhiWidth->at(iPhoton);
+    
+    photon->energyTop    = photonEtop->at(iPhoton);
+    photon->energyBottom = photonEbottom->at(iPhoton);
+    photon->energyLeft   = photonEleft->at(iPhoton);
+    photon->energyRight  = photonEright->at(iPhoton);
     
     currentEvent->photons.push_back(photon);
   }
