@@ -24,14 +24,16 @@
 #include "TStyle.h"
 #include "TLine.h"
 #include "TLatex.h"
-#include "RooFit.h"
+//#include "RooFit.h"
 //#include "RooRealVar.h"
 //#include "RooDataSet.h"
-#include "RooArgSet.h"
+//#include "RooArgSet.h"
 #include "TGraphPolar.h"
 
 #pragma clang diagnostic pop // restores the saved state for diagnostics
 
+#include <ostream>
+#include <sstream>
 #include <iostream>
 #include <string>
 #include <vector>

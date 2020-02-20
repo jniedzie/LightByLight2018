@@ -9,7 +9,7 @@
 #include "EventDisplay.hpp"
 
 string configPath = "configs/efficiencies.md";
-string outputPath = "results/basicPlots_withHFcheck_withSwissCross.root";
+string outputPath = "results/basicPlots_noHFcheck_withSwissCross.root";
 
 int nThreePhotonEvents = 0;
 
@@ -150,8 +150,7 @@ void fillNEEcutFlowHist(TH1D *hist, int &cutFlow, ECaloType failingCalo)
 
 void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)
 {
-  auto photons = event.GetGoodPhotons();
-  
+  /*
   for(auto photon : event.GetPhotons()){
     double e = photon->GetEnergyCrystalTop()+
                 photon->GetEnergyCrystalBottom()+
@@ -162,6 +161,7 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
     
     hists.at("lbl_ecross_over_e_"+datasetName)->Fill(e); // 0
   }
+  */
   
   int cutThrough=0;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 0
@@ -187,7 +187,7 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   if(failedNEE) return;
   
   
-//  auto photons = event.GetGoodPhotons();
+  auto photons = event.GetGoodPhotons();
   
 //  vector<shared_ptr<PhysObject>> isolatedPhotons;
 //

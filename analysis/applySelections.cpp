@@ -102,14 +102,49 @@ bool IsGoodForQEDsignal(Event &event)
   return true;
 }
 
+/// Check if this event is a good candidate for the signal extraction
+bool IsPassingAllLbLCuts(Event &event, bool doHighAco)
+{
+  // Check trigger
+  //  if(!event.HasDoubleEG2Trigger()) return false;
+  
+  // Check exclusivity criteria
+  bool checkHF = true;
+  if(event.HasAdditionalTowers(checkHF)) return false;
+  if(event.GetNchargedTracks() != 0) return false;
+  
+  auto photons = event.GetGoodPhotons();
+  if(photons.size() != 2) return false;
+  
+  TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*photons[0], *photons[1]);
+  if(diphoton.M() < 5.0) return false;
+  if(diphoton.Pt() > 1.0) return false;
+  
+  double aco = physObjectProcessor.GetAcoplanarity(*photons[0], *photons[1]);
+  
+  if(doHighAco){
+    if(aco < 0.01) return false;
+  }
+  else{
+    if(aco > 0.01) return false;
+  }
+  
+  return true;
+}
+
 /// Application starting point
 int main(int argc, char* argv[])
 {
-  if(argc != 1 && argc != 9){
-    cout<<"This app requires 0 or 8 parameters."<<endl;
+  if(argc != 1 && argc != 9 && argc != 4){
+    cout<<"This app requires 0, 2 or 8 parameters."<<endl;
     cout<<"./getEfficienciesData configPath inputPath outputPathReco outputPathTrigger outputPathHFveto outputPathExclusivity outputPathLbLsignal outputPathQEDsignal"<<endl;
+    cout<<"or\n"<<endl;
+    cout<<"./getEfficienciesData inputPath outputPathLowAco outputPathHighAco"<<endl;
+    
     exit(0);
   }
+  
+  cout<<"Starting applySelections"<<endl;
   
   string inFilePath;
   vector<string> outFilePaths;
@@ -124,9 +159,17 @@ int main(int argc, char* argv[])
     outFilePaths.push_back(argv[7]); // LbL signal extraction
     outFilePaths.push_back(argv[8]); // QED signal extraction
   }
+  if(argc == 4){
+    inFilePath = argv[1];
+    outFilePaths.push_back(argv[2]);
+    outFilePaths.push_back(argv[3]);
+  }
  
   config = ConfigManager(configPath);
+  cout<<"Config manager created"<<endl;
+  
   auto events = make_unique<EventProcessor>(inFilePath, outFilePaths);
+  cout<<"Event processor created"<<endl;
   
   // Loop over events
   for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
@@ -134,14 +177,22 @@ int main(int argc, char* argv[])
     if(iEvent >= config.params("maxEvents")) break;
     
     auto event = events->GetEvent(iEvent);
-    if(IsGoodForRecoEfficiency(*event))     events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
-    if(IsGoodForTrigger(*event))            events->AddEventToOutputTree(iEvent, outFilePaths[1], storeHLTtrees);
-    if(IsGoodForHFveto(*event))             events->AddEventToOutputTree(iEvent, outFilePaths[2], storeHLTtrees);
-    if(IsGoodForExclusivity(*event))        events->AddEventToOutputTree(iEvent, outFilePaths[3], storeHLTtrees);
-    if(IsGoodForLbLsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[4], storeHLTtrees);
-    if(IsGoodForQEDsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[5], storeHLTtrees);
+    
+    if(argc==9){
+      if(IsGoodForRecoEfficiency(*event))     events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
+      if(IsGoodForTrigger(*event))            events->AddEventToOutputTree(iEvent, outFilePaths[1], storeHLTtrees);
+      if(IsGoodForHFveto(*event))             events->AddEventToOutputTree(iEvent, outFilePaths[2], storeHLTtrees);
+      if(IsGoodForExclusivity(*event))        events->AddEventToOutputTree(iEvent, outFilePaths[3], storeHLTtrees);
+      if(IsGoodForLbLsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[4], storeHLTtrees);
+      if(IsGoodForQEDsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[5], storeHLTtrees);
+    }
+    else if(argc==4){
+      if(IsPassingAllLbLCuts(*event, false))  events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
+      if(IsPassingAllLbLCuts(*event, true))   events->AddEventToOutputTree(iEvent, outFilePaths[1], storeHLTtrees);
+    }
   }
 
+  cout<<"Saving output trees"<<endl;
   for(string outFilePath : outFilePaths) events->SaveOutputTree(outFilePath);
   
   return 0;
