@@ -537,17 +537,17 @@ int main(int argc, char* argv[])
 {
   if(argc != 1 && argc != 5){
     cout<<"This app requires 0 or 4 parameters."<<endl;
-    cout<<"./prepareBasicPlots configPath inputPath outputPath isMC"<<endl;
+    cout<<"./prepareBasicPlots configPath inputPath outputPath datasetName[Data|QED_SC|QED_SL|LbL|CEP]"<<endl;
     exit(0);
   }
   string inputPath = "";
-  bool isMC = false;
+  string sampleName = "";
   
   if(argc == 5){
     configPath = argv[1];
     inputPath  = argv[2];
     outputPath = argv[3];
-    isMC       = atoi(argv[4]);
+    sampleName = argv[4];
   }
   config = ConfigManager(configPath);
   
@@ -597,8 +597,6 @@ int main(int argc, char* argv[])
   else{
     auto events = make_unique<EventProcessor>(inputPath);
     
-    string name = isMC ? datasetName.at(kMCqedSC) : datasetName.at(kData);
-    
     for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
       if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
       if(iEvent >= config.params("maxEvents")) break;
@@ -606,7 +604,7 @@ int main(int argc, char* argv[])
       auto event = events->GetEvent(iEvent);
       
 //      fillLbLHistograms(*event, hists, name);
-      fillCHEhistograms(*event, hists, name);
+      fillCHEhistograms(*event, hists, sampleName);
 //      fillQEDHistograms(*event, hists, name);
     }
     
