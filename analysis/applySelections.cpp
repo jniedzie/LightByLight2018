@@ -82,8 +82,7 @@ bool IsGoodForLbLsignal(Event &event)
   if(!event.HasDoubleEG2Trigger()) return false;
   
   // Check exclusivity criteria
-  bool checkHF = false;
-  if(event.HasAdditionalTowers(checkHF)) return false;
+  if(event.HasAdditionalTowers()) return false;
   if(event.GetGoodGeneralTracks().size() != 0) return false;
   
   return true;
@@ -109,8 +108,7 @@ bool IsPassingAllLbLCuts(Event &event, bool doHighAco)
   //  if(!event.HasDoubleEG2Trigger()) return false;
   
   // Check exclusivity criteria
-  bool checkHF = true;
-  if(event.HasAdditionalTowers(checkHF)) return false;
+  if(event.HasAdditionalTowers()) return false;
   if(event.GetGoodGeneralTracks().size() != 0) return false;
   
   auto photons = event.GetGoodPhotons();
