@@ -44,6 +44,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   eventTree->SetBranchAddress("phoSCEt"           , &photonSCEt);
   eventTree->SetBranchAddress("phoSCE"            , &photonSCE);
   eventTree->SetBranchAddress("phoSCEtaWidth"     , &photonSCEtaWidth);
+//  eventTree->SetBranchAddress("phoSigmaIEtaIEta"  , &photonSCEtaWidth);
   eventTree->SetBranchAddress("phoSCPhiWidth"     , &photonSCPhiWidth);
   
   eventTree->SetBranchAddress("phoETop"           , &photonEtop);
