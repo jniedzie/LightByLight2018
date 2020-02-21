@@ -55,23 +55,9 @@ public:
   /// Updates and returns vector of general tracks passing all cuts
   vector<shared_ptr<PhysObject>> GetGoodGeneralTracks(TH1D *cutFlowHist=nullptr);
   
-  /// Finds two photons passing cuts (if not done yet) and returns diphoton invariant mass
-  /// If number of photons != 2, returns -1
-  double GetDiphotonInvMass();
-  
-  /// Finds two photons passing cuts (if not done yet) and returns false if diphoton pt is
-  /// within limit specified in config, or true otherwise
-  bool DiphotonPtAboveThreshold();
-  
   /// Finds two photons passing cuts (if not done yet) and checks if there are towers above
   /// threshold not overlapping with reconstructed photons
-  bool HasAdditionalTowers(bool checkHF = true, ECaloType *failingCalo=nullptr);
-  
-  /// Checks if there are any charged tracks in the event (above pt specified in config)
-  bool HasChargedTracks() const;
-  
-  /// Returns number of charged tracks with pt above threshold specifined in the config
-  int GetNchargedTracks() const;
+  bool HasAdditionalTowers(ECaloType *failingCalo=nullptr);
   
   /// Checks if SingleEG3 fired
   bool HasSingleEG3Trigger() const;

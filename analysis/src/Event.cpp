@@ -211,44 +211,7 @@ vector<shared_ptr<PhysObject>> Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
   return goodGeneralTracks;
 }
 
-double Event::GetDiphotonInvMass()
-{
-  if(GetGoodPhotons().size() !=2 ) return -1;
-  
-  TLorentzVector pho1, pho2;
-  
-  pho1.SetPtEtaPhiE(GetGoodPhotons()[0]->GetEt(),
-                    GetGoodPhotons()[0]->GetEta(),
-                    GetGoodPhotons()[0]->GetPhi(),
-                    GetGoodPhotons()[0]->GetEnergy());
-  
-  pho2.SetPtEtaPhiE(GetGoodPhotons()[1]->GetEt(),
-                    GetGoodPhotons()[1]->GetEta(),
-                    GetGoodPhotons()[1]->GetPhi(),
-                    GetGoodPhotons()[1]->GetEnergy());
-  
-  TLorentzVector diphoton = pho1+pho2;
-  
-  return diphoton.M();
-}
-
-bool Event::DiphotonPtAboveThreshold()
-{
-  GetGoodPhotons();
-  
-  if(GetGoodPhotons().size() != 2) return true;
-  
-  double pt_1 = GetGoodPhotons()[0]->GetEt();
-  double pt_2 = GetGoodPhotons()[1]->GetEt();
-  double deltaPhi = GetGoodPhotons()[0]->GetPhi() - GetGoodPhotons()[1]->GetPhi();
-  
-  double pairPt = sqrt(pt_1*pt_1 + pt_2*pt_2 + 2*pt_1*pt_2*cos(deltaPhi));
-  if(pairPt > config.params("diphotonMaxPt")) return true;
-  
-  return false;
-}
-
-bool Event::HasAdditionalTowers(bool checkHF, ECaloType *failingCalo)
+bool Event::HasAdditionalTowers(ECaloType *failingCalo)
 {
   for(int iTower=0; iTower<nCaloTowers; iTower++){
     auto tower = caloTowers[iTower];
@@ -256,64 +219,34 @@ bool Event::HasAdditionalTowers(bool checkHF, ECaloType *failingCalo)
     if(physObjectProcessor.IsInCrackOrHEM(*tower)) continue;
     
     ECaloType subdetHad = tower->GetTowerSubdetHad();
+    ECaloType subdetEm = tower->GetTowerSubdetEm();
     
-    // Check HF exclusivity
-    if(checkHF && (subdetHad==kHFp || subdetHad==kHFm)){
+    
+    if(subdetHad==kHFp || subdetHad==kHFm){ // Check HF exclusivity
       if(tower->GetEnergy() > config.params("noiseThreshold"+caloName.at(subdetHad))){
         if(failingCalo) *failingCalo = subdetHad;
         return true;
       }
     }
-
-    // Check HB and HE exclusivity
-    if(subdetHad==kHB || subdetHad==kHE){
+    else if(subdetHad==kHB || subdetHad==kHE){ // Check HB and HE exclusivity
       if(tower->GetEnergyHad() > config.params("noiseThreshold"+caloName.at(subdetHad))){
         if(failingCalo) *failingCalo = subdetHad;
         return true;
       }
     }
-    
-    // Check EB and EE exclusivity
-    ECaloType subdetEm = tower->GetTowerSubdetEm();
-    
-    if(subdetEm == kEE && fabs(tower->GetEta()) > config.params("maxEtaEEtower")) continue;
-    
-    if(IsOverlappingWithGoodPhoton(*tower)) continue;
-    if(IsOverlappingWithGoodElectron(*tower)) continue;
-    
-    double threshold = GetEmThresholdForTower(*tower);
-    
-    if((tower->GetEnergyEm() > threshold) &&
-       (checkHF || (subdetEm!=kHFp && subdetEm!=kHFm))){
-      if(failingCalo) *failingCalo = subdetEm;
-      return true;
-    }
+    else if(subdetEm==kEB || subdetEm==kEE){ // Check EB and EE exclusivity
+      if(subdetEm == kEE && fabs(tower->GetEta()) > config.params("maxEtaEEtower")) continue;
       
+      if(IsOverlappingWithGoodPhoton(*tower)) continue;
+      if(IsOverlappingWithGoodElectron(*tower)) continue;
+      
+      if(tower->GetEnergyEm() > GetEmThresholdForTower(*tower)){
+        if(failingCalo) *failingCalo = subdetEm;
+        return true;
+      }
+    }
   }
   return false;
-}
-
-
-
-bool Event::HasChargedTracks() const
-{
-  if(nElectrons != 0) return true;
-  
-  for(int iTrack=0; iTrack<nGeneralTracks; iTrack++){
-    auto track = generalTracks[iTrack];
-    if(track->GetPt() > config.params("trackMinPt")) return true;
-  }
-  return false;
-}
-
-int Event::GetNchargedTracks() const
-{
-  int nTracks=0;
-  
-  for(int iTrack=0; iTrack<nGeneralTracks; iTrack++){
-    if(generalTracks[iTrack]->GetPt() > config.params("trackMinPt")) nTracks++;
-  }
-  return nTracks;
 }
 
 void Event::SortCaloTowersByEnergy()

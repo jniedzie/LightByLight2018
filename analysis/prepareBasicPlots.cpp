@@ -32,8 +32,8 @@ const vector<EDataset> datasetsToAnalyze = {
 //  kMCqedSC_LbLsignal,
 //  kMCqedSC_QEDsignal,
   //  kMCqedSL,
-//    kMClbl,
-//    kMCcep
+    kMClbl,
+    kMCcep
 };
 
 vector<tuple<string, int, double, double>> histParams = {
@@ -191,7 +191,7 @@ void fillSwisscrossHistogram(Event &event, TH1D* hist)
   }
 }
 
-void fillTriphotonHists(Event &event, const map<string, TH1D*> &hists, string datasetName)
+void fillTriphotonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, bool saveEventDisplays=false)
 {
   auto photons = event.GetGoodPhotons();
   vector<shared_ptr<PhysObject>> isolatedPhotons;
@@ -202,7 +202,6 @@ void fillTriphotonHists(Event &event, const map<string, TH1D*> &hists, string da
       if(i==j) continue;
       
       double deltaR = physObjectProcessor.GetDeltaR(*photons[i], *photons[j]);
-      //      double deltaPhi = fabs(photons[i]->GetPhi()-photons[j]->GetPhi());
       
       if(deltaR < 0.3){
         hasNerbyPhotons = true;
@@ -222,9 +221,11 @@ void fillTriphotonHists(Event &event, const map<string, TH1D*> &hists, string da
     hists.at("lbl_triphoton_rapidity_"+datasetName)->Fill(triphoton.Rapidity());
     hists.at("lbl_triphoton_pt_"+datasetName)->Fill(triphoton.Pt());
     
-    vector<shared_ptr<PhysObject>> emptyVector;
-    
-    //    saveEventDisplay(emptyVector, emptyVector, emptyVector, isolatedPhotons, emptyVector, "~/Desktop/lbl_triphoton_event_displays_"+datasetName+"/");
+    if(saveEventDisplays){
+      vector<shared_ptr<PhysObject>> emptyVector;
+      saveEventDisplay(emptyVector, emptyVector, emptyVector, isolatedPhotons, emptyVector,
+                       "~/Desktop/lbl_triphoton_event_displays_"+datasetName+"/");
+    }
   }
 }
 
@@ -275,7 +276,7 @@ void fillHFnoiseHists(Event &event, const map<string, TH1D*> &hists, string data
   }
 }
 
-void fillTracksHistograms(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
+void fillTracksHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
 {
   if(suffix != "") suffix += "_";
   
@@ -313,12 +314,11 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
 //  if(!event.HasDoubleEG2Trigger()) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 1
   
-  if(event.GetNchargedTracks() != 0) return;
+  if(event.GetGoodGeneralTracks().size() != 0) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 2
   
-  bool checkHF = true;
   ECaloType failingCalo = nCaloTypes;
-  bool failedNEE = event.HasAdditionalTowers(checkHF, &failingCalo);
+  bool failedNEE = event.HasAdditionalTowers(&failingCalo);
   fillNEEcutFlowHist(hists.at("lbl_cut_through_"+datasetName), cutThrough, failingCalo); // 3 - 8
   if(failedNEE) return;
   
@@ -331,10 +331,10 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   
   TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*photons[0], *photons[1]);
   
-  if(diphoton.M() < 5.0) return;
+  if(diphoton.M() < config.params("diphotonMinMass")) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 10
   
-  if(diphoton.Pt() > 1.0) return;
+  if(diphoton.Pt() > config.params("diphotonMaxPt")) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 11
   
   //  if(fabs(diphoton.Rapidity()) > 2.4) return;
@@ -357,24 +357,23 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
 void fillCHEhistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)
 {
   if(!event.HasDoubleEG2Trigger()) return;
-  bool checkHF = true;
-  if(event.HasAdditionalTowers(checkHF)) return;
+  if(event.HasAdditionalTowers()) return;
   
   event.GetGoodGeneralTracks(hists.at("tracks_cutflow_"+datasetName));
   
-  fillTracksHistograms(event, hists, datasetName);
+  fillTracksHists(event, hists, datasetName);
   
   auto photons = event.GetGoodPhotons();
   if(photons.size() != 2) return;
 
   TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*photons[0], *photons[1]);
-  if(diphoton.M() < 5.0) return;
-  if(diphoton.Pt() > 1.0) return;
+  if(diphoton.M()  < config.params("diphotonMinMass")) return;
+  if(diphoton.Pt() > config.params("diphotonMaxPt")) return;
   
-  fillTracksHistograms(event, hists, datasetName, "two_photons");
+  fillTracksHists(event, hists, datasetName, "two_photons");
   
   double aco = physObjectProcessor.GetAcoplanarity(*photons[0], *photons[1]);
-  fillTracksHistograms(event, hists, datasetName, aco > 0.01 ? "high_aco" : "low_aco");
+  fillTracksHists(event, hists, datasetName, aco > config.params("diphotonMaxAco") ? "high_aco" : "low_aco");
 }
 
 void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)
@@ -432,13 +431,12 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string dat
 //  if(!event.HasDoubleEG2Trigger()) return;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 1
   
-  bool checkHF = false;
   ECaloType failingCalo = nCaloTypes;
-  bool failedNEE = event.HasAdditionalTowers(checkHF, &failingCalo);
+  bool failedNEE = event.HasAdditionalTowers(&failingCalo);
   fillNEEcutFlowHist(hists.at("qed_cut_through_"+datasetName), cutThrough, failingCalo); // 2-7
   if(failedNEE) return;
   
-  if(event.GetNchargedTracks() != 2) return;
+  if(event.GetGoodGeneralTracks().size() != 2) return;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 8
   
   vector<shared_ptr<PhysObject>> goodMatchedElectrons;
@@ -464,13 +462,13 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   double aco = physObjectProcessor.GetAcoplanarity(*electron1, *electron2);
   
   // add QED specific cuts here:
-  if(dielectron.M() < 5.0) return;
+  if(dielectron.M() < config.params("dielectronMinMass")) return;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 10
   
-  if(dielectron.Pt() > 1.0) return;
+  if(dielectron.Pt() > config.params("dielectronMaxPt")) return;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 11
   
-  if(fabs(dielectron.Rapidity()) > 2.4) return;
+  if(fabs(dielectron.Rapidity()) > config.params("dielectronMaxRapidity")) return;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 12
   
   hists.at("qed_acoplanarity_"+datasetName)->Fill(aco);

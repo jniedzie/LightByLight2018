@@ -18,7 +18,7 @@ bool IsGoodForRecoEfficiency(Event &event)
   if(!event.HasSingleEG3Trigger() && !event.HasSingleEG5Trigger()) return false;
   
   // Make sure that there are 2 tracks with opposite charges
-  if(event.GetNgeneralTracks() != 2) return false;
+  if(event.GetGoodGeneralTracks().size() != 2) return false;
   if(event.GetGeneralTrack(0)->GetCharge() == event.GetGeneralTrack(1)->GetCharge()) return false;
   
   // Check if there is at lest one photon and one electon in the event
@@ -39,7 +39,7 @@ bool IsGoodForTrigger(Event &event)
   
   // Check exclusivity criteria
 //  if(event.HasAdditionalTowers()) return false;
-  if(event.GetNchargedTracks() != 2) return false;
+  if(event.GetGoodGeneralTracks().size() != 2) return false;
   
   return true;
 }
@@ -55,7 +55,7 @@ bool IsGoodForHFveto(Event &event)
   
   // Check exclusivity criteria
 //  if(event.HasAdditionalTowers()) return false;
-  if(event.GetNchargedTracks() != 2) return false;
+  if(event.GetGoodGeneralTracks().size() != 2) return false;
   
   return true;
 }
@@ -70,7 +70,7 @@ bool IsGoodForExclusivity(Event &event)
   if(event.GetNelectrons() < 2) return false;
   
   // Check exclusivity criteria
-  if(event.GetNchargedTracks() != 2) return false;
+  if(event.GetGoodGeneralTracks().size() != 2) return false;
   
   return true;
 }
@@ -84,7 +84,7 @@ bool IsGoodForLbLsignal(Event &event)
   // Check exclusivity criteria
   bool checkHF = false;
   if(event.HasAdditionalTowers(checkHF)) return false;
-  if(event.GetNchargedTracks() != 0) return false;
+  if(event.GetGoodGeneralTracks().size() != 0) return false;
   
   return true;
 }
@@ -97,7 +97,7 @@ bool IsGoodForQEDsignal(Event &event)
   
   // Check exclusivity criteria
 //  if(event.HasAdditionalTowers()) return false;
-  if(event.GetNchargedTracks() != 2) return false;
+  if(event.GetGoodGeneralTracks().size() != 2) return false;
   
   return true;
 }
@@ -111,7 +111,7 @@ bool IsPassingAllLbLCuts(Event &event, bool doHighAco)
   // Check exclusivity criteria
   bool checkHF = true;
   if(event.HasAdditionalTowers(checkHF)) return false;
-  if(event.GetNchargedTracks() != 0) return false;
+  if(event.GetGoodGeneralTracks().size() != 0) return false;
   
   auto photons = event.GetGoodPhotons();
   if(photons.size() != 2) return false;
