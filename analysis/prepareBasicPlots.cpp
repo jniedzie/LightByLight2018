@@ -15,7 +15,7 @@ int nThreePhotonEvents = 0;
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
-  kData,
+//  kData,
   //  kData_SingleEG3,
   //  kData_recoEff,
   //  kData_triggerEff,
@@ -23,7 +23,7 @@ const vector<EDataset> datasetsToAnalyze = {
   //  kData_exclusivity,
 //  kData_LbLsignal,
 //  kData_QEDsignal,
-  //  kMCqedSC,
+//    kMCqedSC,
   //  kMCqedSC_SingleEG3,
   //  kMCqedSC_recoEff,
   //  kMCqedSC_triggerEff,
@@ -33,7 +33,7 @@ const vector<EDataset> datasetsToAnalyze = {
 //  kMCqedSC_QEDsignal,
   //  kMCqedSL,
     kMClbl,
-    kMCcep
+//    kMCcep
 };
 
 vector<tuple<string, int, double, double>> histParams = {
@@ -133,6 +133,8 @@ vector<tuple<string, int, double, double>> histParams = {
   {"track_pt_two_photons"               , 500 , 0   , 5     },
   {"track_eta_two_photons"              , 100 ,-3.5 , 3.5   },
   {"track_phi_two_photons"              , 100 ,-3.5 , 3.5   },
+  
+  {"nTracks_good_two_photons"           , 100 , 0   , 100   },
   {"track_eta_good_two_photons"         , 100 ,-3.5 , 3.5   },
   {"track_phi_good_two_photons"         , 100 ,-3.5 , 3.5   },
   
@@ -141,10 +143,14 @@ vector<tuple<string, int, double, double>> histParams = {
   {"nTracks_pt_lt_100_MeV_low_aco"  , 100 , 0   , 100   },
   {"track_pt_low_aco"               , 500 , 0   , 5     },
   
+  {"nTracks_good_low_aco"                , 100 , 0   , 100   },
+  
   {"nTracks_high_aco"                , 100 , 0   , 100   },
   {"nTracks_pt_geq_100_MeV_high_aco" , 100 , 0   , 100   },
   {"nTracks_pt_lt_100_MeV_high_aco"  , 100 , 0   , 100   },
   {"track_pt_high_aco"               , 500 , 0   , 5     },
+  
+  {"nTracks_good_high_aco"                , 100 , 0   , 100   },
 };
 
 void fillNEEcutFlowHist(TH1D *hist, int &cutFlow, ECaloType failingCalo)
@@ -280,10 +286,9 @@ void fillTracksHists(Event &event, const map<string, TH1D*> &hists, string datas
 {
   if(suffix != "") suffix += "_";
   
-  int nTracks = event.GetNgeneralTracks();
-  hists.at("nTracks_"+suffix+datasetName)->Fill(nTracks);
-  
   vector<shared_ptr<PhysObject>> tracksLowPt, tracksHighPt;
+  
+  hists.at("nTracks_"+suffix+datasetName)->Fill(event.GetGeneralTracks().size());
   
   for(auto track : event.GetGeneralTracks()){
     double trackPt = track->GetPt();
@@ -294,6 +299,9 @@ void fillTracksHists(Event &event, const map<string, TH1D*> &hists, string datas
     if(trackPt < 0.1) tracksLowPt.push_back(track);
     else              tracksHighPt.push_back(track);
   }
+  
+  hists.at("nTracks_good_"+suffix+datasetName)->Fill(event.GetGoodGeneralTracks().size());
+  
   for(auto track : event.GetGoodGeneralTracks()){
     hists.at("track_pt_good_"+suffix+datasetName)->Fill(track->GetPt());
     hists.at("track_eta_good_"+suffix+datasetName)->Fill(track->GetEta());
@@ -573,7 +581,7 @@ int main(int argc, char* argv[])
           fillLbLHistograms(*event, hists, name);
         }
         if(dataset == kData_QEDsignal || dataset == kMCqedSC_QEDsignal) fillQEDHistograms(*event, hists, name);
-        if(dataset == kData){
+        if(dataset == kData || dataset == kMCcep || dataset == kMClbl){
 //          fillLbLHistograms(*event, hists, name);
           fillCHEhistograms(*event, hists, name);
 //          fillQEDHistograms(*event, hists, name);
