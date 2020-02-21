@@ -35,6 +35,7 @@ public:
   int    GetPID()           const;
   int    GetCharge()        const;
   int    GetNmissingHits()  const;
+  int    GetNvalidHits()    const;
   
   double GetEnergy()     const;
   double GetEnergyHad()  const;
@@ -85,6 +86,7 @@ private:
   int pdgID;        ///< PDG PID code
   int charge;       ///< Particle charge
   int nMissingHits; ///< Number of missing hits
+  int nValidHits;   ///< Number of valid hits
   
   double chargedIso;  ///< Isolation wrt. charged particles
   double photonIso;   ///< Isolation wrt. photons

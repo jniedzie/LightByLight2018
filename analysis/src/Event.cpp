@@ -24,10 +24,12 @@ void Event::Reset()
   generalTracks.clear();
   electrons.clear();
   goodElectrons.clear();
+  goodGeneralTracks.clear();
   L1EGs.clear();
   
   goodPhotonsReady = false;
   goodElectronsReady = false;
+  goodGeneralTracksReady = false;
 }
 
 bool Event::HasSingleEG3Trigger() const
@@ -169,6 +171,44 @@ vector<shared_ptr<PhysObject>> Event::GetGoodElectrons(TH1D *cutFlowHist)
   }
   goodElectronsReady = true;
   return goodElectrons;
+}
+
+vector<shared_ptr<PhysObject>> Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
+{
+  if(goodGeneralTracksReady) return goodGeneralTracks;
+  
+  goodGeneralTracks.clear();
+  
+  for(auto track : generalTracks){
+    int cutFlowIndex=0;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    
+    // Check pt
+    if(track->GetPt() < config.params("trackMinPt")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    
+    // Check eta
+    double eta = track->GetEta();
+    double phi = track->GetPhi();
+    
+    if(fabs(eta) > config.params("trackMaxEta")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    
+    // Check for HEM issue
+    if(eta < -minEtaEE &&
+       phi > config.params("ecalHEMmin") &&
+       phi < config.params("ecalHEMmax")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    
+    
+    // Check n hits
+    if(track->GetNvalidHits() < config.params("trackMinNvalidHits")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    
+    goodGeneralTracks.push_back(track);
+  }
+  goodGeneralTracksReady = true;
+  return goodGeneralTracks;
 }
 
 double Event::GetDiphotonInvMass()

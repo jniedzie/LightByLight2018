@@ -31,6 +31,7 @@ hOverE(-9999),
 pdgID(0),
 charge(9999),
 nMissingHits(-1),
+nValidHits(-1),
 
 chargedIso(-9999),
 photonIso(-9999),
@@ -133,6 +134,12 @@ int PhysObject::GetNmissingHits() const
 {
   if(nMissingHits < 0) cout<<"WARNING - carefull, nMissingHits probably not set"<<endl;
   return nMissingHits;
+}
+
+int PhysObject::GetNvalidHits() const
+{
+  if(nValidHits < 0) cout<<"WARNING - carefull, nValidHits probably not set"<<endl;
+  return nValidHits;
 }
 
 double PhysObject::GetEnergy()     const

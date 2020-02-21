@@ -52,6 +52,9 @@ public:
   /// Updates and returns vector of electrons passing all electron ID cuts
   vector<shared_ptr<PhysObject>> GetGoodElectrons(TH1D *cutFlowHist=nullptr);
   
+  /// Updates and returns vector of general tracks passing all cuts
+  vector<shared_ptr<PhysObject>> GetGoodGeneralTracks(TH1D *cutFlowHist=nullptr);
+  
   /// Finds two photons passing cuts (if not done yet) and returns diphoton invariant mass
   /// If number of photons != 2, returns -1
   double GetDiphotonInvMass();
@@ -105,6 +108,9 @@ private:
   
   int nGeneralTracks = 0;                       ///< Number of general tracks
   vector<shared_ptr<PhysObject>> generalTracks; ///< Vector of general tracks
+  
+  bool goodGeneralTracksReady = false;              ///< Were track cuts already applied?
+  vector<shared_ptr<PhysObject>> goodGeneralTracks; ///< Vector of tracks passing cuts
   
   int nElectrons = 0;                           ///< Number of electrons
   vector<shared_ptr<PhysObject>> electrons;     ///< Vector of electrons

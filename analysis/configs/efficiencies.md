@@ -14,7 +14,8 @@ maxEtaEEtower:      2.4
 
 ### Charged exclusivity cuts (GeV)
 trackMinPt:              0.1 
-diphotonMaxPt:      1.0 
+trackMaxEta:           2.4
+trackMinNvalidHits: 3
 
 ### Max ΔR for matching for reco+ID efficiency
 maxDeltaR:              0.3
@@ -27,6 +28,7 @@ photonMaxHoverEendcap:       0.0590
 #### here original was 0.0106, but we may need to make it more loose:
 photonMaxEtaWidthBarrel:       0.0106
 photonMaxEtaWidthEndcap:    0.0272
+diphotonMaxPt:                        1.0 
 
 ### Electron ID cuts:
 electronMinPt:                            2.0

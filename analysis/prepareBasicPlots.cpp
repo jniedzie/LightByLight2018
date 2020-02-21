@@ -110,10 +110,31 @@ vector<tuple<string, int, double, double>> histParams = {
   {"qed_HFp_leading_tower_no_cuts"  , 200 , 0   , 20    },
   {"qed_HFm_leading_tower_no_cuts"  , 200 , 0   , 20    },
   
-  {"nTracks"                , 100 , 0   , 100   },
-  {"nTracks_pt_geq_100_MeV" , 100 , 0   , 100   },
-  {"nTracks_pt_lt_100_MeV"  , 100 , 0   , 100   },
-  {"track_pt"               , 500 , 0   , 5     },
+  
+  {"tracks_cutflow"         , 15  , 0   , 15    },
+  
+  {"nTracks"                            , 100 , 0   , 100   },
+  {"nTracks_pt_geq_100_MeV"             , 100 , 0   , 100   },
+  {"nTracks_pt_lt_100_MeV"              , 100 , 0   , 100   },
+  {"track_pt"                           , 500 , 0   , 5     },
+  {"track_eta"                          , 100 ,-3.5 , 3.5   },
+  {"track_phi"                          , 100 ,-3.5 , 3.5   },
+  
+  {"nTracks_good"                       , 100 , 0   , 100   },
+  {"nTracks_pt_geq_100_MeV_good"        , 100 , 0   , 100   },
+  {"nTracks_pt_lt_100_MeV_good"         , 100 , 0   , 100   },
+  {"track_pt_good"                      , 500 , 0   , 5     },
+  {"track_eta_good"                     , 100 ,-3.5 , 3.5   },
+  {"track_phi_good"                     , 100 ,-3.5 , 3.5   },
+  
+  {"nTracks_two_photons"                , 100 , 0   , 100   },
+  {"nTracks_pt_geq_100_MeV_two_photons" , 100 , 0   , 100   },
+  {"nTracks_pt_lt_100_MeV_two_photons"  , 100 , 0   , 100   },
+  {"track_pt_two_photons"               , 500 , 0   , 5     },
+  {"track_eta_two_photons"              , 100 ,-3.5 , 3.5   },
+  {"track_phi_two_photons"              , 100 ,-3.5 , 3.5   },
+  {"track_eta_good_two_photons"         , 100 ,-3.5 , 3.5   },
+  {"track_phi_good_two_photons"         , 100 ,-3.5 , 3.5   },
   
   {"nTracks_low_aco"                , 100 , 0   , 100   },
   {"nTracks_pt_geq_100_MeV_low_aco" , 100 , 0   , 100   },
@@ -261,18 +282,25 @@ void fillTracksHistograms(Event &event, const map<string, TH1D*> &hists, string 
   int nTracks = event.GetNgeneralTracks();
   hists.at("nTracks_"+suffix+datasetName)->Fill(nTracks);
   
-  for(int iTrack=0; iTrack<nTracks; iTrack++){
-    double trackPt = event.GetGeneralTrack(iTrack)->GetPt();
+  vector<shared_ptr<PhysObject>> tracksLowPt, tracksHighPt;
+  
+  for(auto track : event.GetGeneralTracks()){
+    double trackPt = track->GetPt();
     hists.at("track_pt_"+suffix+datasetName)->Fill(trackPt);
+    hists.at("track_eta_"+suffix+datasetName)->Fill(track->GetEta());
+    hists.at("track_phi_"+suffix+datasetName)->Fill(track->GetPhi());
     
-    int iBin = nTracks+1;
-    if(trackPt < 0.1){
-      hists.at("nTracks_pt_lt_100_MeV_"+suffix+datasetName)->SetBinContent(iBin, hists.at("nTracks_pt_lt_100_MeV_"+suffix+datasetName)->GetBinContent(iBin)+1);
-    }
-    else{
-      hists.at("nTracks_pt_geq_100_MeV_"+suffix+datasetName)->SetBinContent(iBin, hists.at("nTracks_pt_geq_100_MeV_"+suffix+datasetName)->GetBinContent(iBin)+1);
-    }
+    if(trackPt < 0.1) tracksLowPt.push_back(track);
+    else              tracksHighPt.push_back(track);
   }
+  for(auto track : event.GetGoodGeneralTracks()){
+    hists.at("track_pt_good_"+suffix+datasetName)->Fill(track->GetPt());
+    hists.at("track_eta_good_"+suffix+datasetName)->Fill(track->GetEta());
+    hists.at("track_phi_good_"+suffix+datasetName)->Fill(track->GetPhi());
+  }
+  
+  hists.at("nTracks_pt_lt_100_MeV_"+suffix+datasetName)->Fill(tracksLowPt.size());
+  hists.at("nTracks_pt_geq_100_MeV_"+suffix+datasetName)->Fill(tracksHighPt.size());
 }
 
 void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)
@@ -330,17 +358,20 @@ void fillCHEhistograms(Event &event, const map<string, TH1D*> &hists, string dat
 {
   if(!event.HasDoubleEG2Trigger()) return;
   bool checkHF = true;
-  event.HasAdditionalTowers(checkHF);
+  if(event.HasAdditionalTowers(checkHF)) return;
+  
+  event.GetGoodGeneralTracks(hists.at("tracks_cutflow_"+datasetName));
+  
+  fillTracksHistograms(event, hists, datasetName);
   
   auto photons = event.GetGoodPhotons();
   if(photons.size() != 2) return;
 
   TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*photons[0], *photons[1]);
-  
   if(diphoton.M() < 5.0) return;
   if(diphoton.Pt() > 1.0) return;
   
-  fillTracksHistograms(event, hists, datasetName);
+  fillTracksHistograms(event, hists, datasetName, "two_photons");
   
   double aco = physObjectProcessor.GetAcoplanarity(*photons[0], *photons[1]);
   fillTracksHistograms(event, hists, datasetName, aco > 0.01 ? "high_aco" : "low_aco");
@@ -545,9 +576,9 @@ int main(int argc, char* argv[])
         }
         if(dataset == kData_QEDsignal || dataset == kMCqedSC_QEDsignal) fillQEDHistograms(*event, hists, name);
         if(dataset == kData){
-          fillLbLHistograms(*event, hists, name);
-          fillTracksHistograms(*event, hists, name);
-          fillQEDHistograms(*event, hists, name);
+//          fillLbLHistograms(*event, hists, name);
+          fillCHEhistograms(*event, hists, name);
+//          fillQEDHistograms(*event, hists, name);
         }
       }
       
@@ -568,9 +599,9 @@ int main(int argc, char* argv[])
       
       auto event = events->GetEvent(iEvent);
       
-      fillLbLHistograms(*event, hists, name);
-      fillTracksHistograms(*event, hists, name);
-      fillQEDHistograms(*event, hists, name);
+//      fillLbLHistograms(*event, hists, name);
+      fillCHEhistograms(*event, hists, name);
+//      fillQEDHistograms(*event, hists, name);
     }
     
     outFile->cd();
