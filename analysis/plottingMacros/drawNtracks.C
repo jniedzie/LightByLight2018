@@ -2,8 +2,17 @@
 
 const int maxNevents = 10000;
 
-string inputPath  = "../results/basicPlots.root";
+string inputPath  = "../results/basicPlots_data_CHE.root";
 string outputPath = "../plots/nTracks.pdf";
+
+// Only those datasets will be analyzed
+const vector<EDataset> datasetsToAnalyze = {
+  kData,
+//  kMCcep,
+//  kMCqedSC,
+//  kMCqedSL,
+//  kMClbl,
+};
 
 void prepareHist(TH1D *hist, int color)
 {
@@ -27,6 +36,15 @@ void preparePad()
   gPad->SetBottomMargin(0.15);
 }
 
+TH1D* getHistogramFromFile(TFile *file, string name)
+{
+  TH1D *hist = (TH1D*)file->Get(name.c_str());
+  if(!hist){
+    cout<<"ERROR -- couldn't find histogram: "<<name<<endl;
+  }
+  return hist;
+}
+
 void drawNtracks()
 {
   TFile *inFile = TFile::Open(inputPath.c_str());
@@ -38,16 +56,16 @@ void drawNtracks()
   TLegend *legend = new TLegend(0.5, 0.7, 0.9, 0.9 );
   
   bool first = true;
-  for(EDataset dataset : datasets){
+  for(EDataset dataset : datasetsToAnalyze){
     string name        = datasetName.at(dataset);
     string description = datasetDescription.at(dataset);
     
     cout<<"Processing "<<description<<" events"<<endl;
     
-    auto nTrackHist       = (TH1D*)inFile->Get(("nTracks"+name).c_str());
-    auto nTrackHighPtHist = (TH1D*)inFile->Get(("nTracks_pt_geq_100_MeV"+name).c_str());
-    auto nTrackLowPtHist  = (TH1D*)inFile->Get(("nTracks_pt_lt_100_MeV"+name).c_str());
-    auto trackPtHist      = (TH1D*)inFile->Get(("track_pt"+name).c_str());
+    TH1D *nTrackHist = getHistogramFromFile(inFile, "nTracks_"+name);
+    TH1D *nTrackHighPtHist = getHistogramFromFile(inFile, "nTracks_pt_geq_100_MeV_"+name);
+    TH1D *nTrackLowPtHist  = getHistogramFromFile(inFile, "nTracks_pt_lt_100_MeV_"+name);
+    TH1D *trackPtHist      = getHistogramFromFile(inFile, "track_pt_"+name);
     
     int color = datasetColor.at(dataset);
     

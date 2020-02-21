@@ -7,6 +7,7 @@
 #include "Helpers.hpp"
 #include "EventProcessor.hpp"
 #include "ConfigManager.hpp"
+#include "PhysObjectProcessor.hpp"
 
 string configPath = "configs/efficiencies.md";
 string outputPath = "results/efficienciesLbL.root";
@@ -70,22 +71,20 @@ int main()
     auto goodGenPhotons  = event->GetGoodGenPhotons();
     auto photonsPassing = event->GetGoodPhotons();
     
-    double diphotonMinv = event->GetDiphotonInvMass();
+    if(goodGenPhotons.size() != 2) continue;
+    nGenEvents++;
+    hists["reco_id_eff_den"]->Fill(goodGenPhotons.front()->GetEt());
+    
+    
+    TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*goodGenPhotons[0], *goodGenPhotons[1]);
     
     // Check properties of this event
-    bool hasTwoGoodGenPhotons     = goodGenPhotons.size() == 2;
     bool hasLbLTrigger            = event->HasDoubleEG2Trigger();
     bool hasTwoPhotonsPassingID   = photonsPassing.size() == 2;
     bool passesNeutralExclusivity = ! event->HasAdditionalTowers();
-    bool passesChargedExclusivity = ! event->HasChargedTracks();
-    bool passesDiphotonCuts       = ! event->DiphotonPtAboveThreshold();
+    bool passesChargedExclusivity = event->GetGoodGeneralTracks().size() == 0;
+    bool passesDiphotonCuts       = diphoton.Pt() < config.params("diphotonMaxPt");
     bool hasTwoMachingPhotons     = HasTwoMatchingPhotons(goodGenPhotons, event->GetPhotons());
-    
-    // Increment counters of different types of events
-    if(hasTwoGoodGenPhotons){
-      nGenEvents++;
-      hists["reco_id_eff_den"]->Fill(goodGenPhotons.front()->GetEt());
-    }
     
     if(hasLbLTrigger &&
        hasTwoPhotonsPassingID &&
@@ -99,8 +98,8 @@ int main()
        hasTwoPhotonsPassingID &&
        passesChargedExclusivity){
       nEventsPassingIDandTriggerAndChargedExcl++;
-      hists["charged_excl_eff_num"]->Fill(diphotonMinv);
-      hists["neutral_excl_eff_den"]->Fill(diphotonMinv);
+      hists["charged_excl_eff_num"]->Fill(diphoton.M());
+      hists["neutral_excl_eff_den"]->Fill(diphoton.M());
     }
     
     if(hasLbLTrigger &&
@@ -108,31 +107,31 @@ int main()
        passesChargedExclusivity &&
        passesNeutralExclusivity){
       nEventsPassingIDandTriggerAndBothExcl++;
-      hists["neutral_excl_eff_num"]->Fill(diphotonMinv);
+      hists["neutral_excl_eff_num"]->Fill(diphoton.M());
     }
     
     if(hasTwoPhotonsPassingID){
       nEventsPassingID++;
-      hists["trigger_eff_den"]->Fill(diphotonMinv);
-      hists["trigger_single_eff_den"]->Fill(diphotonMinv);
-      hists["trigger_double_eff_den"]->Fill(diphotonMinv);
+      hists["trigger_eff_den"]->Fill(diphoton.M());
+      hists["trigger_single_eff_den"]->Fill(diphoton.M());
+      hists["trigger_double_eff_den"]->Fill(diphoton.M());
     }
     
     if(hasTwoPhotonsPassingID &&
        hasLbLTrigger){
       nEventsPassingIDandTrigger++;
-      hists["trigger_eff_num"]->Fill(diphotonMinv);
-      hists["charged_excl_eff_den"]->Fill(diphotonMinv);
+      hists["trigger_eff_num"]->Fill(diphoton.M());
+      hists["charged_excl_eff_den"]->Fill(diphoton.M());
     }
     
     if(hasTwoPhotonsPassingID &&
        event->HasSingleEG3Trigger()){
-      hists["trigger_single_eff_num"]->Fill(diphotonMinv);
+      hists["trigger_single_eff_num"]->Fill(diphoton.M());
     }
     
     if(hasTwoPhotonsPassingID &&
        event->HasDoubleEG2Trigger()){
-      hists["trigger_double_eff_num"]->Fill(diphotonMinv);
+      hists["trigger_double_eff_num"]->Fill(diphoton.M());
     }
     
     if(hasTwoMachingPhotons){

@@ -52,23 +52,12 @@ public:
   /// Updates and returns vector of electrons passing all electron ID cuts
   vector<shared_ptr<PhysObject>> GetGoodElectrons(TH1D *cutFlowHist=nullptr);
   
-  /// Finds two photons passing cuts (if not done yet) and returns diphoton invariant mass
-  /// If number of photons != 2, returns -1
-  double GetDiphotonInvMass();
-  
-  /// Finds two photons passing cuts (if not done yet) and returns false if diphoton pt is
-  /// within limit specified in config, or true otherwise
-  bool DiphotonPtAboveThreshold();
+  /// Updates and returns vector of general tracks passing all cuts
+  vector<shared_ptr<PhysObject>> GetGoodGeneralTracks(TH1D *cutFlowHist=nullptr);
   
   /// Finds two photons passing cuts (if not done yet) and checks if there are towers above
   /// threshold not overlapping with reconstructed photons
-  bool HasAdditionalTowers(bool checkHF = true, ECaloType *failingCalo=nullptr);
-  
-  /// Checks if there are any charged tracks in the event (above pt specified in config)
-  bool HasChargedTracks() const;
-  
-  /// Returns number of charged tracks with pt above threshold specifined in the config
-  int GetNchargedTracks() const;
+  bool HasAdditionalTowers(ECaloType *failingCalo=nullptr);
   
   /// Checks if SingleEG3 fired
   bool HasSingleEG3Trigger() const;
@@ -85,6 +74,9 @@ public:
   /// Sorts calo towers by energy, from highest to lowest
   void SortCaloTowersByEnergy();
   
+  /// Returns map of towers by subdetector which are above threshold and do not overlap with good photons nor electrons
+  map<ECaloType, vector<shared_ptr<PhysObject>>> GetCaloTowersAboveThresholdByDet();
+
 private:
   map<string, bool> triggersLbL; ///< Vactor of booleans corresponding to LbL triggers
   
@@ -102,6 +94,9 @@ private:
   
   int nGeneralTracks = 0;                       ///< Number of general tracks
   vector<shared_ptr<PhysObject>> generalTracks; ///< Vector of general tracks
+  
+  bool goodGeneralTracksReady = false;              ///< Were track cuts already applied?
+  vector<shared_ptr<PhysObject>> goodGeneralTracks; ///< Vector of tracks passing cuts
   
   int nElectrons = 0;                           ///< Number of electrons
   vector<shared_ptr<PhysObject>> electrons;     ///< Vector of electrons

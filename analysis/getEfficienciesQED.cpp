@@ -256,7 +256,7 @@ void CheckTriggerEfficiency(Event &event, map<string, TTree*> &trees, map<string
   hists[cutThouthName]->Fill(cutLevel++); // 3
   
   // Charged exclusivity
-  if(event.GetNchargedTracks() != 2) return;
+  if(event.GetGoodGeneralTracks().size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 4
   
   // Tag and probe
@@ -331,7 +331,7 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
   hists[cutThouthName]->Fill(cutLevel++); // 4
   
   // Charged exclusivity
-  if(event.GetNchargedTracks() != 2) return;
+  if(event.GetGoodGeneralTracks().size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 5
   
   // Check if there are two electrons matched with L1 objects
@@ -397,7 +397,7 @@ void CheckCHEefficiency(Event &event, map<string, TH1D*> &hists, string datasetN
   hists["charged_exclusivity_eff_den_"+datasetName]->Fill(1);
   
   // Charged exclusivity
-  if(event.GetNchargedTracks() != 2) return;
+  if(event.GetGoodGeneralTracks().size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 5
   hists["charged_exclusivity_eff_num_"+datasetName]->Fill(1);
 }
@@ -430,7 +430,7 @@ void CheckNEEefficiency(Event &event, map<string, TH1D*> &hists, string datasetN
   hists[cutThouthName]->Fill(cutLevel++); // 4
   
   // Charged exclusivity
-  if(event.GetNchargedTracks() != 2) return;
+  if(event.GetGoodGeneralTracks().size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 5
   hists["neutral_exclusivity_eff_den_"+datasetName]->Fill(1);
 
