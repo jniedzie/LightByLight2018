@@ -175,10 +175,10 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     photon->etaWidth = photonSCEtaWidth->at(iPhoton);
     photon->phiWidth = photonSCPhiWidth->at(iPhoton);
     
-    photon->energyTop    = photonEtop->at(iPhoton);
-    photon->energyBottom = photonEbottom->at(iPhoton);
-    photon->energyLeft   = photonEleft->at(iPhoton);
-    photon->energyRight  = photonEright->at(iPhoton);
+    if(photonEtop)    photon->energyTop    = photonEtop->at(iPhoton);
+    if(photonEbottom) photon->energyBottom = photonEbottom->at(iPhoton);
+    if(photonEleft)   photon->energyLeft   = photonEleft->at(iPhoton);
+    if(photonEright)  photon->energyRight  = photonEright->at(iPhoton);
     
     currentEvent->photons.push_back(photon);
   }
