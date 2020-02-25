@@ -185,6 +185,7 @@ int main(int argc, char* argv[])
     if(IsGoodForQEDsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[5], storeHLTtrees);
 
   }
+  for(string outFilePath : outFilePaths) events->SaveOutputTree(outFilePath);
   }
   
     if(argc == 3){
@@ -220,10 +221,11 @@ int main(int argc, char* argv[])
     if(IsGoodForMuMu(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[2], storeHLTtrees);
 
   }      
+   for(string outFilePath : outFilePaths) events->SaveOutputTree(outFilePath);
     }
   }
 
-  for(string outFilePath : outFilePaths) events->SaveOutputTree(outFilePath);
+
   
   return 0;
 }
