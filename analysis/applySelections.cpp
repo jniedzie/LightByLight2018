@@ -144,15 +144,15 @@ bool IsGoodForMuMu(Event &event)
 /// Application starting point
 int main(int argc, char* argv[])
 {
-  if(argc != 1 && argc != 9 && argc != 4){
+  if(argc != 1 && argc != 9 && argc != 4 && argc != 3){
     cout<<"This app requires 0 or 8 parameters."<<endl;
-    cout<<"./getEfficienciesData configPath inputPath outputPathReco outputPathTrigger outputPathHFveto outputPathExclusivity outputPathLbLsignal outputPathQEDsignal"<<endl;
+    cout<<"./getEfficienciesData configPath inputPath outputPathReco out putPathTrigger outputPathHFveto outputPathExclusivity outputPathLbLsignal outputPathQEDsignal"<<endl;
     exit(0);
   }
   
   string inFilePath;
   vector<string> outFilePaths;
-  
+  if(argc == 1 or argc == 9 or argc == 4){
   if(argc == 9){
     configPath = argv[1];
     inFilePath = argv[2];
@@ -165,43 +165,7 @@ int main(int argc, char* argv[])
   }
 
 /// read text file with arguments in lines 0 - 8
-  if(argc == 4){
-    std::string arg_1 = argv[1];
-    std::string arg_2 = argv[2];
-    std::string arg_3 = argv[3];
-    if(arg_1 == "MuMu"){
-    std::string tmp_configPath = "/afs/cern.ch/user/m/mnickel/private/LightByLight2018/analysis/configs/efficiencies.md";
-    std::string tmp_inputPath = "/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/data_ntuples/HIForward/ntuples_data_new/200105_192027/000";
-    std::string tmp_outputPath = "/eos/user/m/mnickel/TauTau/testdata/";
-    std::string tmp_infilename = "/data_HiForestAOD_";
-    std::string tmp_ending = arg_2 + "-" + arg_3 + ".root";
-    std::string tmp_folder = std::to_string(std::stoi(arg_3)/1000);
-    cout << "testing tmp_folder " << tmp_folder << "testing argv" << arg_1 << endl;
-    vector<string> arg_list; 
-    arg_list.push_back(tmp_outputPath + "data_reco" + tmp_ending);
-    arg_list.push_back(tmp_outputPath + "data_trigger" + tmp_ending);
-    arg_list.push_back(tmp_outputPath + "data_HF_veto" + tmp_ending);
-    arg_list.push_back(tmp_outputPath + "data_exclusivity" + tmp_ending);
-    arg_list.push_back(tmp_outputPath + "data_LbL_sig" + tmp_ending);
-    arg_list.push_back(tmp_outputPath + "data_QED_sig" + tmp_ending);
-    arg_list.push_back(tmp_outputPath + "data_sig_mu" + tmp_ending);
-    arg_list.push_back(tmp_outputPath + "data_muele" + tmp_ending);
-    arg_list.push_back(tmp_outputPath + "data_mumu" + tmp_ending);
-    configPath = tmp_configPath;
-    inFilePath = tmp_inputPath + tmp_folder + tmp_infilename + tmp_ending;
-    outFilePaths.push_back(arg_list[0]); // reco
-    outFilePaths.push_back(arg_list[1]); // trigger
-    outFilePaths.push_back(arg_list[2]); // HF veto
-    outFilePaths.push_back(arg_list[3]); // exclusivity
-    outFilePaths.push_back(arg_list[4]); // LbL signal extraction
-    outFilePaths.push_back(arg_list[5]); // QED signal extraction
-    outFilePaths.push_back(arg_list[6]); // single mu
-    outFilePaths.push_back(arg_list[7]); // muon electron
-    outFilePaths.push_back(arg_list[8]); // dimuon
-    cout << "testing infile   " << inFilePath << "     testing outfile   " << arg_list[0] << endl;
 
-    }
-  }
 
  
   config = ConfigManager(configPath);
@@ -219,10 +183,44 @@ int main(int argc, char* argv[])
     if(IsGoodForExclusivity(*event))        events->AddEventToOutputTree(iEvent, outFilePaths[3], storeHLTtrees);
     if(IsGoodForLbLsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[4], storeHLTtrees);
     if(IsGoodForQEDsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[5], storeHLTtrees);
-    if(IsGoodForSingleMuon(*event))        events->AddEventToOutputTree(iEvent, outFilePaths[6], storeHLTtrees);
-    if(IsGoodForMuEle(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[7], storeHLTtrees);
-    if(IsGoodForMuMu(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[8], storeHLTtrees);
 
+  }
+  }
+  
+    if(argc == 3){
+    std::string arg_1 = argv[1];
+    std::string arg_2 = argv[2];
+    if(arg_1 == "TauTau"){
+    vector<string> arg_list; 
+    std::ifstream file(arg_2);
+    std::string str; 
+    while (std::getline(file, str))
+    {
+        arg_list.push_back(str);
+    }
+    configPath = arg_list[0];
+    inFilePath = arg_list[1];
+    outFilePaths.push_back(arg_list[2]); // single mu
+    outFilePaths.push_back(arg_list[3]); // muon electron
+    outFilePaths.push_back(arg_list[4]); // dimuon
+
+      
+ 
+  config = ConfigManager(configPath);
+  auto events = make_unique<EventProcessor>(inFilePath, outFilePaths);
+  
+  // Loop over events
+  for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
+    if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
+    if(iEvent >= config.params("maxEvents")) break;
+    
+    auto event = events->GetEvent(iEvent);
+    if(IsGoodForSingleMuon(*event))        events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
+    if(IsGoodForMuEle(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[1], storeHLTtrees);
+    if(IsGoodForMuMu(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[2], storeHLTtrees);
+
+  }      
+    }
   }
 
   for(string outFilePath : outFilePaths) events->SaveOutputTree(outFilePath);
