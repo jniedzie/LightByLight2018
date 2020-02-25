@@ -181,29 +181,29 @@ vector<shared_ptr<PhysObject>> Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
   
   for(auto track : generalTracks){
     int cutFlowIndex=0;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 0
     
     // Check pt
     if(track->GetPt() < config.params("trackMinPt")) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 1
     
     // Check eta
     double eta = track->GetEta();
     double phi = track->GetPhi();
     
     if(fabs(eta) > config.params("trackMaxEta")) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 2
     
     // Check for HEM issue
     if(eta < -minEtaEE &&
        phi > config.params("ecalHEMmin") &&
        phi < config.params("ecalHEMmax")) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
     
     
     // Check n hits
     if(track->GetNvalidHits() < config.params("trackMinNvalidHits")) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 4
     
     goodGeneralTracks.push_back(track);
   }

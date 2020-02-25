@@ -10,8 +10,21 @@
 string configPath = "configs/efficiencies.md";
 string outputPath = "results/photonID_test.root";
 
+vector<EDataset> datasetsToAnalyze = {
+//  kData_LbLsignal,
+//  kMCqedSC,
+//  kMClbl,
+//  kMCcep
+  
+  kData,
+  kMClbl,
+  kMCqedSC,
+  kMCqedSL,
+  kMCcep,
+};
+
 vector<tuple<string, int, double, double>> histParams = {
-// title                     nBins min   max
+  // title                     nBins min   max
   {"showerShapeBarrel"      , 100 , 0   , 0.1 },
   {"showerShapeEndcap"      , 100 , 0   , 0.1 },
   {"showerShapeEndcap2p3"   , 100 , 0   , 0.1 },
@@ -21,6 +34,9 @@ vector<tuple<string, int, double, double>> histParams = {
   {"etaLowWidthEndcap"      , 100 , 1.0 , 3.2 },
   {"etaEndcap"              , 100 , 1.0 , 3.2 },
   {"etLowWidthEndcap"       , 100 , 0   , 10  },
+  
+  {"swissCrossBarrel"       , 1000, 0.0 , 1.0 },
+  {"swissCrossEndcap"       , 1000, 0.0 , 1.0 },
   
   {"HoverEbarrel"           , 300 , 0   , 0.6 },
   {"HoverEendcap"           , 300 , 0   , 0.6 },
@@ -48,9 +64,9 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
     // Check that event passes cuts
     
     // Triggers and exclusivity
-//    if(!event->HasDoubleEG2Trigger()) continue;
-//    if(event->HasChargedTracks()) continue;
-//    if(event->HasAdditionalTowers()) continue;
+    //    if(!event->HasDoubleEG2Trigger()) continue;
+    //    if(event->HasChargedTracks()) continue;
+    //    if(event->HasAdditionalTowers()) continue;
     
     // Fill histograms for N-1 photon ID cuts
     for(auto photon : event->GetPhotons()){
@@ -66,48 +82,71 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
          photon->GetPhi() > config.params("ecalHEMmin") &&
          photon->GetPhi() < config.params("ecalHEMmax")) continue;
       
+      double E4 = photon->GetEnergyCrystalTop() +
+      photon->GetEnergyCrystalBottom() +
+      photon->GetEnergyCrystalLeft() +
+      photon->GetEnergyCrystalRight();
+      
+      double swissCross = E4/photon->GetEnergy();
+      
+      
       // Fill in shower shape histograms
-      if((eta < maxEtaEB) && (photon->GetHoverE() < config.params("photonMaxHoverEbarrel"))){
-        hists.at("showerShapeBarrel"+datasetName)->Fill(photon->GetEtaWidth());
-        hists.at("etaBarrel"+datasetName)->Fill(eta);
+      if(eta < maxEtaEB){
+        bool passesSwissCross = swissCross > 0.005;
+        bool passesHoverE = photon->GetHoverE() < config.params("photonMaxHoverEbarrel");
+        bool passesSigmaEtaEta = photon->GetEtaWidth() > config.params("photonMaxEtaWidthBarrel");
         
-        if(photon->GetEtaWidth() < 0.001){
-          hists.at("etaLowWidthBarrel"+datasetName)->Fill(eta);
-          hists.at("etLowWidthBarrel"+datasetName)->Fill(photon->GetEt());
+        
+        if(passesSwissCross && passesHoverE){
+          hists.at("showerShapeBarrel"+datasetName)->Fill(photon->GetEtaWidth());
+        }
+        if(passesSwissCross && passesSigmaEtaEta){
+          hists.at("HoverEbarrel"+datasetName)->Fill(photon->GetHoverE());
+          hists2D.at("HoverEmapNum"+datasetName)->Fill(photon->GetPhi(), photon->GetEta(), photon->GetHoverE());
+          hists2D.at("HoverEmapDen"+datasetName)->Fill(photon->GetPhi(), photon->GetEta());
+        }
+        if(passesHoverE && passesSigmaEtaEta){
+          hists.at("swissCrossBarrel"+datasetName)->Fill(photon->GetHoverE());
+        }
+        
+        if(passesSwissCross && passesHoverE && passesSigmaEtaEta){
+          hists.at("etaBarrel"+datasetName)->Fill(eta);
+          
+          if(photon->GetEtaWidth() < 0.001){
+            hists.at("etaLowWidthBarrel"+datasetName)->Fill(eta);
+            hists.at("etLowWidthBarrel"+datasetName)->Fill(photon->GetEt());
+          }
         }
       }
-      else if((eta < maxEtaEE) && (photon->GetHoverE() < config.params("photonMaxHoverEendcap"))){
-        hists.at("showerShapeEndcap"+datasetName)->Fill(photon->GetEtaWidth());
-        hists.at("etaEndcap"+datasetName)->Fill(eta);
+      else if(eta < maxEtaEE){
+        bool passesSwissCross = swissCross > 0.005;
+        bool passesHoverE = photon->GetHoverE() < config.params("photonMaxHoverEendcap");
+        bool passesSigmaEtaEta = photon->GetEtaWidth() > config.params("photonMaxEtaWidthEndcap");
         
-        if(photon->GetEtaWidth() < 0.001){
-          hists.at("etaLowWidthEndcap"+datasetName)->Fill(eta);
-          hists.at("etLowWidthEndcap"+datasetName)->Fill(photon->GetEt());
+        if(passesSwissCross && passesHoverE){
+          hists.at("showerShapeEndcap"+datasetName)->Fill(photon->GetEtaWidth());
         }
-        if(eta < 2.3) hists.at("showerShapeEndcap2p3"+datasetName)->Fill(photon->GetEtaWidth());
-      }
-      
-      // for other distributions, check already that |η| < 2.3
-      if(eta > config.params("photonMaxEta")) continue;
-      
-      // Fill in H/E plots
-      if((eta < maxEtaEB) && (photon->GetEtaWidth()  < config.params("photonMaxEtaWidthBarrel"))){
-        hists.at("HoverEbarrel"+datasetName)->Fill(photon->GetHoverE());
+        if(passesSigmaEtaEta && passesSigmaEtaEta){
+          hists.at("HoverEendcap"+datasetName)->Fill(photon->GetHoverE());
+          hists2D.at("HoverEmapNum"+datasetName)->Fill(photon->GetPhi(), photon->GetEta(), photon->GetHoverE());
+          hists2D.at("HoverEmapDen"+datasetName)->Fill(photon->GetPhi(), photon->GetEta());
+        }
+        if(passesHoverE && passesSigmaEtaEta){
+          hists.at("swissCrossEndcap"+datasetName)->Fill(photon->GetHoverE());
+        }
         
-        if(photon->GetHoverE() > 0.15) hists.at("etaHighHoverE"+datasetName)->Fill(eta);
-        else                           hists.at("etaLowHoverE"+datasetName)->Fill(eta);
         
-        hists2D.at("HoverEmapNum"+datasetName)->Fill(photon->GetPhi(), photon->GetEta(), photon->GetHoverE());
-        hists2D.at("HoverEmapDen"+datasetName)->Fill(photon->GetPhi(), photon->GetEta());
-      }
-      else if((eta < maxEtaEE) && (photon->GetEtaWidth()  < config.params("photonMaxEtaWidthEndcap"))){
-        hists.at("HoverEendcap"+datasetName)->Fill(photon->GetHoverE());
-        
-        if(photon->GetHoverE() > 0.15) hists.at("etaHighHoverE"+datasetName)->Fill(eta);
-        else                           hists.at("etaLowHoverE"+datasetName)->Fill(eta);
-        
-        hists2D.at("HoverEmapNum"+datasetName)->Fill(photon->GetPhi(), photon->GetEta(), photon->GetHoverE());
-        hists2D.at("HoverEmapDen"+datasetName)->Fill(photon->GetPhi(), photon->GetEta());
+        if(passesSwissCross && passesHoverE && passesSigmaEtaEta){
+          hists.at("etaEndcap"+datasetName)->Fill(eta);
+          
+          
+          
+          if(photon->GetEtaWidth() < 0.001){
+            hists.at("etaLowWidthEndcap"+datasetName)->Fill(eta);
+            hists.at("etLowWidthEndcap"+datasetName)->Fill(photon->GetEt());
+          }
+          if(eta < 2.3) hists.at("showerShapeEndcap2p3"+datasetName)->Fill(photon->GetEtaWidth());
+        }
       }
     }
   }
@@ -136,10 +175,10 @@ int main(int argc, char* argv[])
   
   map<string, TH1D*> hists;
   map<string, TH2D*> hists2D;
- 
+  
   TFile *outFile = new TFile(outputPath.c_str(), "recreate");
   
-  for(EDataset dataset : datasets){
+  for(EDataset dataset : datasetsToAnalyze){
     string name = datasetName.at(dataset);
     
     for(auto params : histParams){
@@ -161,6 +200,6 @@ int main(int argc, char* argv[])
     for(auto hist : hists)    hist.second->Write();
     for(auto hist : hists2D)  hist.second->Write();
   }
-
+  
   outFile->Close();
 }
