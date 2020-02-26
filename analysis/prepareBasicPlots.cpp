@@ -29,11 +29,11 @@ const vector<EDataset> datasetsToAnalyze = {
   //  kMCqedSC_triggerEff,
   //  kMCqedSC_HFveto,
   //  kMCqedSC_exclusivity,
-//  kMCqedSC_LbLsignal,
+  kMCqedSC_LbLsignal,
 //  kMCqedSC_QEDsignal,
   //  kMCqedSL,
-//    kMClbl,
-//    kMCcep
+    kMClbl,
+    kMCcep
 };
 
 vector<tuple<string, int, double, double>> histParams = {

@@ -1,6 +1,6 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/photonID_new.root";
+string inputPath  = "../results/photonID_test_qed.root";
 string outputPathShower = "../plots/photonShowerShape_test.pdf";
 string outputPathHoverE = "../plots/photonHoverE_test.pdf";
 

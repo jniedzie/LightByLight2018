@@ -8,19 +8,19 @@
 #include "ConfigManager.hpp"
 
 string configPath = "configs/efficiencies.md";
-string outputPath = "results/photonID_test.root";
+string outputPath = "results/photonID_test_qed.root";
 
 vector<EDataset> datasetsToAnalyze = {
-//  kData_LbLsignal,
-//  kMCqedSC,
-//  kMClbl,
-//  kMCcep
-  
-  kData,
-  kMClbl,
+  kData_LbLsignal,
   kMCqedSC,
+  kMClbl,
+  kMCcep
+  
+//  kData,
+//  kMClbl,
+//  kMCqedSC,
 //  kMCqedSL,
-  kMCcep,
+//  kMCcep,
 };
 
 vector<tuple<string, int, double, double>> histParams = {
@@ -111,7 +111,7 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
           hists2D.at("HoverEmapDen"+datasetName)->Fill(photon->GetPhi(), photon->GetEta());
         }
         if(passesHoverE && passesSigmaEtaEta){
-          hists.at("swissCrossBarrel"+datasetName)->Fill(photon->GetHoverE());
+          hists.at("swissCrossBarrel"+datasetName)->Fill(swissCross);
         }
         
         if(passesSwissCross && passesHoverE && passesSigmaEtaEta){
@@ -137,7 +137,7 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
           hists2D.at("HoverEmapDen"+datasetName)->Fill(photon->GetPhi(), photon->GetEta());
         }
         if(passesHoverE && passesSigmaEtaEta){
-          hists.at("swissCrossEndcap"+datasetName)->Fill(photon->GetHoverE());
+          hists.at("swissCrossEndcap"+datasetName)->Fill(swissCross);
         }
         
         

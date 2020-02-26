@@ -45,6 +45,7 @@ vector<tuple<string, string, bool, bool, int, int, int>> histParams = {
   { "lbl_diphoton_rapidity"  , "diphoton rapidity"       , false, false ,   0   , 6  , 1 },
   { "lbl_diphoton_pt"        , "diphoton p_{t}"          , false, false ,   0   , 7  , 1 },
   { "lbl_cut_through"        , "# cut"                   , false, true  ,   0   , 8  , 1 },
+//  { "lbl_nee_failing"        , "# calo"                  , false, true  ,   0   , 12 , 1 },
 
   { "lbl_photon_et_high_aco"          , "photon E_{t} (GeV)"      , false, false ,   4   , 1   , 1 },
   { "lbl_photon_eta_high_aco"         , "photon #eta"             , false, false ,   4   , 2   , 1 },
@@ -104,10 +105,27 @@ void setCutflowLabels(TH1D *hist, bool lbl)
   vector<const char *> labelsLbL = {
     "Initial", "Trigger", "CHE", "HB NEE", "HE NEE", "HF+ NEE", "HF- NEE", "EB NEE",
     "EE NEE", "2 good photons", "diphoton m_{inv}", "diphoton p_{t}", "diphoton y", "acoplanarity"
+//    "Initial", "Trigger", "CHE", "NEE", "2 good photons",
+//    "diphoton m_{inv}", "diphoton p_{t}", "diphoton y", "acoplanarity"
   };
   
   int i=1;
   for(auto label : (lbl ? labelsLbL : labelsQED)){
+    hist->GetXaxis()->SetBinLabel(i, label);
+    hist->GetXaxis()->ChangeLabel(i, 45);
+    i++;
+  }
+  hist->LabelsOption("u", "X");
+//  gPad->SetLeftMargin(0.17);
+//  gPad->SetBottomMargin(0.22);
+}
+
+void setCaloLabels(TH1D *hist)
+{
+  vector<const char *> labels = { "EB", "EE", "HB", "HE", "HF+", "HF-" };
+
+  int i=1;
+  for(auto label : labels){
     hist->GetXaxis()->SetBinLabel(i, label);
     hist->GetXaxis()->ChangeLabel(i, 45);
     i++;
@@ -285,7 +303,7 @@ void drawBasicPlots()
     normalizeHists(hists, normalize, isCutFlow);
     
     if(normalize){
-      if(histName == "lbl_cut_through"){
+      if(histName == "lbl_cut_through" || histName == "lbl_nee_failing"){
 //        dataHist->Scale(1./dataHist->GetBinContent(2));
         dataHist->Draw("PE");
       }
@@ -350,6 +368,7 @@ void drawBasicPlots()
     
     if(histName == "qed_cut_through") setCutflowLabels(ratio, false);
     if(histName == "lbl_cut_through") setCutflowLabels(ratio, true);
+    if(histName == "lbl_nee_failing") setCaloLabels(ratio);
     
     
     ratio->GetXaxis()->SetTitle(xAxisTitle.c_str());
@@ -357,7 +376,7 @@ void drawBasicPlots()
     ratio->GetXaxis()->SetTitleOffset(1.1);
     ratio->GetXaxis()->SetLabelSize(0.2);
     
-    if(histName == "qed_cut_through" || histName == "lbl_cut_through"){
+    if(histName == "qed_cut_through" || histName == "lbl_cut_through" || histName == "lbl_nee_failing"){
       ratio->GetXaxis()->SetLabelSize(0.16);
       ratio->GetXaxis()->SetLabelOffset(0.05);
       ratioPad->SetBottomMargin(0.55);
