@@ -164,28 +164,6 @@ int main(int argc, char* argv[])
     outFilePaths.push_back(argv[8]); // QED signal extraction
   }
 
-/// read text file with arguments in lines 0 - 8
-
-
- 
-  config = ConfigManager(configPath);
-  auto events = make_unique<EventProcessor>(inFilePath, outFilePaths);
-  
-  // Loop over events
-  for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
-    if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
-    if(iEvent >= config.params("maxEvents")) break;
-    
-    auto event = events->GetEvent(iEvent);
-    if(IsGoodForRecoEfficiency(*event))     events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
-    if(IsGoodForTrigger(*event))            events->AddEventToOutputTree(iEvent, outFilePaths[1], storeHLTtrees);
-    if(IsGoodForHFveto(*event))             events->AddEventToOutputTree(iEvent, outFilePaths[2], storeHLTtrees);
-    if(IsGoodForExclusivity(*event))        events->AddEventToOutputTree(iEvent, outFilePaths[3], storeHLTtrees);
-    if(IsGoodForLbLsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[4], storeHLTtrees);
-    if(IsGoodForQEDsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[5], storeHLTtrees);
-
-  }
-  for(string outFilePath : outFilePaths) events->SaveOutputTree(outFilePath);
   }
   
     if(argc == 3){
@@ -203,12 +181,15 @@ int main(int argc, char* argv[])
     inFilePath = arg_list[1];
     outFilePaths.push_back(arg_list[2]); // single mu
     outFilePaths.push_back(arg_list[3]); // muon electron
-    outFilePaths.push_back(arg_list[4]); // dimuon
-
-      
- 
-  config = ConfigManager(configPath);
+    outFilePaths.push_back(arg_list[4]); // dimuon 
+    }
+  }
+  
+config = ConfigManager(configPath);
+  cout<<"Config manager created"<<endl;
+  
   auto events = make_unique<EventProcessor>(inFilePath, outFilePaths);
+  cout<<"Event processor created"<<endl;
   
   // Loop over events
   for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
@@ -216,16 +197,30 @@ int main(int argc, char* argv[])
     if(iEvent >= config.params("maxEvents")) break;
     
     auto event = events->GetEvent(iEvent);
+    
+    if(argc==9){
+      if(IsGoodForRecoEfficiency(*event))     events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
+      if(IsGoodForTrigger(*event))            events->AddEventToOutputTree(iEvent, outFilePaths[1], storeHLTtrees);
+      if(IsGoodForHFveto(*event))             events->AddEventToOutputTree(iEvent, outFilePaths[2], storeHLTtrees);
+      if(IsGoodForExclusivity(*event))        events->AddEventToOutputTree(iEvent, outFilePaths[3], storeHLTtrees);
+      if(IsGoodForLbLsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[4], storeHLTtrees);
+      if(IsGoodForQEDsignal(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[5], storeHLTtrees);
+    }
+    else if(argc==4){
+      if(IsPassingAllLbLCuts(*event, false))  events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
+      if(IsPassingAllLbLCuts(*event, true))   events->AddEventToOutputTree(iEvent, outFilePaths[1], storeHLTtrees);
+    }
+    
+    else if(argc ==3){
     if(IsGoodForSingleMuon(*event))        events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
     if(IsGoodForMuEle(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[1], storeHLTtrees);
     if(IsGoodForMuMu(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[2], storeHLTtrees);
 
-  }      
-   for(string outFilePath : outFilePaths) events->SaveOutputTree(outFilePath);
     }
   }
 
-
+  cout<<"Saving output trees"<<endl;
+  for(string outFilePath : outFilePaths) events->SaveOutputTree(outFilePath);
   
   return 0;
 }
