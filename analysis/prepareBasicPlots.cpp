@@ -9,13 +9,13 @@
 #include "EventDisplay.hpp"
 
 string configPath = "configs/efficiencies.md";
-string outputPath = "results/basicPlots_CHE.root";
+string outputPath = "results/basicPlots_test.root";
 
 int nThreePhotonEvents = 0;
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
-//  kData,
+  kData,
   //  kData_SingleEG3,
   //  kData_recoEff,
   //  kData_triggerEff,
@@ -32,7 +32,7 @@ const vector<EDataset> datasetsToAnalyze = {
 //  kMCqedSC_LbLsignal,
 //  kMCqedSC_QEDsignal,
   //  kMCqedSL,
-    kMClbl,
+//    kMClbl,
 //    kMCcep
 };
 
@@ -51,6 +51,7 @@ vector<tuple<string, int, double, double>> histParams = {
   {"lbl_triphoton_pt"       , 500 , 0   , 100.0   },
   
   {"lbl_cut_through"        , 15  , 0   , 15    },
+  {"lbl_nee_failing"        , 15  , 0   , 15    },
   
   {"lbl_ecross_over_e"      , 1000  , 0.0   , 1.0    },
   
@@ -325,11 +326,20 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   if(event.GetGoodGeneralTracks().size() != 0) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 2
   
+  /*
   ECaloType failingCalo = nCaloTypes;
   bool failedNEE = event.HasAdditionalTowers(&failingCalo);
   fillNEEcutFlowHist(hists.at("lbl_cut_through_"+datasetName), cutThrough, failingCalo); // 3 - 8
   if(failedNEE) return;
+  */
   
+  map<ECaloType, bool> failingCalo;
+  bool failedNEE = event.HasAdditionalTowers(failingCalo);
+  for(ECaloType caloType : calotypes){
+    if(failingCalo[caloType]) hists.at("lbl_nee_failing_"+datasetName)->Fill(caloType);
+  }
+  if(failedNEE) return;
+  hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 3
   
   auto photons = event.GetGoodPhotons();
 //  fillTriphotonHists(event, hists, datasetName);
@@ -582,9 +592,9 @@ int main(int argc, char* argv[])
         }
         if(dataset == kData_QEDsignal || dataset == kMCqedSC_QEDsignal) fillQEDHistograms(*event, hists, name);
         if(dataset == kData || dataset == kMCcep || dataset == kMClbl){
-//          fillLbLHistograms(*event, hists, name);
+          fillLbLHistograms(*event, hists, name);
           fillCHEhistograms(*event, hists, name);
-//          fillQEDHistograms(*event, hists, name);
+          fillQEDHistograms(*event, hists, name);
         }
       }
       

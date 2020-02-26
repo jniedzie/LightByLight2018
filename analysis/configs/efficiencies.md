@@ -13,9 +13,9 @@ maxDeltaPhiEE:  0.4
 maxEtaEEtower:      2.4
 
 ### Charged exclusivity cuts (GeV)
-trackMinPt:                   0.1 
+trackMinPt:                   0.5 
 trackMaxEta:                2.4
-trackMinNvalidHits:      3
+trackMinNvalidHits:      5
 
 ### Max ΔR for matching for reco+ID efficiency
 maxDeltaR:              0.3

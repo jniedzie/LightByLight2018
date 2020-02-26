@@ -249,6 +249,54 @@ bool Event::HasAdditionalTowers(ECaloType *failingCalo)
   return false;
 }
 
+bool Event::HasAdditionalTowers(map<ECaloType, bool> &failingCalo)
+{
+  bool passes = true;
+  for(ECaloType caloType : calotypes) failingCalo[caloType] = false;
+  
+  for(int iTower=0; iTower<nCaloTowers; iTower++){
+    auto tower = caloTowers[iTower];
+    
+    if(physObjectProcessor.IsInCrackOrHEM(*tower)) continue;
+    
+    ECaloType subdetHad = tower->GetTowerSubdetHad();
+    ECaloType subdetEm = tower->GetTowerSubdetEm();
+    
+    
+    if((subdetHad==kHFp || subdetHad==kHFm) && !failingCalo[subdetHad]){ // Check HF exclusivity
+      if(tower->GetEnergy() > config.params("noiseThreshold"+caloName.at(subdetHad))){
+        failingCalo[subdetHad] = true;
+        passes = false;
+      }
+    }
+    else if((subdetHad==kHB || subdetHad==kHE) && !failingCalo[subdetHad]){ // Check HB and HE exclusivity
+      if(tower->GetEnergyHad() > config.params("noiseThreshold"+caloName.at(subdetHad))){
+        failingCalo[subdetHad] = true;
+        passes = false;
+      }
+    }
+    else if((subdetEm==kEB || subdetEm==kEE) && !failingCalo[subdetEm]){ // Check EB and EE exclusivity
+      if(subdetEm == kEE && fabs(tower->GetEta()) > config.params("maxEtaEEtower")) continue;
+      
+      if(IsOverlappingWithGoodPhoton(*tower)) continue;
+      if(IsOverlappingWithGoodElectron(*tower)) continue;
+      
+      if(tower->GetEnergyEm() > GetEmThresholdForTower(*tower)){
+        failingCalo[subdetEm] = true;
+        passes = false;
+      }
+    }
+    
+    // check if there is any calo that didn't fail yet
+    bool allFailed = true;
+    for(ECaloType caloType : calotypes) allFailed &= failingCalo[caloType];
+    if(allFailed) break;
+  }
+  
+  if(passes) return false;
+  return true;
+}
+
 void Event::SortCaloTowersByEnergy()
 {
   sort(caloTowers.begin(), caloTowers.end(), PhysObjectProcessor::CompareByEnergy());

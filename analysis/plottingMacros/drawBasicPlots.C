@@ -1,6 +1,6 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/basicPlots_withHFcheck_withSwissCross.root";
+string inputPath  = "../results/basicPlots_new.root";
 string outputPath = "../plots/distributions";
 
 //double qedInitialNevents = 67820000; // total
@@ -30,10 +30,9 @@ const double markerSize = 0.5;
 const vector<EDataset> datasetsToAnalyze = {
   kData,
   kMCcep,
-//  kMCqedSC,
+  kMCqedSC,
 //  kMCqedSL,
   kMClbl,
-  
 };
 
 vector<tuple<string, string, bool, bool, int, int, int>> histParams = {
@@ -218,7 +217,8 @@ void normalizeHists(map<EDataset, TH1D*> hists, bool normalize, bool cutFlow)
       
       if(hists[dataset]->GetEntries() == 0) continue;
       
-      if(cutFlow) hists[dataset]->Scale(1./hists[dataset]->GetEntries());
+//      if(cutFlow) hists[dataset]->Scale(1./hists[dataset]->GetEntries());
+      if(cutFlow) hists[dataset]->Scale(1./hists[dataset]->GetBinContent(2)*hists[kData]->GetBinContent(2));
       else        hists[dataset]->Scale(1./totalBackgroundEntries);
 //      hists[dataset]->Sumw2(false);
     }
@@ -266,7 +266,6 @@ void drawBasicPlots()
       if(dataset != kData)  backgroundsStack->Add(hists[dataset]);
       else                  dataHist = hists[dataset];
     }
-    
     //
     // Draw main plot
     //
@@ -280,13 +279,19 @@ void drawBasicPlots()
     histsPad->SetLogy(logY);
 		histsPad->Draw();
 		histsPad->cd();
-    
+
     bool isCutFlow = histName.find("cut_through") != string::npos;
     
     normalizeHists(hists, normalize, isCutFlow);
     
     if(normalize){
-      dataHist->DrawNormalized("PE");
+      if(histName == "lbl_cut_through"){
+//        dataHist->Scale(1./dataHist->GetBinContent(2));
+        dataHist->Draw("PE");
+      }
+      else{
+        dataHist->DrawNormalized("PE");
+      }
     }
     else{
       dataHist->Draw("PE");
@@ -309,7 +314,7 @@ void drawBasicPlots()
     //
     // Draw ratio
     //
-    
+
     TPad *ratioPad = new TPad("ratioPad", "ratioPad", 0.0, 0.1, 1.0, 0.4);
     ratioPad->SetTopMargin(0);
     ratioPad->SetLeftMargin(0.15);
@@ -317,9 +322,9 @@ void drawBasicPlots()
     ratioPad->SetGrid();
     ratioPad->Draw();
     ratioPad->cd();
-    
+
     TH1D *ratio = new TH1D(*dataHist);
-    TH1D *backgroundsSum;
+    TH1D *backgroundsSum = nullptr;
     bool first = true;
     
     for(auto &[dataset, hist] : hists){
@@ -333,6 +338,8 @@ void drawBasicPlots()
       }
     }
     
+    if(!backgroundsSum) continue;
+    
     ratio->Divide(backgroundsSum);
     ratio->Draw();
     
@@ -343,7 +350,6 @@ void drawBasicPlots()
     
     if(histName == "qed_cut_through") setCutflowLabels(ratio, false);
     if(histName == "lbl_cut_through") setCutflowLabels(ratio, true);
-    
     
     
     ratio->GetXaxis()->SetTitle(xAxisTitle.c_str());

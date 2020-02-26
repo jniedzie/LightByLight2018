@@ -59,6 +59,9 @@ public:
   /// threshold not overlapping with reconstructed photons
   bool HasAdditionalTowers(ECaloType *failingCalo=nullptr);
   
+  
+  bool HasAdditionalTowers(map<ECaloType,bool> &failingCalo);
+  
   /// Checks if SingleEG3 fired
   bool HasSingleEG3Trigger() const;
   

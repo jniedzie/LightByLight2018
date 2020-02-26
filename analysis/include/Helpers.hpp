@@ -90,6 +90,7 @@ const map<EDataset, string> inFileNames = {
   {kData_exclusivity    , "ntuples/ntuples_data_forExclusivity.root"                  },
 //  {kData_LbLsignal      , "ntuples/ntuples_data_forSignalExtraction.root"             },
   {kData_LbLsignal      , "ntuples/ntuples_data_forLbLsignal_noHFcheck.root"          },
+//  {kData_LbLsignal      , "ntuples/ntuples_data_forLbLsignal_CHE_500MeV.root"          },
   {kData_QEDsignal      , "ntuples/ntuples_data_forQEDsignal_noNEEapplied.root"       },
 //  {kMCqedSC             , "ntuples/ntuples_mc_qed_sc.root"                            },
   {kMCqedSC             , "ntuples/ntuples_mc_qed_sc_small_sample.root"               },
@@ -174,6 +175,7 @@ const map<EDataset, string> datasetDescription = {
 };
 
 enum ECaloType { kEB, kEE, kHB, kHE, kHFp, kHFm, nCaloTypes };
+constexpr initializer_list<ECaloType> calotypes = {kEB, kEE, kHB, kHE, kHFp, kHFm};
 
 const map<ECaloType, string> caloName = {
   { kEB  , "EB"  },
