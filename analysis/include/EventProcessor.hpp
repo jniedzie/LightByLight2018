@@ -43,51 +43,57 @@ private:
   // Handles to variables stored in ntuple trees
   vector<int>    triggersLbL;
   
-  vector<float> *mcEta              = nullptr;
-  vector<float> *mcPhi              = nullptr;
-  vector<float> *mcEt               = nullptr;
-  vector<float> *mcE                = nullptr;
-  vector<float> *mcPID              = nullptr;
+  vector<float> *mcEta                  = nullptr;
+  vector<float> *mcPhi                  = nullptr;
+  vector<float> *mcEt                   = nullptr;
+  vector<float> *mcE                    = nullptr;
+  vector<float> *mcPID                  = nullptr;
   
-  vector<float> *photonHoverE       = nullptr;
-  vector<float> *photonSCEta        = nullptr;
-  vector<float> *photonSCPhi        = nullptr;
-  vector<float> *photonSCEt         = nullptr;
-  vector<float> *photonSCE          = nullptr;
-  vector<float> *photonSCEtaWidth   = nullptr;
-  vector<float> *photonSCPhiWidth   = nullptr;
+  vector<float> *photonHoverE           = nullptr;
+  vector<float> *photonSCEta            = nullptr;
+  vector<float> *photonSCPhi            = nullptr;
+  vector<float> *photonSCEt             = nullptr;
+  vector<float> *photonSCE              = nullptr;
+  vector<float> *photonSCEtaWidth       = nullptr;
+  vector<float> *photonSCPhiWidth       = nullptr;
   
-  vector<float> *towerEta           = nullptr;
-  vector<float> *towerPhi           = nullptr;
-  vector<float> *towerEnergy        = nullptr;
-  vector<float> *towerEt            = nullptr;
-  vector<float> *towerEnergyHad     = nullptr;
-  vector<float> *towerEnergyEm      = nullptr;
+  vector<float> *photonEtop             = nullptr;
+  vector<float> *photonEbottom          = nullptr;
+  vector<float> *photonEleft            = nullptr;
+  vector<float> *photonEright           = nullptr;
   
-  vector<int>   *generalTrackCharge = nullptr;
-  vector<float> *generalTrackPt     = nullptr;
-  vector<float> *generalTrackEta    = nullptr;
-  vector<float> *generalTrackPhi    = nullptr;
+  vector<float> *towerEta               = nullptr;
+  vector<float> *towerPhi               = nullptr;
+  vector<float> *towerEnergy            = nullptr;
+  vector<float> *towerEt                = nullptr;
+  vector<float> *towerEnergyHad         = nullptr;
+  vector<float> *towerEnergyEm          = nullptr;
   
-  vector<int>   *electronCharge       = nullptr;
-  vector<int>   *electronNmissing     = nullptr;
-  vector<float> *electronPt           = nullptr;
-  vector<float> *electronEta          = nullptr;
-  vector<float> *electronPhi          = nullptr;
-  vector<float> *electronHoverE       = nullptr;
-  vector<float> *electronRelIsoWithEA = nullptr;
-  vector<float> *electronDetaSeed     = nullptr;
-  vector<float> *electronSCEta        = nullptr;
-  vector<float> *electronSCEt         = nullptr;
-  vector<float> *electronSCPhi        = nullptr;
-  vector<float> *electronSCEn         = nullptr;
-  vector<float> *electronChIso        = nullptr;
-  vector<float> *electronPhoIso       = nullptr;
-  vector<float> *electronNeuIso       = nullptr;
+  vector<int>   *generalTrackCharge     = nullptr;
+  vector<float> *generalTrackPt         = nullptr;
+  vector<float> *generalTrackEta        = nullptr;
+  vector<float> *generalTrackPhi        = nullptr;
+  vector<int>   *generalTrackValidHits  = nullptr;
+  
+  vector<int>   *electronCharge         = nullptr;
+  vector<int>   *electronNmissing       = nullptr;
+  vector<float> *electronPt             = nullptr;
+  vector<float> *electronEta            = nullptr;
+  vector<float> *electronPhi            = nullptr;
+  vector<float> *electronHoverE         = nullptr;
+  vector<float> *electronRelIsoWithEA   = nullptr;
+  vector<float> *electronDetaSeed       = nullptr;
+  vector<float> *electronSCEta          = nullptr;
+  vector<float> *electronSCEt           = nullptr;
+  vector<float> *electronSCPhi          = nullptr;
+  vector<float> *electronSCEn           = nullptr;
+  vector<float> *electronChIso          = nullptr;
+  vector<float> *electronPhoIso         = nullptr;
+  vector<float> *electronNeuIso         = nullptr;
 
-  vector<float> *L1EGeta              = nullptr;
-  vector<float> *L1EGphi              = nullptr;
-  vector<float> *L1EGet               = nullptr;
+  vector<float> *L1EGeta                = nullptr;
+  vector<float> *L1EGphi                = nullptr;
+  vector<float> *L1EGet                 = nullptr;
   
   /// Opens input trees and sets branches
   void SetupBranches(string inputPath, vector<string> outputPaths);

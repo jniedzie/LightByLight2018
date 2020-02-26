@@ -1,5 +1,5 @@
 
-string inputPath  = "../results/basicPlots_withHFcheck.root";
+string inputPath  = "../results/basicPlots_withHFcheck_et3p5GeV.root";
 
 vector<tuple<string, string>> histParams = {
   { "lbl_photon_et"          , "photon E_{t} (GeV)"      },

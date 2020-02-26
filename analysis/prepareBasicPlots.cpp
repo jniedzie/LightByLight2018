@@ -9,7 +9,7 @@
 #include "EventDisplay.hpp"
 
 string configPath = "configs/efficiencies.md";
-string outputPath = "results/basicPlots_withHFcheck.root";
+string outputPath = "results/basicPlots_CHE.root";
 
 int nThreePhotonEvents = 0;
 
@@ -21,19 +21,19 @@ const vector<EDataset> datasetsToAnalyze = {
   //  kData_triggerEff,
   //  kData_HFveto,
   //  kData_exclusivity,
-  kData_LbLsignal,
+//  kData_LbLsignal,
 //  kData_QEDsignal,
-  //  kMCqedSC,
+//    kMCqedSC,
   //  kMCqedSC_SingleEG3,
   //  kMCqedSC_recoEff,
   //  kMCqedSC_triggerEff,
   //  kMCqedSC_HFveto,
   //  kMCqedSC_exclusivity,
-  kMCqedSC_LbLsignal,
+//  kMCqedSC_LbLsignal,
 //  kMCqedSC_QEDsignal,
   //  kMCqedSL,
     kMClbl,
-    kMCcep
+//    kMCcep
 };
 
 vector<tuple<string, int, double, double>> histParams = {
@@ -46,11 +46,13 @@ vector<tuple<string, int, double, double>> histParams = {
   {"lbl_diphoton_rapidity"  , 6   ,-2.4 , 2.4   },
   {"lbl_diphoton_pt"        , 5   , 0   , 1.0   },
   
-  {"lbl_triphoton_mass"     , 800 , 0   , 200.0  },
-  {"lbl_triphoton_rapidity" , 24  ,-2.4 , 2.4   },
+  {"lbl_triphoton_mass"     , 800 , 0   , 200.0   },
+  {"lbl_triphoton_rapidity" , 24  ,-2.4 , 2.4     },
   {"lbl_triphoton_pt"       , 500 , 0   , 100.0   },
   
   {"lbl_cut_through"        , 15  , 0   , 15    },
+  
+  {"lbl_ecross_over_e"      , 1000  , 0.0   , 1.0    },
   
   {"lbl_photon_et_high_aco"          , 10  , 0   , 10.0  },
   {"lbl_photon_eta_high_aco"         , 6   ,-2.4 , 2.4   },
@@ -62,6 +64,17 @@ vector<tuple<string, int, double, double>> histParams = {
   {"lbl_HFm_high_aco"                , 200 , 0   , 20    },
   {"lbl_HFp_leading_tower_high_aco"  , 200 , 0   , 20    },
   {"lbl_HFm_leading_tower_high_aco"  , 200 , 0   , 20    },
+  
+  {"lbl_photon_et_not_passing_HF"          , 10  , 0   , 10.0  },
+  {"lbl_photon_eta_not_passing_HF"         , 6   ,-2.4 , 2.4   },
+  {"lbl_photon_phi_not_passing_HF"         , 8   , -4.0, 4.0   },
+  {"lbl_diphoton_mass_not_passing_HF"      , 8   , 0   , 20.0  },
+  {"lbl_diphoton_rapidity_not_passing_HF"  , 6   ,-2.4 , 2.4   },
+  {"lbl_diphoton_pt_not_passing_HF"        , 5   , 0   , 1.0   },
+  {"lbl_HFp_not_passing_HF"                , 200 , 0   , 20    },
+  {"lbl_HFm_not_passing_HF"                , 200 , 0   , 20    },
+  {"lbl_HFp_leading_tower_not_passing_HF"  , 200 , 0   , 20    },
+  {"lbl_HFm_leading_tower_not_passing_HF"  , 200 , 0   , 20    },
   
   
   {"qed_acoplanarity"       , 30  , 0   , 0.06  },
@@ -97,12 +110,47 @@ vector<tuple<string, int, double, double>> histParams = {
   {"qed_HFp_leading_tower_no_cuts"  , 200 , 0   , 20    },
   {"qed_HFm_leading_tower_no_cuts"  , 200 , 0   , 20    },
   
-  {"nTracks"                , 100 , 0   , 100   },
-  {"nTracks_withDoubleEG2"  , 100 , 0   , 100   },
-  {"tracks_cut_through"     , 10  , 0   , 10    },
-  {"nTracks_pt_geq_100_MeV" , 100 , 0   , 100   },
-  {"nTracks_pt_lt_100_MeV"  , 100 , 0   , 100   },
-  {"track_pt"               , 500 , 0   , 5     },
+  
+  {"tracks_cutflow"         , 15  , 0   , 15    },
+  
+  {"nTracks"                            , 100 , 0   , 100   },
+  {"nTracks_pt_geq_100_MeV"             , 100 , 0   , 100   },
+  {"nTracks_pt_lt_100_MeV"              , 100 , 0   , 100   },
+  {"track_pt"                           , 500 , 0   , 5     },
+  {"track_eta"                          , 100 ,-3.5 , 3.5   },
+  {"track_phi"                          , 100 ,-3.5 , 3.5   },
+  
+  {"nTracks_good"                       , 100 , 0   , 100   },
+  {"nTracks_pt_geq_100_MeV_good"        , 100 , 0   , 100   },
+  {"nTracks_pt_lt_100_MeV_good"         , 100 , 0   , 100   },
+  {"track_pt_good"                      , 500 , 0   , 5     },
+  {"track_eta_good"                     , 100 ,-3.5 , 3.5   },
+  {"track_phi_good"                     , 100 ,-3.5 , 3.5   },
+  
+  {"nTracks_two_photons"                , 100 , 0   , 100   },
+  {"nTracks_pt_geq_100_MeV_two_photons" , 100 , 0   , 100   },
+  {"nTracks_pt_lt_100_MeV_two_photons"  , 100 , 0   , 100   },
+  {"track_pt_two_photons"               , 500 , 0   , 5     },
+  {"track_eta_two_photons"              , 100 ,-3.5 , 3.5   },
+  {"track_phi_two_photons"              , 100 ,-3.5 , 3.5   },
+  
+  {"nTracks_good_two_photons"           , 100 , 0   , 100   },
+  {"track_eta_good_two_photons"         , 100 ,-3.5 , 3.5   },
+  {"track_phi_good_two_photons"         , 100 ,-3.5 , 3.5   },
+  
+  {"nTracks_low_aco"                , 100 , 0   , 100   },
+  {"nTracks_pt_geq_100_MeV_low_aco" , 100 , 0   , 100   },
+  {"nTracks_pt_lt_100_MeV_low_aco"  , 100 , 0   , 100   },
+  {"track_pt_low_aco"               , 500 , 0   , 5     },
+  
+  {"nTracks_good_low_aco"                , 100 , 0   , 100   },
+  
+  {"nTracks_high_aco"                , 100 , 0   , 100   },
+  {"nTracks_pt_geq_100_MeV_high_aco" , 100 , 0   , 100   },
+  {"nTracks_pt_lt_100_MeV_high_aco"  , 100 , 0   , 100   },
+  {"track_pt_high_aco"               , 500 , 0   , 5     },
+  
+  {"nTracks_good_high_aco"                , 100 , 0   , 100   },
 };
 
 void fillNEEcutFlowHist(TH1D *hist, int &cutFlow, ECaloType failingCalo)
@@ -135,70 +183,166 @@ void fillNEEcutFlowHist(TH1D *hist, int &cutFlow, ECaloType failingCalo)
   cutFlow++;
 }
 
+void fillSwisscrossHistogram(Event &event, TH1D* hist)
+{
+  for(auto photon : event.GetPhotons()){
+    double e = photon->GetEnergyCrystalTop()+
+                photon->GetEnergyCrystalBottom()+
+                photon->GetEnergyCrystalLeft()+
+                photon->GetEnergyCrystalRight();
+    
+    e /= photon->GetEnergySC();
+    
+    hist->Fill(e);
+  }
+}
+
+void fillTriphotonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, bool saveEventDisplays=false)
+{
+  auto photons = event.GetGoodPhotons();
+  vector<shared_ptr<PhysObject>> isolatedPhotons;
+  
+  for(int i=0; i<photons.size(); i++){
+    bool hasNerbyPhotons = false;
+    for(int j=0; j<photons.size(); j++){
+      if(i==j) continue;
+      
+      double deltaR = physObjectProcessor.GetDeltaR(*photons[i], *photons[j]);
+      
+      if(deltaR < 0.3){
+        hasNerbyPhotons = true;
+        break;
+      }
+    }
+    if(!hasNerbyPhotons) isolatedPhotons.push_back(photons[i]);
+  }
+  
+  if(isolatedPhotons.size() == 3){
+    nThreePhotonEvents++;
+    TLorentzVector triphoton = physObjectProcessor.GetTriphoton(*isolatedPhotons[0],
+                                                                *isolatedPhotons[1],
+                                                                *isolatedPhotons[2]);
+    
+    hists.at("lbl_triphoton_mass_"+datasetName)->Fill(triphoton.M());
+    hists.at("lbl_triphoton_rapidity_"+datasetName)->Fill(triphoton.Rapidity());
+    hists.at("lbl_triphoton_pt_"+datasetName)->Fill(triphoton.Pt());
+    
+    if(saveEventDisplays){
+      vector<shared_ptr<PhysObject>> emptyVector;
+      saveEventDisplay(emptyVector, emptyVector, emptyVector, isolatedPhotons, emptyVector,
+                       "~/Desktop/lbl_triphoton_event_displays_"+datasetName+"/");
+    }
+  }
+}
+
+void fillPhotonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
+{
+  if(suffix != "") suffix += "_";
+  for(auto photon : event.GetGoodPhotons()){
+    hists.at("lbl_photon_et_"+suffix+datasetName)->Fill(photon->GetEt());
+    hists.at("lbl_photon_eta_"+suffix+datasetName)->Fill(photon->GetEta());
+    hists.at("lbl_photon_phi_"+suffix+datasetName)->Fill(photon->GetPhi());
+  }
+}
+
+void fillDiphotonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
+{
+  TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*event.GetGoodPhotons()[0], *event.GetGoodPhotons()[1]);
+  if(suffix != "") suffix += "_";
+  hists.at("lbl_diphoton_mass_"+suffix+datasetName)->Fill(diphoton.M());
+  hists.at("lbl_diphoton_rapidity_"+suffix+datasetName)->Fill(diphoton.Rapidity());
+  hists.at("lbl_diphoton_pt_"+suffix+datasetName)->Fill(diphoton.Pt());
+}
+
+void fillHFnoiseHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
+{
+  if(suffix != "") suffix += "_";
+  
+  event.SortCaloTowersByEnergy();
+  bool leadingHFpFilled = false;
+  bool leadingHFmFilled = false;
+  
+  for(auto tower : event.GetCaloTowers()){
+    
+    if(tower->GetEta() > minEtaHF && tower->GetEta() < maxEtaHF){
+      hists.at("lbl_HFp_"+suffix+datasetName)->Fill(tower->GetEnergy());
+      
+      if(!leadingHFpFilled){
+        hists.at("lbl_HFp_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergy());
+        leadingHFpFilled = true;
+      }
+    }
+    if(tower->GetEta() > -maxEtaHF && tower->GetEta() < -minEtaHF){
+      hists.at("lbl_HFm_"+suffix+datasetName)->Fill(tower->GetEnergy());
+      if(!leadingHFmFilled){
+        hists.at("lbl_HFm_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergy());
+        leadingHFmFilled = true;
+      }
+    }
+  }
+}
+
+void fillTracksHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
+{
+  if(suffix != "") suffix += "_";
+  
+  vector<shared_ptr<PhysObject>> tracksLowPt, tracksHighPt;
+  
+  hists.at("nTracks_"+suffix+datasetName)->Fill(event.GetGeneralTracks().size());
+  
+  for(auto track : event.GetGeneralTracks()){
+    double trackPt = track->GetPt();
+    hists.at("track_pt_"+suffix+datasetName)->Fill(trackPt);
+    hists.at("track_eta_"+suffix+datasetName)->Fill(track->GetEta());
+    hists.at("track_phi_"+suffix+datasetName)->Fill(track->GetPhi());
+    
+    if(trackPt < 0.1) tracksLowPt.push_back(track);
+    else              tracksHighPt.push_back(track);
+  }
+  
+  hists.at("nTracks_good_"+suffix+datasetName)->Fill(event.GetGoodGeneralTracks().size());
+  
+  for(auto track : event.GetGoodGeneralTracks()){
+    hists.at("track_pt_good_"+suffix+datasetName)->Fill(track->GetPt());
+    hists.at("track_eta_good_"+suffix+datasetName)->Fill(track->GetEta());
+    hists.at("track_phi_good_"+suffix+datasetName)->Fill(track->GetPhi());
+  }
+  
+  hists.at("nTracks_pt_lt_100_MeV_"+suffix+datasetName)->Fill(tracksLowPt.size());
+  hists.at("nTracks_pt_geq_100_MeV_"+suffix+datasetName)->Fill(tracksHighPt.size());
+}
+
 void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)
 {
+//  fillSwisscrossHistogram(event, hists.at("lbl_ecross_over_e_"+datasetName));
+  
   int cutThrough=0;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 0
   
 //  if(!event.HasDoubleEG2Trigger()) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 1
   
-  if(event.GetNchargedTracks() != 0) return;
+  if(event.GetGoodGeneralTracks().size() != 0) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 2
   
-  bool checkHF = true;
   ECaloType failingCalo = nCaloTypes;
-  bool failedNEE = event.HasAdditionalTowers(checkHF, &failingCalo);
+  bool failedNEE = event.HasAdditionalTowers(&failingCalo);
   fillNEEcutFlowHist(hists.at("lbl_cut_through_"+datasetName), cutThrough, failingCalo); // 3 - 8
   if(failedNEE) return;
   
   
   auto photons = event.GetGoodPhotons();
-  
-//  vector<shared_ptr<PhysObject>> isolatedPhotons;
-//
-//  for(int i=0; i<photons.size(); i++){
-//
-//
-//    bool hasNerbyPhotons = false;
-//    for(int j=0; j<photons.size(); j++){
-//      if(i==j) continue;
-//
-//      double deltaR = physObjectProcessor.GetDeltaR(*photons[i], *photons[j]);
-////      double deltaPhi = fabs(photons[i]->GetPhi()-photons[j]->GetPhi());
-//
-//      if(deltaR < 0.3){
-//        hasNerbyPhotons = true;
-//        break;
-//      }
-//    }
-//    if(!hasNerbyPhotons) isolatedPhotons.push_back(photons[i]);
-//  }
-//
-//  if(isolatedPhotons.size() == 3){
-//    nThreePhotonEvents++;
-//    TLorentzVector triphoton = physObjectProcessor.GetTriphoton(*isolatedPhotons[0],
-//                                                                *isolatedPhotons[1],
-//                                                                *isolatedPhotons[2]);
-//
-//    hists.at("lbl_triphoton_mass_"+datasetName)->Fill(triphoton.M());
-//    hists.at("lbl_triphoton_rapidity_"+datasetName)->Fill(triphoton.Rapidity());
-//    hists.at("lbl_triphoton_pt_"+datasetName)->Fill(triphoton.Pt());
-//
-//    vector<shared_ptr<PhysObject>> emptyVector;
-//
-////    saveEventDisplay(emptyVector, emptyVector, emptyVector, isolatedPhotons, emptyVector, "~/Desktop/lbl_triphoton_event_displays_"+datasetName+"/");
-//  }
+//  fillTriphotonHists(event, hists, datasetName);
   
   if(photons.size() != 2) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 9
   
   TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*photons[0], *photons[1]);
   
-  if(diphoton.M() < 5.0) return;
+  if(diphoton.M() < config.params("diphotonMinMass")) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 10
   
-  if(diphoton.Pt() > 1.0) return;
+  if(diphoton.Pt() > config.params("diphotonMaxPt")) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 11
   
   //  if(fabs(diphoton.Rapidity()) > 2.4) return;
@@ -207,119 +351,69 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   double aco = physObjectProcessor.GetAcoplanarity(*photons[0], *photons[1]);
   hists.at("lbl_acoplanarity_"+datasetName)->Fill(aco);
   
-  if(aco > 0.04){
-    hists.at("lbl_photon_et_high_aco_"+datasetName)->Fill(photons[0]->GetEt());
-    hists.at("lbl_photon_et_high_aco_"+datasetName)->Fill(photons[1]->GetEt());
-    
-    hists.at("lbl_photon_eta_high_aco_"+datasetName)->Fill(photons[0]->GetEta());
-    hists.at("lbl_photon_eta_high_aco_"+datasetName)->Fill(photons[1]->GetEta());
-    
-    hists.at("lbl_photon_phi_high_aco_"+datasetName)->Fill(photons[0]->GetPhi());
-    hists.at("lbl_photon_phi_high_aco_"+datasetName)->Fill(photons[1]->GetPhi());
-    
-    hists.at("lbl_diphoton_mass_high_aco_"+datasetName)->Fill(diphoton.M());
-    hists.at("lbl_diphoton_rapidity_high_aco_"+datasetName)->Fill(diphoton.Rapidity());
-    hists.at("lbl_diphoton_pt_high_aco_"+datasetName)->Fill(diphoton.Pt());
-    
-    event.SortCaloTowersByEnergy();
-    bool leadingHFpFilled = false;
-    bool leadingHFmFilled = false;
-    
-    for(auto tower : event.GetCaloTowers()){
-      
-      if(tower->GetEta() > minEtaHF && tower->GetEta() < maxEtaHF){
-        hists.at("lbl_HFp_high_aco_"+datasetName)->Fill(tower->GetEnergy());
-        
-        if(!leadingHFpFilled){
-          hists.at("lbl_HFp_leading_tower_high_aco_"+datasetName)->Fill(tower->GetEnergy());
-          leadingHFpFilled = true;
-        }
-      }
-      if(tower->GetEta() > -maxEtaHF && tower->GetEta() < -minEtaHF){
-        hists.at("lbl_HFm_high_aco_"+datasetName)->Fill(tower->GetEnergy());
-        if(!leadingHFmFilled){
-          hists.at("lbl_HFm_leading_tower_high_aco_"+datasetName)->Fill(tower->GetEnergy());
-          leadingHFmFilled = true;
-        }
-      }
-    }
+  if(aco > 0.01){
+    fillPhotonHists(event, hists, datasetName, "high_aco");
+    fillDiphotonHists(event, hists, datasetName, "high_aco");
+    fillHFnoiseHists(event, hists, datasetName, "high_aco");
+    return;
   }
-    
-  if(aco > 0.01) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 13
-  
-  hists.at("lbl_photon_et_"+datasetName)->Fill(photons[0]->GetEt());
-  hists.at("lbl_photon_et_"+datasetName)->Fill(photons[1]->GetEt());
-  hists.at("lbl_photon_eta_"+datasetName)->Fill(photons[0]->GetEta());
-  hists.at("lbl_photon_eta_"+datasetName)->Fill(photons[1]->GetEta());
-  hists.at("lbl_photon_phi_"+datasetName)->Fill(photons[0]->GetPhi());
-  hists.at("lbl_photon_phi_"+datasetName)->Fill(photons[1]->GetPhi());
-  hists.at("lbl_diphoton_mass_"+datasetName)->Fill(diphoton.M());
-  hists.at("lbl_diphoton_rapidity_"+datasetName)->Fill(diphoton.Rapidity());
-  hists.at("lbl_diphoton_pt_"+datasetName)->Fill(diphoton.Pt());
-  
+  fillPhotonHists(event, hists, datasetName);
+  fillDiphotonHists(event, hists, datasetName);
 }
 
-void fillTracksHistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)
+void fillCHEhistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)
 {
-  int nTracks = event.GetNgeneralTracks();
-  hists.at("nTracks_"+datasetName)->Fill(nTracks);
+  if(!event.HasDoubleEG2Trigger()) return;
+  if(event.HasAdditionalTowers()) return;
   
-  hists.at("tracks_cut_through_"+datasetName)->Fill(0); // has Double EG2 trigger
+  event.GetGoodGeneralTracks(hists.at("tracks_cutflow_"+datasetName));
   
-  if(event.HasDoubleEG2Trigger()){
-    hists.at("nTracks_withDoubleEG2_"+datasetName)->Fill(nTracks);
-    
-    hists.at("tracks_cut_through_"+datasetName)->Fill(1); // has Double EG2 trigger
-    
-    if(nTracks==0) hists.at("tracks_cut_through_"+datasetName)->Fill(2); // has Double EG2 trigger and no tracks
-  }
+  fillTracksHists(event, hists, datasetName);
   
-  if(nTracks==0) hists.at("tracks_cut_through_"+datasetName)->Fill(3); // has no tracks
+  auto photons = event.GetGoodPhotons();
+  if(photons.size() != 2) return;
+
+  TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*photons[0], *photons[1]);
+  if(diphoton.M()  < config.params("diphotonMinMass")) return;
+  if(diphoton.Pt() > config.params("diphotonMaxPt")) return;
   
+  fillTracksHists(event, hists, datasetName, "two_photons");
   
-  for(int iTrack=0; iTrack<nTracks; iTrack++){
-    double trackPt = event.GetGeneralTrack(iTrack)->GetPt();
-    hists.at("track_pt_"+datasetName)->Fill(trackPt);
-    
-    int iBin = nTracks+1;
-    if(trackPt < 0.1){
-      hists.at("nTracks_pt_lt_100_MeV_"+datasetName)->SetBinContent(iBin, hists.at("nTracks_pt_lt_100_MeV_"+datasetName)->GetBinContent(iBin)+1);
-    }
-    else{
-      hists.at("nTracks_pt_geq_100_MeV_"+datasetName)->SetBinContent(iBin, hists.at("nTracks_pt_geq_100_MeV_"+datasetName)->GetBinContent(iBin)+1);
-    }
-  }
+  double aco = physObjectProcessor.GetAcoplanarity(*photons[0], *photons[1]);
+  fillTracksHists(event, hists, datasetName, aco > config.params("diphotonMaxAco") ? "high_aco" : "low_aco");
 }
 
 void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)
 {
-  // Add all necessary selection criteria here
-  // ...
   int cutThrough=0;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 0
   
   // Put this in the beginning, as good electrons won't be re-computed again later on
   auto goodElectrons = event.GetGoodElectrons(hists.at("qed_electron_cutflow_"+datasetName));
   
-  auto track1 = event.GetGeneralTrack(0);
-  auto track2 = event.GetGeneralTrack(1);
-  
-  TLorentzVector ditrack = physObjectProcessor.GetDielectron(*track1, *track2);
-  double trackAco = physObjectProcessor.GetAcoplanarity(*track1, *track2);
-  
-  hists.at("qed_acoplanarity_no_cuts_"+datasetName)->Fill(trackAco);
-  hists.at("qed_electron_pt_no_cuts_"+datasetName)->Fill(track1->GetPt());
-  hists.at("qed_electron_pt_no_cuts_"+datasetName)->Fill(track2->GetPt());
-  hists.at("qed_electron_eta_no_cuts_"+datasetName)->Fill(track1->GetEta());
-  hists.at("qed_electron_eta_no_cuts_"+datasetName)->Fill(track2->GetEta());
-  hists.at("qed_electron_phi_no_cuts_"+datasetName)->Fill(track1->GetPhi());
-  hists.at("qed_electron_phi_no_cuts_"+datasetName)->Fill(track2->GetPhi());
-  hists.at("qed_dielectron_mass_no_cuts_"+datasetName)->Fill(ditrack.M());
-  hists.at("qed_dielectron_mass_low_no_cuts_"+datasetName)->Fill(ditrack.M());
-  hists.at("qed_dielectron_rapidity_no_cuts_"+datasetName)->Fill(ditrack.Rapidity());
-  hists.at("qed_dielectron_pt_no_cuts_"+datasetName)->Fill(ditrack.Pt());
-  
+  if(event.GetNgeneralTracks()==2){
+    
+    auto track1 = event.GetGeneralTrack(0);
+    auto track2 = event.GetGeneralTrack(1);
+    
+    TLorentzVector ditrack = physObjectProcessor.GetDielectron(*track1, *track2);
+    double trackAco = physObjectProcessor.GetAcoplanarity(*track1, *track2);
+    
+    hists.at("qed_acoplanarity_no_cuts_"+datasetName)->Fill(trackAco);
+    hists.at("qed_electron_pt_no_cuts_"+datasetName)->Fill(track1->GetPt());
+    hists.at("qed_electron_pt_no_cuts_"+datasetName)->Fill(track2->GetPt());
+    hists.at("qed_electron_eta_no_cuts_"+datasetName)->Fill(track1->GetEta());
+    hists.at("qed_electron_eta_no_cuts_"+datasetName)->Fill(track2->GetEta());
+    hists.at("qed_electron_phi_no_cuts_"+datasetName)->Fill(track1->GetPhi());
+    hists.at("qed_electron_phi_no_cuts_"+datasetName)->Fill(track2->GetPhi());
+    hists.at("qed_dielectron_mass_no_cuts_"+datasetName)->Fill(ditrack.M());
+    hists.at("qed_dielectron_mass_low_no_cuts_"+datasetName)->Fill(ditrack.M());
+    hists.at("qed_dielectron_rapidity_no_cuts_"+datasetName)->Fill(ditrack.Rapidity());
+    hists.at("qed_dielectron_pt_no_cuts_"+datasetName)->Fill(ditrack.Pt());
+    
+  }
+    
   event.SortCaloTowersByEnergy();
   bool leadingHFpFilled = false;
   bool leadingHFmFilled = false;
@@ -345,13 +439,12 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string dat
 //  if(!event.HasDoubleEG2Trigger()) return;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 1
   
-  bool checkHF = false;
   ECaloType failingCalo = nCaloTypes;
-  bool failedNEE = event.HasAdditionalTowers(checkHF, &failingCalo);
+  bool failedNEE = event.HasAdditionalTowers(&failingCalo);
   fillNEEcutFlowHist(hists.at("qed_cut_through_"+datasetName), cutThrough, failingCalo); // 2-7
   if(failedNEE) return;
   
-  if(event.GetNchargedTracks() != 2) return;
+  if(event.GetGoodGeneralTracks().size() != 2) return;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 8
   
   vector<shared_ptr<PhysObject>> goodMatchedElectrons;
@@ -377,13 +470,13 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   double aco = physObjectProcessor.GetAcoplanarity(*electron1, *electron2);
   
   // add QED specific cuts here:
-  if(dielectron.M() < 5.0) return;
+  if(dielectron.M() < config.params("dielectronMinMass")) return;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 10
   
-  if(dielectron.Pt() > 1.0) return;
+  if(dielectron.Pt() > config.params("dielectronMaxPt")) return;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 11
   
-  if(fabs(dielectron.Rapidity()) > 2.4) return;
+  if(fabs(dielectron.Rapidity()) > config.params("dielectronMaxRapidity")) return;
   hists.at("qed_cut_through_"+datasetName)->Fill(cutThrough++); // 12
   
   hists.at("qed_acoplanarity_"+datasetName)->Fill(aco);
@@ -444,17 +537,17 @@ int main(int argc, char* argv[])
 {
   if(argc != 1 && argc != 5){
     cout<<"This app requires 0 or 4 parameters."<<endl;
-    cout<<"./prepareBasicPlots configPath inputPath outputPath isMC"<<endl;
+    cout<<"./prepareBasicPlots configPath inputPath outputPath datasetName[Data|QED_SC|QED_SL|LbL|CEP]"<<endl;
     exit(0);
   }
   string inputPath = "";
-  bool isMC = false;
+  string sampleName = "";
   
   if(argc == 5){
     configPath = argv[1];
     inputPath  = argv[2];
     outputPath = argv[3];
-    isMC       = atoi(argv[4]);
+    sampleName = argv[4];
   }
   config = ConfigManager(configPath);
   
@@ -488,10 +581,10 @@ int main(int argc, char* argv[])
           fillLbLHistograms(*event, hists, name);
         }
         if(dataset == kData_QEDsignal || dataset == kMCqedSC_QEDsignal) fillQEDHistograms(*event, hists, name);
-        if(dataset == kData){
-          fillLbLHistograms(*event, hists, name);
-          fillTracksHistograms(*event, hists, name);
-          fillQEDHistograms(*event, hists, name);
+        if(dataset == kData || dataset == kMCcep || dataset == kMClbl){
+//          fillLbLHistograms(*event, hists, name);
+          fillCHEhistograms(*event, hists, name);
+//          fillQEDHistograms(*event, hists, name);
         }
       }
       
@@ -504,17 +597,15 @@ int main(int argc, char* argv[])
   else{
     auto events = make_unique<EventProcessor>(inputPath);
     
-    string name = isMC ? datasetName.at(kMCqedSC) : datasetName.at(kData);
-    
     for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
       if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
       if(iEvent >= config.params("maxEvents")) break;
       
       auto event = events->GetEvent(iEvent);
       
-      fillLbLHistograms(*event, hists, name);
-      fillTracksHistograms(*event, hists, name);
-      fillQEDHistograms(*event, hists, name);
+//      fillLbLHistograms(*event, hists, name);
+      fillCHEhistograms(*event, hists, sampleName);
+//      fillQEDHistograms(*event, hists, name);
     }
     
     outFile->cd();

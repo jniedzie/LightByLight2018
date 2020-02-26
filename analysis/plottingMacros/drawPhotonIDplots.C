@@ -1,8 +1,15 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/photonID.root";
-string outputPathShower = "../plots/photonShowerShape.pdf";
-string outputPathHoverE = "../plots/photonHoverE.pdf";
+string inputPath  = "../results/photonID_test.root";
+string outputPathShower = "../plots/photonShowerShape_test.pdf";
+string outputPathHoverE = "../plots/photonHoverE_test.pdf";
+
+vector<EDataset> datasetsToAnalyze = {
+  kData,
+  kMCqedSC,
+  kMClbl,
+  kMCcep
+};
 
 void prepareHist(TH1D *hist, int color)
 {
@@ -57,7 +64,7 @@ void drawPhotonIDplots()
   
   
   bool first = true;
-  for(EDataset dataset : datasets){
+  for(EDataset dataset : datasetsToAnalyze){
     string name = datasetName.at(dataset);
 
     auto shapeBarrel     = (TH1D*)inFile->Get(("showerShapeBarrel"+name).c_str());
@@ -87,6 +94,12 @@ void drawPhotonIDplots()
     auto hOverEmapDen    = (TH2D*)inFile->Get(("HoverEmapDen"+name).c_str());
     if(!hOverEmapDen) cout<<"Could not open hOverEmapDen hist"<<endl;
     
+    auto hSwissCrossBarrel = (TH1D*)inFile->Get(("swissCrossBarrel"+name).c_str());
+    if(!hSwissCrossBarrel) cout<<"Could not open hSwissCrossBarrel hist"<<endl;
+    
+    auto hSwissCrossEndcap = (TH1D*)inFile->Get(("swissCrossEndcap"+name).c_str());
+    if(!hSwissCrossEndcap) cout<<"Could not open hSwissCrossEndcap hist"<<endl;
+    
     int color = datasetColor.at(dataset);
     
     prepareHist(shapeBarrel, color);
@@ -95,17 +108,30 @@ void drawPhotonIDplots()
     prepareHist(hOverEbarrel, color);
     prepareHist(hOverEendcap, color);
     prepareHist(hOverEmapNum, color);
+    prepareHist(hSwissCrossBarrel, color);
+    prepareHist(hSwissCrossEndcap, color);
     
     canvasShower->cd(1); preparePad();
-    shapeBarrel->SetTitle("Barrel");
+    shapeBarrel->SetTitle("#sigma_{i#etai#eta} Barrel");
     shapeBarrel->Draw(first ? "" : "same");
-    
     if(first) drawThreshold(0.0106, "0.0106");
     
     canvasShower->cd(2); preparePad();
-    shapeEndcap->SetTitle("Endcap");
+    shapeEndcap->SetTitle("#sigma_{i#etai#eta} Endcap");
     shapeEndcap->Draw(first ? "" : "same");
-
+    if(first) drawThreshold(0.0272, "0.0272");
+    
+    canvasShower->cd(3); preparePad();
+    hSwissCrossBarrel->SetTitle("Swiss cross Barrel");
+    hSwissCrossBarrel->Draw(first ? "" : "same");
+    if(first) drawThreshold(0.005, "0.005");
+    
+    canvasShower->cd(4); preparePad();
+    hSwissCrossEndcap->SetTitle("Swiss cross Endcap");
+    hSwissCrossEndcap->Draw(first ? "" : "same");
+    if(first) drawThreshold(0.005, "0.005");
+    
+    /*
     if(dataset == kData){
       etaNarrowEndcap->Rebin(2);
       etaEndcap->Rebin(2);
@@ -131,13 +157,13 @@ void drawPhotonIDplots()
       legendEta->AddEntry(etaNarrowEndcap, "#sigma_{i#etai#eta} < 0.001", "l");
       legendEta->AddEntry(notNarrow, "#sigma_{i#etai#eta} >= 0.001", "l");
       legendEta->Draw("same");
-    }
-    
+    }*/
+    /*
     canvasShower->cd(4); preparePad();
     shapeEndcap2p3->SetTitle("Endcap, |#eta| < 2.3");
     shapeEndcap2p3->Draw(first ? "" : "same");
     if(first) drawThreshold(0.0272, "0.0272");
-    
+    */
     canvasHoverE->cd(1); preparePad();
     hOverEbarrel->GetXaxis()->SetTitle("H/E");
     hOverEbarrel->SetTitle("Barrel");
@@ -152,7 +178,7 @@ void drawPhotonIDplots()
     hOverEendcap->Draw(first ? "" : "same");
     if(first) drawThreshold(0.0590, "0.0590");
     
-    if(dataset == kData){
+    if(dataset == kData || dataset == kData_LbLsignal){
       canvasHoverE->cd(3); preparePad();
       gPad->SetLogy(false);
       gPad->SetRightMargin(0.15);

@@ -24,14 +24,16 @@
 #include "TStyle.h"
 #include "TLine.h"
 #include "TLatex.h"
-#include "RooFit.h"
+//#include "RooFit.h"
 //#include "RooRealVar.h"
 //#include "RooDataSet.h"
-#include "RooArgSet.h"
+//#include "RooArgSet.h"
 #include "TGraphPolar.h"
 
 #pragma clang diagnostic pop // restores the saved state for diagnostics
 
+#include <ostream>
+#include <sstream>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -90,7 +92,8 @@ const map<EDataset, string> inFileNames = {
 //  {kData_LbLsignal      , "ntuples/ntuples_data_forSignalExtraction.root"             },
   {kData_LbLsignal      , "ntuples/ntuples_data_forLbLsignal_noHFcheck.root"          },
   {kData_QEDsignal      , "ntuples/ntuples_data_forQEDsignal_noNEEapplied.root"       },
-  {kMCqedSC             , "ntuples/ntuples_mc_qed_sc.root"                            },
+//  {kMCqedSC             , "ntuples/ntuples_mc_qed_sc.root"                            },
+  {kMCqedSC             , "ntuples/ntuples_mc_qed_sc_small_sample.root"               },
   {kMCqedSC_SingleEG3   , "ntuples/ntuples_mc_qed_withSingleEG3.root"                 },
   {kMCqedSC_recoEff     , "ntuples/ntuples_mc_qed_sc_forRecoEff.root"                 },
   {kMCqedSC_triggerEff  , "ntuples/ntuples_mc_qed_sc_forTriggerEff.root"              },
@@ -100,7 +103,9 @@ const map<EDataset, string> inFileNames = {
   {kMCqedSC_QEDsignal   , "ntuples/ntuples_mc_qed_sc_forQEDsignal_noNEEapplied.root"  },
   {kMCqedSL             , "ntuples/ntuples_mc_qed_sl.root"                            },
   {kMClbl               , "ntuples/ntuples_mc_lbl_sc_forLbLsignal.root"               },
+//  {kMClbl               , "ntuples/ntuples_mc_lbl_sc_small_sample.root"               },
   {kMCcep               , "ntuples/ntuples_mc_cep_sc_forLbLsignal.root"               },
+//  {kMCcep               , "ntuples/ntuples_mc_cep_sc_small_sample.root"               },
 };
 
 const map<EDataset, int> datasetColor = {

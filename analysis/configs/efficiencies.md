@@ -13,8 +13,9 @@ maxDeltaPhiEE:  0.4
 maxEtaEEtower:      2.4
 
 ### Charged exclusivity cuts (GeV)
-trackMinPt:              0.1 
-diphotonMaxPt:      1.0 
+trackMinPt:                   0.1 
+trackMaxEta:                2.4
+trackMinNvalidHits:      3
 
 ### Max ΔR for matching for reco+ID efficiency
 maxDeltaR:              0.3
@@ -24,9 +25,11 @@ photonMinEt:                            2.0
 photonMaxEta:                         2.4
 photonMaxHoverEbarrel:          0.04596
 photonMaxHoverEendcap:       0.0590
-#### here original was 0.0106, but we may need to make it more loose:
 photonMaxEtaWidthBarrel:       0.0106
 photonMaxEtaWidthEndcap:    0.0272
+diphotonMaxPt:                        1.0
+diphotonMinMass:                    5.0
+diphotonMaxAco:                     0.01
 
 ### Electron ID cuts:
 electronMinPt:                            2.0
@@ -42,6 +45,9 @@ electronMaxPhotonIsoBarrel:      0.3
 electronMaxPhotonIsoEndcap:   0.3
 electronMaxNeutralIsoBarrel:      0.07
 electronMaxNeutralIsoEndcap:   0.07
+dielectronMaxPt:                        1.0
+dielectronMinMass:                    5.0
+dielectronMaxRapidity:               2.4
 
 ### Exclude transition region between calo barrel and endcap
 ecalCrackMin: 1.4442

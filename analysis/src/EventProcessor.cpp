@@ -44,7 +44,13 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   eventTree->SetBranchAddress("phoSCEt"           , &photonSCEt);
   eventTree->SetBranchAddress("phoSCE"            , &photonSCE);
   eventTree->SetBranchAddress("phoSCEtaWidth"     , &photonSCEtaWidth);
+//  eventTree->SetBranchAddress("phoSigmaIEtaIEta"  , &photonSCEtaWidth);
   eventTree->SetBranchAddress("phoSCPhiWidth"     , &photonSCPhiWidth);
+  
+  eventTree->SetBranchAddress("phoETop"           , &photonEtop);
+  eventTree->SetBranchAddress("phoEBottom"        , &photonEbottom);
+  eventTree->SetBranchAddress("phoELeft"          , &photonEleft);
+  eventTree->SetBranchAddress("phoERight"         , &photonEright);
   
   eventTree->SetBranchAddress("nTower"            , &currentEvent->nCaloTowers);
   eventTree->SetBranchAddress("CaloTower_hadE"    , &towerEnergyHad);
@@ -59,6 +65,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   eventTree->SetBranchAddress("trkEta"            , &generalTrackEta);
   eventTree->SetBranchAddress("trkPhi"            , &generalTrackPhi);
   eventTree->SetBranchAddress("trkcharge"         , &generalTrackCharge);
+  eventTree->SetBranchAddress("trkValidHits"      , &generalTrackValidHits);
   
   eventTree->SetBranchAddress("nEle"              , &currentEvent->nElectrons);
   eventTree->SetBranchAddress("eleCharge"         , &electronCharge);
@@ -168,6 +175,11 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     photon->etaWidth = photonSCEtaWidth->at(iPhoton);
     photon->phiWidth = photonSCPhiWidth->at(iPhoton);
     
+    if(photonEtop)    photon->energyTop    = photonEtop->at(iPhoton);
+    if(photonEbottom) photon->energyBottom = photonEbottom->at(iPhoton);
+    if(photonEleft)   photon->energyLeft   = photonEleft->at(iPhoton);
+    if(photonEright)  photon->energyRight  = photonEright->at(iPhoton);
+    
     currentEvent->photons.push_back(photon);
   }
   
@@ -192,10 +204,11 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   for(size_t iTrack=0; iTrack<currentEvent->nGeneralTracks; iTrack++){
     auto track = make_shared<PhysObject>();
     
-    track->charge = generalTrackCharge->at(iTrack);
-    track->pt     = generalTrackPt->at(iTrack);
-    track->eta    = generalTrackEta->at(iTrack);
-    track->phi    = generalTrackPhi->at(iTrack);
+    track->charge     = generalTrackCharge->at(iTrack);
+    track->pt         = generalTrackPt->at(iTrack);
+    track->eta        = generalTrackEta->at(iTrack);
+    track->phi        = generalTrackPhi->at(iTrack);
+    track->nValidHits = generalTrackValidHits->at(iTrack);
     
     currentEvent->generalTracks.push_back(track);
   }

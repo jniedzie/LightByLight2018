@@ -1,6 +1,6 @@
 
-string inputPathWithHFcheck  = "../results/basicPlots_withHFcheck.root";
-string inputPathNoHFcheck    = "../results/basicPlots_noHFcheck.root";
+string inputPathWithHFcheck  = "../results/basicPlots_withHFcheck_new.root";
+string inputPathNoHFcheck    = "../results/basicPlots_noHFcheck_new.root";
 
 vector<tuple<string, string>> histParams = {
   { "lbl_photon_et"          , "photon E_{t} (GeV)"      },
@@ -25,8 +25,8 @@ void compareWithWithoutHFcheck()
   for(auto &[histName, xAxis] : histParams){
     canvas->cd(iCanvas++);
     
-    TH1D *histWithHFcheck   = (TH1D*)inFileWithHFcheck->Get((histName+"_high_aco_Data").c_str());
-    TH1D *histNoHFcheck     = (TH1D*)inFileNoHFcheck->Get((histName+"_high_aco_Data").c_str());
+    TH1D *histWithHFcheck   = (TH1D*)inFileWithHFcheck->Get((histName+"_Data").c_str());
+    TH1D *histNoHFcheck     = (TH1D*)inFileNoHFcheck->Get((histName+"_Data").c_str());
     
     if(!histWithHFcheck || !histNoHFcheck){
       cout<<"ERROR -- no histogram \""<<histName<<"\" found"<<endl;
