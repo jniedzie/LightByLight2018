@@ -160,7 +160,7 @@ bool IsGoodForMuMu(Event &event)
   // Check trigger
   if(!event.HasSingleMuonTrigger()) return false; 
   // Check muons in the future
-  if(event.GetNchargedTracks() != 2) return false;
+  if(event.GetNgeneralTracks() > 5) return false;
   
   return true;
 }
@@ -169,7 +169,7 @@ bool IsGoodForMuMu(Event &event)
 
 
 /// Application starting point
-int main(int argc, char* argv[])
+int main(int argc, char* argv[])GetNgeneralTracks
 {
 
   if(argc != 1 && argc != 9 && argc != 4 && argc !=3){
