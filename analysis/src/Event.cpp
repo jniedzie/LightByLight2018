@@ -87,8 +87,13 @@ vector<shared_ptr<PhysObject>> Event::GetGoodPhotons()
     photon->GetEnergyCrystalLeft() +
     photon->GetEnergyCrystalRight();
     
-    double swissCross = E4/photon->GetEnergy();
-    if(swissCross < 0.005) continue;
+    if(E4 < 0){
+      cout<<"WARNING -- swiss cross cannot be calculated. The event will pass this selection automatically!!"<<endl;
+    }
+    else{
+      double swissCross = E4/photon->GetEnergy();
+      if(swissCross < 0.002) continue;
+    }
     
     // Check eta & phi (remove noisy region >2.3, remove cracks between EB and EE, remove HEM issue region)
     double absEta = fabs(photon->GetEta());

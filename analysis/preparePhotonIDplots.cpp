@@ -19,7 +19,7 @@ vector<EDataset> datasetsToAnalyze = {
   kData,
   kMClbl,
   kMCqedSC,
-  kMCqedSL,
+//  kMCqedSL,
   kMCcep,
 };
 
@@ -88,6 +88,11 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
       photon->GetEnergyCrystalRight();
       
       double swissCross = E4/photon->GetEnergy();
+      
+      if(E4 < 0){
+//        cout<<"WARNING -- swiss cross cannot be calculated. The event will pass this selection automatically!!"<<endl;
+        swissCross = 999999;
+      }
       
       
       // Fill in shower shape histograms

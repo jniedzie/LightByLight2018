@@ -320,7 +320,7 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   int cutThrough=0;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 0
   
-//  if(!event.HasDoubleEG2Trigger()) return;
+  if(!event.HasDoubleEG2Trigger()) return;
   hists.at("lbl_cut_through_"+datasetName)->Fill(cutThrough++); // 1
   
   if(event.GetGoodGeneralTracks().size() != 0) return;
@@ -565,11 +565,12 @@ int main(int argc, char* argv[])
   
   TFile *outFile = new TFile(outputPath.c_str(), "recreate");
   
-  for(auto dataset : datasetsToAnalyze){
-    InitializeHistograms(hists, datasetName.at(dataset));
-  }
+  
   
   if(inputPath==""){
+    for(auto dataset : datasetsToAnalyze){
+      InitializeHistograms(hists, datasetName.at(dataset));
+    }
     
     for(auto dataset : datasetsToAnalyze){
       string name = datasetName.at(dataset);
@@ -607,15 +608,17 @@ int main(int argc, char* argv[])
   else{
     auto events = make_unique<EventProcessor>(inputPath);
     
+    InitializeHistograms(hists, sampleName);
+    
     for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
       if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
       if(iEvent >= config.params("maxEvents")) break;
       
       auto event = events->GetEvent(iEvent);
       
-//      fillLbLHistograms(*event, hists, name);
+      fillLbLHistograms(*event, hists, sampleName);
       fillCHEhistograms(*event, hists, sampleName);
-//      fillQEDHistograms(*event, hists, name);
+      fillQEDHistograms(*event, hists, sampleName);
     }
     
     outFile->cd();

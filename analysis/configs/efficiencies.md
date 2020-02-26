@@ -1,7 +1,7 @@
 ##  Efficiencies config
 
 ### Max number of events to analyze
-maxEvents: 9999999999
+maxEvents: 9999999
 
 ### Criteria to match calo tower with photon SC for neutral exclusivity
 maxDeltaEtaEB:  0.15
@@ -24,7 +24,7 @@ maxDeltaR:              0.3
 photonMinEt:                            2.0
 photonMaxEta:                         2.4
 photonMaxHoverEbarrel:          0.04596
-photonMaxHoverEendcap:       0.0590
+photonMaxHoverEendcap:       0.04
 photonMaxEtaWidthBarrel:       0.0106
 photonMaxEtaWidthEndcap:    0.0272
 diphotonMaxPt:                        1.0
