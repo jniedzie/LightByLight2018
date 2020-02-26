@@ -22,7 +22,7 @@ bool IsGoodForRecoEfficiency(Event &event)
   if(!event.HasSingleEG3Trigger() && !event.HasSingleEG5Trigger()) return false;
   
   // Make sure that there are 2 tracks with opposite charges
-  if(event.GetNgeneralTracks() != 2) return false;
+  if(event.GetGoodGeneralTracks().size() != 2) return false;
   if(event.GetGeneralTrack(0)->GetCharge() == event.GetGeneralTrack(1)->GetCharge()) return false;
   
   // Check if there is at lest one photon and one electon in the event
@@ -43,7 +43,7 @@ bool IsGoodForTrigger(Event &event)
   
   // Check exclusivity criteria
 //  if(event.HasAdditionalTowers()) return false;
-  if(event.GetNchargedTracks() != 2) return false;
+  if(event.GetGoodGeneralTracks().size() != 2) return false;
   
   return true;
 }
@@ -59,7 +59,7 @@ bool IsGoodForHFveto(Event &event)
   
   // Check exclusivity criteria
 //  if(event.HasAdditionalTowers()) return false;
-  if(event.GetNchargedTracks() != 2) return false;
+  if(event.GetGoodGeneralTracks().size() != 2) return false;
   
   return true;
 }
@@ -74,7 +74,7 @@ bool IsGoodForExclusivity(Event &event)
   if(event.GetNelectrons() < 2) return false;
   
   // Check exclusivity criteria
-  if(event.GetNchargedTracks() != 2) return false;
+  if(event.GetGoodGeneralTracks().size() != 2) return false;
   
   return true;
 }
@@ -86,9 +86,8 @@ bool IsGoodForLbLsignal(Event &event)
   if(!event.HasDoubleEG2Trigger()) return false;
   
   // Check exclusivity criteria
-  bool checkHF = false;
-  if(event.HasAdditionalTowers(checkHF)) return false;
-  if(event.GetNchargedTracks() != 0) return false;
+  if(event.HasAdditionalTowers()) return false;
+  if(event.GetGoodGeneralTracks().size() != 0) return false;
   
   return true;
 }
@@ -101,7 +100,36 @@ bool IsGoodForQEDsignal(Event &event)
   
   // Check exclusivity criteria
 //  if(event.HasAdditionalTowers()) return false;
-  if(event.GetNchargedTracks() != 2) return false;
+  if(event.GetGoodGeneralTracks().size() != 2) return false;
+  
+  return true;
+}
+
+/// Check if this event is a good candidate for the signal extraction
+bool IsPassingAllLbLCuts(Event &event, bool doHighAco)
+{
+  // Check trigger
+  //  if(!event.HasDoubleEG2Trigger()) return false;
+  
+  // Check exclusivity criteria
+  if(event.HasAdditionalTowers()) return false;
+  if(event.GetGoodGeneralTracks().size() != 0) return false;
+  
+  auto photons = event.GetGoodPhotons();
+  if(photons.size() != 2) return false;
+  
+  TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*photons[0], *photons[1]);
+  if(diphoton.M() < 5.0) return false;
+  if(diphoton.Pt() > 1.0) return false;
+  
+  double aco = physObjectProcessor.GetAcoplanarity(*photons[0], *photons[1]);
+  
+  if(doHighAco){
+    if(aco < 0.01) return false;
+  }
+  else{
+    if(aco > 0.01) return false;
+  }
   
   return true;
 }
@@ -144,11 +172,18 @@ bool IsGoodForMuMu(Event &event)
 /// Application starting point
 int main(int argc, char* argv[])
 {
-  if(argc != 1 && argc != 9 && argc != 4 && argc != 3){
-    cout<<"This app requires 0 or 8 parameters."<<endl;
-    cout<<"./getEfficienciesData configPath inputPath outputPathReco out putPathTrigger outputPathHFveto outputPathExclusivity outputPathLbLsignal outputPathQEDsignal"<<endl;
+
+  if(argc != 1 && argc != 9 && argc != 4 && argc !=3){
+    cout<<"This app requires 0, 2 or 8 parameters."<<endl;
+    cout<<"./getEfficienciesData configPath inputPath outputPathReco outputPathTrigger outputPathHFveto outputPathExclusivity outputPathLbLsignal outputPathQEDsignal"<<endl;
+    cout<<"or\n"<<endl;
+    cout<<"./getEfficienciesData inputPath outputPathLowAco outputPathHighAco"<<endl;
+    cout<<"or\n"<<endl;
+    cout<<"./getEfficienciesData runtype runfile"<<endl;  
     exit(0);
   }
+  
+  cout<<"Starting applySelections"<<endl;
   
   string inFilePath;
   vector<string> outFilePaths;
@@ -164,6 +199,12 @@ int main(int argc, char* argv[])
     outFilePaths.push_back(argv[8]); // QED signal extraction
   }
 
+  if(argc == 4){
+    inFilePath = argv[1];
+    outFilePaths.push_back(argv[2]);
+    outFilePaths.push_back(argv[3]);
+  }
+ 
   }
   
     if(argc == 3){
@@ -210,6 +251,7 @@ config = ConfigManager(configPath);
       if(IsPassingAllLbLCuts(*event, false))  events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
       if(IsPassingAllLbLCuts(*event, true))   events->AddEventToOutputTree(iEvent, outFilePaths[1], storeHLTtrees);
     }
+
     
     else if(argc ==3){
     if(IsGoodForSingleMuon(*event))        events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
