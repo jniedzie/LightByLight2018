@@ -169,7 +169,7 @@ bool IsGoodForMuMu(Event &event)
 
 
 /// Application starting point
-int main(int argc, char* argv[])GetNgeneralTracks
+int main(int argc, char* argv[])
 {
 
   if(argc != 1 && argc != 9 && argc != 4 && argc !=3){
