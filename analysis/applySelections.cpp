@@ -130,7 +130,6 @@ bool IsPassingAllLbLCuts(Event &event, bool doHighAco)
   else{
     if(aco > 0.01) return false;
   }
-  
   return true;
 }
 
@@ -187,7 +186,6 @@ int main(int argc, char* argv[])
   
   string inFilePath;
   vector<string> outFilePaths;
-  if(argc == 1 or argc == 9 or argc == 4){
   if(argc == 9){
     configPath = argv[1];
     inFilePath = argv[2];
@@ -198,14 +196,13 @@ int main(int argc, char* argv[])
     outFilePaths.push_back(argv[7]); // LbL signal extraction
     outFilePaths.push_back(argv[8]); // QED signal extraction
   }
-
+  
   if(argc == 4){
     inFilePath = argv[1];
     outFilePaths.push_back(argv[2]);
     outFilePaths.push_back(argv[3]);
   }
  
-  }
   
     if(argc == 3){
     std::string arg_1 = argv[1];
@@ -251,6 +248,7 @@ config = ConfigManager(configPath);
       if(IsPassingAllLbLCuts(*event, false))  events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
       if(IsPassingAllLbLCuts(*event, true))   events->AddEventToOutputTree(iEvent, outFilePaths[1], storeHLTtrees);
     }
+
 
     
     else if(argc ==3){
