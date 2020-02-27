@@ -68,6 +68,14 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   eventTree->SetBranchAddress("trkcharge"         , &generalTrackCharge);
   eventTree->SetBranchAddress("trkValidHits"      , &generalTrackValidHits);
   
+  eventTree->SetBranchAddress("trkPurity"         , &generalTrackPurity);
+  eventTree->SetBranchAddress("trknormchi2"       , &generalTrackChi2);
+  eventTree->SetBranchAddress("trkdxy"            , &generalTrackDxy);
+  eventTree->SetBranchAddress("trkdz"             , &generalTrackDz);
+  eventTree->SetBranchAddress("trkvx"             , &generalTrackVertexX);
+  eventTree->SetBranchAddress("trkvy"             , &generalTrackVertexY);
+  eventTree->SetBranchAddress("trkvz"             , &generalTrackVertexZ);
+  
   eventTree->SetBranchAddress("nEle"              , &currentEvent->nElectrons);
   eventTree->SetBranchAddress("eleCharge"         , &electronCharge);
   eventTree->SetBranchAddress("eleMissHits"       , &electronNmissing);
@@ -211,6 +219,13 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     track->eta        = generalTrackEta->at(iTrack);
     track->phi        = generalTrackPhi->at(iTrack);
     track->nValidHits = generalTrackValidHits->at(iTrack);
+    track->purity     = generalTrackPurity->at(iTrack);
+    track->chi2       = generalTrackChi2->at(iTrack);
+    track->dxy        = generalTrackDxy->at(iTrack);
+    track->dz         = generalTrackDz->at(iTrack);
+    track->vx         = generalTrackVertexX->at(iTrack);
+    track->vy         = generalTrackVertexY->at(iTrack);
+    track->vz         = generalTrackVertexZ->at(iTrack);
     
     currentEvent->generalTracks.push_back(track);
   }

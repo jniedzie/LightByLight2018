@@ -36,6 +36,13 @@ public:
   int    GetCharge()        const;
   int    GetNmissingHits()  const;
   int    GetNvalidHits()    const;
+  int    GetPurity()        const;
+  double GetChi2()          const;
+  double GetDxy()           const;
+  double GetDz()            const;
+  double GetVertexX()       const;
+  double GetVertexY()       const;
+  double GetVertexZ()       const;
   
   double GetEnergy()     const;
   double GetEnergyHad()  const;
@@ -89,6 +96,10 @@ private:
   int charge;       ///< Particle charge
   int nMissingHits; ///< Number of missing hits
   int nValidHits;   ///< Number of valid hits
+  int purity;       ///< Purity of the track
+  double chi2;      ///< chi2 of the track fit
+  double dxy, dz;   ///< distance between track and primary vertex
+  double vx, vy, vz;///< vertex coordinates
   
   double chargedIso;  ///< Isolation wrt. charged particles
   double photonIso;   ///< Isolation wrt. photons

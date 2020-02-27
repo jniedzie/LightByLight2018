@@ -52,13 +52,15 @@ public:
   /// Updates and returns vector of electrons passing all electron ID cuts
   vector<shared_ptr<PhysObject>> GetGoodElectrons(TH1D *cutFlowHist=nullptr);
   
+  /// Updates and returns vector of electrons passing all electron ID cuts and matching L1 EG objects
+  vector<shared_ptr<PhysObject>> GetGoodMatchedElectron();
+  
   /// Updates and returns vector of general tracks passing all cuts
   vector<shared_ptr<PhysObject>> GetGoodGeneralTracks(TH1D *cutFlowHist=nullptr);
   
   /// Finds two photons passing cuts (if not done yet) and checks if there are towers above
   /// threshold not overlapping with reconstructed photons
-  bool HasAdditionalTowers(ECaloType *failingCalo=nullptr);
-  
+  bool HasAdditionalTowers();
   
   bool HasAdditionalTowers(map<ECaloType,bool> &failingCalo);
   
@@ -106,6 +108,9 @@ private:
   
   bool goodElectronsReady = false;              ///< Were electron cuts already applied?
   vector<shared_ptr<PhysObject>> goodElectrons; ///< Vector of electrons passing cuts
+  
+  bool goodMatchedElectronsReady = false;              ///< Were electron cuts already applied?
+  vector<shared_ptr<PhysObject>> goodMatchedElectrons; ///< Vector of electrons passing cuts
   
   unsigned short nL1EGs = 0;                    ///< Number of L1 EG objects
   vector<shared_ptr<PhysObject>> L1EGs;         ///< Vector of L1 EG objects

@@ -75,6 +75,13 @@ private:
   vector<float> *generalTrackEta        = nullptr;
   vector<float> *generalTrackPhi        = nullptr;
   vector<int>   *generalTrackValidHits  = nullptr;
+  vector<int>   *generalTrackPurity     = nullptr;
+  vector<float> *generalTrackChi2       = nullptr;
+  vector<float> *generalTrackDxy        = nullptr;
+  vector<float> *generalTrackDz         = nullptr;
+  vector<float> *generalTrackVertexX    = nullptr;
+  vector<float> *generalTrackVertexY    = nullptr;
+  vector<float> *generalTrackVertexZ    = nullptr;
   
   vector<int>   *electronCharge         = nullptr;
   vector<int>   *electronNmissing       = nullptr;

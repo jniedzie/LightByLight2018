@@ -24,11 +24,13 @@ void Event::Reset()
   generalTracks.clear();
   electrons.clear();
   goodElectrons.clear();
+  goodMatchedElectrons.clear();
   goodGeneralTracks.clear();
   L1EGs.clear();
   
   goodPhotonsReady = false;
   goodElectronsReady = false;
+  goodMatchedElectronsReady = false;
   goodGeneralTracksReady = false;
 }
 
@@ -178,6 +180,27 @@ vector<shared_ptr<PhysObject>> Event::GetGoodElectrons(TH1D *cutFlowHist)
   return goodElectrons;
 }
 
+vector<shared_ptr<PhysObject>> Event::GetGoodMatchedElectron()
+{
+  if(goodMatchedElectronsReady) return goodMatchedElectrons;
+  
+  goodMatchedElectrons.clear();
+  
+  for(auto electron : GetGoodElectrons()){
+    for(auto &L1EG : GetL1EGs()){
+      if(L1EG->GetEt() < 2.0) continue;
+      
+      if(physObjectProcessor.GetDeltaR_SC(*electron, *L1EG) < 0.3){
+        goodMatchedElectrons.push_back(electron);
+        break;
+      }
+    }
+  }
+  
+  goodMatchedElectronsReady = true;
+  return goodMatchedElectrons;
+}
+
 vector<shared_ptr<PhysObject>> Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
 {
   if(goodGeneralTracksReady) return goodGeneralTracks;
@@ -216,7 +239,7 @@ vector<shared_ptr<PhysObject>> Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
   return goodGeneralTracks;
 }
 
-bool Event::HasAdditionalTowers(ECaloType *failingCalo)
+bool Event::HasAdditionalTowers()
 {
   for(int iTower=0; iTower<nCaloTowers; iTower++){
     auto tower = caloTowers[iTower];
@@ -229,13 +252,11 @@ bool Event::HasAdditionalTowers(ECaloType *failingCalo)
     
     if(subdetHad==kHFp || subdetHad==kHFm){ // Check HF exclusivity
       if(tower->GetEnergy() > config.params("noiseThreshold"+caloName.at(subdetHad))){
-        if(failingCalo) *failingCalo = subdetHad;
         return true;
       }
     }
     else if(subdetHad==kHB || subdetHad==kHE){ // Check HB and HE exclusivity
       if(tower->GetEnergyHad() > config.params("noiseThreshold"+caloName.at(subdetHad))){
-        if(failingCalo) *failingCalo = subdetHad;
         return true;
       }
     }
@@ -246,7 +267,6 @@ bool Event::HasAdditionalTowers(ECaloType *failingCalo)
       if(IsOverlappingWithGoodElectron(*tower)) continue;
       
       if(tower->GetEnergyEm() > GetEmThresholdForTower(*tower)){
-        if(failingCalo) *failingCalo = subdetEm;
         return true;
       }
     }

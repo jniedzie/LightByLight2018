@@ -29,6 +29,7 @@ photonMaxEtaWidthBarrel:       0.0106
 photonMaxEtaWidthEndcap:    0.0272
 photonMinSwissCross:             0.005
 diphotonMaxPt:                        1.0
+diphotonMaxRapidity:               9999999
 diphotonMinMass:                    5.0
 diphotonMaxAco:                     0.01
 
