@@ -1,6 +1,14 @@
 #!/bin/bash
 
-configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/efficiencies.md"
+configPath=""
+
+if [ $3 -eq 0 ]
+then
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/efficiencies.md"
+elif [ $3 -eq 1 ]
+then
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/efficiencies_20GeVHF.md"
+fi
 
 # for the data:
 inputPath=""
@@ -11,13 +19,31 @@ sampleName=""
 if [ $2 -eq 0 ]
 then
   inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
-  outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis/basicPlots/basicPlots_data_new"
+  
+  if [ $3 -eq 0 ]
+  then
+    outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis/basicPlots/basicPlots_data_new"
+  elif [ $3 -eq 1 ]
+  then
+    outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis/basicPlots/basicPlots_data_new_20GeVHF"
+  fi
+  
+  
   sampleName="Data"
 elif [ $2 -eq 1 ]
 then
  # MC QED SC
   inputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
-  outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis/basicPlots/basicPlots_mc_qed_sc_new"
+  
+  if [ $3 -eq 0 ]
+  then
+    outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis/basicPlots/basicPlots_mc_qed_sc_new"
+  elif [ $3 -eq 1 ]
+  then
+    outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis/basicPlots/basicPlots_mc_qed_sc_new_20GeVHF"
+  fi
+  
+  
   sampleName="QED_SC"
 elif [ $2 -eq 2 ]
 then
@@ -29,13 +55,27 @@ elif [ $2 -eq 3 ]
 then
    # MC CEP SC
   inputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_cep/ntuples_1034/ntuples_cep_1034/ntuples_cep_1034/200211_054704/0000/HiForestAOD_cep_${1}.root"
-  outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis/basicPlots/basicPlots_mc_cep_sc_new"
+  
+  if [ $3 -eq 0 ]
+  then
+    outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis/basicPlots/basicPlots_mc_cep_sc_new"
+  elif [ $3 -eq 1 ]
+  then
+    outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis/basicPlots/basicPlots_mc_cep_sc_new_20GeVHF"
+  fi
   sampleName="CEP"
 elif [ $2 -eq 4 ]
 then
     # MC LbL SC
   inputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_lbl/ntuples_1034/ntuples_lbl_1034/ntuples_lbl_1034/200207_114802/0000/HiForestAOD_LbyL_${1}.root"
-  outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis/basicPlots/basicPlots_mc_lbl_sc_new"
+  
+  if [ $3 -eq 0 ]
+  then
+    outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis/basicPlots/basicPlots_mc_lbl_sc_new"
+  elif [ $3 -eq 1 ]
+  then
+    outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis/basicPlots/basicPlots_mc_lbl_sc_new_20GeVHF"
+  fi
   sampleName="LbL"
 fi
 
