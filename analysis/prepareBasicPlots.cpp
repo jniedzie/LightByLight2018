@@ -452,7 +452,9 @@ int main(int argc, char* argv[])
   else{
     auto events = make_unique<EventProcessor>(inputPath);
     
-    InitializeHistograms(hists, sampleName);
+    for(string suffix : suffixes){
+      InitializeHistograms(hists, sampleName, suffix);
+    }
     
     for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
       if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;

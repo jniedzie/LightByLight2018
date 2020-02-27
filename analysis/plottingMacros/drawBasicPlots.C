@@ -1,6 +1,6 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/basicPlots_new.root";
+string inputPath  = "../results/basicPlots_data_part.root";
 string outputPath = "../plots/distributions";
 
 //double qedInitialNevents = 67820000; // total
@@ -29,10 +29,10 @@ const double markerSize = 0.5;
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
   kData,
-  kMCcep,
-  kMCqedSC,
+//  kMCcep,
+//  kMCqedSC,
 //  kMCqedSL,
-  kMClbl,
+//  kMClbl,
 };
 
 vector<tuple<string, string, bool, bool, int, int, int>> histParams = {
@@ -44,7 +44,7 @@ vector<tuple<string, string, bool, bool, int, int, int>> histParams = {
   { "lbl_diphoton_mass"      , "diphoton m_{inv} (GeV)"  , false, false ,   0   , 5  , 1 },
   { "lbl_diphoton_rapidity"  , "diphoton rapidity"       , false, false ,   0   , 6  , 1 },
   { "lbl_diphoton_pt"        , "diphoton p_{t}"          , false, false ,   0   , 7  , 1 },
-  { "lbl_cut_through"        , "# cut"                   , false, true  ,   0   , 8  , 1 },
+  { "lbl_cut_flow"           , ""                        , false, true  ,   0   , 8  , 1 },
 //  { "lbl_nee_failing"        , "# calo"                  , false, true  ,   0   , 12 , 1 },
 
   { "lbl_photon_et_high_aco"          , "photon E_{t} (GeV)"      , false, false ,   4   , 1   , 1 },
@@ -69,7 +69,7 @@ vector<tuple<string, string, bool, bool, int, int, int>> histParams = {
   { "qed_dielectron_mass"    , "dielectron m_{inv} (GeV)", false, false ,   1   , 5  , 1 },
   { "qed_dielectron_rapidity", "dielectron rapidity"     , false, false ,   1   , 6  , 1 },
   { "qed_dielectron_pt"      , "dielectron p_{t}"        , false, false ,   1   , 7  , 1 },
-  { "qed_cut_through"        , ""                        , false, false ,   1   , 8  , 1 },
+  { "qed_cut_flow"        , ""                        , false, false ,   1   , 8  , 1 },
   { "qed_electron_cutflow"   , "# cut"                   , false, false ,   1   , 9  , 1 },
   
   { "qed_HFp_no_cuts"                , "HF+ energy (GeV)"        , true , true  ,   2   , 1 , 1},
@@ -298,12 +298,12 @@ void drawBasicPlots()
 		histsPad->Draw();
 		histsPad->cd();
 
-    bool isCutFlow = histName.find("cut_through") != string::npos;
+    bool isCutFlow = histName.find("cut_flow") != string::npos;
     
     normalizeHists(hists, normalize, isCutFlow);
     
     if(normalize){
-      if(histName == "lbl_cut_through" || histName == "lbl_nee_failing"){
+      if(histName == "lbl_cut_flow" || histName == "lbl_nee_failing"){
 //        dataHist->Scale(1./dataHist->GetBinContent(2));
         dataHist->Draw("PE");
       }
@@ -366,8 +366,8 @@ void drawBasicPlots()
     
     ratio->SetTitle("");
     
-    if(histName == "qed_cut_through") setCutflowLabels(ratio, false);
-    if(histName == "lbl_cut_through") setCutflowLabels(ratio, true);
+    if(histName == "qed_cut_flow") setCutflowLabels(ratio, false);
+    if(histName == "lbl_cut_flow") setCutflowLabels(ratio, true);
     if(histName == "lbl_nee_failing") setCaloLabels(ratio);
     
     
@@ -376,7 +376,7 @@ void drawBasicPlots()
     ratio->GetXaxis()->SetTitleOffset(1.1);
     ratio->GetXaxis()->SetLabelSize(0.2);
     
-    if(histName == "qed_cut_through" || histName == "lbl_cut_through" || histName == "lbl_nee_failing"){
+    if(histName == "qed_cut_flow" || histName == "lbl_cut_flow" || histName == "lbl_nee_failing"){
       ratio->GetXaxis()->SetLabelSize(0.16);
       ratio->GetXaxis()->SetLabelOffset(0.05);
       ratioPad->SetBottomMargin(0.55);
