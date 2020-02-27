@@ -8,7 +8,7 @@
 #include "ConfigManager.hpp"
 #include "EventDisplay.hpp"
 
-string configPath = "configs/efficiencies.md";
+string configPath = "configs/applySelections.md";
 bool storeHLTtrees = false;
 
 /// Check if this event is a good candidate for reco+ID efficiency estimation
@@ -102,6 +102,19 @@ bool IsGoodForQEDsignal(Event &event)
 }
 
 /// Check if this event is a good candidate for the signal extraction
+bool IsPassingLooseSelection(Event &event)
+{
+  // Check trigger
+  if(!event.HasDoubleEG2Trigger()) return false;
+  
+  // Check exclusivity criteria
+  if(event.HasAdditionalTowers()) return false;
+  if(event.GetGoodGeneralTracks().size() > 10) return false;
+  
+  return true;
+}
+
+/// Check if this event is a good candidate for the signal extraction
 bool IsPassingAllLbLCuts(Event &event, bool doHighAco)
 {
   // Check trigger
@@ -134,10 +147,12 @@ bool IsPassingAllLbLCuts(Event &event, bool doHighAco)
 int main(int argc, char* argv[])
 {
   if(argc != 1 && argc != 9 && argc != 4){
-    cout<<"This app requires 0, 2 or 8 parameters."<<endl;
+    cout<<"This app requires 0, 1, 2 or 8 parameters."<<endl;
     cout<<"./getEfficienciesData configPath inputPath outputPathReco outputPathTrigger outputPathHFveto outputPathExclusivity outputPathLbLsignal outputPathQEDsignal"<<endl;
     cout<<"or\n"<<endl;
     cout<<"./getEfficienciesData inputPath outputPathLowAco outputPathHighAco"<<endl;
+    cout<<"or\n"<<endl;
+    cout<<"./getEfficienciesData inputPath outputPath"<<endl;
     
     exit(0);
   }
@@ -162,7 +177,11 @@ int main(int argc, char* argv[])
     outFilePaths.push_back(argv[2]);
     outFilePaths.push_back(argv[3]);
   }
- 
+  if(argc == 3){
+    inFilePath = argv[1];
+    outFilePaths.push_back(argv[2]);
+  }
+  
   config = ConfigManager(configPath);
   cout<<"Config manager created"<<endl;
   
@@ -187,6 +206,9 @@ int main(int argc, char* argv[])
     else if(argc==4){
       if(IsPassingAllLbLCuts(*event, false))  events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
       if(IsPassingAllLbLCuts(*event, true))   events->AddEventToOutputTree(iEvent, outFilePaths[1], storeHLTtrees);
+    }
+    else if(argc==3){
+      if(IsPassingLooseSelection(*event))     events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
     }
   }
 

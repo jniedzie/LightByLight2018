@@ -1,6 +1,6 @@
 #!/bin/bash
 
-configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/efficiencies.md"
+configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/applySelections.md"
 
 # for the data:
 inputPath=""
@@ -12,6 +12,7 @@ outputPathLbLsignal=""
 outputPathQEDsignal=""
 outputPathLowAco=""
 outputPathHighAco=""
+outputPath=""
 
 
 if [ $2 -eq 0 ] # data
@@ -45,6 +46,10 @@ then
   inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
   outputPathLowAco="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_passingLbL_lowAco"
   outputPathHighAco="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_passingLbL_highAco"
+elif [ $2 -eq 3 ] # Data passing LbL selections
+then
+  inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
+  outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_loose_selections"
 fi
 
 mkdir -p $outputPathReco
@@ -55,6 +60,7 @@ mkdir -p $outputPathLbLsignal
 mkdir -p $outputPathQEDsignal
 mkdir -p $outputPathLowAco
 mkdir -p $outputPathHighAco
+mkdir -p $outputPath
 
 outputReco="${outputPathReco}/ntuples_forRecoEff_${1}.root"
 outputTrigger="${outputPathTrigger}/ntuples_forTriggerEff_${1}.root"
@@ -64,7 +70,7 @@ outputLbLsignal="${outputPathLbLsignal}/ntuples_forLbLsignal_${1}.root"
 outputQEDsignal="${outputPathQEDsignal}/ntuples_forQEDsignal_${1}.root"
 outputLowAco="${outputPathLowAco}/ntuples_passingLbL_lowAco_${1}.root"
 outputHighAco="${outputPathHighAco}/ntuples_passingLbL_highAco_${1}.root"
-
+output="${outputPath}/ntuples_loose_selections_${1}.root"
 
 echo "Config: ${configPath}"
 echo "Input: ${inputPath}"
@@ -76,6 +82,7 @@ echo "Output LbL signal: ${outputLbLsignal}"
 echo "Output QED signal: ${outputQEDsignal}"
 echo "Output low aco: ${outputLowAco}"
 echo "Output high aco: ${outputHighAco}"
+echo "Output: ${output}"
 
 if [ $2 -eq 0 ] # data
 then
@@ -86,4 +93,7 @@ then
 elif [ $2 -eq 2 ] # Data passing LbL selections
 then
   /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $inputPath $outputLowAco $outputHighAco
+elif [ $2 -eq 3 ] # Data passing LbL selections
+then
+  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $inputPath $output
 fi
