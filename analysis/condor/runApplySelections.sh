@@ -24,6 +24,12 @@ then
   outputPathExclusivity="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_forExclusivityEff_tmp"
   outputPathLbLsignal="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_forLbLsignal_CHE_500MeV"
   outputPathQEDsignal="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_forQEDsignal_tmp"
+  mkdir -p $outputPathReco
+  mkdir -p $outputPathTrigger
+  mkdir -p $outputPathHFveto
+  mkdir -p $outputPathExclusivity
+  mkdir -p $outputPathLbLsignal
+  mkdir -p $outputPathQEDsignal
 elif [ $2 -eq 1 ] # MC
 then
   # QED
@@ -41,26 +47,29 @@ then
   outputPathExclusivity="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_cep_sc_forExclusivityEff"
   outputPathLbLsignal="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_cep_sc_forLbLsignal"
   outputPathQEDsignal="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_cep_sc_forQEDsignal"
+  mkdir -p $outputPathReco
+  mkdir -p $outputPathTrigger
+  mkdir -p $outputPathHFveto
+  mkdir -p $outputPathExclusivity
+  mkdir -p $outputPathLbLsignal
+  mkdir -p $outputPathQEDsignal
 elif [ $2 -eq 2 ] # Data passing LbL selections
 then
   inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
   outputPathLowAco="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_passingLbL_lowAco"
   outputPathHighAco="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_passingLbL_highAco"
+  mkdir -p $outputPathLowAco
+  mkdir -p $outputPathHighAco
 elif [ $2 -eq 3 ] # Data passing LbL selections
 then
   inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
   outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_loose_selections"
+  mkdir -p $outputPath
 fi
 
-mkdir -p $outputPathReco
-mkdir -p $outputPathTrigger
-mkdir -p $outputPathHFveto
-mkdir -p $outputPathExclusivity
-mkdir -p $outputPathLbLsignal
-mkdir -p $outputPathQEDsignal
-mkdir -p $outputPathLowAco
-mkdir -p $outputPathHighAco
-mkdir -p $outputPath
+
+
+
 
 outputReco="${outputPathReco}/ntuples_forRecoEff_${1}.root"
 outputTrigger="${outputPathTrigger}/ntuples_forTriggerEff_${1}.root"
@@ -92,8 +101,8 @@ then
   /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $configPath $inputPath $outputReco $outputTrigger $outputHFveto $outputExclusivity $outputLbLsignal $outputQEDsignal
 elif [ $2 -eq 2 ] # Data passing LbL selections
 then
-  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $inputPath $outputLowAco $outputHighAco
+  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $configPath $inputPath $outputLowAco $outputHighAco
 elif [ $2 -eq 3 ] # Data passing LbL selections
 then
-  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $inputPath $output
+  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $configPath $inputPath $output
 fi
