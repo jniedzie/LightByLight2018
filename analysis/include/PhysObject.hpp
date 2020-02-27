@@ -41,6 +41,7 @@ public:
   double GetEnergyHad()  const;
   double GetEnergyEm()   const;
   
+  double GetEnergyCrystalMax()    const;
   double GetEnergyCrystalTop()    const;
   double GetEnergyCrystalBottom() const;
   double GetEnergyCrystalLeft()   const;
@@ -73,6 +74,7 @@ private:
   double energyHad; ///< Energy in hadronic part of calo
   double energyEm;  ///< Energy in EM part of calo
   
+  double energyMax;   ///< Energy of the seed (max energy in the cluster)
   double energyTop;   ///< Energy in the crytal on the top of the photon seed
   double energyBottom;///< Energy in the crytal on the bottom of the photon seed
   double energyLeft;  ///< Energy in the crytal on the left of the photon seed

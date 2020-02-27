@@ -8,7 +8,7 @@
 #include "ConfigManager.hpp"
 
 string configPath = "configs/efficiencies.md";
-string outputPath = "results/photonID_test_qed.root";
+string outputPath = "results/photonID_test.root";
 
 vector<EDataset> datasetsToAnalyze = {
   kData_LbLsignal,
@@ -87,7 +87,7 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
       photon->GetEnergyCrystalLeft() +
       photon->GetEnergyCrystalRight();
       
-      double swissCross = E4/photon->GetEnergy();
+      double swissCross = E4/photon->GetEnergyCrystalMax();
       
       if(E4 < 0){
 //        cout<<"WARNING -- swiss cross cannot be calculated. The event will pass this selection automatically!!"<<endl;
@@ -97,9 +97,9 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
       
       // Fill in shower shape histograms
       if(eta < maxEtaEB){
-        bool passesSwissCross = swissCross > 0.005;
-        bool passesHoverE = photon->GetHoverE() < config.params("photonMaxHoverEbarrel");
-        bool passesSigmaEtaEta = photon->GetEtaWidth() > config.params("photonMaxEtaWidthBarrel");
+        bool passesSwissCross   = swissCross            > config.params("photonMinSwissCross");
+        bool passesHoverE       = photon->GetHoverE()   < config.params("photonMaxHoverEbarrel");
+        bool passesSigmaEtaEta  = photon->GetEtaWidth() > config.params("photonMaxEtaWidthBarrel");
         
         
         if(passesSwissCross && passesHoverE){
@@ -124,9 +124,9 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
         }
       }
       else if(eta < maxEtaEE){
-        bool passesSwissCross = swissCross > 0.005;
-        bool passesHoverE = photon->GetHoverE() < config.params("photonMaxHoverEendcap");
-        bool passesSigmaEtaEta = photon->GetEtaWidth() > config.params("photonMaxEtaWidthEndcap");
+        bool passesSwissCross   = swissCross            > config.params("photonMinSwissCross");
+        bool passesHoverE       = photon->GetHoverE()   < config.params("photonMaxHoverEendcap");
+        bool passesSigmaEtaEta  = photon->GetEtaWidth() > config.params("photonMaxEtaWidthEndcap");
         
         if(passesSwissCross && passesHoverE){
           hists.at("showerShapeEndcap"+datasetName)->Fill(photon->GetEtaWidth());

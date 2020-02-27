@@ -91,8 +91,8 @@ vector<shared_ptr<PhysObject>> Event::GetGoodPhotons()
       cout<<"WARNING -- swiss cross cannot be calculated. The event will pass this selection automatically!!"<<endl;
     }
     else{
-      double swissCross = E4/photon->GetEnergy();
-      if(swissCross < 0.002) continue;
+      double swissCross = E4/photon->GetEnergyCrystalMax();
+      if(swissCross < config.params("photonMinSwissCross")) continue;
     }
     
     // Check eta & phi (remove noisy region >2.3, remove cracks between EB and EE, remove HEM issue region)

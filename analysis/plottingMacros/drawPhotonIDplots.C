@@ -1,6 +1,6 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/photonID_test_qed.root";
+string inputPath  = "../results/photonID_test.root";
 string outputPathShower = "../plots/photonShowerShape_test.pdf";
 string outputPathHoverE = "../plots/photonHoverE_test.pdf";
 
@@ -123,7 +123,7 @@ void drawPhotonIDplots()
     
     canvasShower->cd(3); preparePad();
     hSwissCrossBarrel->SetTitle("Swiss cross Barrel");
-    hSwissCrossBarrel->GetXaxis()->SetRangeUser(0.0, 0.07);
+//    hSwissCrossBarrel->GetXaxis()->SetRangeUser(0.0, 0.07);
     hSwissCrossBarrel->GetYaxis()->SetRangeUser(1E-8, 1.0);
     hSwissCrossBarrel->GetXaxis()->SetTitle("E4/E");
     hSwissCrossBarrel->Draw(first ? "" : "same");
@@ -131,7 +131,7 @@ void drawPhotonIDplots()
     
     canvasShower->cd(4); preparePad();
     hSwissCrossEndcap->SetTitle("Swiss cross Endcap");
-    hSwissCrossEndcap->GetXaxis()->SetRangeUser(0.0, 0.07);
+//    hSwissCrossEndcap->GetXaxis()->SetRangeUser(0.0, 0.07);
     hSwissCrossEndcap->GetXaxis()->SetTitle("E4/E");
     hSwissCrossEndcap->Draw(first ? "" : "same");
     if(first) drawThreshold(0.005, "0.005");

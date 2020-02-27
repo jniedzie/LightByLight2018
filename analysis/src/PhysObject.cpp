@@ -19,6 +19,7 @@ pt(-1),
 
 energyHad(-9999),
 energyEm(-9999),
+energyMax(-9999),
 energyTop(-9999),
 energyBottom(-9999),
 energyLeft(-9999),
@@ -152,6 +153,12 @@ double PhysObject::GetEnergyHad() const
 {
   if(energyHad < -999) cout<<"WARNING - carefull, energyHad probably not set"<<endl;
   return energyHad;
+}
+
+double PhysObject::GetEnergyCrystalMax() const
+{
+  if(energyMax < -999) cout<<"WARNING - carefull, energyMax probably not set"<<endl;
+  return energyMax;
 }
 
 double PhysObject::GetEnergyCrystalTop() const
