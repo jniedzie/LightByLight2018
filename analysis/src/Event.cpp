@@ -127,30 +127,30 @@ vector<shared_ptr<PhysObject>> Event::GetGoodElectrons(TH1D *cutFlowHist)
   
   for(auto electron : electrons){
     int cutFlowIndex=0;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 0
     
     // Check pt
     if(electron->GetPt() < config.params("electronMinPt")) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 1
     
     // Check eta
     double eta = fabs(electron->GetEtaSC());
     if(eta > config.params("ecalCrackMin") &&
        eta < config.params("ecalCrackMax"))   continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 2
     
     if(eta >= config.params("electronMaxEta")) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
     
     // Check for HEM issue
     if(electron->GetEtaSC() < -minEtaEE &&
        electron->GetPhiSC() > config.params("ecalHEMmin") &&
        electron->GetPhiSC() < config.params("ecalHEMmax")) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 4
     
     // Check n missing hits
     if(electron->GetNmissingHits() > config.params("electronMaxNmissingHits")) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 5
     
     string subdet = "";
     if((eta < maxEtaEB)) subdet = "Barrel";
@@ -158,21 +158,21 @@ vector<shared_ptr<PhysObject>> Event::GetGoodElectrons(TH1D *cutFlowHist)
     
     // Check H/E
     if(electron->GetHoverE() >= config.params("electronMaxHoverE_"+subdet)) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 6
     
     // Check Δη at vertex
     if(electron->GetDetaSeed() >= config.params("electronMaxDetaSeed"+subdet)) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 7
     
     // Check isolation
     if(electron->GetChargedIso() >= config.params("electronMaxChargedIso"+subdet)) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 8
     
     if(electron->GetPhotonIso()  >= config.params("electronMaxPhotonIso"+subdet))  continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 9
     
     if(electron->GetNeutralIso() >= config.params("electronMaxNeutralIso"+subdet)) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
 
     goodElectrons.push_back(electron);
   }
@@ -222,16 +222,10 @@ vector<shared_ptr<PhysObject>> Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
     if(fabs(eta) > config.params("trackMaxEta")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 2
     
-    // Check for HEM issue
-    if(eta < -minEtaEE &&
-       phi > config.params("ecalHEMmin") &&
-       phi < config.params("ecalHEMmax")) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
-    
     
     // Check n hits
     if(track->GetNvalidHits() < config.params("trackMinNvalidHits")) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 4
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
     
     goodGeneralTracks.push_back(track);
   }

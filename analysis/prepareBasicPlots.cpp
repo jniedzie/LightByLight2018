@@ -41,7 +41,7 @@ const vector<EDataset> datasetsToAnalyze = {
 };
 
 vector<string> suffixes = {
-  "all", "low_aco", "high_aco", "passing_HF", "not_passing_HF",
+  "all", "low_aco", "high_aco",
   "good", "good_low_aco", "good_high_aco", "good_all", "two_photons", "good_two_photons"
 };
 
@@ -83,8 +83,6 @@ vector<tuple<string, int, double, double>> histParams = {
   {"samesign_dielectron_pt"         , 100 , 0   , 10.0  },
   
   {"nTracks"                , 100 , 0   , 100   },
-  {"nTracks_pt_geq_100_MeV" , 100 , 0   , 100   },
-  {"nTracks_pt_lt_100_MeV"  , 100 , 0   , 100   },
   {"track_pt"               , 5000, 0   , 100   },
   {"track_eta"              , 100 ,-3.5 , 3.5   },
   {"track_phi"              , 100 ,-3.5 , 3.5   },
@@ -93,10 +91,10 @@ vector<tuple<string, int, double, double>> histParams = {
   {"track_purity"           , 10  , 0   , 10    },
   {"track_charge"           , 4   ,-2   , 2     },
   {"track_chi2"             , 1000, 0   , 100   },
-  {"track_dxy"              , 300 ,-150 , 150   },
+  {"track_dxy"              , 1000,-150 , 150   },
   {"track_dz"               , 1000,-500 , 500   },
-  {"track_vx"               , 300 ,-150 , 150   },
-  {"track_vy"               , 300 ,-150 , 150   },
+  {"track_vx"               , 1000,-150 , 150   },
+  {"track_vy"               , 1000,-150 , 150   },
   {"track_vz"               , 1000,-500 , 500   },
   
   {"tracks_cut_flow"        , 15  , 0   , 15    },
@@ -246,9 +244,6 @@ void fillTracksHists(Event &event, const map<string, TH1D*> &hists, string datas
     hists.at("track_eta_good_"+suffix+datasetName)->Fill(track->GetEta());
     hists.at("track_phi_good_"+suffix+datasetName)->Fill(track->GetPhi());
   }
-  
-  hists.at("nTracks_pt_lt_100_MeV_"+suffix+datasetName)->Fill(tracksLowPt.size());
-  hists.at("nTracks_pt_geq_100_MeV_"+suffix+datasetName)->Fill(tracksHighPt.size());
 }
 
 void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)

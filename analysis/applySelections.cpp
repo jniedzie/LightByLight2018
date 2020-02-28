@@ -108,8 +108,8 @@ bool IsPassingLooseSelection(Event &event)
   if(!event.HasDoubleEG2Trigger()) return false;
   
   // Check exclusivity criteria
-  if(event.HasAdditionalTowers()) return false;
-  if(event.GetGoodGeneralTracks().size() > 10) return false;
+//  if(event.HasAdditionalTowers()) return false;
+//  if(event.GetGoodGeneralTracks().size() > 10) return false;
   
   return true;
 }

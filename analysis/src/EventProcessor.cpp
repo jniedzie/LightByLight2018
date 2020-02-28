@@ -67,6 +67,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   eventTree->SetBranchAddress("trkPhi"            , &generalTrackPhi);
   eventTree->SetBranchAddress("trkcharge"         , &generalTrackCharge);
   eventTree->SetBranchAddress("trkValidHits"      , &generalTrackValidHits);
+  eventTree->SetBranchAddress("trkMissHits"       , &generalTrackMissingHits);
   
   eventTree->SetBranchAddress("trkPurity"         , &generalTrackPurity);
   eventTree->SetBranchAddress("trknormchi2"       , &generalTrackChi2);
@@ -214,18 +215,19 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   for(size_t iTrack=0; iTrack<currentEvent->nGeneralTracks; iTrack++){
     auto track = make_shared<PhysObject>();
     
-    track->charge     = generalTrackCharge->at(iTrack);
-    track->pt         = generalTrackPt->at(iTrack);
-    track->eta        = generalTrackEta->at(iTrack);
-    track->phi        = generalTrackPhi->at(iTrack);
-    track->nValidHits = generalTrackValidHits->at(iTrack);
-    track->purity     = generalTrackPurity->at(iTrack);
-    track->chi2       = generalTrackChi2->at(iTrack);
-    track->dxy        = generalTrackDxy->at(iTrack);
-    track->dz         = generalTrackDz->at(iTrack);
-    track->vx         = generalTrackVertexX->at(iTrack);
-    track->vy         = generalTrackVertexY->at(iTrack);
-    track->vz         = generalTrackVertexZ->at(iTrack);
+    track->charge       = generalTrackCharge->at(iTrack);
+    track->pt           = generalTrackPt->at(iTrack);
+    track->eta          = generalTrackEta->at(iTrack);
+    track->phi          = generalTrackPhi->at(iTrack);
+    track->nValidHits   = generalTrackValidHits->at(iTrack);
+    track->nMissingHits = generalTrackMissingHits->at(iTrack);
+    track->purity       = generalTrackPurity->at(iTrack);
+    track->chi2         = generalTrackChi2->at(iTrack);
+    track->dxy          = generalTrackDxy->at(iTrack);
+    track->dz           = generalTrackDz->at(iTrack);
+    track->vx           = generalTrackVertexX->at(iTrack);
+    track->vy           = generalTrackVertexY->at(iTrack);
+    track->vz           = generalTrackVertexZ->at(iTrack);
     
     currentEvent->generalTracks.push_back(track);
   }
