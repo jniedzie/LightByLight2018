@@ -12,10 +12,18 @@ maxDeltaPhiEE:  0.4
 ### Don't look at towers that are in very noisy region of EE
 maxEtaEEtower:      2.3
 
-### Charged exclusivity cuts (GeV)
+### Track cuts:
 trackMinPt:                   0.1 
 trackMaxEta:                2.4
+
+trackMaxDxy:                      999999
+trackMaxDxyOverSigma:    999999
+trackMaxDz:                        999999
+trackMaxDzOverSigma:      999999
+
 trackMinNvalidHits:      0
+trackMaxChi2:              999999
+
 
 ### Max ΔR for matching for reco+ID efficiency
 maxDeltaR:              0.3

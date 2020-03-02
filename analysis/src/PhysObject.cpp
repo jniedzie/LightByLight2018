@@ -37,6 +37,8 @@ purity(-9999),
 chi2(-9999),
 dxy(-9999),
 dz(-9999),
+dxyErr(-9999),
+dzErr(-9999),
 vx(-9999),
 vy(-9999),
 vz(-9999),
@@ -172,6 +174,18 @@ double PhysObject::GetDz() const
 {
   if(dz < -999) cout<<"WARNING - carefull, dz probably not set"<<endl;
   return dz;
+}
+
+double PhysObject::GetDxyErr() const
+{
+  if(dxyErr < -999) cout<<"WARNING - carefull, dxyErr probably not set"<<endl;
+  return dxyErr;
+}
+
+double PhysObject::GetDzErr() const
+{
+  if(dzErr < -999) cout<<"WARNING - carefull, dzErr probably not set"<<endl;
+  return dzErr;
 }
 
 double PhysObject::GetVertexX() const

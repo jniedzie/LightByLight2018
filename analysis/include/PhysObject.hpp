@@ -40,6 +40,8 @@ public:
   double GetChi2()          const;
   double GetDxy()           const;
   double GetDz()            const;
+  double GetDxyErr()        const;
+  double GetDzErr()         const;
   double GetVertexX()       const;
   double GetVertexY()       const;
   double GetVertexZ()       const;
@@ -99,6 +101,7 @@ private:
   int purity;       ///< Purity of the track
   double chi2;      ///< chi2 of the track fit
   double dxy, dz;   ///< distance between track and primary vertex
+  double dxyErr, dzErr;///< uncertainties on dxy and dz
   double vx, vy, vz;///< vertex coordinates
   
   double chargedIso;  ///< Isolation wrt. charged particles

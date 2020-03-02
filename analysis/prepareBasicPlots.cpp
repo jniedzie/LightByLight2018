@@ -25,7 +25,7 @@ const vector<EDataset> datasetsToAnalyze = {
   //  kData_triggerEff,
   //  kData_HFveto,
   //  kData_exclusivity,
-//  kData_LbLsignal,
+  kData_LbLsignal,
 //  kData_QEDsignal,
 //    kMCqedSC,
   //  kMCqedSC_SingleEG3,
@@ -36,8 +36,8 @@ const vector<EDataset> datasetsToAnalyze = {
 //  kMCqedSC_LbLsignal,
   kMCqedSC_QEDsignal,
   //  kMCqedSL,
-//    kMClbl,
-//    kMCcep
+    kMClbl,
+    kMCcep
 };
 
 vector<string> suffixes = {
@@ -93,6 +93,9 @@ vector<tuple<string, int, double, double>> histParams = {
   {"track_chi2"             , 1000, 0   , 100   },
   {"track_dxy"              , 1000,-150 , 150   },
   {"track_dz"               , 1000,-500 , 500   },
+  {"track_dxy_over_sigma"   , 1000, 0   , 100   },
+  {"track_dz_over_sigma"    , 1000, 0   , 100   },
+  
   {"track_vx"               , 1000,-150 , 150   },
   {"track_vy"               , 1000,-150 , 150   },
   {"track_vz"               , 1000,-500 , 500   },
@@ -222,16 +225,18 @@ void fillTracksHists(Event &event, const map<string, TH1D*> &hists, string datas
     hists.at("track_eta_"+suffix+datasetName)->Fill(track->GetEta());
     hists.at("track_phi_"+suffix+datasetName)->Fill(track->GetPhi());
     
-    hists.at("track_missing_hits_" + suffix + datasetName)->Fill(track->GetNmissingHits());
-    hists.at("track_valid_hits_"   + suffix + datasetName)->Fill(track->GetNvalidHits());
-    hists.at("track_purity_"       + suffix + datasetName)->Fill(track->GetPurity());
-    hists.at("track_charge_"       + suffix + datasetName)->Fill(track->GetCharge());
-    hists.at("track_chi2_"         + suffix + datasetName)->Fill(track->GetChi2());
-    hists.at("track_dxy_"          + suffix + datasetName)->Fill(track->GetDxy());
-    hists.at("track_dz_"           + suffix + datasetName)->Fill(track->GetDz());
-    hists.at("track_vx_"           + suffix + datasetName)->Fill(track->GetVertexX());
-    hists.at("track_vy_"           + suffix + datasetName)->Fill(track->GetVertexY());
-    hists.at("track_vz_"           + suffix + datasetName)->Fill(track->GetVertexZ());
+    hists.at("track_missing_hits_"  + suffix + datasetName)->Fill(track->GetNmissingHits());
+    hists.at("track_valid_hits_"    + suffix + datasetName)->Fill(track->GetNvalidHits());
+    hists.at("track_purity_"        + suffix + datasetName)->Fill(track->GetPurity());
+    hists.at("track_charge_"        + suffix + datasetName)->Fill(track->GetCharge());
+    hists.at("track_chi2_"          + suffix + datasetName)->Fill(track->GetChi2());
+    hists.at("track_dxy_"           + suffix + datasetName)->Fill(track->GetDxy());
+    hists.at("track_dz_"            + suffix + datasetName)->Fill(track->GetDz());
+    hists.at("track_dxy_over_sigma_"+ suffix + datasetName)->Fill(fabs(track->GetDxy()/track->GetDxyErr()));
+    hists.at("track_dz_over_sigma_" + suffix + datasetName)->Fill(fabs(track->GetDz()/track->GetDzErr()));
+    hists.at("track_vx_"            + suffix + datasetName)->Fill(track->GetVertexX());
+    hists.at("track_vy_"            + suffix + datasetName)->Fill(track->GetVertexY());
+    hists.at("track_vz_"            + suffix + datasetName)->Fill(track->GetVertexZ());
     
     if(trackPt < 0.1) tracksLowPt.push_back(track);
     else              tracksHighPt.push_back(track);

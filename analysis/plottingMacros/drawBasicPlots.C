@@ -1,6 +1,7 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/basicPlots_default.root";
+//string inputPath  = "../results/basicPlots_default.root";
+string inputPath  = "../results/basicPlots_test.root";
 string outputPath = "../plots/distributions";
 
 map<EDataset, double> initialNevents = {
@@ -88,16 +89,18 @@ vector<tuple<string, string, bool, bool, int, int, int, double, double>> histPar
   { "track_charge_all"                , "track charge"            , false, false ,   7   , 1  , 1 ,   -1 , 2   },
   { "track_eta_all"                   , "track #eta"              , false, false ,   7   , 2  , 1 , -3.0 , 3.0 },
   { "track_phi_all"                   , "track #phi"              , false, false ,   7   , 3  , 1 , -3.5 , 3.5 },
-  { "track_dxy_all"                   , "track d_{xy}"            , true , false ,   7   , 4  , 1 ,  -10 , 10  },
-  { "track_dz_all"                    , "track d_{z}"             , true , false ,   7   , 5  , 1 ,  -30 , 30  },
-  { "track_vx_all"                    , "track vertex x"          , true , false ,   7   , 6  , 1 ,  -10 , 10  },
-  { "track_vy_all"                    , "track vertex y"          , true , false ,   7   , 7  , 1 ,  -10 , 10  },
-  { "track_vz_all"                    , "track vertex z"          , true , false ,   7   , 8  , 1 ,  -30 , 30  },
-  { "track_valid_hits_all"            , "N_{hits}^{valid}"        , false, false ,   7   , 9  , 1 ,   0  , 30  },
-  { "track_missing_hits_all"          , "N_{hits}^{missing}"      , false, false ,   7   , 10 , 1 ,   0  , 20  },
-  { "track_chi2_all"                  , "track #chi^{2}"          , true , false ,   7   , 11 , 1 ,   0  , 20  },
-  { "track_purity_all"                , "track purity"            , false, false ,   7   , 12 , 1 ,   0  , 20  },
-  { "tracks_cut_flow_all"              , ""                       , false, true  ,   7   , 13 , 1 ,   0  , 6   },
+  { "track_dxy_all"                   , "track d_{xy} (cm)"       , true , false ,   7   , 4  , 1 ,  -10 , 10  },
+  { "track_dz_all"                    , "track d_{z} (cm)"        , true , false ,   7   , 5  , 1 ,  -30 , 30  },
+  { "track_dxy_over_sigma_all"        , "|d_{xy}/#sigma_{xy}|"    , true , false ,   7   , 6  , 5 ,    0 , 10  },
+  { "track_dz_over_sigma_all"         , "|d_{xy}/#sigma_{xy}|"    , true , false ,   7   , 7  , 5 ,    0 , 10  },
+  { "track_vx_all"                    , "track vertex x (cm)"     , true , false ,   7   , 8  , 1 ,  -10 , 10  },
+  { "track_vy_all"                    , "track vertex y (cm)"     , true , false ,   7   , 9  , 1 ,  -10 , 10  },
+  { "track_vz_all"                    , "track vertex z (cm)"     , true , false ,   7   , 10 , 1 ,  -30 , 30  },
+  { "track_valid_hits_all"            , "N_{hits}^{valid}"        , false, false ,   7   , 11 , 1 ,   0  , 30  },
+  { "track_missing_hits_all"          , "N_{hits}^{missing}"      , false, false ,   7   , 12 , 1 ,   0  , 20  },
+  { "track_chi2_all"                  , "track #chi^{2}/NDF"      , true , false ,   7   , 13 , 1 ,   0  , 20  },
+  { "track_purity_all"                , "track purity"            , false, false ,   7   , 14 , 1 ,   0  , 20  },
+  { "tracks_cut_flow_all"              , ""                       , false, true  ,   7   , 15 , 1 ,   0  , 6   },
 };
 
 void fillLabels(TH1D *hist, vector<const char*> labels)
@@ -235,19 +238,25 @@ double getMaxValueInHists(map<EDataset, TH1D*> hists)
   return maxValue;
 }
 
-void normalizeHists(map<EDataset, TH1D*> hists, bool normalize, bool cutFlow)
+void normalizeHists(map<EDataset, TH1D*> hists, bool normalize, bool cutFlow, bool failingCalos)
 {
   if(normalize){
     int totalBackgroundEntries = getTotalBackgroundEntries(hists);
     
     for(EDataset dataset : datasetsToAnalyze){
-      if(dataset == kData) continue;
-      
       if(hists[dataset]->GetEntries() == 0) continue;
       
+      if(failingCalos){
+        cout<<hists[dataset]->GetEntries();
+        
+        hists[dataset]->Scale(1./hists[dataset]->GetEntries());
+      }
+      
+      if(dataset == kData) continue;
+      
 //      if(cutFlow) hists[dataset]->Scale(1./hists[dataset]->GetEntries());
-      if(cutFlow) hists[dataset]->Scale(1./hists[dataset]->GetBinContent(1)*hists[kData]->GetBinContent(1));
-      else        hists[dataset]->Scale(1./totalBackgroundEntries);
+      if(cutFlow)           hists[dataset]->Scale(1./hists[dataset]->GetBinContent(1)*hists[kData]->GetBinContent(1));
+      else if(!failingCalos)hists[dataset]->Scale(1./totalBackgroundEntries);
 //      hists[dataset]->Sumw2(false);
     }
   }
@@ -302,12 +311,15 @@ void drawBasicPlots()
 		histsPad->Draw();
 		histsPad->cd();
 
-    bool isCutFlow = histName.find("cut_flow") != string::npos;
-    normalizeHists(hists, normalize, isCutFlow);
+    bool isCutFlow      = histName.find("cut_flow") != string::npos;
+    bool isFailingcalos = histName.find("nee_failing") != string::npos;
+    normalizeHists(hists, normalize, isCutFlow, isFailingcalos);
     
     if(normalize){
-      if(histName.find("cut_flow") != string::npos || histName == "lbl_nee_failing_all"){
-//        dataHist->Scale(1./dataHist->GetBinContent(1));
+      if(histName.find("cut_flow")    != string::npos
+         || histName.find("nee_failing")  != string::npos
+         ){
+        //        dataHist->Scale(1./dataHist->GetBinContent(1));
         dataHist->Draw("PE");
       }
       else{
@@ -318,7 +330,7 @@ void drawBasicPlots()
       dataHist->Draw("PE");
       dataHist->SetMaximum(1.5 * getMaxValueInHists(hists));
     }
-    backgroundsStack->Draw(isCutFlow ? "sameNostack" : "same");
+    backgroundsStack->Draw((isCutFlow || isFailingcalos) ? "sameNostack" : "same");
     getLegendForHists(hists)->Draw();
     
     dataHist->SetTitle("");
@@ -382,7 +394,7 @@ void drawBasicPlots()
     ratio->GetXaxis()->SetTitleOffset(1.1);
     ratio->GetXaxis()->SetLabelSize(0.2);
     
-    if(histName == "qed_cut_flow_all" || histName == "lbl_cut_flow_all" || histName == "lbl_nee_failing_all"){
+    if(histName.find("cut_flow") != string::npos || histName.find("nee_failing") != string::npos){
       ratio->GetXaxis()->SetLabelSize(0.16);
       ratio->GetXaxis()->SetLabelOffset(0.055);
       ratioPad->SetBottomMargin(0.55);

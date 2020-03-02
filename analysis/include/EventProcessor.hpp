@@ -80,6 +80,8 @@ private:
   vector<float> *generalTrackChi2       = nullptr;
   vector<float> *generalTrackDxy        = nullptr;
   vector<float> *generalTrackDz         = nullptr;
+  vector<float> *generalTrackDxyErr     = nullptr;
+  vector<float> *generalTrackDzErr      = nullptr;
   vector<float> *generalTrackVertexX    = nullptr;
   vector<float> *generalTrackVertexY    = nullptr;
   vector<float> *generalTrackVertexZ    = nullptr;

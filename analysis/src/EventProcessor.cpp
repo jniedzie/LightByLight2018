@@ -73,6 +73,8 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   eventTree->SetBranchAddress("trknormchi2"       , &generalTrackChi2);
   eventTree->SetBranchAddress("trkdxy"            , &generalTrackDxy);
   eventTree->SetBranchAddress("trkdz"             , &generalTrackDz);
+  eventTree->SetBranchAddress("trkdxyError"       , &generalTrackDxyErr);
+  eventTree->SetBranchAddress("trkdzError"        , &generalTrackDzErr);
   eventTree->SetBranchAddress("trkvx"             , &generalTrackVertexX);
   eventTree->SetBranchAddress("trkvy"             , &generalTrackVertexY);
   eventTree->SetBranchAddress("trkvz"             , &generalTrackVertexZ);
@@ -225,6 +227,8 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     track->chi2         = generalTrackChi2->at(iTrack);
     track->dxy          = generalTrackDxy->at(iTrack);
     track->dz           = generalTrackDz->at(iTrack);
+    track->dxyErr       = generalTrackDxyErr->at(iTrack);
+    track->dzErr        = generalTrackDzErr->at(iTrack);
     track->vx           = generalTrackVertexX->at(iTrack);
     track->vy           = generalTrackVertexY->at(iTrack);
     track->vz           = generalTrackVertexZ->at(iTrack);
