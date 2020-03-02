@@ -1,0 +1,10 @@
+Universe              = vanilla
+executable            = runMerge.sh
+arguments             = 3
+GetEnv                = True
+output                = output/$(ClusterId).$(ProcId).out
+error                 = output/$(ClusterId).$(ProcId).err
+log                   = output/$(ClusterId).log
+requirements 	      = (OpSysAndVer =?= "CentOS7")
++JobFlavour           = "tomorrow"
+queue
