@@ -64,28 +64,25 @@ then
   mkdir -p $outputPathHighAco
 elif [ $2 -eq 3 ] # Loose selections
 then
-# data
-#  inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
-#  outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_loose_selections"
-  
-# QED SC
-  inputPath="${basePath}/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
-  outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/mc_qed_sc_loose_selections"
-  
-# CEP SC
-#  inputPath="${basePath}/mc_cep/ntuples_1034/ntuples_cep_1034/ntuples_cep_1034/200211_054704/0000/HiForestAOD_cep_${1}.root"
-#  outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/mc_cep_sc_loose_selections"
-  
-# LbL SC
-#  inputPath="${basePath}/mc_lbl/ntuples_1034/ntuples_lbl_1034/ntuples_lbl_1034/200207_114802/0000/HiForestAOD_LbyL_${1}.root"
-#  outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/mc_lbl_sc_loose_selections"
-  
+  if [ $3 -eq 0 ] # data, 8000 chunks
+  then
+    inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
+    outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_doubleEG2"
+  elif [ $3 -eq 1 ] # QED SC, 96 chunks, max chunk number: 96
+  then
+    inputPath="${basePath}/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
+    outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/mc_qed_sc_doubleEG2"
+  elif [ $3 -eq 2 ] # CEP SC, 408 chunks, max chunk number: 411
+  then
+    inputPath="${basePath}/mc_cep/ntuples_1034/ntuples_cep_1034/ntuples_cep_1034/200211_054704/0000/HiForestAOD_cep_${1}.root"
+    outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/mc_cep_sc_doubleEG2"
+  elif [ $3 -eq 3 ] # LbL SC, 362 chunks, max chunk number: 376
+  then
+    inputPath="${basePath}/mc_lbl/ntuples_1034/ntuples_lbl_1034/ntuples_lbl_1034/200207_114802/0000/HiForestAOD_LbyL_${1}.root"
+    outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/mc_lbl_sc_doubleEG2"
+  fi
   mkdir -p $outputPath
 fi
-
-
-
-
 
 outputReco="${outputPathReco}/ntuples_forRecoEff_${1}.root"
 outputTrigger="${outputPathTrigger}/ntuples_forTriggerEff_${1}.root"
