@@ -1,7 +1,7 @@
 ##  Efficiencies config
 
 ### Max number of events to analyze
-maxEvents: 9999999999
+maxEvents: 9999999
 
 ### Criteria to match calo tower with photon SC for neutral exclusivity
 maxDeltaEtaEB:  0.15
@@ -10,12 +10,20 @@ maxDeltaEtaEE:  0.15
 maxDeltaPhiEE:  0.4
 
 ### Don't look at towers that are in very noisy region of EE
-maxEtaEEtower:      2.4
+maxEtaEEtower:      2.3
 
-### Charged exclusivity cuts (GeV)
+### Track cuts:
 trackMinPt:                   0.1 
 trackMaxEta:                2.4
-trackMinNvalidHits:      3
+
+trackMaxDxy:                      999999
+trackMaxDxyOverSigma:    999999
+trackMaxDz:                        999999
+trackMaxDzOverSigma:      999999
+
+trackMinNvalidHits:      0
+trackMaxChi2:              999999
+
 
 ### Max ΔR for matching for reco+ID efficiency
 maxDeltaR:              0.3
@@ -27,7 +35,9 @@ photonMaxHoverEbarrel:          0.04596
 photonMaxHoverEendcap:       0.0590
 photonMaxEtaWidthBarrel:       0.0106
 photonMaxEtaWidthEndcap:    0.0272
+photonMinSwissCross:             0.005
 diphotonMaxPt:                        1.0
+diphotonMaxRapidity:               9999999
 diphotonMinMass:                    5.0
 diphotonMaxAco:                     0.01
 

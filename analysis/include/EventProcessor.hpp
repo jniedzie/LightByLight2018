@@ -57,6 +57,7 @@ private:
   vector<float> *photonSCEtaWidth       = nullptr;
   vector<float> *photonSCPhiWidth       = nullptr;
   
+  vector<float> *photonEmax             = nullptr;
   vector<float> *photonEtop             = nullptr;
   vector<float> *photonEbottom          = nullptr;
   vector<float> *photonEleft            = nullptr;
@@ -74,6 +75,16 @@ private:
   vector<float> *generalTrackEta        = nullptr;
   vector<float> *generalTrackPhi        = nullptr;
   vector<int>   *generalTrackValidHits  = nullptr;
+  vector<int>   *generalTrackMissingHits= nullptr;
+  vector<int>   *generalTrackPurity     = nullptr;
+  vector<float> *generalTrackChi2       = nullptr;
+  vector<float> *generalTrackDxy        = nullptr;
+  vector<float> *generalTrackDz         = nullptr;
+  vector<float> *generalTrackDxyErr     = nullptr;
+  vector<float> *generalTrackDzErr      = nullptr;
+  vector<float> *generalTrackVertexX    = nullptr;
+  vector<float> *generalTrackVertexY    = nullptr;
+  vector<float> *generalTrackVertexZ    = nullptr;
   
   vector<int>   *electronCharge         = nullptr;
   vector<int>   *electronNmissing       = nullptr;
@@ -94,6 +105,10 @@ private:
   vector<float> *L1EGeta                = nullptr;
   vector<float> *L1EGphi                = nullptr;
   vector<float> *L1EGet                 = nullptr;
+  
+  map<EPhysObjType, int> nPhysObjects;     ///< Stores number of physics objects
+  unsigned short int nL1EGs;
+  
   
   /// Opens input trees and sets branches
   void SetupBranches(string inputPath, vector<string> outputPaths);

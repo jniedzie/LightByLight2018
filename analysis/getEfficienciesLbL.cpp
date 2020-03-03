@@ -18,8 +18,8 @@ vector<string> histParams = {
 
 /// Checks if exactly two photon superclusters in the provided collections are matched
 /// with generated photons within ΔR specified in the config.
-bool HasTwoMatchingPhotons(const vector<shared_ptr<PhysObject>> &genPhotons,
-                           const vector<shared_ptr<PhysObject>> &photonSCs)
+bool HasTwoMatchingPhotons(const PhysObjects &genPhotons,
+                           const PhysObjects &photonSCs)
 {
   int nMatched=0;
   
@@ -68,8 +68,8 @@ int main()
     auto event = eventProcessor->GetEvent(iEvent);
     
     // Here we get gen and reco photons that pass acceptance (c_ACC) criteria
-    auto goodGenPhotons  = event->GetGoodGenPhotons();
-    auto photonsPassing = event->GetGoodPhotons();
+    auto goodGenPhotons  = event->GetPhysObjects(kGoodGenPhoton);
+    auto photonsPassing = event->GetPhysObjects(kGoodPhoton);
     
     if(goodGenPhotons.size() != 2) continue;
     nGenEvents++;
@@ -82,9 +82,9 @@ int main()
     bool hasLbLTrigger            = event->HasDoubleEG2Trigger();
     bool hasTwoPhotonsPassingID   = photonsPassing.size() == 2;
     bool passesNeutralExclusivity = ! event->HasAdditionalTowers();
-    bool passesChargedExclusivity = event->GetGoodGeneralTracks().size() == 0;
+    bool passesChargedExclusivity = event->GetPhysObjects(kGoodGeneralTrack).size() == 0;
     bool passesDiphotonCuts       = diphoton.Pt() < config.params("diphotonMaxPt");
-    bool hasTwoMachingPhotons     = HasTwoMatchingPhotons(goodGenPhotons, event->GetPhotons());
+    bool hasTwoMachingPhotons     = HasTwoMatchingPhotons(goodGenPhotons, event->GetPhysObjects(kPhoton));
     
     if(hasLbLTrigger &&
        hasTwoPhotonsPassingID &&

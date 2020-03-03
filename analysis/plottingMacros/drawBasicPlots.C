@@ -1,9 +1,13 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/basicPlots_withHFcheck_withSwissCross.root";
+//string inputPath  = "../results/basicPlots_default.root";
+//string inputPath  = "../results/basicPlots_tracks+nhits11.root";
+//string inputPath  = "../results/basicPlots_tracks+nhits7.root";
+//string inputPath  = "../results/basicPlots_tracks+chi2_2p5.root";
+//string inputPath  = "../results/basicPlots_tracks+pt500.root";
+//string inputPath  = "../results/basicPlots_test.root";
+string inputPath  = "../results/basicPlots_test_new.root";
 string outputPath = "../plots/distributions";
-
-//double qedInitialNevents = 67820000; // total
 
 map<EDataset, double> initialNevents = {
 //  { kMCqedSC, 67820000  }, // total
@@ -21,101 +25,134 @@ map<EDataset, double> crossSection = { // μb
 
 //double luminosity = 1847.99; // from CMS pages, 1/μb
 double luminosity = 1609.910015010; // from brilcalc, 1/μb
-//double luminosity = 1847.99; // from brilcalc, 1/μb
 
 const double markerSize = 0.5;
-
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
   kData,
   kMCcep,
-//  kMCqedSC,
+  kMCqedSC,
 //  kMCqedSL,
   kMClbl,
-  
 };
 
-vector<tuple<string, string, bool, bool, int, int, int>> histParams = {
-  // title                  x axis title                  log Y   norm?  iCanvas iPad rebin
-  { "lbl_acoplanarity"       , "A_{#phi}^{#gamma#gamma}" , false, false ,   0   , 1  , 1 },
-  { "lbl_photon_et"          , "photon E_{t} (GeV)"      , false, false ,   0   , 2  , 1 },
-  { "lbl_photon_eta"         , "photon #eta"             , false, false ,   0   , 3  , 1 },
-  { "lbl_photon_phi"         , "photon #phi"             , false, false ,   0   , 4  , 1 },
-  { "lbl_diphoton_mass"      , "diphoton m_{inv} (GeV)"  , false, false ,   0   , 5  , 1 },
-  { "lbl_diphoton_rapidity"  , "diphoton rapidity"       , false, false ,   0   , 6  , 1 },
-  { "lbl_diphoton_pt"        , "diphoton p_{t}"          , false, false ,   0   , 7  , 1 },
-  { "lbl_cut_through"        , "# cut"                   , false, true  ,   0   , 8  , 1 },
+const double goldenRatio = 1.61803398875;
+const int baseHistWidth  = 600;
+const int baseHistHeight = baseHistWidth/goldenRatio;
 
-  { "lbl_photon_et_high_aco"          , "photon E_{t} (GeV)"      , false, false ,   4   , 1   , 1 },
-  { "lbl_photon_eta_high_aco"         , "photon #eta"             , false, false ,   4   , 2   , 1 },
-  { "lbl_photon_phi_high_aco"         , "photon #phi"             , false, false ,   4   , 3   , 1 },
-  { "lbl_diphoton_mass_high_aco"      , "diphoton m_{inv} (GeV)"  , false, false ,   4   , 4   , 1 },
-  { "lbl_diphoton_rapidity_high_aco"  , "diphoton rapidity"       , false, false ,   4   , 5   , 1 },
-  { "lbl_diphoton_pt_high_aco"        , "diphoton p_{t}"          , false, false ,   4   , 6   , 1 },
-  { "lbl_HFp_high_aco"                , "HF+ energy (GeV)"        , true , true  ,   4   , 7   , 1 },
-  { "lbl_HFm_high_aco"                , "HF- energy (GeV)"        , true , true  ,   4   , 8   , 1 },
-  { "lbl_HFp_leading_tower_high_aco"  , "HF+ leading energy (GeV)", true , true  ,   4   , 9   , 1 },
-  { "lbl_HFm_leading_tower_high_aco"  , "HF- leading energy (GeV)", true , true  ,   4   , 10  , 1 },
-  
-  { "lbl_triphoton_mass"     , "triphoton m_{inv} (GeV)" , false, false ,   0   , 9  , 1 },
-  { "lbl_triphoton_rapidity" , "triphoton rapidity"      , false, false ,   0   , 10 , 1 },
-  { "lbl_triphoton_pt"       , "triphoton p_{t}"         , false, false ,   0   , 11 , 1 },
-  
-  { "qed_acoplanarity"       , "A_{#phi}^{e^{+}e^{-}}"   , true , false ,   1   , 1  , 1 },
-  { "qed_electron_pt"        , "electron p_{t} (GeV)"    , false, false ,   1   , 2  , 1 },
-  { "qed_electron_eta"       , "electron #eta"           , false, false ,   1   , 3  , 1 },
-  { "qed_electron_phi"       , "electron #phi"           , false, false ,   1   , 4  , 1 },
-  { "qed_dielectron_mass"    , "dielectron m_{inv} (GeV)", false, false ,   1   , 5  , 1 },
-  { "qed_dielectron_rapidity", "dielectron rapidity"     , false, false ,   1   , 6  , 1 },
-  { "qed_dielectron_pt"      , "dielectron p_{t}"        , false, false ,   1   , 7  , 1 },
-  { "qed_cut_through"        , ""                        , false, false ,   1   , 8  , 1 },
-  { "qed_electron_cutflow"   , "# cut"                   , false, false ,   1   , 9  , 1 },
-  
-  { "qed_HFp_no_cuts"                , "HF+ energy (GeV)"        , true , true  ,   2   , 1 , 1},
-  { "qed_HFm_no_cuts"                , "HF- energy (GeV)"        , true , true  ,   2   , 2 , 1},
-  { "qed_HFp_leading_tower_no_cuts"  , "HF+ leading energy (GeV)", true , true  ,   2   , 3 , 1},
-  { "qed_HFm_leading_tower_no_cuts"  , "HF- leading energy (GeV)", true , true  ,   2   , 4 , 1},
-  { "qed_HFp"                , "HF+ energy (GeV)"        , true , true  ,   2   , 5  , 1 },
-  { "qed_HFm"                , "HF- energy (GeV)"        , true , true  ,   2   , 6  , 1 },
-  { "qed_HFp_leading_tower"  , "HF+ leading energy (GeV)", true , true  ,   2   , 7  , 1 },
-  { "qed_HFm_leading_tower"  , "HF- leading energy (GeV)", true , true  ,   2   , 8  , 1 },
-  
-  { "qed_aco_HF_gt_5"        , "A_{#phi}^{e^{+}e^{-}}"   , true , false ,   2   , 9  , 1 },
-  { "qed_aco_HF_gt_10"       , "A_{#phi}^{e^{+}e^{-}}"   , true , false ,   2   , 10 , 1 },
-  { "qed_aco_HF_gt_15"       , "A_{#phi}^{e^{+}e^{-}}"   , true , false ,   2   , 11 , 1 },
-  
-  { "qed_acoplanarity_no_cuts"       , "A_{#phi}^{e^{+}e^{-}}"   , true , false ,   3   , 1 , 1},
-  { "qed_electron_pt_no_cuts"        , "electron p_{t} (GeV)"    , false, false ,   3   , 2 , 1},
-  { "qed_electron_eta_no_cuts"       , "electron #eta"           , false, false ,   3   , 3 , 1},
-  { "qed_electron_phi_no_cuts"       , "electron #phi"           , false, false ,   3   , 4 , 1},
-  { "qed_dielectron_mass_no_cuts"    , "dielectron m_{inv} (GeV)", false, false ,   3   , 5 , 1},
-  { "qed_dielectron_mass_low_no_cuts", "dielectron m_{inv} (GeV)", false, false ,   3   , 6 , 1},
-  { "qed_dielectron_rapidity_no_cuts", "dielectron rapidity"     , false, false ,   3   , 7 , 1},
-  { "qed_dielectron_pt_no_cuts"      , "dielectron p_{t}"        , false, false ,   3   , 8 , 1},
+vector<tuple<string, int, int>> canvasParams = {
+  // title       col row
+  {"Photon"       , 2 , 2 },
+  {"Diphoton"     , 2 , 3 },
+  {"Triphoton"    , 2 , 2 },
+  {"Electron"     , 2 , 2 },
+  {"Dielectron"   , 2 , 3 },
+  {"Same sign ee" , 2 , 2 },
+  {"QED calo"     , 2 , 2 },
+  {"tracks"       , 4 , 4 },
 };
 
-void setCutflowLabels(TH1D *hist, bool lbl)
+vector<tuple<string, string, bool, bool, int, int, int, double, double>> histParams = {
+  // title                            x axis title                  log Y  norm?  iCanvas iPad rebin xMin xMax
+  { "lbl_photon_et_all"               , "photon E_{t} (GeV)"      , false, false ,   0   , 1  , 1 ,   0  , 30  },
+  { "lbl_photon_eta_all"              , "photon #eta"             , false, false ,   0   , 2  , 1 , -3.0 , 3.0 },
+  { "lbl_photon_phi_all"              , "photon #phi"             , false, false ,   0   , 3  , 1 , -3.5 , 3.5 },
+  { "lbl_nee_failing_all"             , ""                        , false, true  ,   0   , 4  , 1 ,   0  , 10  },
+  
+  { "lbl_acoplanarity_all"            , "A_{#phi}^{#gamma#gamma}" , false, false ,   1   , 1  , 1 ,   0  , 0.2 },
+  { "lbl_diphoton_mass_all"           , "diphoton m_{inv} (GeV)"  , false, false ,   1   , 2  , 1 ,   0  , 50  },
+  { "lbl_diphoton_pt_all"             , "diphoton p_{t}"          , false, false ,   1   , 3  , 1 ,   0  , 2.0 },
+  { "lbl_diphoton_rapidity_all"       , "diphoton rapidity"       , false, false ,   1   , 4  , 1 , -3.0 , 3.0 },
+  { "lbl_cut_flow_all"                , ""                        , false, true  ,   1   , 5  , 1 ,   0  , 10  },
+  
+  { "lbl_triphoton_mass_all"          , "triphoton m_{inv} (GeV)" , false, false ,   2   , 1  , 2 ,   0  , 30  },
+  { "lbl_triphoton_rapidity_all"      , "triphoton rapidity"      , false, false ,   2   , 2  , 1 , -3.0 , 3.0 },
+  { "lbl_triphoton_pt_all"            , "triphoton p_{t}"         , false, false ,   2   , 3  , 2 ,   0  , 30  },
+  
+  { "qed_electron_pt_all"             , "electron p_{t} (GeV)"    , false, false ,   3   , 1  , 1 ,   0  , 40  },
+  { "qed_electron_eta_all"            , "electron #eta"           , false, false ,   3   , 2  , 1 , -2.5 , 2.5 },
+  { "qed_electron_phi_all"            , "electron #phi"           , false, false ,   3   , 3  , 1 , -3.5 , 3.5 },
+  { "qed_electron_cutflow_all"        , ""                        , false, false ,   3   , 4  , 1 ,   0  , 12  },
+  
+  { "qed_acoplanarity_all"            , "A_{#phi}^{e^{+}e^{-}}"   , true , false ,   4   , 1  , 1 ,   0  , 0.1 },
+  { "qed_dielectron_mass_all"         , "dielectron m_{inv} (GeV)", false, false ,   4   , 2  , 1 ,   0  , 100 },
+  { "qed_dielectron_pt_all"           , "dielectron p_{t}"        , false, false ,   4   , 3  , 1 ,   0  , 2.0 },
+  { "qed_dielectron_rapidity_all"     , "dielectron rapidity"     , false, false ,   4   , 4  , 1 ,  -3.0, 3.0 },
+  { "qed_cut_flow_all"                , ""                        , false, true  ,   4   , 5  , 1 ,   0  , 10  },
+  
+  { "samesign_dielectron_mass_all"    , "dielectron m_{inv} (GeV)", false, false ,   5   , 1  , 1 ,   0  , 100 },
+  { "samesign_dielectron_pt_all"      , "dielectron p_{t}"        , false, false ,   5   , 2  , 1 ,   0  , 2.0 },
+  { "samesign_dielectron_rapidity_all", "dielectron rapidity"     , false, false ,   5   , 3  , 1 ,  -3.0, 3.0 },
+  
+  { "qed_HFp_all"                     , "HF+ energy (GeV)"        , true , true  ,   6   , 1  , 1 ,   0  , 20  },
+  { "qed_HFm_all"                     , "HF- energy (GeV)"        , true , true  ,   6   , 2  , 1 ,   0  , 20  },
+  { "qed_HFp_leading_tower_all"       , "HF+ leading energy (GeV)", true , true  ,   6   , 3  , 1 ,   0  , 20  },
+  { "qed_HFm_leading_tower_all"       , "HF- leading energy (GeV)", true , true  ,   6   , 4  , 1 ,   0  , 20  },
+  
+  
+  { "track_charge_all"                , "track charge"            , false, false ,   7   , 1  , 1 ,   -1 , 2   },
+  { "track_eta_all"                   , "track #eta"              , false, false ,   7   , 2  , 1 , -3.0 , 3.0 },
+  { "track_phi_all"                   , "track #phi"              , false, false ,   7   , 3  , 1 , -3.5 , 3.5 },
+  { "track_dxy_all"                   , "track d_{xy} (cm)"       , true , false ,   7   , 4  , 1 ,  -10 , 10  },
+  { "track_dz_all"                    , "track d_{z} (cm)"        , true , false ,   7   , 5  , 1 ,  -30 , 30  },
+  { "track_dxy_over_sigma_all"        , "|d_{xy}/#sigma_{xy}|"    , true , false ,   7   , 6  , 2 ,    0 , 10  },
+  { "track_dz_over_sigma_all"         , "|d_{xy}/#sigma_{z}|"     , true , false ,   7   , 7  , 2 ,    0 , 10  },
+  { "track_vx_all"                    , "track vertex x (cm)"     , true , false ,   7   , 8  , 1 ,  -10 , 10  },
+  { "track_vy_all"                    , "track vertex y (cm)"     , true , false ,   7   , 9  , 1 ,  -10 , 10  },
+  { "track_vz_all"                    , "track vertex z (cm)"     , true , false ,   7   , 10 , 1 ,  -30 , 30  },
+  { "track_valid_hits_all"            , "N_{hits}^{valid}"        , false, false ,   7   , 11 , 1 ,   0  , 30  },
+  { "track_missing_hits_all"          , "N_{hits}^{missing}"      , false, false ,   7   , 12 , 1 ,   0  , 20  },
+  { "track_chi2_all"                  , "track #chi^{2}/NDF"      , true , true  ,   7   , 13 , 1 ,   0  , 20  },
+  { "track_purity_all"                , "track purity"            , false, false ,   7   , 14 , 1 ,   0  , 20  },
+  { "tracks_cut_flow_all"              , ""                       , false, true  ,   7   , 15 , 1 ,   0  , 10  },
+};
+
+void fillLabels(TH1D *hist, vector<const char*> labels)
 {
-  vector<const char *> labelsQED = {
-    "Initial", "Trigger", "HB NEE", "HE NEE", "HF+ NEE", "HF- NEE", "EB NEE",
-    "EE NEE", "CHE", "2 good electrons", "dielectron m_{inv}", "dielectron p_{t}", "dielectron y"
-  };
-  
-  vector<const char *> labelsLbL = {
-    "Initial", "Trigger", "CHE", "HB NEE", "HE NEE", "HF+ NEE", "HF- NEE", "EB NEE",
-    "EE NEE", "2 good photons", "diphoton m_{inv}", "diphoton p_{t}", "diphoton y", "acoplanarity"
-  };
-  
   int i=1;
-  for(auto label : (lbl ? labelsLbL : labelsQED)){
+  for(auto label : labels){
     hist->GetXaxis()->SetBinLabel(i, label);
     hist->GetXaxis()->ChangeLabel(i, 45);
     i++;
   }
   hist->LabelsOption("u", "X");
-//  gPad->SetLeftMargin(0.17);
-//  gPad->SetBottomMargin(0.22);
+}
+
+void setCutflowLabels(TH1D *hist, bool lbl)
+{
+  vector<const char *> labelsQED = {
+    "Initial", "Trigger", "NEE", "CHE", "2 good electrons", "opposite q",
+    "dielectron m_{inv}", "dielectron p_{t}", "dielectron y"
+  };
+  vector<const char *> labelsLbL = {
+    "Initial", "Trigger", "CHE", "NEE", "2 good photons",
+    "diphoton m_{inv}", "diphoton p_{t}", "diphoton y", "acoplanarity"
+  };
+  fillLabels(hist, lbl ? labelsLbL : labelsQED);
+}
+
+void setCaloLabels(TH1D *hist)
+{
+  vector<const char *> labels = { "EB", "EE", "HB", "HE", "HF+", "HF-" };
+  fillLabels(hist, labels);
+}
+
+void setElectronCutsLabels(TH1D *hist)
+{
+  vector<const char *> labels = {
+    "Initial", "p_{t}", "Cracks", "#eta", "HEM", "missing hits",
+    "H/E", "#Delta#eta seed", "Iso charge", "Iso photon", "Iso neutral"
+  };
+  fillLabels(hist, labels);
+}
+
+void setTrackCutsLabels(TH1D *hist)
+{
+  vector<const char *> labels = {
+    "Initial", "p_{t}", "Eta", "d_{xy}", "|d_{xy}/#sigma_{xy}|",
+    "d_{z}", "|d_{z}/#sigma_{z}|", "N_{hits}^{valid}", "#chi^{2}" };
+  fillLabels(hist, labels);
 }
 
 map<EDataset, string> legendOptions = {
@@ -170,6 +207,8 @@ int getTotalBackgroundEntries(map<EDataset, TH1D*> hists)
   int totalBackgroundEntries = 0;
   
   for(EDataset dataset : datasetsToAnalyze){
+    if(!hists[dataset]) continue;
+    
     if(dataset != kData) totalBackgroundEntries += hists[dataset]->GetEntries();
   }
   return totalBackgroundEntries;
@@ -200,6 +239,8 @@ double getMaxValueInHists(map<EDataset, TH1D*> hists)
   double maxValue = -999;
   
   for(EDataset dataset : datasetsToAnalyze){
+    if(!hists[dataset]) continue;
+    
     for(int i=0; i<hists[dataset]->GetNbinsX(); i++){
       double value = hists[dataset]->GetBinContent(i);
       if(value > maxValue) maxValue = value;
@@ -208,24 +249,34 @@ double getMaxValueInHists(map<EDataset, TH1D*> hists)
   return maxValue;
 }
 
-void normalizeHists(map<EDataset, TH1D*> hists, bool normalize, bool cutFlow)
+void normalizeHists(map<EDataset, TH1D*> hists, bool normalize, bool cutFlow, bool failingCalos)
 {
   if(normalize){
     int totalBackgroundEntries = getTotalBackgroundEntries(hists);
     
     for(EDataset dataset : datasetsToAnalyze){
-      if(dataset == kData) continue;
+      if(!hists[dataset]) continue;
       
       if(hists[dataset]->GetEntries() == 0) continue;
       
-      if(cutFlow) hists[dataset]->Scale(1./hists[dataset]->GetEntries());
-      else        hists[dataset]->Scale(1./totalBackgroundEntries);
+      if(failingCalos){
+        cout<<hists[dataset]->GetEntries();
+        
+        hists[dataset]->Scale(1./hists[dataset]->GetEntries());
+      }
+      
+      if(dataset == kData) continue;
+      
+//      if(cutFlow) hists[dataset]->Scale(1./hists[dataset]->GetEntries());
+      if(cutFlow)           hists[dataset]->Scale(1./hists[dataset]->GetBinContent(1)*hists[kData]->GetBinContent(1));
+      else if(!failingCalos)hists[dataset]->Scale(1./totalBackgroundEntries);
 //      hists[dataset]->Sumw2(false);
     }
   }
   else{
     for(EDataset dataset : datasetsToAnalyze){
       if(dataset == kData) continue;
+      if(!hists[dataset]) continue;
       hists[dataset]->Scale(luminosity*crossSection[dataset]/initialNevents[dataset]);
 //      hists[dataset]->Sumw2(false);
     }
@@ -240,18 +291,12 @@ void drawBasicPlots()
   
   vector<TCanvas*> canvas;
   
-  canvas.push_back(new TCanvas("Canvas LbL", "Canvas LbL", 2800, 1800));
-  canvas.push_back(new TCanvas("Canvas QED", "Canvas QED", 2800, 1800));
-  canvas.push_back(new TCanvas("Canvas calo", "Canvas calo", 2800, 1800));
-  canvas.push_back(new TCanvas("Canvas QED no cuts", "Canvas QED no cuts", 2800, 1800));
-  canvas.push_back(new TCanvas("Canvas LbL high aco", "Canvas LbL high aco", 2800, 1800));
-  canvas[0]->Divide(4,3);
-  canvas[1]->Divide(3,3);
-  canvas[2]->Divide(4,3);
-  canvas[3]->Divide(3,3);
-  canvas[4]->Divide(4,3);
+  for(auto &[title, nCol, nRow] : canvasParams){
+    canvas.push_back(new TCanvas(title.c_str(), title.c_str(), baseHistWidth*nCol, baseHistHeight*nRow));
+    canvas.back()->Divide(nCol, nRow);
+  }
   
-  for(auto &[histName, xAxisTitle, logY, normalize, iCanvas, iPad, rebin] : histParams){
+  for(auto &[histName, xAxisTitle, logY, normalize, iCanvas, iPad, rebin, xMin, xMax] : histParams){
     
     map<EDataset, TH1D*> hists = getHistsFromFile(inFile, histName);
     
@@ -260,13 +305,14 @@ void drawBasicPlots()
     TH1D *dataHist;
     
     for(EDataset dataset : datasetsToAnalyze){
+      if(!hists[dataset]) continue;
+      
       hists[dataset]->Rebin(rebin);
       hists[dataset]->Scale(1./rebin);
       
       if(dataset != kData)  backgroundsStack->Add(hists[dataset]);
       else                  dataHist = hists[dataset];
     }
-    
     //
     // Draw main plot
     //
@@ -280,19 +326,37 @@ void drawBasicPlots()
     histsPad->SetLogy(logY);
 		histsPad->Draw();
 		histsPad->cd();
+
+    bool isCutFlow      = histName.find("cut_flow") != string::npos;
+    bool isFailingcalos = histName.find("nee_failing") != string::npos;
+    normalizeHists(hists, normalize, isCutFlow, isFailingcalos);
     
-    bool isCutFlow = histName.find("cut_through") != string::npos;
-    
-    normalizeHists(hists, normalize, isCutFlow);
+    if(histName == "lbl_acoplanarity_all"){
+      double signal = dataHist->GetBinContent(1);
+      double background = 0;
+      for(int i=2; i<=dataHist->GetNbinsX(); i++){
+        background += dataHist->GetBinContent(i);
+      }
+      background /= 25;
+      cout<<"Significance: "<<(signal-background)/sqrt(signal)<<endl;
+    }
     
     if(normalize){
-      dataHist->DrawNormalized("PE");
+      if(histName.find("cut_flow")    != string::npos
+         || histName.find("nee_failing")  != string::npos
+         ){
+        //        dataHist->Scale(1./dataHist->GetBinContent(1));
+        dataHist->Draw("PE");
+      }
+      else{
+        dataHist->DrawNormalized("PE");
+      }
     }
     else{
       dataHist->Draw("PE");
       dataHist->SetMaximum(1.5 * getMaxValueInHists(hists));
     }
-    backgroundsStack->Draw(isCutFlow ? "sameNostack" : "same");
+    backgroundsStack->Draw((isCutFlow || isFailingcalos) ? "sameNostack" : "same");
     getLegendForHists(hists)->Draw();
     
     dataHist->SetTitle("");
@@ -300,6 +364,7 @@ void drawBasicPlots()
     dataHist->GetXaxis()->SetTitle("");
     dataHist->GetXaxis()->SetTitleSize(0.06);
     dataHist->GetXaxis()->SetLabelSize(0);
+    dataHist->GetXaxis()->SetRangeUser(xMin, xMax);
     
     dataHist->GetYaxis()->SetTitle("# events");
     dataHist->GetYaxis()->SetTitleSize(0.06);
@@ -309,7 +374,7 @@ void drawBasicPlots()
     //
     // Draw ratio
     //
-    
+
     TPad *ratioPad = new TPad("ratioPad", "ratioPad", 0.0, 0.1, 1.0, 0.4);
     ratioPad->SetTopMargin(0);
     ratioPad->SetLeftMargin(0.15);
@@ -317,13 +382,15 @@ void drawBasicPlots()
     ratioPad->SetGrid();
     ratioPad->Draw();
     ratioPad->cd();
-    
+
     TH1D *ratio = new TH1D(*dataHist);
-    TH1D *backgroundsSum;
+    TH1D *backgroundsSum = nullptr;
     bool first = true;
     
     for(auto &[dataset, hist] : hists){
       if(dataset == kData) continue;
+      if(!hists[dataset]) continue;
+      
       if(first){
         backgroundsSum = new TH1D(*hist);
         first = false;
@@ -333,6 +400,8 @@ void drawBasicPlots()
       }
     }
     
+    if(!backgroundsSum) continue;
+    
     ratio->Divide(backgroundsSum);
     ratio->Draw();
     
@@ -341,9 +410,11 @@ void drawBasicPlots()
     
     ratio->SetTitle("");
     
-    if(histName == "qed_cut_through") setCutflowLabels(ratio, false);
-    if(histName == "lbl_cut_through") setCutflowLabels(ratio, true);
-    
+    if(histName == "qed_cut_flow_all")          setCutflowLabels(ratio, false);
+    if(histName == "lbl_cut_flow_all")          setCutflowLabels(ratio, true);
+    if(histName == "qed_electron_cutflow_all")  setElectronCutsLabels(ratio);
+    if(histName == "tracks_cut_flow_all")       setTrackCutsLabels(ratio);
+    if(histName == "lbl_nee_failing_all")       setCaloLabels(ratio);
     
     
     ratio->GetXaxis()->SetTitle(xAxisTitle.c_str());
@@ -351,9 +422,9 @@ void drawBasicPlots()
     ratio->GetXaxis()->SetTitleOffset(1.1);
     ratio->GetXaxis()->SetLabelSize(0.2);
     
-    if(histName == "qed_cut_through" || histName == "lbl_cut_through"){
+    if(histName.find("cut_flow") != string::npos || histName.find("nee_failing") != string::npos){
       ratio->GetXaxis()->SetLabelSize(0.16);
-      ratio->GetXaxis()->SetLabelOffset(0.05);
+      ratio->GetXaxis()->SetLabelOffset(0.055);
       ratioPad->SetBottomMargin(0.55);
     }
     

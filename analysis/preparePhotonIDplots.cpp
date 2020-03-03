@@ -11,16 +11,16 @@ string configPath = "configs/efficiencies.md";
 string outputPath = "results/photonID_test.root";
 
 vector<EDataset> datasetsToAnalyze = {
-//  kData_LbLsignal,
-//  kMCqedSC,
-//  kMClbl,
-//  kMCcep
-  
-  kData,
-  kMClbl,
+  kData_LbLsignal,
   kMCqedSC,
-  kMCqedSL,
-  kMCcep,
+  kMClbl,
+  kMCcep
+  
+//  kData,
+//  kMClbl,
+//  kMCqedSC,
+//  kMCqedSL,
+//  kMCcep,
 };
 
 vector<tuple<string, int, double, double>> histParams = {
@@ -69,7 +69,7 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
     //    if(event->HasAdditionalTowers()) continue;
     
     // Fill histograms for N-1 photon ID cuts
-    for(auto photon : event->GetPhotons()){
+    for(auto photon : event->GetPhysObjects(kPhoton)){
       double eta = fabs(photon->GetEta());
       
       // Check basic cuts:
@@ -87,14 +87,19 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
       photon->GetEnergyCrystalLeft() +
       photon->GetEnergyCrystalRight();
       
-      double swissCross = E4/photon->GetEnergy();
+      double swissCross = E4/photon->GetEnergyCrystalMax();
+      
+      if(E4 < 0){
+//        cout<<"WARNING -- swiss cross cannot be calculated. The event will pass this selection automatically!!"<<endl;
+        swissCross = 999999;
+      }
       
       
       // Fill in shower shape histograms
       if(eta < maxEtaEB){
-        bool passesSwissCross = swissCross > 0.005;
-        bool passesHoverE = photon->GetHoverE() < config.params("photonMaxHoverEbarrel");
-        bool passesSigmaEtaEta = photon->GetEtaWidth() > config.params("photonMaxEtaWidthBarrel");
+        bool passesSwissCross   = swissCross            > config.params("photonMinSwissCross");
+        bool passesHoverE       = photon->GetHoverE()   < config.params("photonMaxHoverEbarrel");
+        bool passesSigmaEtaEta  = photon->GetEtaWidth() > config.params("photonMaxEtaWidthBarrel");
         
         
         if(passesSwissCross && passesHoverE){
@@ -106,7 +111,7 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
           hists2D.at("HoverEmapDen"+datasetName)->Fill(photon->GetPhi(), photon->GetEta());
         }
         if(passesHoverE && passesSigmaEtaEta){
-          hists.at("swissCrossBarrel"+datasetName)->Fill(photon->GetHoverE());
+          hists.at("swissCrossBarrel"+datasetName)->Fill(swissCross);
         }
         
         if(passesSwissCross && passesHoverE && passesSigmaEtaEta){
@@ -119,9 +124,9 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
         }
       }
       else if(eta < maxEtaEE){
-        bool passesSwissCross = swissCross > 0.005;
-        bool passesHoverE = photon->GetHoverE() < config.params("photonMaxHoverEendcap");
-        bool passesSigmaEtaEta = photon->GetEtaWidth() > config.params("photonMaxEtaWidthEndcap");
+        bool passesSwissCross   = swissCross            > config.params("photonMinSwissCross");
+        bool passesHoverE       = photon->GetHoverE()   < config.params("photonMaxHoverEendcap");
+        bool passesSigmaEtaEta  = photon->GetEtaWidth() > config.params("photonMaxEtaWidthEndcap");
         
         if(passesSwissCross && passesHoverE){
           hists.at("showerShapeEndcap"+datasetName)->Fill(photon->GetEtaWidth());
@@ -132,7 +137,7 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
           hists2D.at("HoverEmapDen"+datasetName)->Fill(photon->GetPhi(), photon->GetEta());
         }
         if(passesHoverE && passesSigmaEtaEta){
-          hists.at("swissCrossEndcap"+datasetName)->Fill(photon->GetHoverE());
+          hists.at("swissCrossEndcap"+datasetName)->Fill(swissCross);
         }
         
         

@@ -59,7 +59,7 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
 //    if(!event->HasSingleEG3Trigger()) continue;
     
     // Fill histograms for electron ID cuts
-    for(auto electron : event->GetElectrons()){
+    for(auto electron : event->GetPhysObjects(kElectron)){
       double eta = fabs(electron->GetEtaSC());
       
       // Check basic cuts:

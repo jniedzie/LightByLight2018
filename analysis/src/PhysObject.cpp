@@ -19,6 +19,7 @@ pt(-1),
 
 energyHad(-9999),
 energyEm(-9999),
+energyMax(-9999),
 energyTop(-9999),
 energyBottom(-9999),
 energyLeft(-9999),
@@ -32,6 +33,15 @@ pdgID(0),
 charge(9999),
 nMissingHits(-1),
 nValidHits(-1),
+purity(-9999),
+chi2(-9999),
+dxy(-9999),
+dz(-9999),
+dxyErr(-9999),
+dzErr(-9999),
+vx(-9999),
+vy(-9999),
+vz(-9999),
 
 chargedIso(-9999),
 photonIso(-9999),
@@ -142,6 +152,60 @@ int PhysObject::GetNvalidHits() const
   return nValidHits;
 }
 
+int PhysObject::GetPurity() const
+{
+  if(purity < -999) cout<<"WARNING - carefull, purity probably not set"<<endl;
+  return purity;
+}
+
+double PhysObject::GetChi2() const
+{
+  if(chi2 < -999) cout<<"WARNING - carefull, chi2 probably not set"<<endl;
+  return chi2;
+}
+
+double PhysObject::GetDxy() const
+{
+  if(dxy < -999) cout<<"WARNING - carefull, dxy probably not set"<<endl;
+  return dxy;
+}
+
+double PhysObject::GetDz() const
+{
+  if(dz < -999) cout<<"WARNING - carefull, dz probably not set"<<endl;
+  return dz;
+}
+
+double PhysObject::GetDxyErr() const
+{
+  if(dxyErr < -999) cout<<"WARNING - carefull, dxyErr probably not set"<<endl;
+  return dxyErr;
+}
+
+double PhysObject::GetDzErr() const
+{
+  if(dzErr < -999) cout<<"WARNING - carefull, dzErr probably not set"<<endl;
+  return dzErr;
+}
+
+double PhysObject::GetVertexX() const
+{
+  if(vx < -999) cout<<"WARNING - carefull, vx probably not set"<<endl;
+  return vx;
+}
+
+double PhysObject::GetVertexY() const
+{
+  if(vy < -999) cout<<"WARNING - carefull, vy probably not set"<<endl;
+  return vy;
+}
+
+double PhysObject::GetVertexZ() const
+{
+  if(vz < -999) cout<<"WARNING - carefull, vz probably not set"<<endl;
+  return vz;
+}
+
 double PhysObject::GetEnergy()     const
 {
   if(energy<0) cout<<"WARNING - carefull, energy probably not set"<<endl;
@@ -152,6 +216,12 @@ double PhysObject::GetEnergyHad() const
 {
   if(energyHad < -999) cout<<"WARNING - carefull, energyHad probably not set"<<endl;
   return energyHad;
+}
+
+double PhysObject::GetEnergyCrystalMax() const
+{
+  if(energyMax < -999) cout<<"WARNING - carefull, energyMax probably not set"<<endl;
+  return energyMax;
 }
 
 double PhysObject::GetEnergyCrystalTop() const
