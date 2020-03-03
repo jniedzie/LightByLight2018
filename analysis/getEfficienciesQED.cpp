@@ -100,12 +100,12 @@ void CheckRecoEfficiency(Event &event, map<string, TH1D*> &hists, string dataset
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Preselect events with exactly two tracks
-  if(event.GetNgeneralTracks() != 2) return;
+  if(event.GetPhysObjects(kGeneralTrack).size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 2
   
   // Make sure that tracks have opposite charges and that brem track has low momentum
-  auto track1 = event.GetGeneralTrack(0);
-  auto track2 = event.GetGeneralTrack(1);
+  auto track1 = event.GetPhysObjects(kGeneralTrack)[0];
+  auto track2 = event.GetPhysObjects(kGeneralTrack)[1];
   if(track1->GetCharge() == track2->GetCharge()) return;
   hists[cutThouthName]->Fill(cutLevel++); // 3
   
@@ -114,13 +114,13 @@ void CheckRecoEfficiency(Event &event, map<string, TH1D*> &hists, string dataset
   hists[cutThouthName]->Fill(cutLevel++); // 4
   
   // Check if there is one good electron matched with L1EG
-  vector<shared_ptr<PhysObject>> goodMatchedElectrons;
-  auto goodElectrons = event.GetGoodElectrons();
+  PhysObjects goodMatchedElectrons;
+  auto goodElectrons = event.GetPhysObjects(kGoodElectron);
   
   for(auto electron : goodElectrons){
     if(electron->GetPt() < 3.0) continue;
     
-    for(auto &L1EG : event.GetL1EGs()){
+    for(auto &L1EG : event.GetPhysObjects(kL1EG)){
       if(L1EG->GetEt() < 3.0) continue;
       
       if(physObjectProcessor.GetDeltaR_SC(*electron, *L1EG) < 0.3){
@@ -135,10 +135,10 @@ void CheckRecoEfficiency(Event &event, map<string, TH1D*> &hists, string dataset
   hists[cutThouthName]->Fill(cutLevel++); // 5
   
   // Find tracks that match electrons
-  vector<shared_ptr<PhysObject>> matchingTracks;
-  vector<shared_ptr<PhysObject>> bremTracks;
+  PhysObjects matchingTracks;
+  PhysObjects bremTracks;
   
-  for(auto track : event.GetGeneralTracks()){
+  for(auto track : event.GetPhysObjects(kGeneralTrack)){
     if(physObjectProcessor.GetDeltaR(*theElectron, *track) < 0.3) matchingTracks.push_back(track);
     else                                                          bremTracks.push_back(track);
   }
@@ -166,8 +166,8 @@ void CheckRecoEfficiency(Event &event, map<string, TH1D*> &hists, string dataset
   hists["delta_pt_tracks_"+datasetName]->Fill(fabs(bremTrack->GetPt() - matchingTrack->GetPt()));
   
 //   Count number of photons that are far from good, matched electrons
-  auto photons = event.GetGoodPhotons();
-//  auto photons = event.GetPhotons();
+  auto photons = event.GetPhysObjects(kGoodPhoton);
+//  auto photons = event.GetPhysObjects(kPhoton);
   int nBremPhotons = 0;
   
   for(auto photon : photons){
@@ -187,7 +187,7 @@ void CheckRecoEfficiency(Event &event, map<string, TH1D*> &hists, string dataset
     hists["reco_id_eff_vs_eta_num_"+datasetName]->Fill(fabs(matchingTracks[0]->GetEta()));
   }
   else{
-    auto allPhotons = event.GetPhotons();
+    auto allPhotons = event.GetPhysObjects(kPhoton);
 //    saveEventDisplay(matchingTracks, bremTracks, goodMatchedElectrons, photons, allPhotons, "~/Desktop/lbl_event_displays_"+datasetName+"/");
     
     for(auto photon : allPhotons){
@@ -251,12 +251,12 @@ void CheckTriggerEfficiency(Event &event, map<string, TTree*> &trees, map<string
   hists[cutThouthName]->Fill(cutLevel++); // 2
   
   // Preselect events with exactly two electrons
-  auto goodElectrons = event.GetGoodElectrons();
+  auto goodElectrons = event.GetPhysObjects(kGoodElectron);
   if(goodElectrons.size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 3
   
   // Charged exclusivity
-  if(event.GetGoodGeneralTracks().size() != 2) return;
+  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 4
   
   // Tag and probe
@@ -267,7 +267,7 @@ void CheckTriggerEfficiency(Event &event, map<string, TTree*> &trees, map<string
   shared_ptr<PhysObject> passingProbe = nullptr;
   shared_ptr<PhysObject> failedProbe = nullptr;
   
-  for(auto &L1EG : event.GetL1EGs()){
+  for(auto &L1EG : event.GetPhysObjects(kL1EG)){
     if(tag && passingProbe) break;
     
     double deltaR1 = physObjectProcessor.GetDeltaR_SC(*electron1, *L1EG);
@@ -320,7 +320,7 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
   hists[cutThouthName]->Fill(cutLevel++); // 2
   
   // Preselect events with exactly two electrons
-  auto goodElectrons = event.GetGoodElectrons();
+  auto goodElectrons = event.GetPhysObjects(kGoodElectron);
   if(goodElectrons.size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 3
   
@@ -331,14 +331,14 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
   hists[cutThouthName]->Fill(cutLevel++); // 4
   
   // Charged exclusivity
-  if(event.GetGoodGeneralTracks().size() != 2) return;
+  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 5
   
   // Check if there are two electrons matched with L1 objects
-  vector<shared_ptr<PhysObject>> matchedElectrons;
+  PhysObjects matchedElectrons;
   
   // Check matching with L1 objects
-  for(auto &L1EG : event.GetL1EGs()){
+  for(auto &L1EG : event.GetPhysObjects(kL1EG)){
     if(matchedElectrons.size() == 2) break;
     if(L1EG->GetEt() < 2.0) continue;
     
@@ -370,7 +370,7 @@ void CheckCHEefficiency(Event &event, map<string, TH1D*> &hists, string datasetN
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Check that there are exaclty two electrons
-  auto goodElectrons = event.GetGoodElectrons();
+  auto goodElectrons = event.GetPhysObjects(kGoodElectron);
   if(goodElectrons.size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 2
   
@@ -397,7 +397,7 @@ void CheckCHEefficiency(Event &event, map<string, TH1D*> &hists, string datasetN
   hists["charged_exclusivity_eff_den_"+datasetName]->Fill(1);
   
   // Charged exclusivity
-  if(event.GetGoodGeneralTracks().size() != 2) return;
+  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 5
   hists["charged_exclusivity_eff_num_"+datasetName]->Fill(1);
 }
@@ -413,7 +413,7 @@ void CheckNEEefficiency(Event &event, map<string, TH1D*> &hists, string datasetN
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Check that there are exaclty two electrons
-  auto goodElectrons = event.GetGoodElectrons();
+  auto goodElectrons = event.GetPhysObjects(kGoodElectron);
   if(goodElectrons.size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 2
   
@@ -430,7 +430,7 @@ void CheckNEEefficiency(Event &event, map<string, TH1D*> &hists, string datasetN
   hists[cutThouthName]->Fill(cutLevel++); // 4
   
   // Charged exclusivity
-  if(event.GetGoodGeneralTracks().size() != 2) return;
+  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 5
   hists["neutral_exclusivity_eff_den_"+datasetName]->Fill(1);
 

@@ -1,7 +1,12 @@
 #include "../include/Helpers.hpp"
 
 //string inputPath  = "../results/basicPlots_default.root";
-string inputPath  = "../results/basicPlots_test.root";
+//string inputPath  = "../results/basicPlots_tracks+nhits11.root";
+//string inputPath  = "../results/basicPlots_tracks+nhits7.root";
+//string inputPath  = "../results/basicPlots_tracks+chi2_2p5.root";
+//string inputPath  = "../results/basicPlots_tracks+pt500.root";
+//string inputPath  = "../results/basicPlots_test.root";
+string inputPath  = "../results/basicPlots_test_new.root";
 string outputPath = "../plots/distributions";
 
 map<EDataset, double> initialNevents = {
@@ -91,16 +96,16 @@ vector<tuple<string, string, bool, bool, int, int, int, double, double>> histPar
   { "track_phi_all"                   , "track #phi"              , false, false ,   7   , 3  , 1 , -3.5 , 3.5 },
   { "track_dxy_all"                   , "track d_{xy} (cm)"       , true , false ,   7   , 4  , 1 ,  -10 , 10  },
   { "track_dz_all"                    , "track d_{z} (cm)"        , true , false ,   7   , 5  , 1 ,  -30 , 30  },
-  { "track_dxy_over_sigma_all"        , "|d_{xy}/#sigma_{xy}|"    , true , false ,   7   , 6  , 5 ,    0 , 10  },
-  { "track_dz_over_sigma_all"         , "|d_{xy}/#sigma_{xy}|"    , true , false ,   7   , 7  , 5 ,    0 , 10  },
+  { "track_dxy_over_sigma_all"        , "|d_{xy}/#sigma_{xy}|"    , true , false ,   7   , 6  , 2 ,    0 , 10  },
+  { "track_dz_over_sigma_all"         , "|d_{xy}/#sigma_{z}|"     , true , false ,   7   , 7  , 2 ,    0 , 10  },
   { "track_vx_all"                    , "track vertex x (cm)"     , true , false ,   7   , 8  , 1 ,  -10 , 10  },
   { "track_vy_all"                    , "track vertex y (cm)"     , true , false ,   7   , 9  , 1 ,  -10 , 10  },
   { "track_vz_all"                    , "track vertex z (cm)"     , true , false ,   7   , 10 , 1 ,  -30 , 30  },
   { "track_valid_hits_all"            , "N_{hits}^{valid}"        , false, false ,   7   , 11 , 1 ,   0  , 30  },
   { "track_missing_hits_all"          , "N_{hits}^{missing}"      , false, false ,   7   , 12 , 1 ,   0  , 20  },
-  { "track_chi2_all"                  , "track #chi^{2}/NDF"      , true , false ,   7   , 13 , 1 ,   0  , 20  },
+  { "track_chi2_all"                  , "track #chi^{2}/NDF"      , true , true  ,   7   , 13 , 1 ,   0  , 20  },
   { "track_purity_all"                , "track purity"            , false, false ,   7   , 14 , 1 ,   0  , 20  },
-  { "tracks_cut_flow_all"              , ""                       , false, true  ,   7   , 15 , 1 ,   0  , 6   },
+  { "tracks_cut_flow_all"              , ""                       , false, true  ,   7   , 15 , 1 ,   0  , 10  },
 };
 
 void fillLabels(TH1D *hist, vector<const char*> labels)
@@ -144,7 +149,9 @@ void setElectronCutsLabels(TH1D *hist)
 
 void setTrackCutsLabels(TH1D *hist)
 {
-  vector<const char *> labels = { "Initial", "p_{t}", "Eta", "HEM", "N_{hits}^{valid}" };
+  vector<const char *> labels = {
+    "Initial", "p_{t}", "Eta", "d_{xy}", "|d_{xy}/#sigma_{xy}|",
+    "d_{z}", "|d_{z}/#sigma_{z}|", "N_{hits}^{valid}", "#chi^{2}" };
   fillLabels(hist, labels);
 }
 
@@ -200,6 +207,8 @@ int getTotalBackgroundEntries(map<EDataset, TH1D*> hists)
   int totalBackgroundEntries = 0;
   
   for(EDataset dataset : datasetsToAnalyze){
+    if(!hists[dataset]) continue;
+    
     if(dataset != kData) totalBackgroundEntries += hists[dataset]->GetEntries();
   }
   return totalBackgroundEntries;
@@ -230,6 +239,8 @@ double getMaxValueInHists(map<EDataset, TH1D*> hists)
   double maxValue = -999;
   
   for(EDataset dataset : datasetsToAnalyze){
+    if(!hists[dataset]) continue;
+    
     for(int i=0; i<hists[dataset]->GetNbinsX(); i++){
       double value = hists[dataset]->GetBinContent(i);
       if(value > maxValue) maxValue = value;
@@ -244,6 +255,8 @@ void normalizeHists(map<EDataset, TH1D*> hists, bool normalize, bool cutFlow, bo
     int totalBackgroundEntries = getTotalBackgroundEntries(hists);
     
     for(EDataset dataset : datasetsToAnalyze){
+      if(!hists[dataset]) continue;
+      
       if(hists[dataset]->GetEntries() == 0) continue;
       
       if(failingCalos){
@@ -263,6 +276,7 @@ void normalizeHists(map<EDataset, TH1D*> hists, bool normalize, bool cutFlow, bo
   else{
     for(EDataset dataset : datasetsToAnalyze){
       if(dataset == kData) continue;
+      if(!hists[dataset]) continue;
       hists[dataset]->Scale(luminosity*crossSection[dataset]/initialNevents[dataset]);
 //      hists[dataset]->Sumw2(false);
     }
@@ -291,6 +305,8 @@ void drawBasicPlots()
     TH1D *dataHist;
     
     for(EDataset dataset : datasetsToAnalyze){
+      if(!hists[dataset]) continue;
+      
       hists[dataset]->Rebin(rebin);
       hists[dataset]->Scale(1./rebin);
       
@@ -314,6 +330,16 @@ void drawBasicPlots()
     bool isCutFlow      = histName.find("cut_flow") != string::npos;
     bool isFailingcalos = histName.find("nee_failing") != string::npos;
     normalizeHists(hists, normalize, isCutFlow, isFailingcalos);
+    
+    if(histName == "lbl_acoplanarity_all"){
+      double signal = dataHist->GetBinContent(1);
+      double background = 0;
+      for(int i=2; i<=dataHist->GetNbinsX(); i++){
+        background += dataHist->GetBinContent(i);
+      }
+      background /= 25;
+      cout<<"Significance: "<<(signal-background)/sqrt(signal)<<endl;
+    }
     
     if(normalize){
       if(histName.find("cut_flow")    != string::npos
@@ -363,6 +389,8 @@ void drawBasicPlots()
     
     for(auto &[dataset, hist] : hists){
       if(dataset == kData) continue;
+      if(!hists[dataset]) continue;
+      
       if(first){
         backgroundsSum = new TH1D(*hist);
         first = false;

@@ -69,7 +69,7 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
     //    if(event->HasAdditionalTowers()) continue;
     
     // Fill histograms for N-1 photon ID cuts
-    for(auto photon : event->GetPhotons()){
+    for(auto photon : event->GetPhysObjects(kPhoton)){
       double eta = fabs(photon->GetEta());
       
       // Check basic cuts:

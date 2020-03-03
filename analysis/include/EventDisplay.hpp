@@ -79,11 +79,11 @@ TGraphPolar* getPhotonGraph(double phi)
   return grP1;
 }
 
-void saveEventDisplay(vector<shared_ptr<PhysObject>>  &matchingTracks,
-                      vector<shared_ptr<PhysObject>>  &bremTracks,
-                      vector<shared_ptr<PhysObject>>  &electrons,
-                      vector<shared_ptr<PhysObject>>  &goodPhotons,
-                      vector<shared_ptr<PhysObject>>  &allPhotons,
+void saveEventDisplay(PhysObjects &matchingTracks,
+                      PhysObjects &bremTracks,
+                      PhysObjects &electrons,
+                      PhysObjects &goodPhotons,
+                      PhysObjects &allPhotons,
                       string basePath, int maxEvents=-1)
 {
   static int iCanvas=0;

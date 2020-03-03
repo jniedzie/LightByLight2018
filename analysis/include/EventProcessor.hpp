@@ -106,6 +106,10 @@ private:
   vector<float> *L1EGphi                = nullptr;
   vector<float> *L1EGet                 = nullptr;
   
+  map<EPhysObjType, int> nPhysObjects;     ///< Stores number of physics objects
+  unsigned short int nL1EGs;
+  
+  
   /// Opens input trees and sets branches
   void SetupBranches(string inputPath, vector<string> outputPaths);
   

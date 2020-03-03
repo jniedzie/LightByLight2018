@@ -18,12 +18,13 @@ bool IsGoodForRecoEfficiency(Event &event)
   if(!event.HasSingleEG3Trigger() && !event.HasSingleEG5Trigger()) return false;
   
   // Make sure that there are 2 tracks with opposite charges
-  if(event.GetGoodGeneralTracks().size() != 2) return false;
-  if(event.GetGeneralTrack(0)->GetCharge() == event.GetGeneralTrack(1)->GetCharge()) return false;
+  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 2) return false;
+  if(event.GetPhysObjects(kGeneralTrack)[0]->GetCharge() ==
+     event.GetPhysObjects(kGeneralTrack)[1]->GetCharge()) return false;
   
   // Check if there is at lest one photon and one electon in the event
-  if(event.GetNelectrons() < 1) return false;
-  if(event.GetNphotons() < 1) return false;
+  if(event.GetPhysObjects(kElectron).size() < 1) return false;
+  if(event.GetPhysObjects(kPhoton).size() < 1) return false;
   
   return true;
 }
@@ -35,11 +36,11 @@ bool IsGoodForTrigger(Event &event)
   if(!event.HasSingleEG3Trigger() && !event.HasSingleEG5Trigger()) return false;
   
   // Check if there are at least two electrons
-  if(event.GetNelectrons() < 2) return false;
+  if(event.GetPhysObjects(kElectron).size() < 2) return false;
   
   // Check exclusivity criteria
 //  if(event.HasAdditionalTowers()) return false;
-  if(event.GetGoodGeneralTracks().size() != 2) return false;
+  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 2) return false;
   
   return true;
 }
@@ -51,11 +52,11 @@ bool IsGoodForHFveto(Event &event)
   if(!event.HasSingleEG3noHFvetoTrigger()) return false;
   
   // Check if there are at least two electrons
-  if(event.GetNelectrons() < 2) return false;
+  if(event.GetPhysObjects(kElectron).size() < 2) return false;
   
   // Check exclusivity criteria
 //  if(event.HasAdditionalTowers()) return false;
-  if(event.GetGoodGeneralTracks().size() != 2) return false;
+  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 2) return false;
   
   return true;
 }
@@ -67,10 +68,10 @@ bool IsGoodForExclusivity(Event &event)
   if(!event.HasDoubleEG2Trigger()) return false;
   
   // Check if there are at least two electrons
-  if(event.GetNelectrons() < 2) return false;
+  if(event.GetPhysObjects(kElectron).size() < 2) return false;
   
   // Check exclusivity criteria
-  if(event.GetGoodGeneralTracks().size() != 2) return false;
+  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 2) return false;
   
   return true;
 }
@@ -83,7 +84,7 @@ bool IsGoodForLbLsignal(Event &event)
   
   // Check exclusivity criteria
   if(event.HasAdditionalTowers()) return false;
-  if(event.GetGoodGeneralTracks().size() != 0) return false;
+  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 0) return false;
   
   return true;
 }
@@ -96,7 +97,7 @@ bool IsGoodForQEDsignal(Event &event)
   
   // Check exclusivity criteria
   if(event.HasAdditionalTowers()) return false;
-  if(event.GetGoodGeneralTracks().size() != 2) return false;
+  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 2) return false;
   
   return true;
 }
@@ -109,7 +110,7 @@ bool IsPassingLooseSelection(Event &event)
   
   // Check exclusivity criteria
 //  if(event.HasAdditionalTowers()) return false;
-//  if(event.GetGoodGeneralTracks().size() > 10) return false;
+//  if(event.GetPhysObjects(kGoodGeneralTrack).size() > 10) return false;
   
   return true;
 }
@@ -122,9 +123,9 @@ bool IsPassingAllLbLCuts(Event &event, bool doHighAco)
   
   // Check exclusivity criteria
   if(event.HasAdditionalTowers()) return false;
-  if(event.GetGoodGeneralTracks().size() != 0) return false;
+  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 0) return false;
   
-  auto photons = event.GetGoodPhotons();
+  auto photons = event.GetPhysObjects(kGoodPhoton);
   if(photons.size() != 2) return false;
   
   TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*photons[0], *photons[1]);

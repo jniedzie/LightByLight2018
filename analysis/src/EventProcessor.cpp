@@ -8,6 +8,7 @@
 EventProcessor::EventProcessor(string inputPath, vector<string> outputPaths) :
 currentEvent(new Event())
 {
+  for(auto type : physObjTypes) nPhysObjects[type] = 0;
   for(auto triggerName : triggerNamesLbL) triggersLbL.push_back(0);
   SetupBranches(inputPath, outputPaths);
 }
@@ -30,13 +31,13 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   for(int iTrigger=0; iTrigger<triggerNamesLbL.size(); iTrigger++){
     hltTree->SetBranchAddress(triggerNamesLbL[iTrigger].c_str(), &triggersLbL[iTrigger]);
   }
-  eventTree->SetBranchAddress("nMC"   , &currentEvent->nGenParticles);
+  eventTree->SetBranchAddress("nMC"   , &nPhysObjects.at(kGenParticle));
   eventTree->SetBranchAddress("mcEta" , &mcEta);
   eventTree->SetBranchAddress("mcPhi" , &mcPhi);
   eventTree->SetBranchAddress("mcEt"  , &mcEt);
   eventTree->SetBranchAddress("mcPID" , &mcPID);
   
-  eventTree->SetBranchAddress("nPho"              , &currentEvent->nPhotons);
+  eventTree->SetBranchAddress("nPho"              , &nPhysObjects.at(kPhoton));
   eventTree->SetBranchAddress("phoHoverE"         , &photonHoverE);
   
   eventTree->SetBranchAddress("phoSCEta"          , &photonSCEta);
@@ -53,7 +54,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   eventTree->SetBranchAddress("phoELeft"          , &photonEleft);
   eventTree->SetBranchAddress("phoERight"         , &photonEright);
   
-  eventTree->SetBranchAddress("nTower"            , &currentEvent->nCaloTowers);
+  eventTree->SetBranchAddress("nTower"            , &nPhysObjects.at(kCaloTower));
   eventTree->SetBranchAddress("CaloTower_hadE"    , &towerEnergyHad);
   eventTree->SetBranchAddress("CaloTower_emE"     , &towerEnergyEm);
   eventTree->SetBranchAddress("CaloTower_e"       , &towerEnergy);
@@ -61,7 +62,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   eventTree->SetBranchAddress("CaloTower_eta"     , &towerEta);
   eventTree->SetBranchAddress("CaloTower_phi"     , &towerPhi);
   
-  eventTree->SetBranchAddress("nTrk"              , &currentEvent->nGeneralTracks);
+  eventTree->SetBranchAddress("nTrk"              , &nPhysObjects.at(kGeneralTrack));
   eventTree->SetBranchAddress("trkPt"             , &generalTrackPt);
   eventTree->SetBranchAddress("trkEta"            , &generalTrackEta);
   eventTree->SetBranchAddress("trkPhi"            , &generalTrackPhi);
@@ -79,7 +80,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   eventTree->SetBranchAddress("trkvy"             , &generalTrackVertexY);
   eventTree->SetBranchAddress("trkvz"             , &generalTrackVertexZ);
   
-  eventTree->SetBranchAddress("nEle"              , &currentEvent->nElectrons);
+  eventTree->SetBranchAddress("nEle"              , &nPhysObjects.at(kElectron));
   eventTree->SetBranchAddress("eleCharge"         , &electronCharge);
   eventTree->SetBranchAddress("eleMissHits"       , &electronNmissing);
   eventTree->SetBranchAddress("elePt"             , &electronPt);
@@ -97,7 +98,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   eventTree->SetBranchAddress("elePFPhoIso"       , &electronPhoIso);
   eventTree->SetBranchAddress("elePFNeuIso"       , &electronNeuIso);
   
-  l1Tree->SetBranchAddress("nEGs"                 , &currentEvent->nL1EGs);
+  l1Tree->SetBranchAddress("nEGs"                 , &nL1EGs);
   l1Tree->SetBranchAddress("egEta"                , &L1EGeta);
   l1Tree->SetBranchAddress("egPhi"                , &L1EGphi);
   l1Tree->SetBranchAddress("egEt"                 , &L1EGet);
@@ -158,7 +159,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     currentEvent->triggersLbL[triggerNamesLbL[iTrigger]] = triggersLbL[iTrigger];
   }
   
-  for(int iGenPart=0; iGenPart<currentEvent->nGenParticles; iGenPart++){
+  for(int iGenPart=0; iGenPart<nPhysObjects.at(kGenParticle); iGenPart++){
     auto genParticle = make_shared<PhysObject>();
     
     genParticle->eta   = mcEta->at(iGenPart);
@@ -166,12 +167,12 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     genParticle->et    = mcEt->at(iGenPart);
     genParticle->pdgID = mcPID->at(iGenPart);
     
-    currentEvent->genParticles.push_back(genParticle);
+    currentEvent->physObjects.at(kGenParticle).push_back(genParticle);
   }
   
   // Fill in collection of photon superclusters
   
-  for(size_t iPhoton=0; iPhoton<currentEvent->nPhotons; iPhoton++){
+  for(size_t iPhoton=0; iPhoton<nPhysObjects.at(kPhoton); iPhoton++){
     auto photon = make_shared<PhysObject>();
     
     photon->hOverE   = photonHoverE->at(iPhoton);
@@ -193,12 +194,12 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     if(photonEleft)   photon->energyLeft   = photonEleft->at(iPhoton);
     if(photonEright)  photon->energyRight  = photonEright->at(iPhoton);
     
-    currentEvent->photons.push_back(photon);
+    currentEvent->physObjects.at(kPhoton).push_back(photon);
   }
   
   // Fill in collection of calo towers
   
-  for(size_t iTower=0; iTower<currentEvent->nCaloTowers; iTower++){
+  for(size_t iTower=0; iTower<nPhysObjects.at(kCaloTower); iTower++){
     auto tower = make_shared<PhysObject>();
     
     tower->eta       = towerEta->at(iTower);
@@ -209,12 +210,12 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     
     tower->energyEm  = towerEnergyEm->at(iTower);
     
-    currentEvent->caloTowers.push_back(tower);
+    currentEvent->physObjects.at(kCaloTower).push_back(tower);
   }
   
   // Fill in collection of general tracks
   
-  for(size_t iTrack=0; iTrack<currentEvent->nGeneralTracks; iTrack++){
+  for(size_t iTrack=0; iTrack<nPhysObjects.at(kGeneralTrack); iTrack++){
     auto track = make_shared<PhysObject>();
     
     track->charge       = generalTrackCharge->at(iTrack);
@@ -233,12 +234,12 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     track->vy           = generalTrackVertexY->at(iTrack);
     track->vz           = generalTrackVertexZ->at(iTrack);
     
-    currentEvent->generalTracks.push_back(track);
+    currentEvent->physObjects.at(kGeneralTrack).push_back(track);
   }
   
   // Fill in collection of electrons
   
-  for(size_t iElectron=0; iElectron<currentEvent->nElectrons; iElectron++){
+  for(size_t iElectron=0; iElectron<nPhysObjects.at(kElectron); iElectron++){
     auto electron = make_shared<PhysObject>();
     
     electron->charge       = electronCharge->at(iElectron);
@@ -258,19 +259,19 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     electron->photonIso    = electronPhoIso->at(iElectron);
     electron->neutralIso   = electronNeuIso->at(iElectron);
     
-    currentEvent->electrons.push_back(electron);
+    currentEvent->physObjects.at(kElectron).push_back(electron);
   }
   
   // Fill in collection of L1 EG objects
   
-  for(size_t iL1EG=0; iL1EG<currentEvent->nL1EGs; iL1EG++){
+  for(size_t iL1EG=0; iL1EG<nL1EGs; iL1EG++){
     auto L1EG = make_shared<PhysObject>();
     
     L1EG->eta = L1EGeta->at(iL1EG);
     L1EG->phi = L1EGphi->at(iL1EG);
     L1EG->et  = L1EGet->at(iL1EG);
     
-    currentEvent->L1EGs.push_back(L1EG);
+    currentEvent->physObjects.at(kL1EG).push_back(L1EG);
   }
   
   return currentEvent;

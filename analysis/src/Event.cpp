@@ -7,7 +7,10 @@
 
 Event::Event()
 {
-
+  for(auto type : physObjTypes){
+    physObjectsReady[type] = false;
+    physObjects[type] = PhysObjects();
+  }
 }
 
 Event::~Event()
@@ -17,21 +20,8 @@ Event::~Event()
 
 void Event::Reset()
 {
-  genParticles.clear();
-  photons.clear();
-  goodPhotons.clear();
-  caloTowers.clear();
-  generalTracks.clear();
-  electrons.clear();
-  goodElectrons.clear();
-  goodMatchedElectrons.clear();
-  goodGeneralTracks.clear();
-  L1EGs.clear();
-  
-  goodPhotonsReady = false;
-  goodElectronsReady = false;
-  goodMatchedElectronsReady = false;
-  goodGeneralTracksReady = false;
+  for(auto &[type, objects] : physObjects)    objects.clear();
+  for(auto &[type, ready] : physObjectsReady) ready = false;
 }
 
 bool Event::HasSingleEG3Trigger() const
@@ -54,12 +44,30 @@ bool Event::HasSingleEG3noHFvetoTrigger() const
   return triggersLbL.at("HLT_HIUPC_SingleEG3_BptxAND_SinglePixelTrack_MaxPixelTrack_v1");
 }
 
-vector<shared_ptr<PhysObject>> Event::GetGoodGenPhotons() const
+PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
 {
-  vector<shared_ptr<PhysObject>> goodGenPhotons;
+  if(   type == kPhoton
+     || type == kElectron
+     || type == kCaloTower
+     || type == kGeneralTrack
+     || type == kL1EG){
+    return physObjects.at(type);
+  }
+  else if(type == kGoodGenPhoton)       return GetGoodGenPhotons();
+  else if(type == kGoodPhoton)          return GetGoodPhotons();
+  else if(type == kGoodElectron)        return GetGoodElectrons(cutFlowHist);
+  else if(type == kGoodMatchedElectron) return GetGoodMatchedElectron();
+  else if(type == kGoodGeneralTrack)    return GetGoodGeneralTracks(cutFlowHist);
   
-  for(int iGenPhoton=0; iGenPhoton<nGenParticles; iGenPhoton++){
-    auto genPhoton = genParticles[iGenPhoton];
+  cout<<"ERROR -- unrecognized phys object type: "<<type<<"!!!"<<endl;
+  return PhysObjects();
+}
+
+PhysObjects Event::GetGoodGenPhotons() const
+{
+  PhysObjects goodGenPhotons;
+  
+  for(auto genPhoton : physObjects.at(kGenParticle)){
     
     if(genPhoton->GetPID() != 22) continue;
     if(fabs(genPhoton->GetEta()) > config.params("maxEta")) continue;
@@ -71,15 +79,13 @@ vector<shared_ptr<PhysObject>> Event::GetGoodGenPhotons() const
   return goodGenPhotons;
 }
 
-vector<shared_ptr<PhysObject>> Event::GetGoodPhotons()
+PhysObjects Event::GetGoodPhotons()
 {
-  if(goodPhotonsReady) return goodPhotons;
+  if(physObjectsReady.at(kGoodPhoton)) return physObjects.at(kGoodPhoton);
   
-  goodPhotons.clear();
+  physObjects.at(kGoodPhoton).clear();
   
-  for(int iPhoton=0; iPhoton<nPhotons; iPhoton++){
-    auto photon = photons[iPhoton];
-    
+  for(auto photon : physObjects.at(kPhoton)){
     // Check Et
     if(photon->GetEt() < config.params("photonMinEt")) continue;
     
@@ -113,19 +119,19 @@ vector<shared_ptr<PhysObject>> Event::GetGoodPhotons()
     if((absEta < maxEtaEB) && (photon->GetHoverE() > config.params("photonMaxHoverEbarrel"))) continue;
     else if((absEta < maxEtaEE) && (photon->GetHoverE() > config.params("photonMaxHoverEendcap"))) continue;
     
-    goodPhotons.push_back(photon);
+    physObjects.at(kGoodPhoton).push_back(photon);
   }
-  goodPhotonsReady = true;
-  return goodPhotons;
+  physObjectsReady.at(kGoodPhoton) = true;
+  return physObjects.at(kGoodPhoton);
 }
 
-vector<shared_ptr<PhysObject>> Event::GetGoodElectrons(TH1D *cutFlowHist)
+PhysObjects Event::GetGoodElectrons(TH1D *cutFlowHist)
 {
-  if(goodElectronsReady) return goodElectrons;
+  if(physObjectsReady.at(kGoodElectron)) return physObjects.at(kGoodElectron);
   
-  goodElectrons.clear();
+  physObjects.at(kGoodElectron).clear();
   
-  for(auto electron : electrons){
+  for(auto electron : physObjects.at(kElectron)){
     int cutFlowIndex=0;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 0
     
@@ -174,40 +180,40 @@ vector<shared_ptr<PhysObject>> Event::GetGoodElectrons(TH1D *cutFlowHist)
     if(electron->GetNeutralIso() >= config.params("electronMaxNeutralIso"+subdet)) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
 
-    goodElectrons.push_back(electron);
+    physObjects.at(kGoodElectron).push_back(electron);
   }
-  goodElectronsReady = true;
-  return goodElectrons;
+  physObjectsReady.at(kGoodElectron) = true;
+  return physObjects.at(kGoodElectron);
 }
 
-vector<shared_ptr<PhysObject>> Event::GetGoodMatchedElectron()
+PhysObjects Event::GetGoodMatchedElectron()
 {
-  if(goodMatchedElectronsReady) return goodMatchedElectrons;
+  if(physObjectsReady.at(kGoodMatchedElectron)) return physObjects.at(kGoodMatchedElectron);
   
-  goodMatchedElectrons.clear();
+  physObjects.at(kGoodMatchedElectron).clear();
   
-  for(auto electron : GetGoodElectrons()){
-    for(auto &L1EG : GetL1EGs()){
+  for(auto electron : GetPhysObjects(kGoodElectron)){
+    for(auto &L1EG : GetPhysObjects(kL1EG)){
       if(L1EG->GetEt() < 2.0) continue;
       
       if(physObjectProcessor.GetDeltaR_SC(*electron, *L1EG) < 0.3){
-        goodMatchedElectrons.push_back(electron);
+        physObjects.at(kGoodMatchedElectron).push_back(electron);
         break;
       }
     }
   }
   
-  goodMatchedElectronsReady = true;
-  return goodMatchedElectrons;
+  physObjectsReady.at(kGoodMatchedElectron) = true;
+  return physObjects.at(kGoodMatchedElectron);
 }
 
-vector<shared_ptr<PhysObject>> Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
+PhysObjects Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
 {
-  if(goodGeneralTracksReady) return goodGeneralTracks;
+  if(physObjectsReady.at(kGoodGeneralTrack)) return physObjects.at(kGoodGeneralTrack);
   
-  goodGeneralTracks.clear();
+  physObjects.at(kGoodGeneralTrack).clear();
   
-  for(auto track : generalTracks){
+  for(auto track : physObjects.at(kGeneralTrack)){
     int cutFlowIndex=0;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 0
     
@@ -240,16 +246,15 @@ vector<shared_ptr<PhysObject>> Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
     if(track->GetChi2() > config.params("trackMaxChi2")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 8
     
-    goodGeneralTracks.push_back(track);
+    physObjects.at(kGoodGeneralTrack).push_back(track);
   }
-  goodGeneralTracksReady = true;
-  return goodGeneralTracks;
+  physObjectsReady.at(kGoodGeneralTrack) = true;
+  return physObjects.at(kGoodGeneralTrack);
 }
 
 bool Event::HasAdditionalTowers()
 {
-  for(int iTower=0; iTower<nCaloTowers; iTower++){
-    auto tower = caloTowers[iTower];
+  for(auto tower : physObjects.at(kCaloTower)){
     
     if(physObjectProcessor.IsInCrackOrHEM(*tower)) continue;
     
@@ -286,8 +291,8 @@ bool Event::HasAdditionalTowers(map<ECaloType, bool> &failingCalo)
   bool passes = true;
   for(ECaloType caloType : calotypes) failingCalo[caloType] = false;
   
-  for(int iTower=0; iTower<nCaloTowers; iTower++){
-    auto tower = caloTowers[iTower];
+  
+  for(auto tower : physObjects.at(kCaloTower)){
     
     if(physObjectProcessor.IsInCrackOrHEM(*tower)) continue;
     
@@ -331,7 +336,9 @@ bool Event::HasAdditionalTowers(map<ECaloType, bool> &failingCalo)
 
 void Event::SortCaloTowersByEnergy()
 {
-  sort(caloTowers.begin(), caloTowers.end(), PhysObjectProcessor::CompareByEnergy());
+  sort(physObjects.at(kCaloTower).begin(),
+       physObjects.at(kCaloTower).end(),
+       PhysObjectProcessor::CompareByEnergy());
 }
 
 
@@ -343,8 +350,8 @@ bool Event::IsOverlappingWithGoodPhoton(const PhysObject &tower)
   double maxDeltaEta = (subdet == kEB ) ? config.params("maxDeltaEtaEB") : config.params("maxDeltaEtaEE");
   double maxDeltaPhi = (subdet == kEB ) ? config.params("maxDeltaPhiEB") : config.params("maxDeltaPhiEE");
   
-  for(int iPhoton=0; iPhoton<GetGoodPhotons().size(); iPhoton++){
-    auto photon = GetGoodPhotons()[iPhoton];
+  for(int iPhoton=0; iPhoton<GetPhysObjects(kGoodPhoton).size(); iPhoton++){
+    auto photon = GetPhysObjects(kGoodPhoton)[iPhoton];
     
     double deltaEta = fabs(photon->GetEta() - tower.GetEta());
     double deltaPhi = fabs(photon->GetPhi() - tower.GetPhi());
@@ -405,12 +412,11 @@ double Event::GetEmThresholdForTower(const PhysObject &tower)
   return threshold;
 }
 
-map<ECaloType, vector<shared_ptr<PhysObject>>> Event::GetCaloTowersAboveThresholdByDet()
+map<ECaloType, PhysObjects> Event::GetCaloTowersAboveThresholdByDet()
 {
-  map<ECaloType, vector<shared_ptr<PhysObject>>> caloTowersByDet;
+  map<ECaloType, PhysObjects> caloTowersByDet;
   
-  for(int iTower=0; iTower<nCaloTowers; iTower++){
-    auto tower = caloTowers[iTower];
+  for(auto tower : physObjects.at(kCaloTower)){
     
     if(physObjectProcessor.IsInCrackOrHEM(*tower))  continue;
     if(IsOverlappingWithGoodPhoton(*tower))         continue;

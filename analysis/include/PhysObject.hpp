@@ -7,6 +7,10 @@
 
 #include "Helpers.hpp"
 
+
+class PhysObject;
+typedef vector<shared_ptr<PhysObject>> PhysObjects;
+
 /// Class representing a physics object, such as gen particle, reconstructed photon/electron,
 /// calorimeter tower, supercluster etc.
 class PhysObject {

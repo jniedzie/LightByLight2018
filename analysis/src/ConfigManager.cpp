@@ -30,10 +30,7 @@ ConfigManager::ConfigManager(string path)
     key.erase(std::remove_if(key.begin(), key.end(), ::isspace), key.end());
     value.erase(std::remove_if(value.begin(), value.end(), ::isspace), value.end());
     
-    
-    if(key == "output_path")     outputPath = value;
-//     else if(key == "int_param")   intParam = stoi(value);
-    else _params[key] =  stod(value);
+    _params[key] =  stod(value);
   }
 }
 

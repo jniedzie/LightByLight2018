@@ -80,6 +80,34 @@ const vector<EDataset> datasets = { kData, kData_SingleEG3, kData_recoEff, kData
                                     kMCqedSC_HFveto, kMCqedSC_exclusivity, kMCqedSC_LbLsignal, kMCqedSC_QEDsignal,
                                     kMCcep, kMCqedSL, kMClbl,  };
 
+enum EPhysObjType {
+  kGenParticle,
+  kGoodGenPhoton,
+  kPhoton,
+  kGoodPhoton,
+  kCaloTower,
+  kGeneralTrack,
+  kGoodGeneralTrack,
+  kElectron,
+  kGoodElectron,
+  kGoodMatchedElectron,
+  kL1EG,
+};
+
+const vector<EPhysObjType> physObjTypes = {
+  kGenParticle,
+  kGoodGenPhoton,
+  kPhoton,
+  kGoodPhoton,
+  kCaloTower,
+  kGeneralTrack,
+  kGoodGeneralTrack,
+  kElectron,
+  kGoodElectron,
+  kGoodMatchedElectron,
+  kL1EG,
+};
+
 const map<EDataset, string> inFileNames = {
 //  {kData                , "ntuples/ntuples_data_small_sample_merged.root"     },
   {kData                , "ntuples/ntuples_data_small_sample.root"                    },
