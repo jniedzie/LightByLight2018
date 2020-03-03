@@ -123,11 +123,16 @@ void drawPhotonIDplots()
     
     canvasShower->cd(3); preparePad();
     hSwissCrossBarrel->SetTitle("Swiss cross Barrel");
+//    hSwissCrossBarrel->GetXaxis()->SetRangeUser(0.0, 0.07);
+    hSwissCrossBarrel->GetYaxis()->SetRangeUser(1E-8, 1.0);
+    hSwissCrossBarrel->GetXaxis()->SetTitle("E4/E");
     hSwissCrossBarrel->Draw(first ? "" : "same");
     if(first) drawThreshold(0.005, "0.005");
     
     canvasShower->cd(4); preparePad();
     hSwissCrossEndcap->SetTitle("Swiss cross Endcap");
+//    hSwissCrossEndcap->GetXaxis()->SetRangeUser(0.0, 0.07);
+    hSwissCrossEndcap->GetXaxis()->SetTitle("E4/E");
     hSwissCrossEndcap->Draw(first ? "" : "same");
     if(first) drawThreshold(0.005, "0.005");
     
@@ -192,6 +197,7 @@ void drawPhotonIDplots()
       hOverEmapNum->GetYaxis()->SetTitle("#eta");
       hOverEmapNum->GetZaxis()->SetTitle("< H/E >");
       hOverEmapNum->GetZaxis()->SetTitleOffset(1.5);
+      hOverEmapNum->GetZaxis()->SetRangeUser(0, 0.5);
       hOverEmapNum->Draw("colz");
     }
     

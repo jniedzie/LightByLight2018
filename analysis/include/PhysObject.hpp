@@ -7,6 +7,10 @@
 
 #include "Helpers.hpp"
 
+
+class PhysObject;
+typedef vector<shared_ptr<PhysObject>> PhysObjects;
+
 /// Class representing a physics object, such as gen particle, reconstructed photon/electron,
 /// calorimeter tower, supercluster etc.
 class PhysObject {
@@ -36,11 +40,21 @@ public:
   int    GetCharge()        const;
   int    GetNmissingHits()  const;
   int    GetNvalidHits()    const;
+  int    GetPurity()        const;
+  double GetChi2()          const;
+  double GetDxy()           const;
+  double GetDz()            const;
+  double GetDxyErr()        const;
+  double GetDzErr()         const;
+  double GetVertexX()       const;
+  double GetVertexY()       const;
+  double GetVertexZ()       const;
   
   double GetEnergy()     const;
   double GetEnergyHad()  const;
   double GetEnergyEm()   const;
   
+  double GetEnergyCrystalMax()    const;
   double GetEnergyCrystalTop()    const;
   double GetEnergyCrystalBottom() const;
   double GetEnergyCrystalLeft()   const;
@@ -73,6 +87,7 @@ private:
   double energyHad; ///< Energy in hadronic part of calo
   double energyEm;  ///< Energy in EM part of calo
   
+  double energyMax;   ///< Energy of the seed (max energy in the cluster)
   double energyTop;   ///< Energy in the crytal on the top of the photon seed
   double energyBottom;///< Energy in the crytal on the bottom of the photon seed
   double energyLeft;  ///< Energy in the crytal on the left of the photon seed
@@ -87,6 +102,11 @@ private:
   int charge;       ///< Particle charge
   int nMissingHits; ///< Number of missing hits
   int nValidHits;   ///< Number of valid hits
+  int purity;       ///< Purity of the track
+  double chi2;      ///< chi2 of the track fit
+  double dxy, dz;   ///< distance between track and primary vertex
+  double dxyErr, dzErr;///< uncertainties on dxy and dz
+  double vx, vy, vz;///< vertex coordinates
   
   double chargedIso;  ///< Isolation wrt. charged particles
   double photonIso;   ///< Isolation wrt. photons

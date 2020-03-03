@@ -77,3 +77,4 @@ generatorsConfigs/input_mumu.DAT
 generatorsConfigs/slight_mumu.in
 analysis/plots/*
 analysis/results/*
+mergeLHE/output/
