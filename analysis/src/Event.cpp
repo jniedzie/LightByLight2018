@@ -53,6 +53,7 @@ PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
 {
   if(   type == kPhoton
      || type == kElectron
+     || type == kMuon
      || type == kCaloTower
      || type == kGeneralTrack
      || type == kL1EG){
@@ -62,6 +63,7 @@ PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
   else if(type == kGoodPhoton)          return GetGoodPhotons();
   else if(type == kGoodElectron)        return GetGoodElectrons(cutFlowHist);
   else if(type == kGoodMatchedElectron) return GetGoodMatchedElectron();
+  else if(type == kGoodMuon)        return GetGoodMuons(cutFlowHist);
   else if(type == kGoodGeneralTrack)    return GetGoodGeneralTracks(cutFlowHist);
   
   cout<<"ERROR -- unrecognized phys object type: "<<type<<"!!!"<<endl;
@@ -190,6 +192,68 @@ PhysObjects Event::GetGoodElectrons(TH1D *cutFlowHist)
   physObjectsReady.at(kGoodElectron) = true;
   return physObjects.at(kGoodElectron);
 }
+
+PhysObjects Event::GetGoodMuons(TH1D *cutFlowHist)
+{
+  if(physObjectsReady.at(kGoodMuon)) return physObjects.at(kGoodMuon);
+  
+  physObjects.at(kGoodElectron).clear();
+  
+  for(auto electron : physObjects.at(kElectron)){
+//    int cutFlowIndex=0;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 0
+    
+    // Check pt
+//    if(electron->GetPt() < config.params("electronMinPt")) continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 1
+    
+    // Check eta
+//    double eta = fabs(electron->GetEtaSC());
+//    if(eta > config.params("ecalCrackMin") &&
+//       eta < config.params("ecalCrackMax"))   continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 2
+    
+//    if(eta >= config.params("electronMaxEta")) continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
+    
+    // Check for HEM issue
+//    if(electron->GetEtaSC() < -minEtaEE &&
+//       electron->GetPhiSC() > config.params("ecalHEMmin") &&
+//       electron->GetPhiSC() < config.params("ecalHEMmax")) continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 4
+    
+    // Check n missing hits
+//    if(electron->GetNmissingHits() > config.params("electronMaxNmissingHits")) continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 5
+    
+//    string subdet = "";
+//    if((eta < maxEtaEB)) subdet = "Barrel";
+//    else if((eta < maxEtaEE)) subdet = "Endcap";
+    
+    // Check H/E
+//    if(electron->GetHoverE() >= config.params("electronMaxHoverE_"+subdet)) continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 6
+    
+    // Check Δη at vertex
+//    if(electron->GetDetaSeed() >= config.params("electronMaxDetaSeed"+subdet)) continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 7
+    
+    // Check isolation
+//    if(electron->GetChargedIso() >= config.params("electronMaxChargedIso"+subdet)) continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 8
+    
+//    if(electron->GetPhotonIso()  >= config.params("electronMaxPhotonIso"+subdet))  continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 9
+    
+//    if(electron->GetNeutralIso() >= config.params("electronMaxNeutralIso"+subdet)) continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
+
+    physObjects.at(kGoodElectron).push_back(electron);
+  }
+  physObjectsReady.at(kGoodElectron) = true;
+  return physObjects.at(kGoodElectron);
+}
+
 
 PhysObjects Event::GetGoodMatchedElectron()
 {

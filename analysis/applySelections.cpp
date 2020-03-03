@@ -149,13 +149,13 @@ bool IsPassingAllLbLCuts(Event &event, bool doHighAco)
 }
 
 
-/// checks if event has single muon
+/// checks if event has single muon SET TO RETURN FALSE
 bool IsGoodForSingleMuon(Event &event)
 {
   // Check trigger
   if(!event.HasSingleMuonTrigger()) return false;
     
-  return true;
+  return false;
 }
 
 /// checks if event has muon and electron (opposite sign)
@@ -164,8 +164,12 @@ bool IsGoodForMuEle(Event &event)
   // Check trigger
   if(!event.HasSingleMuonTrigger()) return false; 
   // Check Electrons
-  if(event.GetPhysObjects(kElectron).size() < 1) return false;
-  
+  if(event.GetPhysObjects(kElectron).size() != 1) return false;
+  if(event.GetPhysObjects(kMuon).size() != 1) return false;
+  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 2) return false;
+  if(event.GetPhysObjects(kMuon)[0]->GetCharge() ==
+     event.GetPhysObjects(kElectron)[0]->GetCharge()) return false;
+ 
   return true;
 }
 
@@ -174,8 +178,10 @@ bool IsGoodForMuMu(Event &event)
 {
   // Check trigger
   if(!event.HasSingleMuonTrigger()) return false; 
-  // Check muons in the future
+  if(event.GetPhysObjects(kMuon).size() != 2) return false;
   if(event.GetPhysObjects(kGeneralTrack).size() != 2 ) return false;
+  if(event.GetPhysObjects(kMuon)[0]->GetCharge() ==
+     event.GetPhysObjects(kMuon)[1]->GetCharge()) return false;
   
   return true;
 }

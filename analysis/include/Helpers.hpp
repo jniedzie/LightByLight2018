@@ -92,6 +92,8 @@ enum EPhysObjType {
   kElectron,
   kGoodElectron,
   kGoodMatchedElectron,
+  kMuon,
+  kGoodMuon,
   kL1EG,
 };
 
@@ -106,6 +108,8 @@ const vector<EPhysObjType> physObjTypes = {
   kElectron,
   kGoodElectron,
   kGoodMatchedElectron,
+  kMuon,
+  kGoodMuon,
   kL1EG,
 };
 
