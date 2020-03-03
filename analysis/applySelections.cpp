@@ -7,9 +7,14 @@
 #include "PhysObjectProcessor.hpp"
 #include "ConfigManager.hpp"
 #include "EventDisplay.hpp"
+#include <iostream>
+#include <fstream>
+#include <string>
 
 string configPath = "configs/applySelections.md";
 bool storeHLTtrees = false;
+
+
 
 /// Check if this event is a good candidate for reco+ID efficiency estimation
 bool IsGoodForRecoEfficiency(Event &event)
@@ -140,14 +145,48 @@ bool IsPassingAllLbLCuts(Event &event, bool doHighAco)
   else{
     if(aco > 0.01) return false;
   }
+  return true;
+}
+
+
+/// checks if event has single muon
+bool IsGoodForSingleMuon(Event &event)
+{
+  // Check trigger
+  if(!event.HasSingleMuonTrigger()) return false;
+    
+  return true;
+}
+
+/// checks if event has muon and electron (opposite sign)
+bool IsGoodForMuEle(Event &event)
+{
+  // Check trigger
+  if(!event.HasSingleMuonTrigger()) return false; 
+  // Check Electrons
+  if(event.GetPhysObjects(kElectron).size() < 1) return false;
   
   return true;
 }
 
+/// checks if event has di muon (opposite sign)
+bool IsGoodForMuMu(Event &event)
+{
+  // Check trigger
+  if(!event.HasSingleMuonTrigger()) return false; 
+  // Check muons in the future
+  if(event.GetPhysObjects(kGeneralTrack).size() != 2 ) return false;
+  
+  return true;
+}
+
+
+
+
 /// Application starting point
 int main(int argc, char* argv[])
 {
-  if(argc != 1 && argc != 9 && argc != 5 && argc != 4){
+  if(argc != 1 && argc != 9 && argc != 5 && argc != 4 && argc != 3){
     cout<<"This app requires 0, 1, 2 or 8 parameters."<<endl;
     cout<<"./getEfficienciesData configPath inputPath outputPathReco outputPathTrigger outputPathHFveto outputPathExclusivity outputPathLbLsignal outputPathQEDsignal"<<endl;
     cout<<"or\n"<<endl;
@@ -162,7 +201,6 @@ int main(int argc, char* argv[])
   
   string inFilePath;
   vector<string> outFilePaths;
-  
   if(argc == 9){
     configPath = argv[1];
     inFilePath = argv[2];
@@ -173,19 +211,40 @@ int main(int argc, char* argv[])
     outFilePaths.push_back(argv[7]); // LbL signal extraction
     outFilePaths.push_back(argv[8]); // QED signal extraction
   }
+
   if(argc == 5){
     configPath = argv[1];
     inFilePath = argv[2];
     outFilePaths.push_back(argv[3]);
     outFilePaths.push_back(argv[4]);
   }
+  
   if(argc == 4){
     configPath = argv[1];
     inFilePath = argv[2];
     outFilePaths.push_back(argv[3]);
   }
+
+    if(argc == 3){
+    std::string arg_1 = argv[1];
+    std::string arg_2 = argv[2];
+    if(arg_1 == "TauTau"){
+    vector<string> arg_list; 
+    std::ifstream file(arg_2);
+    std::string str; 
+    while (std::getline(file, str))
+    {
+        arg_list.push_back(str);
+    }
+    configPath = arg_list[0];
+    inFilePath = arg_list[1];
+    outFilePaths.push_back(arg_list[2]); // single mu
+    outFilePaths.push_back(arg_list[3]); // muon electron
+    outFilePaths.push_back(arg_list[4]); // dimuon 
+    }
+  }
   
-  config = ConfigManager(configPath);
+config = ConfigManager(configPath);
   cout<<"Config manager created"<<endl;
   
   auto events = make_unique<EventProcessor>(inFilePath, outFilePaths);
@@ -213,8 +272,19 @@ int main(int argc, char* argv[])
     else if(argc==4){
       if(IsPassingLooseSelection(*event))     events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
     }
-  }
 
+
+
+    
+    else if(argc ==3){
+    if(IsGoodForSingleMuon(*event))        events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
+    if(IsGoodForMuEle(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[1], storeHLTtrees);
+    if(IsGoodForMuMu(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[2], storeHLTtrees);
+    }
+  
+  
+  }
+ 
   cout<<"Saving output trees"<<endl;
   for(string outFilePath : outFilePaths) events->SaveOutputTree(outFilePath);
   

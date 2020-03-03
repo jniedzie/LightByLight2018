@@ -41,6 +41,10 @@ public:
   bool HasSingleEG5Trigger()          const;
   bool HasDoubleEG2Trigger()          const;
   bool HasSingleEG3noHFvetoTrigger()  const;
+ 
+  /// Checks if UPC Single Mu Open fired
+  bool HasSingleMuonTrigger() const;
+ 
   
   /// Sorts calo towers by energy, from highest to lowest
   void SortCaloTowersByEnergy();

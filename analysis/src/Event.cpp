@@ -44,6 +44,11 @@ bool Event::HasSingleEG3noHFvetoTrigger() const
   return triggersLbL.at("HLT_HIUPC_SingleEG3_BptxAND_SinglePixelTrack_MaxPixelTrack_v1");
 }
 
+bool Event::HasSingleMuonTrigger() const
+{
+  return triggersLbL.at("HLT_HIUPC_SingleMuOpen_NotMBHF2AND_v1");
+}
+
 PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
 {
   if(   type == kPhoton
