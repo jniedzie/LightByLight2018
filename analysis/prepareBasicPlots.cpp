@@ -9,7 +9,7 @@
 #include "EventDisplay.hpp"
 
 string configPath = "configs/efficiencies.md";
-string outputPath = "results/basicPlots_test_new.root";
+string outputPath = "results/basicPlots_test.root";
 
 bool saveCalosFailingNEE = true;
 bool saveTriphotonHists = true;
@@ -61,6 +61,10 @@ vector<tuple<string, int, double, double>> histParams = {
   {"lbl_nee_failing"        , 15  , 0   , 15    },
   {"lbl_HFp"                , 200 , 0   , 20    },
   {"lbl_HFm"                , 200 , 0   , 20    },
+  {"lbl_EB_leading_tower"   , 200 , 0   , 20    },
+  {"lbl_EE_leading_tower"   , 200 , 0   , 20    },
+  {"lbl_HB_leading_tower"   , 200 , 0   , 20    },
+  {"lbl_HE_leading_tower"   , 200 , 0   , 20    },
   {"lbl_HFp_leading_tower"  , 200 , 0   , 20    },
   {"lbl_HFm_leading_tower"  , 200 , 0   , 20    },
   
@@ -75,6 +79,10 @@ vector<tuple<string, int, double, double>> histParams = {
   {"qed_electron_cutflow"   , 15  , 0   , 15    },
   {"qed_HFp"                , 200 , 0   , 20    },
   {"qed_HFm"                , 200 , 0   , 20    },
+  {"qed_EB_leading_tower"   , 200 , 0   , 20    },
+  {"qed_EE_leading_tower"   , 200 , 0   , 20    },
+  {"qed_HB_leading_tower"   , 200 , 0   , 20    },
+  {"qed_HE_leading_tower"   , 200 , 0   , 20    },
   {"qed_HFp_leading_tower"  , 200 , 0   , 20    },
   {"qed_HFm_leading_tower"  , 200 , 0   , 20    },
   
@@ -184,29 +192,57 @@ void fillDielectronHists(Event &event, const map<string, TH1D*> &hists, string d
   
 }
 
-void fillHFnoiseHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string sample, string suffix="")
+void fillNoiseHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string sample, string suffix="")
 {
   if(suffix != "") suffix += "_";
   
   event.SortCaloTowersByEnergy();
-  bool leadingHFpFilled = false;
-  bool leadingHFmFilled = false;
   
-  for(auto tower : event.GetPhysObjects(kCaloTower)){
+  map<ECaloType, bool> leadingFilled;
+  for(auto calo : calotypes) leadingFilled[calo] = false;
+  
+  PhysObjects towers = event.GetPhysObjects(kCaloTower);
+  
+  for(auto tower : towers){
+    double eta = fabs(tower->GetEta());
     
+    if(eta < maxEtaEB){
+      if(!leadingFilled[kEB]){
+        hists.at(sample+"_EB_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyEm());
+        leadingFilled[kEB] = true;
+      }
+    }
+    if(eta > minEtaEE && eta < maxEtaEE){
+      if(!leadingFilled[kEE]){
+        hists.at(sample+"_EE_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyEm());
+        leadingFilled[kEE] = true;
+      }
+    }
+    if(eta < maxEtaHB){
+      if(!leadingFilled[kHB]){
+        hists.at(sample+"_HB_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyHad());
+        leadingFilled[kHB] = true;
+      }
+    }
+    if(eta > minEtaHE && eta < maxEtaHE){
+      if(!leadingFilled[kHE]){
+        hists.at(sample+"_HE_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyHad());
+        leadingFilled[kHE] = true;
+      }
+    }
     if(tower->GetEta() > minEtaHF && tower->GetEta() < maxEtaHF){
       hists.at(sample+"_HFp_"+suffix+datasetName)->Fill(tower->GetEnergy());
       
-      if(!leadingHFpFilled){
+      if(!leadingFilled[kHFp]){
         hists.at(sample+"_HFp_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergy());
-        leadingHFpFilled = true;
+        leadingFilled[kHFp] = true;
       }
     }
     if(tower->GetEta() > -maxEtaHF && tower->GetEta() < -minEtaHF){
       hists.at(sample+"_HFm_"+suffix+datasetName)->Fill(tower->GetEnergy());
-      if(!leadingHFmFilled){
+      if(!leadingFilled[kHFm]){
         hists.at(sample+"_HFm_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergy());
-        leadingHFmFilled = true;
+        leadingFilled[kHFm] = true;
       }
     }
   }
@@ -310,8 +346,8 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   fillPhotonHists(  event, hists, datasetName, "all");
   fillDiphotonHists(event, hists, datasetName, suffix);
   fillDiphotonHists(event, hists, datasetName, "all");
-  fillHFnoiseHists( event, hists, datasetName, "lbl", suffix);
-  fillHFnoiseHists( event, hists, datasetName, "lbl", "all");
+  fillNoiseHists( event, hists, datasetName, "lbl", suffix);
+  fillNoiseHists( event, hists, datasetName, "lbl", "all");
 }
 
 void fillCHEhistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)
@@ -377,7 +413,7 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   
   fillElectronHists(  event, hists, datasetName, "all");
   fillDielectronHists(event, hists, datasetName, "qed", "all");
-  fillHFnoiseHists(   event, hists, datasetName, "qed", "all");
+  fillNoiseHists(   event, hists, datasetName, "qed", "all");
 }
 
 /// Creates histograms, cut through and event counters for given dataset name, for each

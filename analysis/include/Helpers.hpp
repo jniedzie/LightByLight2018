@@ -214,15 +214,6 @@ const map<ECaloType, string> caloName = {
   { kHFm , "HFm" },
 };
 
-const map<ECaloType, double> caloNoiseThreshold = { // in GeV
-  {kEB, 0.8},
-  {kEE, 3.7},
-  {kHB, 2.9},
-  {kHE, 2.5},
-  {kHFp, 7.3},
-  {kHFm, 7.6}
-};
-
 const double maxEtaEB = 1.479;
 const double minEtaEE = maxEtaEB;
 const double maxEtaEE = 3.0;
