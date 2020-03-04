@@ -303,6 +303,22 @@ void normalizeHists(map<EDataset, TH1D*> hists, ENorm normStrategy)
   }
 }
 
+TF1* fitHistogram(TH1D* hist, bool dz)
+{
+  TF1 *fitFun = new TF1("fitFun",
+                        "[0]/([1]*sqrt(2*TMath::Pi()))*exp(-1./2*pow((x-[2])/[1],2))+ [3]/([4]*sqrt(2*TMath::Pi()))*exp(-1./2*pow((x-[2])/[4],2))",-100, 100);
+  
+  fitFun->SetParameter(0, 1);
+  fitFun->SetParameter(1, dz ? 10 : 1);
+  fitFun->SetParameter(2, 0);
+  fitFun->SetParameter(3, 1);
+  fitFun->SetParameter(4, dz ? 100 : 10);
+  
+  hist->Fit(fitFun, "0");
+  
+  return fitFun;
+}
+
 void drawBasicPlots()
 {
   gStyle->SetOptStat(0);
@@ -397,9 +413,30 @@ void drawBasicPlots()
       backgroundsStack->Draw("same");
     }
     
+    
+    
+    if(histName.find("track_dz_all") != string::npos){
+      for(auto dataset : datasetsToAnalyze){
+        TF1 *fun = fitHistogram(hists.at(dataset), true);
+        fun->SetLineColor(datasetColor.at(dataset));
+        fun->Draw("same");
+        cout<<"Tracks d_z mean for "<<datasetName.at(dataset)<<": ";
+        cout<<fun->GetParameter(2)<<" +/- "<<fun->GetParError(2)<<endl;
+      }
+    }
+    if(histName.find("track_dxy_all") != string::npos){
+      for(auto dataset : datasetsToAnalyze){
+        TF1 *fun = fitHistogram(hists.at(dataset), false);
+        fun->SetLineColor(datasetColor.at(dataset));
+        fun->Draw("same");
+        cout<<"Tracks d_xy mean for "<<datasetName.at(dataset)<<": ";
+        cout<<fun->GetParameter(2)<<" +/- "<<fun->GetParError(2)<<endl;
+      }
+    }
+    
+    
+    
     getLegendForHists(hists)->Draw();
-    
-    
     
     //
     // Draw ratio
