@@ -104,6 +104,16 @@ vector<tuple<string, int, double, double>> histParams = {
   {"track_dxy_over_sigma"   , 1000, 0   , 100   },
   {"track_dz_over_sigma"    , 1000, 0   , 100   },
   
+  {"track_dxy_1_track"      ,10000,-150 , 150   },
+  {"track_dxy_2_track"      ,10000,-150 , 150   },
+  {"track_dxy_3_track"      ,10000,-150 , 150   },
+  {"track_dxy_ge4_track"    ,10000,-150 , 150   },
+  
+  {"track_dz_1_track"       ,10000,-500 , 500   },
+  {"track_dz_2_track"       ,10000,-500 , 500   },
+  {"track_dz_3_track"       ,10000,-500 , 500   },
+  {"track_dz_ge4_track"     ,10000,-500 , 500   },
+  
   {"track_vx"               , 1000,-150 , 150   },
   {"track_vy"               , 1000,-150 , 150   },
   {"track_vz"               , 1000,-500 , 500   },
@@ -254,7 +264,9 @@ void fillTracksHists(Event &event, const map<string, TH1D*> &hists, string datas
   
   PhysObjects tracksLowPt, tracksHighPt;
   
-  hists.at("nTracks_"+suffix+datasetName)->Fill(event.GetPhysObjects(kGeneralTrack).size());
+  int nTracks = (int)event.GetPhysObjects(kGeneralTrack).size();
+  
+  hists.at("nTracks_"+suffix+datasetName)->Fill(nTracks);
   
   for(auto track : event.GetPhysObjects(kGeneralTrack)){
     double trackPt = track->GetPt();
@@ -268,6 +280,24 @@ void fillTracksHists(Event &event, const map<string, TH1D*> &hists, string datas
     hists.at("track_charge_"        + suffix + datasetName)->Fill(track->GetCharge());
     hists.at("track_chi2_"          + suffix + datasetName)->Fill(track->GetChi2());
     hists.at("track_dxy_"           + suffix + datasetName)->Fill(track->GetDxy());
+    
+    if(nTracks==1){
+      hists.at("track_dxy_1_track_" + suffix + datasetName)->Fill(track->GetDxy());
+      hists.at("track_dz_1_track_"  + suffix + datasetName)->Fill(track->GetDz());
+    }
+    if(nTracks==2){
+      hists.at("track_dxy_2_track_" + suffix + datasetName)->Fill(track->GetDxy());
+      hists.at("track_dz_2_track_"  + suffix + datasetName)->Fill(track->GetDz());
+    }
+    if(nTracks==3){
+      hists.at("track_dxy_3_track_" + suffix + datasetName)->Fill(track->GetDxy());
+      hists.at("track_dz_3_track_"  + suffix + datasetName)->Fill(track->GetDz());
+    }
+    if(nTracks>=4){
+      hists.at("track_dxy_ge4_track_" + suffix + datasetName)->Fill(track->GetDxy());
+      hists.at("track_dz_ge4_track_"  + suffix + datasetName)->Fill(track->GetDz());
+    }
+    
     hists.at("track_dz_"            + suffix + datasetName)->Fill(track->GetDz());
     hists.at("track_dxy_over_sigma_"+ suffix + datasetName)->Fill(fabs(track->GetDxy()/track->GetDxyErr()));
     hists.at("track_dz_over_sigma_" + suffix + datasetName)->Fill(fabs(track->GetDz()/track->GetDzErr()));
