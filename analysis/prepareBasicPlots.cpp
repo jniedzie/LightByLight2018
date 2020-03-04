@@ -41,7 +41,7 @@ const vector<EDataset> datasetsToAnalyze = {
 };
 
 vector<string> suffixes = {
-  "all", "low_aco", "high_aco",
+  "all", "low_aco", "high_aco", "pass_qed", "pass_lbl",  "good_pass_qed", "good_pass_lbl",
   "good", "good_low_aco", "good_high_aco", "good_all", "two_photons", "good_two_photons"
 };
 
@@ -376,8 +376,9 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   fillPhotonHists(  event, hists, datasetName, "all");
   fillDiphotonHists(event, hists, datasetName, suffix);
   fillDiphotonHists(event, hists, datasetName, "all");
-  fillNoiseHists( event, hists, datasetName, "lbl", suffix);
-  fillNoiseHists( event, hists, datasetName, "lbl", "all");
+  fillNoiseHists(   event, hists, datasetName, "lbl", suffix);
+  fillNoiseHists(   event, hists, datasetName, "lbl", "all");
+  fillTracksHists(  event, hists, datasetName, "pass_lbl");
 }
 
 void fillCHEhistograms(Event &event, const map<string, TH1D*> &hists, string datasetName)
@@ -443,7 +444,8 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, string dat
   
   fillElectronHists(  event, hists, datasetName, "all");
   fillDielectronHists(event, hists, datasetName, "qed", "all");
-  fillNoiseHists(   event, hists, datasetName, "qed", "all");
+  fillNoiseHists(     event, hists, datasetName, "qed", "all");
+  fillTracksHists(    event, hists, datasetName, "pass_qed");
 }
 
 /// Creates histograms, cut through and event counters for given dataset name, for each
