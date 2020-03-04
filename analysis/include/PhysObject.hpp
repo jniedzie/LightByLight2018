@@ -71,6 +71,8 @@ public:
   ECaloType GetTowerSubdetHad() const;
   ECaloType GetTowerSubdetEm()  const;
   
+  bool IsConverted() const;
+  
 private:
   double eta;       ///< Pseudorapidity
   double phi;       ///< Azimuthal angle
@@ -114,6 +116,8 @@ private:
   
   double relIsoWithEA;  ///< Relative isolation
   double dEtaSeed;      ///< Seed Δη
+  
+  bool hasConversionTracks; ///< Is it a converted photon
   
   friend class EventProcessor;
   friend class PhysObjectProcessor;

@@ -48,7 +48,9 @@ photonIso(-9999),
 neutralIso(-9999),
 
 relIsoWithEA(-9999),
-dEtaSeed(-9999)
+dEtaSeed(-9999),
+
+hasConversionTracks(false)
 {
   
 }
@@ -306,4 +308,9 @@ double PhysObject::GetNeutralIso() const
 {
   if(neutralIso < 0) cout<<"WARNING - carefull, neutralIso probably not set"<<endl;
   return neutralIso;
+}
+
+bool PhysObject::IsConverted() const
+{
+  return hasConversionTracks;
 }

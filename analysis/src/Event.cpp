@@ -86,6 +86,10 @@ PhysObjects Event::GetGoodPhotons()
   physObjects.at(kGoodPhoton).clear();
   
   for(auto photon : physObjects.at(kPhoton)){
+    
+    // Check if photon converted
+    if(config.params("photonRejectConverted") && photon->IsConverted()) continue;
+    
     // Check Et
     if(photon->GetEt() < config.params("photonMinEt")) continue;
     
