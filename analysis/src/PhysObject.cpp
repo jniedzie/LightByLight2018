@@ -190,6 +190,20 @@ double PhysObject::GetDzErr() const
   return dzErr;
 }
 
+double PhysObject::GetXYdistanceFromBeamSpot(EDataset dataset) const
+{
+  if(vx < -999 || vy < -999) cout<<"WARNING - carefull, vx or vy probably not set"<<endl;
+  auto [bs_x, bs_y, bs_z] = GetBeamSpot(dataset);
+  return sqrt(pow(bs_x - vx, 2) + pow(bs_y - vy, 2));
+}
+
+double PhysObject::GetZdistanceFromBeamSpot(EDataset dataset) const
+{
+  if(vz < -999) cout<<"WARNING - carefull, vz probably not set"<<endl;
+  auto [bs_x, bs_y, bs_z] = GetBeamSpot(dataset);
+  return fabs(bs_z - vz);
+}
+
 double PhysObject::GetVertexX() const
 {
   if(vx < -999) cout<<"WARNING - carefull, vx probably not set"<<endl;

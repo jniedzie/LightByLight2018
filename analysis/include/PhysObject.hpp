@@ -46,6 +46,8 @@ public:
   double GetDz()            const;
   double GetDxyErr()        const;
   double GetDzErr()         const;
+  double GetXYdistanceFromBeamSpot(EDataset dataset) const;
+  double GetZdistanceFromBeamSpot(EDataset dataset)  const;
   double GetVertexX()       const;
   double GetVertexY()       const;
   double GetVertexZ()       const;

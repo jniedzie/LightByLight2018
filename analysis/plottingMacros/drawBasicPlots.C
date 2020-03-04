@@ -1,6 +1,7 @@
 #include "../include/Helpers.hpp"
 
 //string inputPath  = "../results/basicPlots_default.root";
+string inputPath  = "../results/basicPlots_default_new.root";
 
 
 //string inputPath  = "../results/basicPlots_tracks+nhits3.root";
@@ -13,9 +14,10 @@
 //string inputPath  = "../results/basicPlots_tracks+pt400.root";
 //string inputPath  = "../results/basicPlots_tracks+pt500.root";
 //string inputPath  = "../results/basicPlots_tracks+pt700.root";
-string inputPath  = "../results/basicPlots_tracks+pt900.root";
+//string inputPath  = "../results/basicPlots_tracks+pt900.root";
 
 //string inputPath  = "../results/basicPlots_tracks+chi2_2p5.root";
+//string inputPath  = "../results/basicPlots_tracks+dxy1mm.root";
 
 //string inputPath  = "../results/basicPlots_test.root";
 //string inputPath  = "../results/basicPlots_test_new.root";
@@ -39,6 +41,7 @@ map<EDataset, double> crossSection = { // μb
 double luminosity = 1609.910015010; // from brilcalc, 1/μb
 
 const double markerSize = 0.5;
+const bool drawLegends = false;
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
@@ -109,8 +112,12 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "track_pt_all"                    , "track p_{t} (GeV)"       , false, kEntries ,   7   , 2  , 5 ,   0  , 10  },
   { "track_eta_all"                   , "track #eta"              , false, kEntries ,   7   , 3  , 1 , -3.0 , 3.0 },
   { "track_phi_all"                   , "track #phi"              , false, kEntries ,   7   , 4  , 1 , -3.5 , 3.5 },
-  { "track_dxy_all"                   , "track d_{xy} (cm)"       , true , kEntries ,   7   , 5  , 1 ,  -10 , 10  },
-  { "track_dz_all"                    , "track d_{z} (cm)"        , true , kEntries ,   7   , 6  , 1 ,  -30 , 30  },
+  { "track_dxy_all"                   , "track d_{xy} (cm)"       , true , kEntries ,   7   , 5  ,20 ,    0 , 0.2 },
+  { "track_dz_all"                    , "track d_{z} (cm)"        , true , kEntries ,   7   , 6  ,300,  -30 , 30  },
+  
+//  { "track_dxy_from_bs_all"           , "track d_{xy} (cm)"       , true , kEntries ,   7   , 5  ,20 ,    0 , 0.2 },
+//  { "track_dz_from_bs_all"            , "track d_{z} (cm)"        , true , kEntries ,   7   , 6  ,300,  -30 , 30  },
+  
   { "track_dxy_over_sigma_all"        , "|d_{xy}/#sigma_{xy}|"    , true , kEntries ,   7   , 7  , 2 ,    0 , 10  },
   { "track_dz_over_sigma_all"         , "|d_{z}/#sigma_{z}|"      , true , kEntries ,   7   , 8  , 2 ,    0 , 10  },
   { "track_vx_all"                    , "track vertex x (cm)"     , true , kEntries ,   7   , 9  , 1 ,  -10 , 10  },
@@ -306,13 +313,15 @@ void normalizeHists(map<EDataset, TH1D*> hists, ENorm normStrategy)
 TF1* fitHistogram(TH1D* hist, bool dz)
 {
   TF1 *fitFun = new TF1("fitFun",
-                        "[0]/([1]*sqrt(2*TMath::Pi()))*exp(-1./2*pow((x-[2])/[1],2))+ [3]/([4]*sqrt(2*TMath::Pi()))*exp(-1./2*pow((x-[2])/[4],2))",-100, 100);
+                        "[0]/([1]*sqrt(2*TMath::Pi()))*exp(-1./2*pow((x-[2])/[1],2))+ [3]/([4]*sqrt(2*TMath::Pi()))*exp(-1./2*pow((x-[5])/[4],2))",-100, 100);
   
-  fitFun->SetParameter(0, 1);
-  fitFun->SetParameter(1, dz ? 10 : 1);
-  fitFun->SetParameter(2, 0);
-  fitFun->SetParameter(3, 1);
-  fitFun->SetParameter(4, dz ? 100 : 10);
+  fitFun->SetParameter(0, 1); // scale 1
+  fitFun->SetParameter(1, dz ? 10 : 1); // sigma 1
+  fitFun->SetParameter(2, 0); // mu 1
+  
+  fitFun->SetParameter(3, 1); // scale 2
+  fitFun->SetParameter(4, dz ? 100 : 0.1); // sigma 2
+  fitFun->SetParameter(5, dz ? 0 : 0.1); // mu 2
   
   hist->Fit(fitFun, "0");
   
@@ -424,19 +433,19 @@ void drawBasicPlots()
         cout<<fun->GetParameter(2)<<" +/- "<<fun->GetParError(2)<<endl;
       }
     }
-    if(histName.find("track_dxy_all") != string::npos){
-      for(auto dataset : datasetsToAnalyze){
-        TF1 *fun = fitHistogram(hists.at(dataset), false);
-        fun->SetLineColor(datasetColor.at(dataset));
-        fun->Draw("same");
-        cout<<"Tracks d_xy mean for "<<datasetName.at(dataset)<<": ";
-        cout<<fun->GetParameter(2)<<" +/- "<<fun->GetParError(2)<<endl;
-      }
-    }
+//    if(histName.find("track_dxy_all") != string::npos){
+//      for(auto dataset : datasetsToAnalyze){
+//        TF1 *fun = fitHistogram(hists.at(dataset), false);
+//        fun->SetLineColor(datasetColor.at(dataset));
+//        fun->Draw("same");
+//        cout<<"Tracks d_xy mean for "<<datasetName.at(dataset)<<": ";
+//        cout<<fun->GetParameter(2)<<" +/- "<<fun->GetParError(2)<<endl;
+//      }
+//    }
     
     
     
-    getLegendForHists(hists)->Draw();
+    if(drawLegends) getLegendForHists(hists)->Draw();
     
     //
     // Draw ratio

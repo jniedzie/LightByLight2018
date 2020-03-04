@@ -202,6 +202,13 @@ const map<EDataset, string> datasetDescription = {
   {kMCcep               , "CEP MC"        },
 };
 
+inline tuple<double, double, double> GetBeamSpot(EDataset dataset)
+{
+  bool isMC = datasetName.at(dataset) != "Data";
+  if(isMC) return make_tuple(0.10482, 0.16867, -1.0985);
+  return make_tuple(0.010, 0.047, 0.903);
+}
+
 enum ECaloType { kEB, kEE, kHB, kHE, kHFp, kHFm, nCaloTypes };
 constexpr initializer_list<ECaloType> calotypes = {kEB, kEE, kHB, kHE, kHFp, kHFm};
 
@@ -213,6 +220,8 @@ const map<ECaloType, string> caloName = {
   { kHFp , "HFp" },
   { kHFm , "HFm" },
 };
+
+
 
 const double maxEtaEB = 1.479;
 const double minEtaEE = maxEtaEB;
