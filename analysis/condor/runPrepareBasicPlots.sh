@@ -69,6 +69,16 @@ then
   # add pt > 400 MeV requirement on tracks
   configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_tracks+pt400.md"
   suffix="_tracks+pt400"
+elif [ $3 -eq 13 ]
+then
+  # add no conversion requirement on photons
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_pho+conversions.md"
+  suffix="_pho+conversions"
+elif [ $3 -eq 14 ]
+then
+  # add d_xy < 1 mm requirement on tracks
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_tracks+dxy1mm.md"
+  suffix="_tracks+dxy1mm"
 fi
 
 # for the data:
