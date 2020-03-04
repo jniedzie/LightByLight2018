@@ -197,33 +197,33 @@ PhysObjects Event::GetGoodMuons(TH1D *cutFlowHist)
 {
   if(physObjectsReady.at(kGoodMuon)) return physObjects.at(kGoodMuon);
   
-  physObjects.at(kGoodElectron).clear();
+  physObjects.at(kGoodMuon).clear();
   
-  for(auto electron : physObjects.at(kElectron)){
+  for(auto muon : physObjects.at(kMuon)){
 //    int cutFlowIndex=0;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 0
     
     // Check pt
-//    if(electron->GetPt() < config.params("electronMinPt")) continue;
+//    if(muon->GetPt() < config.params("muonMinPt")) continue;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 1
     
     // Check eta
-//    double eta = fabs(electron->GetEtaSC());
+//    double eta = fabs(muon->GetEtaSC());
 //    if(eta > config.params("ecalCrackMin") &&
 //       eta < config.params("ecalCrackMax"))   continue;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 2
     
-//    if(eta >= config.params("electronMaxEta")) continue;
+//    if(eta >= config.params("muonMaxEta")) continue;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
     
     // Check for HEM issue
-//    if(electron->GetEtaSC() < -minEtaEE &&
-//       electron->GetPhiSC() > config.params("ecalHEMmin") &&
-//       electron->GetPhiSC() < config.params("ecalHEMmax")) continue;
+//    if(muon->GetEtaSC() < -minEtaEE &&
+//       muon->GetPhiSC() > config.params("ecalHEMmin") &&
+//       muon->GetPhiSC() < config.params("ecalHEMmax")) continue;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 4
     
     // Check n missing hits
-//    if(electron->GetNmissingHits() > config.params("electronMaxNmissingHits")) continue;
+//    if(muon->GetNmissingHits() > config.params("muonMaxNmissingHits")) continue;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 5
     
 //    string subdet = "";
@@ -231,27 +231,27 @@ PhysObjects Event::GetGoodMuons(TH1D *cutFlowHist)
 //    else if((eta < maxEtaEE)) subdet = "Endcap";
     
     // Check H/E
-//    if(electron->GetHoverE() >= config.params("electronMaxHoverE_"+subdet)) continue;
+//    if(muon->GetHoverE() >= config.params("muonMaxHoverE_"+subdet)) continue;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 6
     
     // Check Δη at vertex
-//    if(electron->GetDetaSeed() >= config.params("electronMaxDetaSeed"+subdet)) continue;
+//    if(muon->GetDetaSeed() >= config.params("muonMaxDetaSeed"+subdet)) continue;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 7
     
     // Check isolation
-//    if(electron->GetChargedIso() >= config.params("electronMaxChargedIso"+subdet)) continue;
+//    if(muon->GetChargedIso() >= config.params("muonMaxChargedIso"+subdet)) continue;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 8
     
-//    if(electron->GetPhotonIso()  >= config.params("electronMaxPhotonIso"+subdet))  continue;
+//    if(muon->GetPhotonIso()  >= config.params("muonMaxPhotonIso"+subdet))  continue;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 9
     
-//    if(electron->GetNeutralIso() >= config.params("electronMaxNeutralIso"+subdet)) continue;
+//    if(muon->GetNeutralIso() >= config.params("muonMaxNeutralIso"+subdet)) continue;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
 
-    physObjects.at(kGoodElectron).push_back(electron);
+    physObjects.at(kGoodMuon).push_back(muon);
   }
-  physObjectsReady.at(kGoodElectron) = true;
-  return physObjects.at(kGoodElectron);
+  physObjectsReady.at(kGoodMuon) = true;
+  return physObjects.at(kGoodMuon);
 }
 
 

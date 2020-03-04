@@ -7,9 +7,6 @@
 #include "PhysObjectProcessor.hpp"
 #include "ConfigManager.hpp"
 #include "EventDisplay.hpp"
-#include <iostream>
-#include <fstream>
-#include <string>
 
 string configPath = "configs/applySelections.md";
 bool storeHLTtrees = false;
@@ -199,6 +196,8 @@ int main(int argc, char* argv[])
     cout<<"./getEfficienciesData configPath inputPath outputPathLowAco outputPathHighAco"<<endl;
     cout<<"or\n"<<endl;
     cout<<"./getEfficienciesData configPath inputPath outputPath"<<endl;
+    cout<<"or\n"<<endl;
+    cout<<"./getEfficienciesData flag setupFilePath"<<endl; // setupFile contains all paths for configs, input and outputs
     
     exit(0);
   }
@@ -232,25 +231,24 @@ int main(int argc, char* argv[])
   }
 
     if(argc == 3){
-    std::string arg_1 = argv[1];
-    std::string arg_2 = argv[2];
-    if(arg_1 == "TauTau"){
-    vector<string> arg_list; 
-    std::ifstream file(arg_2);
-    std::string str; 
-    while (std::getline(file, str))
-    {
-        arg_list.push_back(str);
+      string flag = argv[1];
+      std::string setupFilePath = argv[2];
+      if(flag == "TauTau"){
+        vector<string> arg_list; 
+        ifstream file(setupFilePath);
+        string str; 
+         while (std::getline(file, str)){
+           arg_list.push_back(str);
+         }
+         configPath = arg_list[0];
+         inFilePath = arg_list[1];
+         outFilePaths.push_back(arg_list[2]); // single mu
+         outFilePaths.push_back(arg_list[3]); // muon electron
+         outFilePaths.push_back(arg_list[4]); // dimuon 
+      }
     }
-    configPath = arg_list[0];
-    inFilePath = arg_list[1];
-    outFilePaths.push_back(arg_list[2]); // single mu
-    outFilePaths.push_back(arg_list[3]); // muon electron
-    outFilePaths.push_back(arg_list[4]); // dimuon 
-    }
-  }
   
-config = ConfigManager(configPath);
+  config = ConfigManager(configPath);
   cout<<"Config manager created"<<endl;
   
   auto events = make_unique<EventProcessor>(inFilePath, outFilePaths);
@@ -283,9 +281,12 @@ config = ConfigManager(configPath);
 
     
     else if(argc ==3){
-    if(IsGoodForSingleMuon(*event))        events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
-    if(IsGoodForMuEle(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[1], storeHLTtrees);
-    if(IsGoodForMuMu(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[2], storeHLTtrees);
+      string flag = argv[1];
+      if( flag == "TauTau"){
+        if(IsGoodForSingleMuon(*event))        events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
+        if(IsGoodForMuEle(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[1], storeHLTtrees);
+        if(IsGoodForMuMu(*event))          events->AddEventToOutputTree(iEvent, outFilePaths[2], storeHLTtrees);
+      }
     }
   
   
