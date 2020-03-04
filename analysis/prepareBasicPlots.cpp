@@ -99,24 +99,24 @@ vector<tuple<string, int, double, double>> histParams = {
   {"track_purity"           , 10  , 0   , 10    },
   {"track_charge"           , 4   ,-2   , 2     },
   {"track_chi2"             , 1000, 0   , 100   },
-  {"track_dxy"              ,10000,-150 , 150   },
-  {"track_dz"               ,10000,-500 , 500   },
+  {"track_dxy"              ,300000,-15  , 15    },
+  {"track_dz"               ,100000,-50  , 50    },
   {"track_dxy_over_sigma"   , 1000, 0   , 100   },
   {"track_dz_over_sigma"    , 1000, 0   , 100   },
   
-  {"track_dxy_1_track"      ,10000,-150 , 150   },
-  {"track_dxy_2_track"      ,10000,-150 , 150   },
-  {"track_dxy_3_track"      ,10000,-150 , 150   },
-  {"track_dxy_ge4_track"    ,10000,-150 , 150   },
+  {"track_dxy_1_track"      ,300000,-15  , 15    },
+  {"track_dxy_2_track"      ,300000,-15  , 15    },
+  {"track_dxy_3_track"      ,300000,-15  , 15    },
+  {"track_dxy_ge4_track"    ,300000,-15  , 15    },
   
-  {"track_dz_1_track"       ,10000,-500 , 500   },
-  {"track_dz_2_track"       ,10000,-500 , 500   },
-  {"track_dz_3_track"       ,10000,-500 , 500   },
-  {"track_dz_ge4_track"     ,10000,-500 , 500   },
-  
-  {"track_vx"               , 1000,-150 , 150   },
-  {"track_vy"               , 1000,-150 , 150   },
-  {"track_vz"               , 1000,-500 , 500   },
+  {"track_dz_1_track"       ,100000,-50  , 50    },
+  {"track_dz_2_track"       ,100000,-50  , 50    },
+  {"track_dz_3_track"       ,100000,-50  , 50    },
+  {"track_dz_ge4_track"     ,100000,-50  , 50    },
+
+  {"track_vx"               ,300000,-15  , 15    },
+  {"track_vy"               ,300000,-15  , 15    },
+  {"track_vz"               ,300000,-50  , 50    },
   
   {"tracks_cut_flow"        , 15  , 0   , 15    },
 };
