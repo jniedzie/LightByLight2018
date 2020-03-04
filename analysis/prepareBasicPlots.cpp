@@ -91,8 +91,8 @@ vector<tuple<string, int, double, double>> histParams = {
   {"track_purity"           , 10  , 0   , 10    },
   {"track_charge"           , 4   ,-2   , 2     },
   {"track_chi2"             , 1000, 0   , 100   },
-  {"track_dxy"              , 1000,-150 , 150   },
-  {"track_dz"               , 1000,-500 , 500   },
+  {"track_dxy"              ,10000,-150 , 150   },
+  {"track_dz"               ,10000,-500 , 500   },
   {"track_dxy_over_sigma"   , 1000, 0   , 100   },
   {"track_dz_over_sigma"    , 1000, 0   , 100   },
   

@@ -1,12 +1,24 @@
 #include "../include/Helpers.hpp"
 
 //string inputPath  = "../results/basicPlots_default.root";
-//string inputPath  = "../results/basicPlots_tracks+nhits11.root";
+
+
+//string inputPath  = "../results/basicPlots_tracks+nhits3.root";
+//string inputPath  = "../results/basicPlots_tracks+nhits5.root";
 //string inputPath  = "../results/basicPlots_tracks+nhits7.root";
-//string inputPath  = "../results/basicPlots_tracks+chi2_2p5.root";
+//string inputPath  = "../results/basicPlots_tracks+nhits11.root";
+
+//string inputPath  = "../results/basicPlots_tracks+pt200.root";
+//string inputPath  = "../results/basicPlots_tracks+pt300.root";
+//string inputPath  = "../results/basicPlots_tracks+pt400.root";
 //string inputPath  = "../results/basicPlots_tracks+pt500.root";
+//string inputPath  = "../results/basicPlots_tracks+pt700.root";
+string inputPath  = "../results/basicPlots_tracks+pt900.root";
+
+//string inputPath  = "../results/basicPlots_tracks+chi2_2p5.root";
+
 //string inputPath  = "../results/basicPlots_test.root";
-string inputPath  = "../results/basicPlots_test_new.root";
+//string inputPath  = "../results/basicPlots_test_new.root";
 string outputPath = "../plots/distributions";
 
 map<EDataset, double> initialNevents = {
@@ -97,7 +109,7 @@ vector<tuple<string, string, bool, bool, int, int, int, double, double>> histPar
   { "track_dxy_all"                   , "track d_{xy} (cm)"       , true , false ,   7   , 4  , 1 ,  -10 , 10  },
   { "track_dz_all"                    , "track d_{z} (cm)"        , true , false ,   7   , 5  , 1 ,  -30 , 30  },
   { "track_dxy_over_sigma_all"        , "|d_{xy}/#sigma_{xy}|"    , true , false ,   7   , 6  , 2 ,    0 , 10  },
-  { "track_dz_over_sigma_all"         , "|d_{xy}/#sigma_{z}|"     , true , false ,   7   , 7  , 2 ,    0 , 10  },
+  { "track_dz_over_sigma_all"         , "|d_{z}/#sigma_{z}|"      , true , false ,   7   , 7  , 2 ,    0 , 10  },
   { "track_vx_all"                    , "track vertex x (cm)"     , true , false ,   7   , 8  , 1 ,  -10 , 10  },
   { "track_vy_all"                    , "track vertex y (cm)"     , true , false ,   7   , 9  , 1 ,  -10 , 10  },
   { "track_vz_all"                    , "track vertex z (cm)"     , true , false ,   7   , 10 , 1 ,  -30 , 30  },
@@ -105,7 +117,8 @@ vector<tuple<string, string, bool, bool, int, int, int, double, double>> histPar
   { "track_missing_hits_all"          , "N_{hits}^{missing}"      , false, false ,   7   , 12 , 1 ,   0  , 20  },
   { "track_chi2_all"                  , "track #chi^{2}/NDF"      , true , true  ,   7   , 13 , 1 ,   0  , 20  },
   { "track_purity_all"                , "track purity"            , false, false ,   7   , 14 , 1 ,   0  , 20  },
-  { "tracks_cut_flow_all"              , ""                       , false, true  ,   7   , 15 , 1 ,   0  , 10  },
+  { "tracks_cut_flow_all"             , ""                        , false, true  ,   7   , 15 , 1 ,   0  , 10  },
+  { "track_pt_all"                    , "track p_{t} (GeV)"       , false, false ,   7   , 16 , 5 ,   0  , 10  },
 };
 
 void fillLabels(TH1D *hist, vector<const char*> labels)
