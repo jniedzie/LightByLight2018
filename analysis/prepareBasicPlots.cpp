@@ -217,14 +217,16 @@ void fillNoiseHists(Event &event, const map<string, TH1D*> &hists, string datase
   PhysObjects towers = event.GetPhysObjects(kCaloTower);
   
   for(auto tower : towers){
-    if(physObjectProcessor.IsInCrackOrHEM(*tower)) continue;
     
     ECaloType subdetHad = tower->GetTowerSubdetHad();
     ECaloType subdetEm = tower->GetTowerSubdetEm();
     
     if(subdetEm==kEB){
       if(   !event.IsOverlappingWithGoodPhoton(*tower)
-         && !event.IsOverlappingWithGoodElectron(*tower)){
+         && !event.IsOverlappingWithGoodElectron(*tower)
+         && !physObjectProcessor.IsInCrack(*tower)
+         && !physObjectProcessor.IsInHEM(*tower)
+         ){
         if(!leadingFilled[kEB]){
           hists.at(sample+"_EB_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyEm());
           leadingFilled[kEB] = true;
@@ -234,7 +236,10 @@ void fillNoiseHists(Event &event, const map<string, TH1D*> &hists, string datase
     if(subdetEm==kEE){
       if(fabs(tower->GetEta()) < config.params("maxEtaEEtower")){
         if(   !event.IsOverlappingWithGoodPhoton(*tower)
-           && !event.IsOverlappingWithGoodElectron(*tower)){
+           && !event.IsOverlappingWithGoodElectron(*tower)
+           && !physObjectProcessor.IsInCrack(*tower)
+           && !physObjectProcessor.IsInHEM(*tower)
+           ){
           if(!leadingFilled[kEE]){
             hists.at(sample+"_EE_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyEm());
             leadingFilled[kEE] = true;
@@ -244,14 +249,18 @@ void fillNoiseHists(Event &event, const map<string, TH1D*> &hists, string datase
     }
     if(subdetHad==kHB){
       if(!leadingFilled[kHB]){
-        hists.at(sample+"_HB_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyHad());
-        leadingFilled[kHB] = true;
+        if(!physObjectProcessor.IsInCrack(*tower)){
+          hists.at(sample+"_HB_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyHad());
+          leadingFilled[kHB] = true;
+        }
       }
     }
     if(subdetHad==kHE){
-      if(!leadingFilled[kHE]){
-        hists.at(sample+"_HE_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyHad());
-        leadingFilled[kHE] = true;
+      if(!physObjectProcessor.IsInCrack(*tower)){
+        if(!leadingFilled[kHE]){
+          hists.at(sample+"_HE_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyHad());
+          leadingFilled[kHE] = true;
+        }
       }
     }
     if(subdetHad==kHFp){

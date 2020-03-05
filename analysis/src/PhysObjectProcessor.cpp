@@ -99,10 +99,16 @@ double PhysObjectProcessor::GetAcoplanarity(const PhysObject &a, const PhysObjec
   return aco;
 }
 
-bool PhysObjectProcessor::IsInCrackOrHEM(const PhysObject &a)
+bool PhysObjectProcessor::IsInCrack(const PhysObject &a)
 {
-  if(fabs(a.GetEta()) > config.params("ecalCrackMin") && fabs(a.GetEta()) < config.params("ecalCrackMax")) return true;
+  if(fabs(a.GetEta()) > config.params("ecalCrackMin") &&
+     fabs(a.GetEta()) < config.params("ecalCrackMax")) return true;
   
+  return false;
+}
+
+bool PhysObjectProcessor::IsInHEM(const PhysObject &a)
+{
   if(a.GetEta() < -minEtaEE &&
      a.GetEta() > -maxEtaEE &&
      a.GetPhi() > config.params("ecalHEMmin") &&
