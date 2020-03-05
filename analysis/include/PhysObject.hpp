@@ -22,10 +22,11 @@ public:
   ~PhysObject();
   
   // Trivial getters:
-  double GetEta() const;
-  double GetPhi() const;
-  double GetEt()  const;
-  double GetPt()  const;
+  double GetEta()       const;
+  double GetPhi()       const;
+  double GetEt()        const;
+  double GetPt()        const;
+  double GetMomentum()  const;
   
   double GetEtaSC()     const;
   double GetEtSC()      const;
@@ -46,6 +47,8 @@ public:
   double GetDz()            const;
   double GetDxyErr()        const;
   double GetDzErr()         const;
+  double GetXYdistanceFromBeamSpot(EDataset dataset) const;
+  double GetZdistanceFromBeamSpot(EDataset dataset)  const;
   double GetVertexX()       const;
   double GetVertexY()       const;
   double GetVertexZ()       const;
@@ -71,6 +74,8 @@ public:
   ECaloType GetTowerSubdetHad() const;
   ECaloType GetTowerSubdetEm()  const;
   
+  bool IsConverted() const;
+  
 private:
   double eta;       ///< Pseudorapidity
   double phi;       ///< Azimuthal angle
@@ -83,6 +88,7 @@ private:
   
   double et;        ///< Transverse energy
   double pt;        ///< Transverse momentum
+  double p;         ///< Momentum
   
   double energyHad; ///< Energy in hadronic part of calo
   double energyEm;  ///< Energy in EM part of calo
@@ -114,6 +120,8 @@ private:
   
   double relIsoWithEA;  ///< Relative isolation
   double dEtaSeed;      ///< Seed Δη
+  
+  bool hasConversionTracks; ///< Is it a converted photon
   
   friend class EventProcessor;
   friend class PhysObjectProcessor;

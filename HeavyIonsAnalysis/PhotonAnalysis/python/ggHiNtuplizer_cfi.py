@@ -4,18 +4,28 @@ from HeavyIonsAnalysis.PhotonAnalysis.ElectronVID_cff import *
 
 ggHiNtuplizer = cms.EDAnalyzer("ggHiNtuplizer",
     doGenParticles     = cms.bool(True),
+    doSuperClusters    = cms.bool(True),
     doElectrons        = cms.bool(True),
     doPhotons          = cms.bool(True),
-    doMuons            = cms.bool(False),
+    doMuons            = cms.bool(True),
     runOnParticleGun   = cms.bool(False),
     useValMapIso       = cms.bool(False),
+    #useValMapIso       = cms.bool(True),
     doElectronVID      = cms.bool(False),
+    doEleERegression   = cms.bool(False),
+    doEffectiveAreas   = cms.bool(True),
+    doPhoERegression   = cms.bool(True),
     doRecHitsEB        = cms.bool(False),
     doRecHitsEE        = cms.bool(False),
+    doGeneralTracks    = cms.bool(True),
+    #doCaloTower        = cms.bool(True),
+    doCaloTower        = cms.bool(True),
     recHitsEB          = cms.untracked.InputTag("ecalRecHit","EcalRecHitsEB"),
     recHitsEE          = cms.untracked.InputTag("ecalRecHit","EcalRecHitsEE"),
     pileupCollection   = cms.InputTag("addPileupInfo"),
     genParticleSrc     = cms.InputTag("genParticles"),
+    superClustersEB    = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),
+    superClustersEE    = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"),
     gsfElectronLabel   = cms.InputTag("gedGsfElectrons"),
     recoPhotonSrc      = cms.InputTag("gedPhotons"),
     electronVetoID     = electronVetoID25nsV1,
@@ -29,27 +39,22 @@ ggHiNtuplizer = cms.EDAnalyzer("ggHiNtuplizer",
     beamSpot           = cms.InputTag('offlineBeamSpot'),
     conversions        = cms.InputTag('allConversions'),
     effAreasConfigFile = cms.FileInPath('HeavyIonsAnalysis/PhotonAnalysis/data/EffectiveAreas_94X_v0'),
-    doPfIso            = cms.bool(True),
+    doPfIso            = cms.bool(False),
     particleFlowCollection = cms.InputTag("particleFlow"),
-
-
-    doHMPhotons        = cms.bool(True),
-    doGSFElectrons     = cms.bool(True),
-    doGeneralTracks    = cms.bool(True),
-    doHMSuperCluster   = cms.bool(True),
-    doCaloTower        = cms.bool(True),
-    recoHMPhotonSrc    = cms.InputTag("photons"),
-    eletrk             = cms.InputTag("electronGsfTracks"),
-    gentrk             = cms.InputTag("generalTracks"),
-    hybridsc           = cms.InputTag("correctedHybridSuperClusters"),
-    mult55sc           = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
+    removePhotonPfIsoFootprint = cms.bool(False),
+    particleBasedIsolationPhoton = cms.InputTag("particleBasedIsolation", "gedPhotons"),
+    generalTrk         = cms.InputTag("generalTracks"),
     recoCaloTower      = cms.InputTag("towerMaker"),
-    recoHMPhotonHiIsolationMap = cms.InputTag("photonIsolationHIProducerpp"),
-)
 
-#ggHiNtuplizerGED = ggHiNtuplizer.clone(
-#    doElectrons              = True,
-#    doMuons                  = True,
-#    recoPhotonSrc            = 'gedPhotons',
-#    recoPhotonHiIsolationMap = 'photonIsolationHIProducerppGED'
-#)
+)
+'''
+ggHiNtuplizerGED = ggHiNtuplizer.clone(
+    doElectrons              = True,
+    doMuons                  = True,
+    recoPhotonSrc            = 'gedPhotons',
+    recoPhotonHiIsolationMap = 'photonIsolationHIProducerppGED',
+    doPfIso                  = True,
+    removePhotonPfIsoFootprint = True,
+    particleBasedIsolationPhoton = cms.InputTag("particleBasedIsolation", "gedPhotons")
+)
+'''

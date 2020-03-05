@@ -7,7 +7,10 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "EgammaAnalysis/ElectronTools/interface/SuperClusterHelper.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 #include "HeavyIonsAnalysis/PhotonAnalysis/interface/GenParticleParentage.h"
 #include "HeavyIonsAnalysis/PhotonAnalysis/interface/ggHiNtuplizer.h"
@@ -18,48 +21,59 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
 {
   // class instance configuration
   doGenParticles_         = ps.getParameter<bool>("doGenParticles");
+  doSuperClusters_        = ps.getParameter<bool>("doSuperClusters");
   doElectrons_            = ps.getParameter<bool>("doElectrons");
   doPhotons_              = ps.getParameter<bool>("doPhotons");
   doMuons_                = ps.getParameter<bool>("doMuons");
   runOnParticleGun_       = ps.getParameter<bool>("runOnParticleGun");
   useValMapIso_           = ps.getParameter<bool>("useValMapIso");
-  doPfIso_                = ps.getParameter<bool>("doPfIso");
+  doEffectiveAreas_       = ps.getParameter<bool>("doEffectiveAreas");
   doRecHitsEB_            = ps.getParameter<bool>("doRecHitsEB");
   doRecHitsEE_            = ps.getParameter<bool>("doRecHitsEE");
-
+  doPfIso_                = ps.getParameter<bool>("doPfIso");
+  removePhotonPfIsoFootprint_ = ps.getParameter<bool>("removePhotonPfIsoFootprint");
   if (doGenParticles_) {
     genPileupCollection_    = consumes<std::vector<PileupSummaryInfo>>(ps.getParameter<edm::InputTag>("pileupCollection"));
     genParticlesCollection_ = consumes<std::vector<reco::GenParticle>>(ps.getParameter<edm::InputTag>("genParticleSrc"));
   }
-  if (doElectrons_)
+  if (doSuperClusters_) {
+    barrelSCToken_ = consumes<reco::SuperClusterCollection>(
+      ps.getParameter<edm::InputTag>("superClustersEB"));
+    endcapSCToken_ = consumes<reco::SuperClusterCollection>(
+      ps.getParameter<edm::InputTag>("superClustersEE"));
+  }
+  if (doElectrons_) {
     gsfElectronsCollection_ = consumes<edm::View<reco::GsfElectron>>(ps.getParameter<edm::InputTag>("gsfElectronLabel"));
+    beamSpotToken_          = consumes<reco::BeamSpot>(ps.getParameter <edm::InputTag>("beamSpot"));
+    conversionsToken_       = consumes< reco::ConversionCollection >(ps.getParameter<edm::InputTag>("conversions"));
+    doVID_                  = ps.getParameter<bool>("doElectronVID");
+    if (doVID_) {
+      eleVetoIdMapToken_      = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronVetoID"));
+      eleLooseIdMapToken_     = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronLooseID"));
+      eleMediumIdMapToken_    = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronMediumID"));
+      eleTightIdMapToken_     = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronTightID"));
+    }
+  }
   if (doPhotons_)
     recoPhotonsCollection_  = consumes<edm::View<reco::Photon>>(ps.getParameter<edm::InputTag>("recoPhotonSrc"));
   if (doMuons_)
     recoMuonsCollection_    = consumes<edm::View<reco::Muon>>(ps.getParameter<edm::InputTag>("recoMuonSrc"));
   vtxCollection_          = consumes<std::vector<reco::Vertex>>(ps.getParameter<edm::InputTag>("VtxLabel"));
-  doVID_                  = ps.getParameter<bool>("doElectronVID");
-  if (doVID_) {
-    rhoToken_               = consumes<double>(ps.getParameter<edm::InputTag>("rho"));
-    beamSpotToken_          = consumes<reco::BeamSpot>(ps.getParameter <edm::InputTag>("beamSpot"));
-    conversionsToken_       = consumes< reco::ConversionCollection >(ps.getParameter<edm::InputTag>("conversions"));
-    eleVetoIdMapToken_      = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronVetoID"));
-    eleLooseIdMapToken_     = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronLooseID"));
-    eleMediumIdMapToken_    = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronMediumID"));
-    eleTightIdMapToken_     = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronTightID"));
-  }
+  doEleEReg_              = ps.getParameter<bool>("doEleERegression");
   if (useValMapIso_) {
     recoPhotonsHiIso_     = consumes<edm::ValueMap<reco::HIPhotonIsolation> > (
       ps.getParameter<edm::InputTag>("recoPhotonHiIsolationMap"));
-    recoHMPhotonsHiIso_   = consumes<edm::ValueMap<reco::HIPhotonIsolation> > (
-      ps.getParameter<edm::InputTag>("recoHMPhotonHiIsolationMap"));
   }
-  if(doRecHitsEB_){
+  if (doEffectiveAreas_) {
+      rhoToken_ = consumes<double>(ps.getParameter<edm::InputTag>("rho"));
+  }
+  doPhoEReg_              = ps.getParameter<bool>("doPhoERegression");
+  if (doRecHitsEB_ || doEleEReg_) {
       recHitsEB_ = consumes<EcalRecHitCollection> (
         ps.getUntrackedParameter<edm::InputTag>("recHitsEB",
           edm::InputTag("ecalRecHit","EcalRecHitsEB")));
   }
-  if(doRecHitsEE_){
+  if (doRecHitsEE_ || doEleEReg_) {
       recHitsEE_ = consumes<EcalRecHitCollection> (
         ps.getUntrackedParameter<edm::InputTag>("recHitsEE",
           edm::InputTag("ecalRecHit","EcalRecHitsEE")));
@@ -68,36 +82,32 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
   if (doPfIso_) {
     pfCollection_         = consumes<edm::View<reco::PFCandidate> > (
       ps.getParameter<edm::InputTag>("particleFlowCollection"));
+
+    if (removePhotonPfIsoFootprint_) {
+      particleBasedIsolationPhoton_ = mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef>>> (
+        ps.getParameter<edm::InputTag>("particleBasedIsolationPhoton"));
+    }
   }
 
   //**addition for LbyL analysis
-  doHMPhotons_              = ps.getParameter<bool>("doHMPhotons");
-  doGSFElectrons_           = ps.getParameter<bool>("doGSFElectrons");
   doGeneralTracks_          = ps.getParameter<bool>("doGeneralTracks");
-  doHMSuperCluster_         = ps.getParameter<bool>("doHMSuperCluster");
   doCaloTower_              = ps.getParameter<bool>("doCaloTower");
   
-  if (doHMPhotons_)
-    recoHMPhotonsCollection_ = consumes<edm::View<reco::Photon> >     (ps.getParameter<edm::InputTag>("recoHMPhotonSrc"));
-  if (doGSFElectrons_)
-    gsfTracks_               = consumes<reco::GsfTrackCollection>     (ps.getParameter<edm::InputTag>("eletrk"));
-  if (doGeneralTracks_)
-    genTracks_               = consumes<reco::TrackCollection>        (ps.getParameter<edm::InputTag>("gentrk"));
-  if (doHMSuperCluster_){
-    hybridsc_                = consumes<reco::SuperClusterCollection>    (ps.getParameter<edm::InputTag>("hybridsc"));
-    mult55sc_                = consumes<reco::SuperClusterCollection>    (ps.getParameter<edm::InputTag>("mult55sc"));
-  }
-  if (doCaloTower_)
-    CaloTowerCollection_     = consumes<edm::SortedCollection<CaloTower>>(ps.getParameter<edm::InputTag>("recoCaloTower"));
+  if (doGeneralTracks_) generalTracks_       = consumes<reco::TrackCollection>        (ps.getParameter<edm::InputTag>("generalTrk"));
+  if (doCaloTower_) CaloTowerCollection_     = consumes<edm::SortedCollection<CaloTower>>(ps.getParameter<edm::InputTag>("recoCaloTower"));
   
+
   // initialize output TTree
   edm::Service<TFileService> fs;
   tree_ = fs->make<TTree>("EventTree", "Event data");
-  
+
   tree_->Branch("run",    &run_);
   tree_->Branch("event",  &event_);
   tree_->Branch("lumis",  &lumis_);
   tree_->Branch("isData", &isData_);
+  if (doEffectiveAreas_) {
+    tree_->Branch("rho",  &rho_);
+  }
 
   if (doGenParticles_) {
     tree_->Branch("nPUInfo",      &nPUInfo_);
@@ -131,6 +141,14 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("mcTrkIsoDR04", &mcTrkIsoDR04_);
   }
 
+  if (doSuperClusters_) {
+    tree_->Branch("nSC",                  &nSC_);
+    tree_->Branch("scE",                  &scE_);
+    tree_->Branch("scRawE",               &scRawE_);
+    tree_->Branch("scEta",                &scEta_);
+    tree_->Branch("scPhi",                &scPhi_);
+  }
+
   if (doElectrons_) {
     tree_->Branch("nEle",                  &nEle_);
     tree_->Branch("eleCharge",             &eleCharge_);
@@ -140,12 +158,15 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("eleEn",                 &eleEn_);
     tree_->Branch("eleD0",                 &eleD0_);
     tree_->Branch("eleDz",                 &eleDz_);
+    tree_->Branch("eleIP3D",               &eleIP3D_);
     tree_->Branch("eleD0Err",              &eleD0Err_);
     tree_->Branch("eleDzErr",              &eleDzErr_);
+    tree_->Branch("eleIP3DErr",            &eleIP3DErr_);
     tree_->Branch("eleTrkPt",              &eleTrkPt_);
     tree_->Branch("eleTrkEta",             &eleTrkEta_);
     tree_->Branch("eleTrkPhi",             &eleTrkPhi_);
     tree_->Branch("eleTrkCharge",          &eleTrkCharge_);
+    tree_->Branch("eleTrkPtErr",           &eleTrkPtErr_);
     tree_->Branch("eleTrkChi2",            &eleTrkChi2_);
     tree_->Branch("eleTrkNdof",            &eleTrkNdof_);
     tree_->Branch("eleTrkNormalizedChi2",  &eleTrkNormalizedChi2_);
@@ -166,27 +187,40 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("eleHoverEBc",           &eleHoverEBc_);
     tree_->Branch("eleEoverP",             &eleEoverP_);
     tree_->Branch("eleEoverPInv",          &eleEoverPInv_);
+    tree_->Branch("eleEcalE",              &eleEcalE_);
+    tree_->Branch("elePAtVtx",             &elePAtVtx_);
+    tree_->Branch("elePAtSC",              &elePAtSC_);
+    tree_->Branch("elePAtCluster",         &elePAtCluster_);
+    tree_->Branch("elePAtSeed",            &elePAtSeed_);
     tree_->Branch("eleBrem",               &eleBrem_);
     tree_->Branch("eledEtaAtVtx",          &eledEtaAtVtx_);
     tree_->Branch("eledPhiAtVtx",          &eledPhiAtVtx_);
+    tree_->Branch("eledEtaSeedAtVtx",      &eledEtaSeedAtVtx_);
     tree_->Branch("eleSigmaIEtaIEta",      &eleSigmaIEtaIEta_);
     tree_->Branch("eleSigmaIEtaIEta_2012", &eleSigmaIEtaIEta_2012_);
     tree_->Branch("eleSigmaIPhiIPhi",      &eleSigmaIPhiIPhi_);
-    // tree_->Branch("eleConvVeto",           &eleConvVeto_);  // TODO: not available in reco::
+    tree_->Branch("eleConvVeto",           &eleConvVeto_);
     tree_->Branch("eleMissHits",           &eleMissHits_);
     tree_->Branch("eleESEffSigmaRR",       &eleESEffSigmaRR_);
     tree_->Branch("elePFChIso",            &elePFChIso_);
     tree_->Branch("elePFPhoIso",           &elePFPhoIso_);
     tree_->Branch("elePFNeuIso",           &elePFNeuIso_);
     tree_->Branch("elePFPUIso",            &elePFPUIso_);
-    tree_->Branch("elePFChIso03",          &elePFChIso03_);
-    tree_->Branch("elePFPhoIso03",         &elePFPhoIso03_);
-    tree_->Branch("elePFNeuIso03",         &elePFNeuIso03_);
-    tree_->Branch("elePFChIso04",          &elePFChIso04_);
-    tree_->Branch("elePFPhoIso04",         &elePFPhoIso04_);
-    tree_->Branch("elePFNeuIso04",         &elePFNeuIso04_);
-    tree_->Branch("elePFRelIsoWithEA",     &elePFRelIsoWithEA_);
-    tree_->Branch("elePFRelIsoWithDBeta",  &elePFRelIsoWithDBeta_);
+
+    if (doPfIso_) {
+      tree_->Branch("elePFChIso03",          &elePFChIso03_);
+      tree_->Branch("elePFPhoIso03",         &elePFPhoIso03_);
+      tree_->Branch("elePFNeuIso03",         &elePFNeuIso03_);
+      tree_->Branch("elePFChIso04",          &elePFChIso04_);
+      tree_->Branch("elePFPhoIso04",         &elePFPhoIso04_);
+      tree_->Branch("elePFNeuIso04",         &elePFNeuIso04_);
+    }
+
+    if (doEffectiveAreas_) {
+      tree_->Branch("elePFRelIsoWithEA",     &elePFRelIsoWithEA_);
+      tree_->Branch("elePFRelIsoWithDBeta",  &elePFRelIsoWithDBeta_);
+      tree_->Branch("eleEffAreaTimesRho",    &eleEffAreaTimesRho_);
+    }
 
     tree_->Branch("eleR9",                 &eleR9_);
     tree_->Branch("eleE3x3",               &eleE3x3_);
@@ -208,12 +242,42 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("eleBC1Eta",             &eleBC1Eta_);
     tree_->Branch("eleBC2E",               &eleBC2E_);
     tree_->Branch("eleBC2Eta",             &eleBC2Eta_);
-    tree_->Branch("eleIDVeto",             &eleIDVeto_);
-    tree_->Branch("eleIDLoose",            &eleIDLoose_);
-    tree_->Branch("eleIDMedium",           &eleIDMedium_);
-    tree_->Branch("eleIDTight",            &eleIDTight_);
-    tree_->Branch("elepassConversionVeto", &elepassConversionVeto_);
-    tree_->Branch("eleEffAreaTimesRho",    &eleEffAreaTimesRho_);
+
+    if (doEleEReg_) {
+      tree_->Branch("eleSeedE3x3",         &eleSeedE3x3_);
+      tree_->Branch("eleSeedE5x5",         &eleSeedE5x5_);
+      tree_->Branch("eleSEE",              &eleSEE_);
+      tree_->Branch("eleSPP",              &eleSPP_);
+      tree_->Branch("eleSEP",              &eleSEP_);
+      tree_->Branch("eleSeedEMax",         &eleSeedEMax_);
+      tree_->Branch("eleSeedE2nd",         &eleSeedE2nd_);
+      tree_->Branch("eleSeedETop",         &eleSeedETop_);
+      tree_->Branch("eleSeedEBottom",      &eleSeedEBottom_);
+      tree_->Branch("eleSeedELeft",        &eleSeedELeft_);
+      tree_->Branch("eleSeedERight",       &eleSeedERight_);
+      tree_->Branch("eleSeedE2x5Max",      &eleSeedE2x5Max_);
+      tree_->Branch("eleSeedE2x5Top",      &eleSeedE2x5Top_);
+      tree_->Branch("eleSeedE2x5Bottom",   &eleSeedE2x5Bottom_);
+      tree_->Branch("eleSeedE2x5Left",     &eleSeedE2x5Left_);
+      tree_->Branch("eleSeedE2x5Right",    &eleSeedE2x5Right_);
+      tree_->Branch("eleESOverRaw",        &eleESOverRaw_);
+
+      tree_->Branch("eleChargeMode",       &eleChargeMode_);
+      tree_->Branch("eleTrkQoverPMode",    &eleTrkQoverPMode_);
+      tree_->Branch("eleTrkPMode",         &eleTrkPMode_);
+      tree_->Branch("eleTrkPtMode",        &eleTrkPtMode_);
+      tree_->Branch("eleTrkEtaMode",       &eleTrkEtaMode_);
+      tree_->Branch("eleTrkPhiMode",       &eleTrkPhiMode_);
+      tree_->Branch("eleTrkQoverPModeErr", &eleTrkQoverPModeErr_);
+      tree_->Branch("eleTrkPtModeErr",     &eleTrkPtModeErr_);
+    }
+
+    if (doVID_) {
+      tree_->Branch("eleIDVeto",             &eleIDVeto_);
+      tree_->Branch("eleIDLoose",            &eleIDLoose_);
+      tree_->Branch("eleIDMedium",           &eleIDMedium_);
+      tree_->Branch("eleIDTight",            &eleIDTight_);
+    }
   }
 
   if (doPhotons_) {
@@ -266,30 +330,73 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("phoHasPixelSeed",       &phoHasPixelSeed_);
     tree_->Branch("phoHasConversionTracks",&phoHasConversionTracks_);
     // tree_->Branch("phoEleVeto",            &phoEleVeto_);        // TODO: not available in reco::
-    tree_->Branch("phoR9",                 &phoR9_);
     tree_->Branch("phoHadTowerOverEm",     &phoHadTowerOverEm_);
     tree_->Branch("phoHoverE",             &phoHoverE_);
+    tree_->Branch("phoHoverEValid",        &phoHoverEValid_);
     tree_->Branch("phoSigmaIEtaIEta",      &phoSigmaIEtaIEta_);
-    // tree_->Branch("phoSigmaIEtaIPhi",      &phoSigmaIEtaIPhi_);  // TODO: not available in reco::
-    // tree_->Branch("phoSigmaIPhiIPhi",      &phoSigmaIPhiIPhi_);  // TODO: not available in reco::
+    tree_->Branch("phoR9",                 &phoR9_);
     tree_->Branch("phoE1x5",               &phoE1x5_);
     tree_->Branch("phoE2x5",               &phoE2x5_);
     tree_->Branch("phoE3x3",               &phoE3x3_);
     tree_->Branch("phoE5x5",               &phoE5x5_);
     tree_->Branch("phoMaxEnergyXtal",      &phoMaxEnergyXtal_);
     tree_->Branch("phoSigmaEtaEta",        &phoSigmaEtaEta_);
-    tree_->Branch("phoR1x5",               &phoR1x5_);
-    tree_->Branch("phoR2x5",               &phoR2x5_);
-    tree_->Branch("phoR9_2012",            &phoR9_2012_);
     tree_->Branch("phoSigmaIEtaIEta_2012", &phoSigmaIEtaIEta_2012_);
+    tree_->Branch("phoR9_2012",            &phoR9_2012_);
     tree_->Branch("phoE1x5_2012",          &phoE1x5_2012_);
     tree_->Branch("phoE2x5_2012",          &phoE2x5_2012_);
     tree_->Branch("phoE3x3_2012",          &phoE3x3_2012_);
     tree_->Branch("phoE5x5_2012",          &phoE5x5_2012_);
     tree_->Branch("phoMaxEnergyXtal_2012", &phoMaxEnergyXtal_2012_);
     tree_->Branch("phoSigmaEtaEta_2012",   &phoSigmaEtaEta_2012_);
-    tree_->Branch("phoR1x5_2012",          &phoR1x5_2012_);
-    tree_->Branch("phoR2x5_2012",          &phoR2x5_2012_);
+
+    if (doPhoEReg_) {
+
+      tree_->Branch("phoHadTowerOverEm1", &phoHadTowerOverEm1_);
+      tree_->Branch("phoHadTowerOverEm2", &phoHadTowerOverEm2_);
+      tree_->Branch("phoHoverE1",         &phoHoverE1_);
+      tree_->Branch("phoHoverE2",         &phoHoverE2_);
+
+      tree_->Branch("phoSigmaIEtaIPhi",   &phoSigmaIEtaIPhi_);
+      tree_->Branch("phoSigmaIPhiIPhi",   &phoSigmaIPhiIPhi_);
+      tree_->Branch("phoR1x5",            &phoR1x5_);
+      tree_->Branch("phoR2x5",            &phoR2x5_);
+      tree_->Branch("phoE2nd",            &phoE2nd_);
+      tree_->Branch("phoETop",            &phoETop_);
+      tree_->Branch("phoEBottom",         &phoEBottom_);
+      tree_->Branch("phoELeft",           &phoELeft_);
+      tree_->Branch("phoERight",          &phoERight_);
+      tree_->Branch("phoE1x3",            &phoE1x3_);
+      tree_->Branch("phoE2x2",            &phoE2x2_);
+      tree_->Branch("phoE2x5Max",         &phoE2x5Max_);
+      tree_->Branch("phoE2x5Top",         &phoE2x5Top_);
+      tree_->Branch("phoE2x5Bottom",      &phoE2x5Bottom_);
+      tree_->Branch("phoE2x5Left",        &phoE2x5Left_);
+      tree_->Branch("phoE2x5Right",       &phoE2x5Right_);
+      //tree_->Branch("phoSMMajor",         &phoSMMajor_);
+      //tree_->Branch("phoSMMinor",         &phoSMMinor_);
+      //tree_->Branch("phoSMAlpha",         &phoSMAlpha_);
+
+      tree_->Branch("phoSigmaIEtaIPhi_2012", &phoSigmaIEtaIPhi_2012_);
+      tree_->Branch("phoSigmaIPhiIPhi_2012", &phoSigmaIPhiIPhi_2012_);
+      tree_->Branch("phoR1x5_2012",          &phoR1x5_2012_);
+      tree_->Branch("phoR2x5_2012",          &phoR2x5_2012_);
+      tree_->Branch("phoE2nd_2012",          &phoE2nd_2012_);
+      tree_->Branch("phoETop_2012",          &phoETop_2012_);
+      tree_->Branch("phoEBottom_2012",       &phoEBottom_2012_);
+      tree_->Branch("phoELeft_2012",         &phoELeft_2012_);
+      tree_->Branch("phoERight_2012",        &phoERight_2012_);
+      tree_->Branch("phoE1x3_2012",          &phoE1x3_2012_);
+      tree_->Branch("phoE2x2_2012",          &phoE2x2_2012_);
+      tree_->Branch("phoE2x5Max_2012",       &phoE2x5Max_2012_);
+      tree_->Branch("phoE2x5Top_2012",       &phoE2x5Top_2012_);
+      tree_->Branch("phoE2x5Bottom_2012",    &phoE2x5Bottom_2012_);
+      tree_->Branch("phoE2x5Left_2012",      &phoE2x5Left_2012_);
+      tree_->Branch("phoE2x5Right_2012",     &phoE2x5Right_2012_);
+      //tree_->Branch("phoSMMajor_2012",       &phoSMMajor_2012_);
+      //tree_->Branch("phoSMMinor_2012",       &phoSMMinor_2012_);
+      //tree_->Branch("phoSMAlpha_2012",       &phoSMAlpha_2012_);
+    }
 
     tree_->Branch("phoBC1E",               &phoBC1E_);
     tree_->Branch("phoBC1Ecorr",           &phoBC1Ecorr_);
@@ -346,23 +453,71 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     }
 
     if (doPfIso_) {
-      tree_->Branch("pfcIso1",&pfcIso1);
-      tree_->Branch("pfcIso2",&pfcIso2);
-      tree_->Branch("pfcIso3",&pfcIso3);
-      tree_->Branch("pfcIso4",&pfcIso4);
-      tree_->Branch("pfcIso5",&pfcIso5);
+      tree_->Branch("pfcIso1",&pfcIso1_);
+      tree_->Branch("pfcIso2",&pfcIso2_);
+      tree_->Branch("pfcIso3",&pfcIso3_);
+      tree_->Branch("pfcIso4",&pfcIso4_);
+      tree_->Branch("pfcIso5",&pfcIso5_);
 
-      tree_->Branch("pfpIso1",&pfpIso1);
-      tree_->Branch("pfpIso2",&pfpIso2);
-      tree_->Branch("pfpIso3",&pfpIso3);
-      tree_->Branch("pfpIso4",&pfpIso4);
-      tree_->Branch("pfpIso5",&pfpIso5);
+      tree_->Branch("pfpIso1",&pfpIso1_);
+      tree_->Branch("pfpIso2",&pfpIso2_);
+      tree_->Branch("pfpIso3",&pfpIso3_);
+      tree_->Branch("pfpIso4",&pfpIso4_);
+      tree_->Branch("pfpIso5",&pfpIso5_);
 
-      tree_->Branch("pfnIso1",&pfnIso1);
-      tree_->Branch("pfnIso2",&pfnIso2);
-      tree_->Branch("pfnIso3",&pfnIso3);
-      tree_->Branch("pfnIso4",&pfnIso4);
-      tree_->Branch("pfnIso5",&pfnIso5);
+      tree_->Branch("pfnIso1",&pfnIso1_);
+      tree_->Branch("pfnIso2",&pfnIso2_);
+      tree_->Branch("pfnIso3",&pfnIso3_);
+      tree_->Branch("pfnIso4",&pfnIso4_);
+      tree_->Branch("pfnIso5",&pfnIso5_);
+
+      tree_->Branch("pfpIso1subSC",&pfpIso1subSC_);
+      tree_->Branch("pfpIso2subSC",&pfpIso2subSC_);
+      tree_->Branch("pfpIso3subSC",&pfpIso3subSC_);
+      tree_->Branch("pfpIso4subSC",&pfpIso4subSC_);
+      tree_->Branch("pfpIso5subSC",&pfpIso5subSC_);
+
+      tree_->Branch("pfcIso1subUE",&pfcIso1subUE_);
+      tree_->Branch("pfcIso2subUE",&pfcIso2subUE_);
+      tree_->Branch("pfcIso3subUE",&pfcIso3subUE_);
+      tree_->Branch("pfcIso4subUE",&pfcIso4subUE_);
+      tree_->Branch("pfcIso5subUE",&pfcIso5subUE_);
+
+      tree_->Branch("pfpIso1subUE",&pfpIso1subUE_);
+      tree_->Branch("pfpIso2subUE",&pfpIso2subUE_);
+      tree_->Branch("pfpIso3subUE",&pfpIso3subUE_);
+      tree_->Branch("pfpIso4subUE",&pfpIso4subUE_);
+      tree_->Branch("pfpIso5subUE",&pfpIso5subUE_);
+
+      tree_->Branch("pfnIso1subUE",&pfnIso1subUE_);
+      tree_->Branch("pfnIso2subUE",&pfnIso2subUE_);
+      tree_->Branch("pfnIso3subUE",&pfnIso3subUE_);
+      tree_->Branch("pfnIso4subUE",&pfnIso4subUE_);
+      tree_->Branch("pfnIso5subUE",&pfnIso5subUE_);
+
+      tree_->Branch("pfpIso1subSCsubUE",&pfpIso1subSCsubUE_);
+      tree_->Branch("pfpIso2subSCsubUE",&pfpIso2subSCsubUE_);
+      tree_->Branch("pfpIso3subSCsubUE",&pfpIso3subSCsubUE_);
+      tree_->Branch("pfpIso4subSCsubUE",&pfpIso4subSCsubUE_);
+      tree_->Branch("pfpIso5subSCsubUE",&pfpIso5subSCsubUE_);
+
+      tree_->Branch("pfcIso1pTgt1p0subUE",&pfcIso1pTgt1p0subUE_);
+      tree_->Branch("pfcIso2pTgt1p0subUE",&pfcIso2pTgt1p0subUE_);
+      tree_->Branch("pfcIso3pTgt1p0subUE",&pfcIso3pTgt1p0subUE_);
+      tree_->Branch("pfcIso4pTgt1p0subUE",&pfcIso4pTgt1p0subUE_);
+      tree_->Branch("pfcIso5pTgt1p0subUE",&pfcIso5pTgt1p0subUE_);
+
+      tree_->Branch("pfcIso1pTgt2p0subUE",&pfcIso1pTgt2p0subUE_);
+      tree_->Branch("pfcIso2pTgt2p0subUE",&pfcIso2pTgt2p0subUE_);
+      tree_->Branch("pfcIso3pTgt2p0subUE",&pfcIso3pTgt2p0subUE_);
+      tree_->Branch("pfcIso4pTgt2p0subUE",&pfcIso4pTgt2p0subUE_);
+      tree_->Branch("pfcIso5pTgt2p0subUE",&pfcIso5pTgt2p0subUE_);
+
+      tree_->Branch("pfcIso1pTgt3p0subUE",&pfcIso1pTgt3p0subUE_);
+      tree_->Branch("pfcIso2pTgt3p0subUE",&pfcIso2pTgt3p0subUE_);
+      tree_->Branch("pfcIso3pTgt3p0subUE",&pfcIso3pTgt3p0subUE_);
+      tree_->Branch("pfcIso4pTgt3p0subUE",&pfcIso4pTgt3p0subUE_);
+      tree_->Branch("pfcIso5pTgt3p0subUE",&pfcIso5pTgt3p0subUE_);
     }
   }
 
@@ -374,11 +529,28 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("muCharge",              &muCharge_);
     tree_->Branch("muType",                &muType_);
     tree_->Branch("muIsGood",              &muIsGood_);
+    
+    tree_->Branch("muIsGlobal",            &muIsGlobal_);
+    tree_->Branch("muIsTracker",           &muIsTracker_);
+    tree_->Branch("muIsPF",                &muIsPF_);
+    tree_->Branch("muIsSTA",               &muIsSTA_);
+
     tree_->Branch("muD0",                  &muD0_);
     tree_->Branch("muDz",                  &muDz_);
+    tree_->Branch("muIP3D",                &muIP3D_);
+    tree_->Branch("muD0Err",               &muD0Err_);
+    tree_->Branch("muDzErr",               &muDzErr_);
+    tree_->Branch("muIP3DErr",             &muIP3DErr_);
     tree_->Branch("muChi2NDF",             &muChi2NDF_);
     tree_->Branch("muInnerD0",             &muInnerD0_);
     tree_->Branch("muInnerDz",             &muInnerDz_);
+    
+    tree_->Branch("muInnerD0Err",          &muInnerD0Err_);
+    tree_->Branch("muInnerDzErr",          &muInnerDzErr_);
+    tree_->Branch("muInnerPt",             &muInnerPt_);
+    tree_->Branch("muInnerPtErr",             &muInnerPtErr_);
+    tree_->Branch("muInnerEta",             &muInnerEta_);
+
     tree_->Branch("muTrkLayers",           &muTrkLayers_);
     tree_->Branch("muPixelLayers",         &muPixelLayers_);
     tree_->Branch("muPixelHits",           &muPixelHits_);
@@ -390,231 +562,37 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("muPFPhoIso",            &muPFPhoIso_);
     tree_->Branch("muPFNeuIso",            &muPFNeuIso_);
     tree_->Branch("muPFPUIso",             &muPFPUIso_);
+    tree_->Branch("muIDSoft",              &muIDSoft_);
+    tree_->Branch("muIDLoose",             &muIDLoose_);
+    tree_->Branch("muIDMedium",            &muIDMedium_);
+    tree_->Branch("muIDMediumPrompt",      &muIDMediumPrompt_);
+    tree_->Branch("muIDTight",             &muIDTight_);
+    tree_->Branch("muIDGlobalHighPt",      &muIDGlobalHighPt_);
+    tree_->Branch("muIDTrkHighPt",         &muIDTrkHighPt_);
+    tree_->Branch("muIDInTime",            &muIDInTime_);
   }
-
-
-  // addition for LbyL analysis
-  if (doHMPhotons_) {
-    tree_->Branch("nHMPho",                  &nHMPho_);
-    tree_->Branch("HMphoE",                  &HMphoE_);
-    tree_->Branch("HMphoEt",                 &HMphoEt_);
-    tree_->Branch("HMphoEta",                &HMphoEta_);
-    tree_->Branch("HMphoPhi",                &HMphoPhi_);
-
-    tree_->Branch("HMphoEcorrStdEcal",       &HMphoEcorrStdEcal_);
-    tree_->Branch("HMphoEcorrPhoEcal",       &HMphoEcorrPhoEcal_);
-    tree_->Branch("HMphoEcorrRegr1",         &HMphoEcorrRegr1_);
-    tree_->Branch("HMphoEcorrRegr2",         &HMphoEcorrRegr2_);
-    tree_->Branch("HMphoEcorrErrStdEcal",    &HMphoEcorrErrStdEcal_);
-    tree_->Branch("HMphoEcorrErrPhoEcal",    &HMphoEcorrErrPhoEcal_);
-    tree_->Branch("HMphoEcorrErrRegr1",      &HMphoEcorrErrRegr1_);
-    tree_->Branch("HMphoEcorrErrRegr2",      &HMphoEcorrErrRegr2_);
-
-    tree_->Branch("HMphoSCE",                &HMphoSCE_);
-    tree_->Branch("HMphoSCEt",               &HMphoSCEt_);
-    tree_->Branch("HMphoSCRawE",             &HMphoSCRawE_);
-    tree_->Branch("HMphoSCEta",              &HMphoSCEta_);
-    tree_->Branch("HMphoSCPhi",              &HMphoSCPhi_);
-    tree_->Branch("HMphoSCEtaWidth",         &HMphoSCEtaWidth_);
-    tree_->Branch("HMphoSCPhiWidth",         &HMphoSCPhiWidth_);
-    tree_->Branch("HMphoSCBrem",             &HMphoSCBrem_);
-    tree_->Branch("HMphoSCnHits",            &HMphoSCnHits_);
-    tree_->Branch("HMphoSCflags",            &HMphoSCflags_);
-    tree_->Branch("HMphoSCinClean",          &HMphoSCinClean_);
-    tree_->Branch("HMphoSCinUnClean",        &HMphoSCinUnClean_);
-    tree_->Branch("HMphoSCnBC",              &HMphoSCnBC_);
-    tree_->Branch("HMphoESEn",               &HMphoESEn_);
-
-    tree_->Branch("HMphoPSCE",               &HMphoPSCE_);
-    tree_->Branch("HMphoPSCRawE",            &HMphoPSCRawE_);
-    tree_->Branch("HMphoPSCEta",             &HMphoPSCEta_);
-    tree_->Branch("HMphoPSCPhi",             &HMphoPSCPhi_);
-    tree_->Branch("HMphoPSCEtaWidth",        &HMphoPSCEtaWidth_);
-    tree_->Branch("HMphoPSCPhiWidth",        &HMphoPSCPhiWidth_);
-    tree_->Branch("HMphoPSCBrem",            &HMphoPSCBrem_);
-    tree_->Branch("HMphoPSCnHits",           &HMphoPSCnHits_);
-    tree_->Branch("HMphoPSCflags",           &HMphoPSCflags_);
-    tree_->Branch("HMphoPSCinClean",         &HMphoPSCinClean_);
-    tree_->Branch("HMphoPSCinUnClean",       &HMphoPSCinUnClean_);
-    tree_->Branch("HMphoPSCnBC",             &HMphoPSCnBC_);
-    tree_->Branch("HMphoPESEn",              &HMphoPESEn_);
-
-    tree_->Branch("HMphoIsPFphoton",         &HMphoIsPFPhoton_);
-    tree_->Branch("HMphoIsStandardPhoton",   &HMphoIsStandardPhoton_);
-    tree_->Branch("HMphoHasPixelSeed",       &HMphoHasPixelSeed_);
-    tree_->Branch("HMphoHasConversionTracks",&HMphoHasConversionTracks_);
-    // tree_->Branch("HMphoEleVeto",            &HMphoEleVeto_);        // TODO: not available in reco::
-    tree_->Branch("HMphoR9",                 &HMphoR9_);
-    tree_->Branch("HMphoHadTowerOverEm",     &HMphoHadTowerOverEm_);
-    tree_->Branch("HMphoHoverE",             &HMphoHoverE_);
-    tree_->Branch("HMphoSigmaIEtaIEta",      &HMphoSigmaIEtaIEta_);
-    // tree_->Branch("HMphoSigmaIEtaIPhi",      &HMphoSigmaIEtaIPhi_);  // TODO: not available in reco::
-    // tree_->Branch("HMphoSigmaIPhiIPhi",      &HMphoSigmaIPhiIPhi_);  // TODO: not available in reco::
-    tree_->Branch("HMphoE1x5",               &HMphoE1x5_);
-    tree_->Branch("HMphoE2x5",               &HMphoE2x5_);
-    tree_->Branch("HMphoE3x3",               &HMphoE3x3_);
-    tree_->Branch("HMphoE5x5",               &HMphoE5x5_);
-    tree_->Branch("HMphoMaxEnergyXtal",      &HMphoMaxEnergyXtal_);
-    tree_->Branch("HMphoSigmaEtaEta",        &HMphoSigmaEtaEta_);
-    tree_->Branch("HMphoR1x5",               &HMphoR1x5_);
-    tree_->Branch("HMphoR2x5",               &HMphoR2x5_);
-    tree_->Branch("HMphoR9_2012",            &HMphoR9_2012_);
-    tree_->Branch("HMphoSigmaIEtaIEta_2012", &HMphoSigmaIEtaIEta_2012_);
-    tree_->Branch("HMphoE1x5_2012",          &HMphoE1x5_2012_);
-    tree_->Branch("HMphoE2x5_2012",          &HMphoE2x5_2012_);
-    tree_->Branch("HMphoE3x3_2012",          &HMphoE3x3_2012_);
-    tree_->Branch("HMphoE5x5_2012",          &HMphoE5x5_2012_);
-    tree_->Branch("HMphoMaxEnergyXtal_2012", &HMphoMaxEnergyXtal_2012_);
-    tree_->Branch("HMphoSigmaEtaEta_2012",   &HMphoSigmaEtaEta_2012_);
-    tree_->Branch("HMphoR1x5_2012",          &HMphoR1x5_2012_);
-    tree_->Branch("HMphoR2x5_2012",          &HMphoR2x5_2012_);
-
-    tree_->Branch("HMphoBC1E",               &HMphoBC1E_);
-    tree_->Branch("HMphoBC1Ecorr",           &HMphoBC1Ecorr_);
-    tree_->Branch("HMphoBC1Eta",             &HMphoBC1Eta_);
-    tree_->Branch("HMphoBC1Phi",             &HMphoBC1Phi_);
-    tree_->Branch("HMphoBC1size",            &HMphoBC1size_);
-    tree_->Branch("HMphoBC1flags",           &HMphoBC1flags_);
-    tree_->Branch("HMphoBC1inClean",         &HMphoBC1inClean_);
-    tree_->Branch("HMphoBC1inUnClean",       &HMphoBC1inUnClean_);
-    tree_->Branch("HMphoBC1rawID",           &HMphoBC1rawID_);
-
-    /* tree_->Branch("HMphoBC2E",               &HMphoBC2E_); */
-    /* tree_->Branch("HMphoBC2Eta",             &HMphoBC2Eta_); */
-    /* tree_->Branch("HMphoBC2Phi",             &HMphoBC2Phi_); */
-
-    tree_->Branch("HMpho_ecalClusterIsoR2", &HMpho_ecalClusterIsoR2_);
-    tree_->Branch("HMpho_ecalClusterIsoR3", &HMpho_ecalClusterIsoR3_);
-    tree_->Branch("HMpho_ecalClusterIsoR4", &HMpho_ecalClusterIsoR4_);
-    tree_->Branch("HMpho_ecalClusterIsoR5", &HMpho_ecalClusterIsoR5_);
-    tree_->Branch("HMpho_hcalRechitIsoR1", &HMpho_hcalRechitIsoR1_);
-    tree_->Branch("HMpho_hcalRechitIsoR2", &HMpho_hcalRechitIsoR2_);
-    tree_->Branch("HMpho_hcalRechitIsoR3", &HMpho_hcalRechitIsoR3_);
-    tree_->Branch("HMpho_hcalRechitIsoR4", &HMpho_hcalRechitIsoR4_);
-    tree_->Branch("HMpho_hcalRechitIsoR5", &HMpho_hcalRechitIsoR5_);
-    tree_->Branch("HMpho_trackIsoR1PtCut20", &HMpho_trackIsoR1PtCut20_);
-    tree_->Branch("HMpho_trackIsoR2PtCut20", &HMpho_trackIsoR2PtCut20_);
-    tree_->Branch("HMpho_trackIsoR3PtCut20", &HMpho_trackIsoR3PtCut20_);
-    tree_->Branch("HMpho_trackIsoR4PtCut20", &HMpho_trackIsoR4PtCut20_);
-    tree_->Branch("HMpho_trackIsoR5PtCut20", &HMpho_trackIsoR5PtCut20_);
-    tree_->Branch("HMpho_swissCrx", &HMpho_swissCrx_);
-    tree_->Branch("HMpho_seedTime", &HMpho_seedTime_);
-
-    if (doGenParticles_) {
-      tree_->Branch("HMpho_genMatchedIndex", &HMpho_genMatchedIndex_);
-    }
-    
-    if (doRecHitsEB_ || doRecHitsEE_) {
-      // rechit info
-      tree_->Branch("nHMRH", &nHMRH_);
-      tree_->Branch("HMrhRawId", &HMrhRawId_);
-      tree_->Branch("HMrhieta", &HMrhieta_);
-      tree_->Branch("HMrhiphi", &HMrhiphi_);
-      tree_->Branch("HMrhix", &HMrhix_);
-      tree_->Branch("HMrhiy", &HMrhiy_);
-      tree_->Branch("HMrhE", &HMrhE_);
-      tree_->Branch("HMrhEt", &HMrhEt_);
-      tree_->Branch("HMrhEta", &HMrhEta_);
-      tree_->Branch("HMrhPhi", &HMrhPhi_);
-      tree_->Branch("HMrhChi2", &HMrhChi2_);
-      tree_->Branch("HMrhEerror", &HMrhEerror_);
-      tree_->Branch("HMrhFlags", &HMrhFlags_);
-      tree_->Branch("HMrhPhoIdx", &HMrhPhoIdx_);
-      tree_->Branch("HMrhBCIdx", &HMrhBCIdx_);
-    }
-    
-    if (doPfIso_) {
-      tree_->Branch("HMpfcIso1",&HMpfcIso1);
-      tree_->Branch("HMpfcIso2",&HMpfcIso2);
-      tree_->Branch("HMpfcIso3",&HMpfcIso3);
-      tree_->Branch("HMpfcIso4",&HMpfcIso4);
-      tree_->Branch("HMpfcIso5",&HMpfcIso5);
-      
-      tree_->Branch("HMpfpIso1",&HMpfpIso1);
-      tree_->Branch("HMpfpIso2",&HMpfpIso2);
-      tree_->Branch("HMpfpIso3",&HMpfpIso3);
-      tree_->Branch("HMpfpIso4",&HMpfpIso4);
-      tree_->Branch("HMpfpIso5",&HMpfpIso5);
-      
-      tree_->Branch("HMpfnIso1",&HMpfnIso1);
-      tree_->Branch("HMpfnIso2",&HMpfnIso2);
-      tree_->Branch("HMpfnIso3",&HMpfnIso3);
-      tree_->Branch("HMpfnIso4",&HMpfnIso4);
-      tree_->Branch("HMpfnIso5",&HMpfnIso5);
-    }
-  }
-  
-  if (doGSFElectrons_) { 
-    tree_->Branch("ngsfEle",               &ngsfEle_);
-    tree_->Branch("elegsfTrkPt",           &elegsfTrkPt_);
-    tree_->Branch("elegsfTrkP",            &elegsfTrkP_);
-    tree_->Branch("elegsfTrkEta",          &elegsfTrkEta_);
-    tree_->Branch("elegsfTrkPhi",          &elegsfTrkPhi_);
-    tree_->Branch("elegsfTrkCharge",       &elegsfTrkCharge_);
-    tree_->Branch("elegsfTrkChi2",         &elegsfTrkChi2_);
-    tree_->Branch("elegsfTrkNdof",         &elegsfTrkNdof_);
-    tree_->Branch("elegsfTrkNormalizedChi2",&elegsfTrkNormalizedChi2_);
-    tree_->Branch("elegsfTrkValidHits",    &elegsfTrkValidHits_);
-    tree_->Branch("elegsfTrkMissHits",     &elegsfTrkMissHits_);
-    tree_->Branch("elegsfTrkLayers",       &elegsfTrkLayers_);
-    tree_->Branch("elegsfD0",              &elegsfD0_);
-    tree_->Branch("elegsfDz",              &elegsfDz_);
-    tree_->Branch("elegsfD0Err",           &elegsfD0Err_);
-    tree_->Branch("elegsfDzErr",           &elegsfDzErr_);
-  }
-  
   if (doGeneralTracks_){
-    tree_->Branch("ngenTrk",            &ngenTrk_);
-    tree_->Branch("gentrkPt",           &gentrkPt_);
-    tree_->Branch("gentrkP",            &gentrkP_);
-    tree_->Branch("gentrkEta",          &gentrkEta_);
-    tree_->Branch("gentrkPhi",          &gentrkPhi_);
-    tree_->Branch("gentrkcharge",       &gentrkcharge_);
-    tree_->Branch("gentrkvx",           &gentrkvx_);
-    tree_->Branch("gentrkvy",           &gentrkvy_);
-    tree_->Branch("gentrkvz",           &gentrkvz_);
-    tree_->Branch("gentrknormchi2",     &gentrknormchi2_);
-    tree_->Branch("gentrkchi2",         &gentrkchi2_);
-    tree_->Branch("gentrkd0",           &gentrkd0_);
-    tree_->Branch("gentrkdxy",          &gentrkdxy_);
-    tree_->Branch("gentrkdz",           &gentrkdz_);
-    tree_->Branch("gentrkdxyError",     &gentrkdxyError_);
-    tree_->Branch("gentrkdzError",      &gentrkdzError_);
-    tree_->Branch("gentrkValidHits",    &gentrkValidHits_);
-    tree_->Branch("gentrkMissHits",     &gentrkMissHits_);
-    tree_->Branch("gentrkPurity",       &gentrkPurity_);
+    tree_->Branch("nTrk",            &nTrk_);
+    tree_->Branch("trkPt",           &trkPt_);
+    tree_->Branch("trkP",            &trkP_);
+    tree_->Branch("trkEta",          &trkEta_);
+    tree_->Branch("trkPhi",          &trkPhi_);
+    tree_->Branch("trkcharge",       &trkcharge_);
+    tree_->Branch("trkvx",           &trkvx_);
+    tree_->Branch("trkvy",           &trkvy_);
+    tree_->Branch("trkvz",           &trkvz_);
+    tree_->Branch("trknormchi2",     &trknormchi2_);
+    tree_->Branch("trkchi2",         &trkchi2_);
+    tree_->Branch("trkd0",           &trkd0_);
+    tree_->Branch("trkdxy",          &trkdxy_);
+    tree_->Branch("trkdz",           &trkdz_);
+    tree_->Branch("trkdxyError",     &trkdxyError_);
+    tree_->Branch("trkdzError",      &trkdzError_);
+    tree_->Branch("trkValidHits",    &trkValidHits_);
+    tree_->Branch("trkMissHits",     &trkMissHits_);
+    tree_->Branch("trkPurity",       &trkPurity_);
   }
-  
-  if (doHMSuperCluster_){
-    tree_->Branch("nsc_hybrid",         &nsc_hybrid_);
-    tree_->Branch("sc_hybrid_E",        &sc_hybrid_E_);
-    tree_->Branch("sc_hybrid_Et",       &sc_hybrid_Et_);
-    tree_->Branch("sc_hybrid_Eta",      &sc_hybrid_Eta_);
-    tree_->Branch("sc_hybrid_Phi",      &sc_hybrid_Phi_);
-    tree_->Branch("sc_hybrid_x",        &sc_hybrid_x_);
-    tree_->Branch("sc_hybrid_y",        &sc_hybrid_y_);
-    tree_->Branch("sc_hybrid_z",        &sc_hybrid_z_);
-    tree_->Branch("sc_hybrid_EtaWidth", &sc_hybrid_EtaWidth_);
-    tree_->Branch("sc_hybrid_PhiWidth", &sc_hybrid_PhiWidth_);
-    tree_->Branch("sc_hybrid_RawE",     &sc_hybrid_RawE_);
-    tree_->Branch("sc_hybrid_RawEt",    &sc_hybrid_RawEt_);
-    
-    // mult55 cluster collection
-    tree_->Branch("nsc_mult55",         &nsc_mult55_);
-    tree_->Branch("sc_mult55_E",        &sc_mult55_E_);
-    tree_->Branch("sc_mult55_Et",       &sc_mult55_Et_);
-    tree_->Branch("sc_mult55_Eta",      &sc_mult55_Eta_);
-    tree_->Branch("sc_mult55_Phi",      &sc_mult55_Phi_);
-    tree_->Branch("sc_mult55_x",        &sc_mult55_x_);
-    tree_->Branch("sc_mult55_y",        &sc_mult55_y_);
-    tree_->Branch("sc_mult55_z",        &sc_mult55_z_);
-    tree_->Branch("sc_mult55_EtaWidth", &sc_mult55_EtaWidth_);
-    tree_->Branch("sc_mult55_PhiWidth", &sc_mult55_PhiWidth_);
-    tree_->Branch("sc_mult55_RawE",     &sc_mult55_RawE_);
-    tree_->Branch("sc_mult55_RawEt",    &sc_mult55_RawEt_);
-  }
-  
-  
+
   if (doCaloTower_){
     tree_->Branch("nTower",                &nTower_);
     tree_->Branch("CaloTower_hadE",        &CaloTower_hadE_);
@@ -624,13 +602,12 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("CaloTower_eta",         &CaloTower_eta_);
     tree_->Branch("CaloTower_phi",         &CaloTower_phi_);
   }
-
 }
 
 void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
   // cleanup from previous event
-  
+
   if (doGenParticles_) {
     nPUInfo_ = 0;
     nPU_                  .clear();
@@ -663,6 +640,14 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     mcTrkIsoDR04_         .clear();
   }
 
+  if (doSuperClusters_) {
+    nSC_ = 0;
+    scE_                  .clear();
+    scRawE_               .clear();
+    scEta_                .clear();
+    scPhi_                .clear();
+  }
+
   if (doElectrons_) {
     nEle_ = 0;
     eleCharge_            .clear();
@@ -672,12 +657,15 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     eleEn_                .clear();
     eleD0_                .clear();
     eleDz_                .clear();
+    eleIP3D_              .clear();
     eleD0Err_             .clear();
     eleDzErr_             .clear();
+    eleIP3DErr_           .clear();
     eleTrkPt_             .clear();
     eleTrkEta_            .clear();
     eleTrkPhi_            .clear();
     eleTrkCharge_         .clear();
+    eleTrkPtErr_          .clear();
     eleTrkChi2_           .clear();
     eleTrkNdof_           .clear();
     eleTrkNormalizedChi2_ .clear();
@@ -697,13 +685,19 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     eleHoverEBc_          .clear();
     eleEoverP_            .clear();
     eleEoverPInv_         .clear();
+    eleEcalE_             .clear();
+    elePAtVtx_            .clear();
+    elePAtSC_             .clear();
+    elePAtCluster_        .clear();
+    elePAtSeed_           .clear();
     eleBrem_              .clear();
     eledEtaAtVtx_         .clear();
     eledPhiAtVtx_         .clear();
+    eledEtaSeedAtVtx_     .clear();
     eleSigmaIEtaIEta_     .clear();
     eleSigmaIEtaIEta_2012_.clear();
     eleSigmaIPhiIPhi_     .clear();
-    // eleConvVeto_          .clear();  // TODO: not available in reco::
+    eleConvVeto_          .clear();
     eleMissHits_          .clear();
     eleESEffSigmaRR_      .clear();
     elePFChIso_           .clear();
@@ -718,6 +712,7 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     elePFNeuIso04_        .clear();
     elePFRelIsoWithEA_    .clear();
     elePFRelIsoWithDBeta_ .clear();
+    eleEffAreaTimesRho_   .clear();
     eleR9_                .clear();
     eleE3x3_              .clear();
     eleE5x5_              .clear();
@@ -733,6 +728,36 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     eleSeedCryPhi_        .clear();
     eleSeedCryIeta_       .clear();
     eleSeedCryIphi_       .clear();
+
+    if (doEleEReg_) {
+      eleSeedE3x3_        .clear();
+      eleSeedE5x5_        .clear();
+      eleSEE_             .clear();
+      eleSPP_             .clear();
+      eleSEP_             .clear();
+      eleSeedEMax_        .clear();
+      eleSeedE2nd_        .clear();
+      eleSeedETop_        .clear();
+      eleSeedEBottom_     .clear();
+      eleSeedELeft_       .clear();
+      eleSeedERight_      .clear();
+      eleSeedE2x5Max_     .clear();
+      eleSeedE2x5Top_     .clear();
+      eleSeedE2x5Bottom_  .clear();
+      eleSeedE2x5Left_    .clear();
+      eleSeedE2x5Right_   .clear();
+      eleESOverRaw_       .clear();
+
+      eleChargeMode_      .clear();
+      eleTrkQoverPMode_   .clear();
+      eleTrkPMode_        .clear();
+      eleTrkPtMode_       .clear();
+      eleTrkEtaMode_      .clear();
+      eleTrkPhiMode_      .clear();
+      eleTrkQoverPModeErr_.clear();
+      eleTrkPtModeErr_    .clear();
+    }
+
     eleBC1E_              .clear();
     eleBC1Eta_            .clear();
     eleBC2E_              .clear();
@@ -741,8 +766,6 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     eleIDLoose_           .clear();
     eleIDMedium_          .clear();
     eleIDTight_           .clear();
-    elepassConversionVeto_.clear();
-    eleEffAreaTimesRho_   .clear();
   }
 
   if (doPhotons_) {
@@ -795,30 +818,73 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     phoHasPixelSeed_      .clear();
     phoHasConversionTracks_.clear();
     // phoEleVeto_           .clear();  // TODO: not available in reco::
-    phoR9_                .clear();
     phoHadTowerOverEm_    .clear();
     phoHoverE_            .clear();
+    phoHoverEValid_       .clear();
     phoSigmaIEtaIEta_     .clear();
-    // phoSigmaIEtaIPhi_     .clear();  // TODO: not available in reco::
-    // phoSigmaIPhiIPhi_     .clear();  // TODO: not available in reco::
+    phoR9_                .clear();
     phoE1x5_              .clear();
     phoE2x5_              .clear();
     phoE3x3_              .clear();
     phoE5x5_              .clear();
     phoMaxEnergyXtal_     .clear();
     phoSigmaEtaEta_       .clear();
-    phoR1x5_              .clear();
-    phoR2x5_              .clear();
-    phoR9_2012_           .clear();
     phoSigmaIEtaIEta_2012_.clear();
+    phoR9_2012_           .clear();
     phoE1x5_2012_         .clear();
     phoE2x5_2012_         .clear();
     phoE3x3_2012_         .clear();
     phoE5x5_2012_         .clear();
     phoMaxEnergyXtal_2012_.clear();
     phoSigmaEtaEta_2012_  .clear();
-    phoR1x5_2012_         .clear();
-    phoR2x5_2012_         .clear();
+
+    if (doPhoEReg_) {
+
+      phoHadTowerOverEm1_ .clear();
+      phoHadTowerOverEm2_ .clear();
+      phoHoverE1_         .clear();
+      phoHoverE2_         .clear();
+
+      phoSigmaIEtaIPhi_   .clear();
+      phoSigmaIPhiIPhi_   .clear();
+      phoR1x5_            .clear();
+      phoR2x5_            .clear();
+      phoE2nd_            .clear();
+      phoETop_            .clear();
+      phoEBottom_         .clear();
+      phoELeft_           .clear();
+      phoERight_          .clear();
+      phoE1x3_            .clear();
+      phoE2x2_            .clear();
+      phoE2x5Max_         .clear();
+      phoE2x5Top_         .clear();
+      phoE2x5Bottom_      .clear();
+      phoE2x5Left_        .clear();
+      phoE2x5Right_       .clear();
+      //phoSMMajor_         .clear();
+      //phoSMMinor_         .clear();
+      //phoSMAlpha_         .clear();
+
+      phoSigmaIEtaIPhi_2012_.clear();
+      phoSigmaIPhiIPhi_2012_.clear();
+      phoR1x5_2012_       .clear();
+      phoR2x5_2012_       .clear();
+      phoE2nd_2012_       .clear();
+      phoETop_2012_       .clear();
+      phoEBottom_2012_    .clear();
+      phoELeft_2012_      .clear();
+      phoERight_2012_     .clear();
+      phoE1x3_2012_       .clear();
+      phoE2x2_2012_       .clear();
+      phoE2x5Max_2012_    .clear();
+      phoE2x5Top_2012_    .clear();
+      phoE2x5Bottom_2012_ .clear();
+      phoE2x5Left_2012_   .clear();
+      phoE2x5Right_2012_  .clear();
+      //phoSMMajor_2012_    .clear();
+      //phoSMMinor_2012_    .clear();
+      //phoSMAlpha_2012_    .clear();
+    }
 
     phoBC1E_              .clear();
     phoBC1Ecorr_          .clear();
@@ -873,21 +939,62 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 
     //photon pf isolation stuff
     if (doPfIso_) {
-      pfcIso1.clear();
-      pfcIso2.clear();
-      pfcIso3.clear();
-      pfcIso4.clear();
-      pfcIso5.clear();
-      pfpIso1.clear();
-      pfpIso2.clear();
-      pfpIso3.clear();
-      pfpIso4.clear();
-      pfpIso5.clear();
-      pfnIso1.clear();
-      pfnIso2.clear();
-      pfnIso3.clear();
-      pfnIso4.clear();
-      pfnIso5.clear();
+      pfcIso1_.clear();
+      pfcIso2_.clear();
+      pfcIso3_.clear();
+      pfcIso4_.clear();
+      pfcIso5_.clear();
+      pfpIso1_.clear();
+      pfpIso2_.clear();
+      pfpIso3_.clear();
+      pfpIso4_.clear();
+      pfpIso5_.clear();
+      pfnIso1_.clear();
+      pfnIso2_.clear();
+      pfnIso3_.clear();
+      pfnIso4_.clear();
+      pfnIso5_.clear();
+      pfpIso1subSC_.clear();
+      pfpIso2subSC_.clear();
+      pfpIso3subSC_.clear();
+      pfpIso4subSC_.clear();
+      pfpIso5subSC_.clear();
+
+      pfcIso1subUE_.clear();
+      pfcIso2subUE_.clear();
+      pfcIso3subUE_.clear();
+      pfcIso4subUE_.clear();
+      pfcIso5subUE_.clear();
+      pfpIso1subUE_.clear();
+      pfpIso2subUE_.clear();
+      pfpIso3subUE_.clear();
+      pfpIso4subUE_.clear();
+      pfpIso5subUE_.clear();
+      pfnIso1subUE_.clear();
+      pfnIso2subUE_.clear();
+      pfnIso3subUE_.clear();
+      pfnIso4subUE_.clear();
+      pfnIso5subUE_.clear();
+      pfpIso1subSCsubUE_.clear();
+      pfpIso2subSCsubUE_.clear();
+      pfpIso3subSCsubUE_.clear();
+      pfpIso4subSCsubUE_.clear();
+      pfpIso5subSCsubUE_.clear();
+      pfcIso1pTgt1p0subUE_.clear();
+      pfcIso2pTgt1p0subUE_.clear();
+      pfcIso3pTgt1p0subUE_.clear();
+      pfcIso4pTgt1p0subUE_.clear();
+      pfcIso5pTgt1p0subUE_.clear();
+      pfcIso1pTgt2p0subUE_.clear();
+      pfcIso2pTgt2p0subUE_.clear();
+      pfcIso3pTgt2p0subUE_.clear();
+      pfcIso4pTgt2p0subUE_.clear();
+      pfcIso5pTgt2p0subUE_.clear();
+      pfcIso1pTgt3p0subUE_.clear();
+      pfcIso2pTgt3p0subUE_.clear();
+      pfcIso3pTgt3p0subUE_.clear();
+      pfcIso4pTgt3p0subUE_.clear();
+      pfcIso5pTgt3p0subUE_.clear();
     }
   }
 
@@ -899,11 +1006,28 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     muCharge_             .clear();
     muType_               .clear();
     muIsGood_             .clear();
+
+    muIsGlobal_.clear();
+    muIsTracker_.clear();
+    muIsPF_.clear();
+    muIsSTA_.clear();
+
     muD0_                 .clear();
     muDz_                 .clear();
+    muIP3D_               .clear();
+    muD0Err_              .clear();
+    muDzErr_              .clear();
+    muIP3DErr_            .clear();
     muChi2NDF_            .clear();
     muInnerD0_            .clear();
     muInnerDz_            .clear();
+    
+    muInnerD0Err_.clear();
+    muInnerDzErr_.clear();
+    muInnerPt_.clear();
+    muInnerPtErr_.clear();
+    muInnerEta_.clear();
+
     muTrkLayers_          .clear();
     muPixelLayers_        .clear();
     muPixelHits_          .clear();
@@ -915,223 +1039,37 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     muPFPhoIso_           .clear();
     muPFNeuIso_           .clear();
     muPFPUIso_            .clear();
+    muIDSoft_             .clear();
+    muIDLoose_            .clear();
+    muIDMedium_           .clear();
+    muIDMediumPrompt_     .clear();
+    muIDTight_            .clear();
+    muIDGlobalHighPt_     .clear();
+    muIDTrkHighPt_        .clear();
+    muIDInTime_           .clear();
   }
 
-  if (doHMPhotons_) {
-    nHMPho_ = 0;
-    HMphoE_                 .clear();
-    HMphoEt_                .clear();
-    HMphoEta_               .clear();
-    HMphoPhi_               .clear();
-
-    HMphoEcorrStdEcal_      .clear();
-    HMphoEcorrPhoEcal_      .clear();
-    HMphoEcorrRegr1_        .clear();
-    HMphoEcorrRegr2_        .clear();
-    HMphoEcorrErrStdEcal_   .clear();
-    HMphoEcorrErrPhoEcal_   .clear();
-    HMphoEcorrErrRegr1_     .clear();
-    HMphoEcorrErrRegr2_     .clear();
-
-    HMphoSCE_               .clear();
-    HMphoSCEt_              .clear();
-    HMphoSCRawE_            .clear();
-    HMphoSCEta_             .clear();
-    HMphoSCPhi_             .clear();
-    HMphoSCEtaWidth_        .clear();
-    HMphoSCPhiWidth_        .clear();
-    HMphoSCBrem_            .clear();
-    HMphoSCnHits_           .clear();
-    HMphoSCflags_           .clear();
-    HMphoSCinClean_         .clear();
-    HMphoSCinUnClean_       .clear();
-    HMphoSCnBC_             .clear();
-    HMphoESEn_              .clear();
-
-    HMphoPSCE_              .clear();
-    HMphoPSCRawE_           .clear();
-    HMphoPSCEta_            .clear();
-    HMphoPSCPhi_            .clear();
-    HMphoPSCEtaWidth_       .clear();
-    HMphoPSCPhiWidth_       .clear();
-    HMphoPSCBrem_           .clear();
-    HMphoPSCnHits_          .clear();
-    HMphoPSCflags_          .clear();
-    HMphoPSCinClean_        .clear();
-    HMphoPSCinUnClean_      .clear();
-    HMphoPSCnBC_            .clear();
-    HMphoPESEn_             .clear();
-
-    HMphoIsPFPhoton_        .clear();
-    HMphoIsStandardPhoton_  .clear();
-    HMphoHasPixelSeed_      .clear();
-    HMphoHasConversionTracks_.clear();
-    // HMphoEleVeto_           .clear();  // TODO: not available in reco::
-    HMphoR9_                .clear();
-    HMphoHadTowerOverEm_    .clear();
-    HMphoHoverE_            .clear();
-    HMphoSigmaIEtaIEta_     .clear();
-    // HMphoSigmaIEtaIPhi_     .clear();  // TODO: not available in reco::
-    // HMphoSigmaIPhiIPhi_     .clear();  // TODO: not available in reco::
-    HMphoE1x5_              .clear();
-    HMphoE2x5_              .clear();
-    HMphoE3x3_              .clear();
-    HMphoE5x5_              .clear();
-    HMphoMaxEnergyXtal_     .clear();
-    HMphoSigmaEtaEta_       .clear();
-    HMphoR1x5_              .clear();
-    HMphoR2x5_              .clear();
-    HMphoR9_2012_           .clear();
-    HMphoSigmaIEtaIEta_2012_.clear();
-    HMphoE1x5_2012_         .clear();
-    HMphoE2x5_2012_         .clear();
-    HMphoE3x3_2012_         .clear();
-    HMphoE5x5_2012_         .clear();
-    HMphoMaxEnergyXtal_2012_.clear();
-    HMphoSigmaEtaEta_2012_  .clear();
-    HMphoR1x5_2012_         .clear();
-    HMphoR2x5_2012_         .clear();
-
-    HMphoBC1E_              .clear();
-    HMphoBC1Ecorr_          .clear();
-    HMphoBC1Eta_            .clear();
-    HMphoBC1Phi_            .clear();
-    HMphoBC1size_           .clear();
-    HMphoBC1flags_          .clear();
-    HMphoBC1inClean_        .clear();
-    HMphoBC1inUnClean_      .clear();
-    HMphoBC1rawID_          .clear();
-
-    /* HMphoBC2E_              .clear(); */
-    /* HMphoBC2Eta_            .clear(); */
-    /* HMphoBC2Phi_            .clear(); */
-    HMpho_ecalClusterIsoR2_.clear();
-    HMpho_ecalClusterIsoR3_.clear();
-    HMpho_ecalClusterIsoR4_.clear();
-    HMpho_ecalClusterIsoR5_.clear();
-    HMpho_hcalRechitIsoR1_.clear();
-    HMpho_hcalRechitIsoR2_.clear();
-    HMpho_hcalRechitIsoR3_.clear();
-    HMpho_hcalRechitIsoR4_.clear();
-    HMpho_hcalRechitIsoR5_.clear();
-    HMpho_trackIsoR1PtCut20_.clear();
-    HMpho_trackIsoR2PtCut20_.clear();
-    HMpho_trackIsoR3PtCut20_.clear();
-    HMpho_trackIsoR4PtCut20_.clear();
-    HMpho_trackIsoR5PtCut20_.clear();
-    HMpho_swissCrx_.clear();
-    HMpho_seedTime_.clear();
-
-    HMpho_genMatchedIndex_.clear();
-    
-    // rechit info
-    if (doRecHitsEB_ || doRecHitsEE_) {
-      nHMRH_ = 0;
-      HMrhRawId_.clear();
-      HMrhieta_.clear();
-      HMrhiphi_.clear();
-      HMrhix_.clear();
-      HMrhiy_.clear();
-      HMrhE_.clear();
-      HMrhEt_.clear();
-      HMrhEta_.clear();
-      HMrhPhi_.clear();
-      HMrhChi2_.clear();
-      HMrhEerror_.clear();
-      HMrhFlags_.clear();
-      HMrhPhoIdx_.clear();
-      HMrhBCIdx_.clear();
-    }
-
-    //photon pf isolation stuff
-    if (doPfIso_) {
-      HMpfcIso1.clear();
-      HMpfcIso2.clear();
-      HMpfcIso3.clear();
-      HMpfcIso4.clear();
-      HMpfcIso5.clear();
-      HMpfpIso1.clear();
-      HMpfpIso2.clear();
-      HMpfpIso3.clear();
-      HMpfpIso4.clear();
-      HMpfpIso5.clear();
-      HMpfnIso1.clear();
-      HMpfnIso2.clear();
-      HMpfnIso3.clear();
-      HMpfnIso4.clear();
-      HMpfnIso5.clear();
-    }
-  }
-
-  if (doGSFElectrons_) { 
-    ngsfEle_ = 0;
-    elegsfD0_             .clear();
-    elegsfDz_             .clear();
-    elegsfD0Err_          .clear();
-    elegsfDzErr_          .clear();
-    elegsfTrkPt_          .clear();
-    elegsfTrkP_           .clear();
-    elegsfTrkEta_         .clear();
-    elegsfTrkPhi_         .clear();
-    elegsfTrkCharge_      .clear();
-    elegsfTrkChi2_        .clear();
-    elegsfTrkNdof_        .clear();
-    elegsfTrkNormalizedChi2_ .clear();
-    elegsfTrkValidHits_   .clear();
-    elegsfTrkMissHits_    .clear();
-    elegsfTrkLayers_      .clear();
-  }
-  
   if (doGeneralTracks_){
-    ngenTrk_ = 0;
-    gentrkPt_             .clear();
-    gentrkP_              .clear();
-    gentrkEta_            .clear();
-    gentrkPhi_            .clear();
-    gentrkcharge_         .clear();
-    gentrkvx_	          .clear();
-    gentrkvy_	          .clear(); 
-    gentrkvz_		  .clear();
-    gentrknormchi2_       .clear();                 
-    gentrkchi2_           .clear();
-    gentrkd0_             .clear(); 
-    gentrkdxy_            .clear();
-    gentrkdz_             .clear();
-    gentrkdxyError_       .clear();     
-    gentrkdzError_        .clear();
-    gentrkValidHits_      .clear();                     
-    gentrkMissHits_       .clear();  
+    nTrk_ = 0;
+    trkPt_             .clear();
+    trkP_              .clear();
+    trkEta_            .clear();
+    trkPhi_            .clear();
+    trkcharge_         .clear();
+    trkvx_	          .clear();
+    trkvy_	          .clear(); 
+    trkvz_		  .clear();
+    trknormchi2_       .clear();                 
+    trkchi2_           .clear();
+    trkd0_             .clear(); 
+    trkdxy_            .clear();
+    trkdz_             .clear();
+    trkdxyError_       .clear();     
+    trkdzError_        .clear();
+    trkValidHits_      .clear();                     
+    trkMissHits_       .clear();  
   }
-  
-  if (doHMSuperCluster_){
-    nsc_hybrid_ = 0;
-    sc_hybrid_E_          .clear();
-    sc_hybrid_Et_         .clear();
-    sc_hybrid_Eta_        .clear();
-    sc_hybrid_Phi_        .clear();   
-    sc_hybrid_x_          .clear();      
-    sc_hybrid_y_          .clear();      
-    sc_hybrid_z_          .clear();      
-    sc_hybrid_EtaWidth_   .clear();         
-    sc_hybrid_PhiWidth_   .clear();         
-    sc_hybrid_RawE_       .clear();         
-    sc_hybrid_RawEt_      .clear();         
-    
-    nsc_mult55_ = 0;
-    sc_mult55_E_          .clear();
-    sc_mult55_Et_         .clear();
-    sc_mult55_Eta_        .clear();
-    sc_mult55_Phi_        .clear();
-    sc_mult55_x_          .clear();         
-    sc_mult55_y_          .clear();         
-    sc_mult55_z_          .clear();         
-    sc_mult55_EtaWidth_   .clear();         
-    sc_mult55_PhiWidth_   .clear();         
-    sc_mult55_RawE_       .clear();         
-    sc_mult55_RawEt_      .clear(); 
-  }
-  
-  
+
   if (doCaloTower_){
     nTower_= 0;
     CaloTower_hadE_       .clear();
@@ -1141,11 +1079,19 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     CaloTower_eta_        .clear();
     CaloTower_phi_        .clear();
   }
-  
+
   run_    = e.id().run();
   event_  = e.id().event();
   lumis_  = e.luminosityBlock();
   isData_ = e.isRealData();
+
+  rho_ = -1;
+  edm::Handle<double> rhoH;
+  if (doEffectiveAreas_) {
+    e.getByToken(rhoToken_, rhoH);
+
+    rho_ = *rhoH;
+  }
 
   // MC truth
   if (doGenParticles_ && !isData_) {
@@ -1157,31 +1103,34 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   e.getByToken(vtxCollection_, vtxHandle);
 
   // best-known primary vertex coordinates
-  math::XYZPoint pv(0, 0, 0);
+  reco::Vertex pv(math::XYZPoint(0, 0, -999), math::Error<3>::type());
   for (const auto& v : *vtxHandle)
     if (!v.isFake()) {
-      pv.SetXYZ(v.x(), v.y(), v.z());
+      pv = v;
       break;
     }
 
-  if (doRecHitsEB_ || doRecHitsEE_) {
-      edm::ESHandle<CaloGeometry> pGeo;
-      es.get<CaloGeometryRecord>().get(pGeo);
-      geo = pGeo.product();
+  edm::ESHandle<TransientTrackBuilder> trackBuilder;
+  es.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
+  tb = trackBuilder.product();
+
+  if (doRecHitsEB_ || doRecHitsEE_ || doEleEReg_) {
+    edm::ESHandle<CaloGeometry> pGeo;
+    es.get<CaloGeometryRecord>().get(pGeo);
+    geo = pGeo.product();
+  }
+  if (doEleEReg_) {
+    edm::ESHandle<CaloTopology> pTopo;
+    es.get<CaloTopologyRecord>().get(pTopo);
+    topo = pTopo.product();
   }
 
+  if (doSuperClusters_) fillSC(e);
   if (doElectrons_) fillElectrons(e, es, pv);
   if (doPhotons_) fillPhotons(e, es, pv);
   if (doMuons_) fillMuons(e, es, pv);
-
-  // LbyL addition
-  if (doHMPhotons_) fillHMPhotons(e, es, pv);
-  if (doGSFElectrons_) fillGSFElectrons(e, es, pv);
   if (doGeneralTracks_) fillGeneralTracks(e, es, pv);
-  if (doHMSuperCluster_) fillHMSuperCluster(e, es, pv);
   if (doCaloTower_) fillCaloTower(e, es, pv);
-
-
 
   tree_->Fill();
 }
@@ -1207,16 +1156,16 @@ void ggHiNtuplizer::fillGenParticles(const edm::Event& e)
 {
   // Fills tree branches with generated particle info.
 
+    //std::cout << " fill gen loop "<< std::endl;
   edm::Handle<std::vector<reco::GenParticle> > genParticlesHandle;
   e.getByToken(genParticlesCollection_, genParticlesHandle);
 
   // loop over MC particles
   for (auto p = genParticlesHandle->begin(); p != genParticlesHandle->end(); ++p) {
-    
     // skip all primary particles if not particle gun MC
     //if (!runOnParticleGun_ && !p->mother()) continue;
 
-    std::cout << "coming in this loop" << std::endl;
+    //std::cout << " in gen 1st loop "<< std::endl;
     // stable particles with pT > 5 GeV
     bool isStableFast = (p->status() == 1 && p->pt() > 0.0);
 
@@ -1230,7 +1179,7 @@ void ggHiNtuplizer::fillGenParticles(const edm::Event& e)
     // reduce size of output root file
     if (!isStableFast && !isStableLepton && !isHeavy)
       continue;
-
+    //std::cout << " in gen loop "<< std::endl;
     mcPID_   .push_back(p->pdgId());
     mcStatus_.push_back(p->status());
     mcVtx_x_ .push_back(p->vx());
@@ -1356,7 +1305,27 @@ float ggHiNtuplizer::getGenTrkIso(edm::Handle<std::vector<reco::GenParticle> > &
   return ptSum;
 }
 
-void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es, math::XYZPoint& pv)
+void ggHiNtuplizer::fillSC(edm::Event const& e) {
+  edm::Handle<reco::SuperClusterCollection> barrelSCHandle;
+  e.getByToken(barrelSCToken_, barrelSCHandle);
+
+  edm::Handle<reco::SuperClusterCollection> endcapSCHandle;
+  e.getByToken(endcapSCToken_, endcapSCHandle);
+
+  for (auto const& scs : { *barrelSCHandle, *endcapSCHandle }) {
+    for (auto const& sc : scs) {
+      //if(abs(sc.eta())>2.4)continue;
+      scE_.push_back(sc.energy());
+      scRawE_.push_back(sc.rawEnergy());
+      scEta_.push_back(sc.eta());
+      scPhi_.push_back(sc.phi());
+
+      ++nSC_;
+    }
+  }
+}
+
+void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es, reco::Vertex& pv)
 {
   // Fills tree branches with reco GSF electrons.
 
@@ -1364,25 +1333,25 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
   e.getByToken(gsfElectronsCollection_, gsfElectronsHandle);
 
   edm::Handle<reco::ConversionCollection> conversions;
+  e.getByToken(conversionsToken_, conversions);
+
   edm::Handle<reco::BeamSpot> theBeamSpot;
+  e.getByToken(beamSpotToken_, theBeamSpot);
+
+  edm::Handle<EcalRecHitCollection> recHitsEBHandle;
+  edm::Handle<EcalRecHitCollection> recHitsEEHandle;
+
+  if (doEleEReg_) {
+      e.getByToken(recHitsEB_, recHitsEBHandle);
+      e.getByToken(recHitsEE_, recHitsEEHandle);
+  }
 
   edm::Handle<edm::ValueMap<bool> > veto_id_decisions;
   edm::Handle<edm::ValueMap<bool> > loose_id_decisions;
   edm::Handle<edm::ValueMap<bool> > medium_id_decisions;
   edm::Handle<edm::ValueMap<bool> > tight_id_decisions;
 
-  edm::Handle<double> rhoH;
-  if (!rhoToken_.isUninitialized())
-    e.getByToken(rhoToken_, rhoH);
-  float rho = rhoH.isValid() ? *rhoH : -999;
-
   if (doVID_) {
-    // Get the conversions collection
-    e.getByToken(conversionsToken_, conversions);
-
-    // Get the beam spot
-    e.getByToken(beamSpotToken_, theBeamSpot);
-
     // Get the electron ID data from the event stream.
     // Note: this implies that the VID ID modules have been run upstream.
     // If you need more info, check with the EGM group.
@@ -1391,7 +1360,6 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     e.getByToken(eleMediumIdMapToken_, medium_id_decisions);
     e.getByToken(eleTightIdMapToken_, tight_id_decisions);
   }
-
 
   // loop over electrons
   for (auto ele = gsfElectronsHandle->begin(); ele != gsfElectronsHandle->end(); ++ele) {
@@ -1404,14 +1372,15 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
       eleCtfCharge_        .push_back(-99.);
     }
     eleEn_               .push_back(ele->energy());
-    eleD0_               .push_back(ele->gsfTrack()->dxy(pv));
-    eleDz_               .push_back(ele->gsfTrack()->dz(pv));
+    eleD0_               .push_back(ele->gsfTrack()->dxy(pv.position()));
+    eleDz_               .push_back(ele->gsfTrack()->dz(pv.position()));
     eleD0Err_            .push_back(ele->gsfTrack()->dxyError());
     eleDzErr_            .push_back(ele->gsfTrack()->dzError());
     eleTrkPt_            .push_back(ele->gsfTrack()->pt());
     eleTrkEta_           .push_back(ele->gsfTrack()->eta());
     eleTrkPhi_           .push_back(ele->gsfTrack()->phi());
     eleTrkCharge_        .push_back(ele->gsfTrack()->charge());
+    eleTrkPtErr_         .push_back(ele->gsfTrack()->ptError());
     eleTrkChi2_          .push_back(ele->gsfTrack()->chi2());
     eleTrkNdof_          .push_back(ele->gsfTrack()->ndof());
     eleTrkNormalizedChi2_.push_back(ele->gsfTrack()->normalizedChi2());
@@ -1430,13 +1399,18 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     eleHoverE_           .push_back(ele->hcalOverEcal());
     eleHoverEBc_         .push_back(ele->hcalOverEcalBc());
     eleEoverP_           .push_back(ele->eSuperClusterOverP());
-    eleEoverPInv_        .push_back(std::abs(1./ele->ecalEnergy() - 1./ele->trackMomentumAtVtx().R()));
+    eleEoverPInv_        .push_back(1./ele->ecalEnergy() - 1./ele->trackMomentumAtVtx().R());
+    eleEcalE_            .push_back(ele->ecalEnergy());
+    elePAtVtx_           .push_back(ele->trackMomentumAtVtx().R());
+    elePAtSC_            .push_back(ele->trackMomentumAtCalo().R());
+    elePAtCluster_       .push_back(ele->trackMomentumAtEleClus().R());
+    elePAtSeed_          .push_back(ele->trackMomentumOut().R());
     eleBrem_             .push_back(ele->fbrem());
     eledEtaAtVtx_        .push_back(ele->deltaEtaSuperClusterTrackAtVtx());
     eledPhiAtVtx_        .push_back(ele->deltaPhiSuperClusterTrackAtVtx());
+    eledEtaSeedAtVtx_    .push_back(ele->deltaEtaSeedClusterTrackAtVtx());
     eleSigmaIEtaIEta_    .push_back(ele->sigmaIetaIeta());
     eleSigmaIPhiIPhi_    .push_back(ele->sigmaIphiIphi());
-    // eleConvVeto_         .push_back((int)ele->passConversionVeto()); // TODO: not available in reco::
     eleMissHits_         .push_back(ele->gsfTrack()->numberOfLostHits());
 
     // full 5x5
@@ -1449,28 +1423,49 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     elePFNeuIso_         .push_back(pfIso.sumNeutralHadronEt);
     elePFPUIso_          .push_back(pfIso.sumPUPt);
 
-    double area = effectiveAreas_.getEffectiveArea(ele->superCluster()->eta());
-    elePFRelIsoWithEA_   .push_back((pfIso.sumChargedHadronPt + std::max(0.0,
-      pfIso.sumNeutralHadronEt + pfIso.sumPhotonEt - rho * area)) / ele->pt());
-    elePFRelIsoWithDBeta_.push_back((pfIso.sumChargedHadronPt + std::max(0.0,
-      pfIso.sumNeutralHadronEt + pfIso.sumPhotonEt - 0.5 * pfIso.sumPUPt)) / ele->pt());
-
-    // calculation on the fly
-    pfIsoCalculator pfIsoCal(e, pfCollection_, pv);
-    if (std::abs(ele->superCluster()->eta()) > 1.566) {
-      elePFChIso03_          .push_back(pfIsoCal.getPfIso(*ele, 1, 0.3, 0.015, 0.));
-      elePFChIso04_          .push_back(pfIsoCal.getPfIso(*ele, 1, 0.4, 0.015, 0.));
-      elePFPhoIso03_         .push_back(pfIsoCal.getPfIso(*ele, 4, 0.3, 0.08, 0.));
-      elePFPhoIso04_         .push_back(pfIsoCal.getPfIso(*ele, 4, 0.4, 0.08, 0.));
-    } else {
-      elePFChIso03_          .push_back(pfIsoCal.getPfIso(*ele, 1, 0.3, 0.0, 0.));
-      elePFChIso04_          .push_back(pfIsoCal.getPfIso(*ele, 1, 0.4, 0.0, 0.));
-      elePFPhoIso03_         .push_back(pfIsoCal.getPfIso(*ele, 4, 0.3, 0.0, 0.));
-      elePFPhoIso04_         .push_back(pfIsoCal.getPfIso(*ele, 4, 0.4, 0.0, 0.));
+    if (doEffectiveAreas_) {
+      double area = effectiveAreas_.getEffectiveArea(ele->superCluster()->eta());
+      elePFRelIsoWithEA_   .push_back((pfIso.sumChargedHadronPt + std::max(0.0,
+        pfIso.sumNeutralHadronEt + pfIso.sumPhotonEt - rho_ * area)) / ele->pt());
+      elePFRelIsoWithDBeta_.push_back((pfIso.sumChargedHadronPt + std::max(0.0,
+        pfIso.sumNeutralHadronEt + pfIso.sumPhotonEt - 0.5 * pfIso.sumPUPt)) / ele->pt());
+      eleEffAreaTimesRho_.push_back(area * rho_);
     }
 
-    elePFNeuIso03_         .push_back(pfIsoCal.getPfIso(*ele, 5, 0.3, 0., 0.));
-    elePFNeuIso04_         .push_back(pfIsoCal.getPfIso(*ele, 5, 0.4, 0., 0.));
+    bool passConvVeto = !ConversionTools::hasMatchedConversion(
+      *ele, conversions, theBeamSpot->position());
+    eleConvVeto_.push_back( (int) passConvVeto );
+
+    //Initialize with nonphysical values
+    float eleIP3D = -999;
+    float eleIP3DErr = -999;
+    if (pv.isValid()) {
+      //3DImpact parameter
+      reco::TransientTrack tt = tb->build(ele->gsfTrack().get());
+      eleIP3D = IPTools::absoluteImpactParameter3D(tt, pv).second.value();
+      eleIP3DErr = IPTools::absoluteImpactParameter3D(tt, pv).second.error();
+    }
+    eleIP3D_               .push_back(eleIP3D);
+    eleIP3DErr_            .push_back(eleIP3DErr);
+
+    // calculation on the fly
+    if (doPfIso_) {
+      pfIsoCalculator pfIsoCal(e, pfCollection_, pv.position());
+      if (std::abs(ele->superCluster()->eta()) > 1.566) {
+        elePFChIso03_          .push_back(pfIsoCal.getPfIso(*ele, reco::PFCandidate::h,     0.3, 0.015, 0.));
+        elePFChIso04_          .push_back(pfIsoCal.getPfIso(*ele, reco::PFCandidate::h,     0.4, 0.015, 0.));
+        elePFPhoIso03_         .push_back(pfIsoCal.getPfIso(*ele, reco::PFCandidate::gamma, 0.3, 0.08, 0.));
+        elePFPhoIso04_         .push_back(pfIsoCal.getPfIso(*ele, reco::PFCandidate::gamma, 0.4, 0.08, 0.));
+      } else {
+        elePFChIso03_          .push_back(pfIsoCal.getPfIso(*ele, reco::PFCandidate::h,     0.3, 0.0, 0.));
+        elePFChIso04_          .push_back(pfIsoCal.getPfIso(*ele, reco::PFCandidate::h,     0.4, 0.0, 0.));
+        elePFPhoIso03_         .push_back(pfIsoCal.getPfIso(*ele, reco::PFCandidate::gamma, 0.3, 0.0, 0.));
+        elePFPhoIso04_         .push_back(pfIsoCal.getPfIso(*ele, reco::PFCandidate::gamma, 0.4, 0.0, 0.));
+      }
+
+      elePFNeuIso03_         .push_back(pfIsoCal.getPfIso(*ele, reco::PFCandidate::h0, 0.3, 0., 0.));
+      elePFNeuIso04_         .push_back(pfIsoCal.getPfIso(*ele, reco::PFCandidate::h0, 0.4, 0., 0.));
+    }
 
     eleR9_               .push_back(ele->r9());
     eleE3x3_             .push_back(ele->r9()*ele->superCluster()->energy());
@@ -1485,6 +1480,43 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     eleSeedEn_            .push_back(ele->superCluster()->seed()->energy());
     eleSeedEta_           .push_back(ele->superCluster()->seed()->eta());
     eleSeedPhi_           .push_back(ele->superCluster()->seed()->phi());
+
+    /* regression variables */
+    if (doEleEReg_) {
+      auto sch = std::make_unique<SuperClusterHelper>(
+        &(*ele),
+        ele->isEB() ? recHitsEBHandle.product() : recHitsEEHandle.product(),
+        topo,
+        geo);
+
+      eleSeedE3x3_      .push_back(sch->e3x3());
+      eleSeedE5x5_      .push_back(sch->e5x5());
+      eleSEE_           .push_back(sch->sigmaIetaIeta());
+      eleSPP_           .push_back(sch->spp());
+      eleSEP_           .push_back(sch->sep());
+      eleSeedEMax_      .push_back(sch->eMax());
+      eleSeedE2nd_      .push_back(sch->e2nd());
+      eleSeedETop_      .push_back(sch->eTop());
+      eleSeedEBottom_   .push_back(sch->eBottom());
+      eleSeedELeft_     .push_back(sch->eLeft());
+      eleSeedERight_    .push_back(sch->eRight());
+      eleSeedE2x5Max_   .push_back(sch->e2x5Max());
+      eleSeedE2x5Top_   .push_back(sch->e2x5Top());
+      eleSeedE2x5Bottom_.push_back(sch->e2x5Bottom());
+      eleSeedE2x5Left_  .push_back(sch->e2x5Left());
+      eleSeedE2x5Right_ .push_back(sch->e2x5Right());
+      eleESOverRaw_     .push_back(sch->preshowerEnergyOverRaw());
+
+      eleChargeMode_      .push_back(ele->gsfTrack()->chargeMode());
+      eleTrkQoverPMode_   .push_back(ele->gsfTrack()->qoverpMode());
+      eleTrkPMode_        .push_back(ele->gsfTrack()->pMode());
+      eleTrkPtMode_       .push_back(ele->gsfTrack()->ptMode());
+      eleTrkEtaMode_      .push_back(ele->gsfTrack()->etaMode());
+      eleTrkPhiMode_      .push_back(ele->gsfTrack()->phiMode());
+      eleTrkQoverPModeErr_.push_back(ele->gsfTrack()->qoverpModeError());
+      eleTrkPtModeErr_    .push_back(ele->gsfTrack()->ptModeError());
+    }
+
     // local coordinates
     edm::Ptr<reco::CaloCluster> theseed = ele->superCluster()->seed();
     EcalClusterLocal ecalLocal;
@@ -1500,30 +1532,23 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
       float cryX, cryY, thetatilt, phitilt;
       int ix, iy;
       ecalLocal.localCoordsEE(*(theseed), es, cryX, cryY, ix, iy, thetatilt, phitilt);
-      eleSeedCryEta_  .push_back(0);
-      eleSeedCryPhi_  .push_back(0);
-      eleSeedCryIeta_ .push_back(0);
-      eleSeedCryIphi_ .push_back(0);
+      eleSeedCryEta_  .push_back(cryX);
+      eleSeedCryPhi_  .push_back(cryY);
+      eleSeedCryIeta_ .push_back(ix);
+      eleSeedCryIphi_ .push_back(iy);
     }
 
+    // parameters of the very first PFCluster
+    // reco::CaloCluster_iterator bc = ele->superCluster()->clustersBegin();
+    // if (bc != ele->superCluster()->clustersEnd()) {
+    //    eleBC2E_  .push_back((*bc)->energy());
+    //    eleBC2Eta_.push_back((*bc)->eta());
+    // } else {
+    //    eleBC2E_  .push_back(-99);
+    //    eleBC2Eta_.push_back(-99);
+    // }
+
     if (doVID_) {
-      eleEffAreaTimesRho_.push_back(area * rho);
-
-      bool passConvVeto = !ConversionTools::hasMatchedConversion(*ele,
-          conversions,
-          theBeamSpot->position());
-      elepassConversionVeto_.push_back( (int) passConvVeto );
-
-      // parameters of the very first PFCluster
-      // reco::CaloCluster_iterator bc = ele->superCluster()->clustersBegin();
-      // if (bc != ele->superCluster()->clustersEnd()) {
-      //    eleBC2E_  .push_back((*bc)->energy());
-      //    eleBC2Eta_.push_back((*bc)->eta());
-      // } else {
-      //    eleBC2E_  .push_back(-99);
-      //    eleBC2Eta_.push_back(-99);
-      // }
-
       const edm::Ptr<reco::GsfElectron> elePtr(gsfElectronsHandle, ele - gsfElectronsHandle->begin()); //value map is keyed of edm::Ptrs so we need to make one
       bool passVetoID   = false;
       bool passLooseID  = false;
@@ -1545,7 +1570,7 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
   } // electrons loop
 }
 
-void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, math::XYZPoint& pv)
+void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, reco::Vertex& pv)
 {
   // Fills tree branches with photons.
 
@@ -1556,6 +1581,11 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
   if (useValMapIso_) {
     e.getByToken(recoPhotonsHiIso_, recoPhotonHiIsoHandle);
     isoMap = * recoPhotonHiIsoHandle;
+  }
+
+  edm::Handle<edm::ValueMap<std::vector<reco::PFCandidateRef>>> particleBasedIsolationPhotonMap;
+  if (doPfIso_ && removePhotonPfIsoFootprint_) {
+   e.getByToken(particleBasedIsolationPhoton_, particleBasedIsolationPhotonMap);
   }
 
   edm::Handle<EcalRecHitCollection> recHitsEBHandle;
@@ -1569,6 +1599,10 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
 
   // loop over photons
   for (auto pho = recoPhotonsHandle->begin(); pho != recoPhotonsHandle->end(); ++pho) {
+
+    //if(abs(pho->eta())>2.4) continue;
+    //if(abs(pho->superCluster()->eta())>2.4) continue;
+
     phoE_             .push_back(pho->energy());
     phoEt_            .push_back(pho->et());
     phoEta_           .push_back(pho->eta());
@@ -1637,12 +1671,11 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
     phoHasPixelSeed_  .push_back((int)pho->hasPixelSeed());
     phoHasConversionTracks_.push_back((int)pho->hasConversionTracks());
     // phoEleVeto_       .push_back((int)pho->passElectronVeto());   // TODO: not available in reco::
-    phoR9_            .push_back(pho->r9());
     phoHadTowerOverEm_.push_back(pho->hadTowOverEm());
     phoHoverE_        .push_back(pho->hadronicOverEm());
+    phoHoverEValid_   .push_back(pho->hadronicOverEmValid());
     phoSigmaIEtaIEta_ .push_back(pho->sigmaIetaIeta());
-    // phoSigmaIEtaIPhi_ .push_back(pho->sep());   // TODO: not available in reco::
-    // phoSigmaIPhiIPhi_ .push_back(pho->spp());   // TODO: not available in reco::
+    phoR9_            .push_back(pho->r9());
 
     // additional shower shape variables
     phoE3x3_          .push_back(pho->e3x3());
@@ -1651,20 +1684,64 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
     phoE5x5_          .push_back(pho->e5x5());
     phoMaxEnergyXtal_ .push_back(pho->maxEnergyXtal());
     phoSigmaEtaEta_   .push_back(pho->sigmaEtaEta());
-    phoR1x5_          .push_back(pho->r1x5());
-    phoR2x5_          .push_back(pho->r2x5());
 
     // full 5x5
-    phoR9_2012_           .push_back(pho->full5x5_r9());
     phoSigmaIEtaIEta_2012_.push_back(pho->full5x5_sigmaIetaIeta());
+    phoR9_2012_           .push_back(pho->full5x5_r9());
     phoE1x5_2012_.push_back(pho->full5x5_e1x5());
     phoE2x5_2012_.push_back(pho->full5x5_e2x5());
     phoE3x3_2012_.push_back(pho->full5x5_e3x3());
     phoE5x5_2012_.push_back(pho->full5x5_e5x5());
     phoMaxEnergyXtal_2012_.push_back(pho->full5x5_maxEnergyXtal());
     phoSigmaEtaEta_2012_.push_back(pho->full5x5_sigmaEtaEta());
-    phoR1x5_2012_.push_back(pho->full5x5_r1x5());
-    phoR2x5_2012_.push_back(pho->full5x5_r2x5());
+
+    if (doPhoEReg_) {
+
+        phoHadTowerOverEm1_ .push_back(pho->hadTowDepth1OverEm());
+        phoHadTowerOverEm2_ .push_back(pho->hadTowDepth2OverEm());
+        phoHoverE1_         .push_back(pho->hadronicDepth1OverEm());
+        phoHoverE2_         .push_back(pho->hadronicDepth2OverEm());
+
+        phoSigmaIEtaIPhi_   .push_back(pho->showerShapeVariables().sigmaIetaIphi);
+        phoSigmaIPhiIPhi_   .push_back(pho->showerShapeVariables().sigmaIphiIphi);
+        phoR1x5_            .push_back(pho->r1x5());
+        phoR2x5_            .push_back(pho->r2x5());
+        phoE2nd_            .push_back(pho->showerShapeVariables().e2nd);
+        phoETop_            .push_back(pho->showerShapeVariables().eTop);
+        phoEBottom_         .push_back(pho->showerShapeVariables().eBottom);
+        phoELeft_           .push_back(pho->showerShapeVariables().eLeft);
+        phoERight_          .push_back(pho->showerShapeVariables().eRight);
+        phoE1x3_            .push_back(pho->showerShapeVariables().e1x3);
+        phoE2x2_            .push_back(pho->showerShapeVariables().e2x2);
+        phoE2x5Max_         .push_back(pho->showerShapeVariables().e2x5Max);
+        phoE2x5Top_         .push_back(pho->showerShapeVariables().e2x5Top);
+        phoE2x5Bottom_      .push_back(pho->showerShapeVariables().e2x5Bottom);
+        phoE2x5Left_        .push_back(pho->showerShapeVariables().e2x5Left);
+        phoE2x5Right_       .push_back(pho->showerShapeVariables().e2x5Right);
+        //phoSMMajor_         .push_back(pho->showerShapeVariables().smMajor);
+        //phoSMMinor_         .push_back(pho->showerShapeVariables().smMinor);
+        //phoSMAlpha_         .push_back(pho->showerShapeVariables().smAlpha);
+
+        phoSigmaIEtaIPhi_2012_.push_back(pho->full5x5_showerShapeVariables().sigmaIetaIphi);
+        phoSigmaIPhiIPhi_2012_.push_back(pho->full5x5_showerShapeVariables().sigmaIphiIphi);
+        phoR1x5_2012_       .push_back(pho->full5x5_r1x5());
+        phoR2x5_2012_       .push_back(pho->full5x5_r2x5());
+        phoE2nd_2012_       .push_back(pho->full5x5_showerShapeVariables().e2nd);
+        phoETop_2012_       .push_back(pho->full5x5_showerShapeVariables().eTop);
+        phoEBottom_2012_    .push_back(pho->full5x5_showerShapeVariables().eBottom);
+        phoELeft_2012_      .push_back(pho->full5x5_showerShapeVariables().eLeft);
+        phoERight_2012_     .push_back(pho->full5x5_showerShapeVariables().eRight);
+        phoE1x3_2012_       .push_back(pho->full5x5_showerShapeVariables().e1x3);
+        phoE2x2_2012_       .push_back(pho->full5x5_showerShapeVariables().e2x2);
+        phoE2x5Max_2012_    .push_back(pho->full5x5_showerShapeVariables().e2x5Max);
+        phoE2x5Top_2012_    .push_back(pho->full5x5_showerShapeVariables().e2x5Top);
+        phoE2x5Bottom_2012_ .push_back(pho->full5x5_showerShapeVariables().e2x5Bottom);
+        phoE2x5Left_2012_   .push_back(pho->full5x5_showerShapeVariables().e2x5Left);
+        phoE2x5Right_2012_  .push_back(pho->full5x5_showerShapeVariables().e2x5Right);
+        //phoSMMajor_2012_    .push_back(pho->full5x5_showerShapeVariables().smMajor);
+        //phoSMMinor_2012_    .push_back(pho->full5x5_showerShapeVariables().smMinor);
+        //phoSMAlpha_2012_    .push_back(pho->full5x5_showerShapeVariables().smAlpha);
+    }
 
     // seed BC
     if (pho->superCluster()->seed().isAvailable() && pho->superCluster()->seed().isNonnull()) {
@@ -1790,25 +1867,80 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
     }
 
     if (doPfIso_) {
-      pfIsoCalculator pfIso(e, pfCollection_, pv);
+      pfIsoCalculator pfIso(e, pfCollection_, pv.position());
+
+      std::vector<reco::PFCandidateRef> particlesInIsoMap = {};
+      if (removePhotonPfIsoFootprint_) {
+         edm::Ptr<reco::Photon> phoPtr(recoPhotonsHandle, pho - recoPhotonsHandle->begin());
+         particlesInIsoMap = (*particleBasedIsolationPhotonMap)[phoPtr];
+      }
+
       // particle flow isolation
-      pfcIso1.push_back( pfIso.getPfIso(*pho, 1, 0.1, 0.02, 0.0, 0 ));
-      pfcIso2.push_back( pfIso.getPfIso(*pho, 1, 0.2, 0.02, 0.0, 0 ));
-      pfcIso3.push_back( pfIso.getPfIso(*pho, 1, 0.3, 0.02, 0.0, 0 ));
-      pfcIso4.push_back( pfIso.getPfIso(*pho, 1, 0.4, 0.02, 0.0, 0 ));
-      pfcIso5.push_back( pfIso.getPfIso(*pho, 1, 0.5, 0.02, 0.0, 0 ));
+      pfcIso1_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::h, 0.1, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso2_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::h, 0.2, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso3_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::h, 0.3, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso4_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::h, 0.4, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso5_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::h, 0.5, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
 
-      pfnIso1.push_back( pfIso.getPfIso(*pho, 5, 0.1, 0.0, 0.0, 0 ));
-      pfnIso2.push_back( pfIso.getPfIso(*pho, 5, 0.2, 0.0, 0.0, 0 ));
-      pfnIso3.push_back( pfIso.getPfIso(*pho, 5, 0.3, 0.0, 0.0, 0 ));
-      pfnIso4.push_back( pfIso.getPfIso(*pho, 5, 0.4, 0.0, 0.0, 0 ));
-      pfnIso5.push_back( pfIso.getPfIso(*pho, 5, 0.5, 0.0, 0.0, 0 ));
+      pfpIso1_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::gamma, 0.1, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfpIso2_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::gamma, 0.2, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfpIso3_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::gamma, 0.3, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfpIso4_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::gamma, 0.4, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfpIso5_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::gamma, 0.5, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
 
-      pfpIso1.push_back( pfIso.getPfIso(*pho, 4, 0.1, 0.0, 0.0, 0.015 ));
-      pfpIso2.push_back( pfIso.getPfIso(*pho, 4, 0.2, 0.0, 0.0, 0.015 ));
-      pfpIso3.push_back( pfIso.getPfIso(*pho, 4, 0.3, 0.0, 0.0, 0.015 ));
-      pfpIso4.push_back( pfIso.getPfIso(*pho, 4, 0.4, 0.0, 0.0, 0.015 ));
-      pfpIso5.push_back( pfIso.getPfIso(*pho, 4, 0.5, 0.0, 0.0, 0.015 ));
+      pfnIso1_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::h0, 0.1, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfnIso2_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::h0, 0.2, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfnIso3_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::h0, 0.3, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfnIso4_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::h0, 0.4, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfnIso5_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::h0, 0.5, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+
+      pfpIso1subSC_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::gamma, 0.1, 0.0, 0.0, 0, pfIsoCalculator::removeSCenergy));
+      pfpIso2subSC_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::gamma, 0.2, 0.0, 0.0, 0, pfIsoCalculator::removeSCenergy));
+      pfpIso3subSC_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::gamma, 0.3, 0.0, 0.0, 0, pfIsoCalculator::removeSCenergy));
+      pfpIso4subSC_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::gamma, 0.4, 0.0, 0.0, 0, pfIsoCalculator::removeSCenergy));
+      pfpIso5subSC_.push_back( pfIso.getPfIso(*pho, reco::PFCandidate::gamma, 0.5, 0.0, 0.0, 0, pfIsoCalculator::removeSCenergy));
+
+      pfcIso1subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.1, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso2subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.2, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso3subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.3, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso4subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.4, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso5subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.5, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+
+      pfpIso1subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::gamma, 0.1, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfpIso2subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::gamma, 0.2, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfpIso3subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::gamma, 0.3, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfpIso4subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::gamma, 0.4, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfpIso5subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::gamma, 0.5, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+
+      pfnIso1subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h0, 0.1, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfnIso2subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h0, 0.2, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfnIso3subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h0, 0.3, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfnIso4subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h0, 0.4, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfnIso5subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h0, 0.5, 0.0, 0.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+
+      pfpIso1subSCsubUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::gamma, 0.1, 0.0, 0.0, 0, pfIsoCalculator::removeSCenergy));
+      pfpIso2subSCsubUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::gamma, 0.2, 0.0, 0.0, 0, pfIsoCalculator::removeSCenergy));
+      pfpIso3subSCsubUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::gamma, 0.3, 0.0, 0.0, 0, pfIsoCalculator::removeSCenergy));
+      pfpIso4subSCsubUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::gamma, 0.4, 0.0, 0.0, 0, pfIsoCalculator::removeSCenergy));
+      pfpIso5subSCsubUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::gamma, 0.5, 0.0, 0.0, 0, pfIsoCalculator::removeSCenergy));
+
+      pfcIso1pTgt1p0subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.1, 0.0, 1.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso2pTgt1p0subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.2, 0.0, 1.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso3pTgt1p0subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.3, 0.0, 1.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso4pTgt1p0subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.4, 0.0, 1.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso5pTgt1p0subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.5, 0.0, 1.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+
+      pfcIso1pTgt2p0subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.1, 0.0, 2.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso2pTgt2p0subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.2, 0.0, 2.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso3pTgt2p0subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.3, 0.0, 2.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso4pTgt2p0subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.4, 0.0, 2.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso5pTgt2p0subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.5, 0.0, 2.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+
+      pfcIso1pTgt3p0subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.1, 0.0, 3.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso2pTgt3p0subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.2, 0.0, 3.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso3pTgt3p0subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.3, 0.0, 3.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso4pTgt3p0subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.4, 0.0, 3.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
+      pfcIso5pTgt3p0subUE_.push_back( pfIso.getPfIsoSubUE(*pho, reco::PFCandidate::h, 0.5, 0.0, 3.0, 0, pfIsoCalculator::removePFcand, particlesInIsoMap));
     }
 
     //////////////////////////////////// MC matching ////////////////////////////////////
@@ -1853,7 +1985,7 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
   } // photons loop
 }
 
-void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, math::XYZPoint& pv)
+void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, reco::Vertex& pv)
 {
   // Fills tree branches with reco muons.
 
@@ -1861,7 +1993,8 @@ void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, ma
   e.getByToken(recoMuonsCollection_, recoMuonsHandle);
 
   for (const auto& mu : *recoMuonsHandle) {
-    if (mu.pt() < 5) continue;
+    
+    if (mu.pt() < 3.0) continue;
     if (!(mu.isPFMuon() || mu.isGlobalMuon() || mu.isTrackerMuon())) continue;
 
     muPt_    .push_back(mu.pt());
@@ -1870,8 +2003,28 @@ void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, ma
     muCharge_.push_back(mu.charge());
     muType_  .push_back(mu.type());
     muIsGood_.push_back(muon::isGoodMuon(mu, muon::selectionTypeFromString("TMOneStationTight")));
-    muD0_    .push_back(mu.muonBestTrack()->dxy(pv));
-    muDz_    .push_back(mu.muonBestTrack()->dz(pv));
+    
+    muIsGlobal_   .push_back((int)mu.isGlobalMuon());
+    muIsTracker_  .push_back((int)mu.isTrackerMuon());
+    muIsPF_       .push_back((int)mu.isPFMuon());
+    muIsSTA_      .push_back((int)mu.isStandAloneMuon());
+
+    muD0_    .push_back(mu.muonBestTrack()->dxy(pv.position()));
+    muDz_    .push_back(mu.muonBestTrack()->dz(pv.position()));
+    muD0Err_ .push_back(mu.muonBestTrack()->dxyError());
+    muDzErr_ .push_back(mu.muonBestTrack()->dzError());
+
+    //Initialize with nonphysical values
+    float muIP3D = -999;
+    float muIP3DErr = -999;
+    if (pv.isValid()) {
+      //3DImpact parameter
+      reco::TransientTrack tt = tb->build(mu.muonBestTrack().get());
+      muIP3D = IPTools::absoluteImpactParameter3D(tt, pv).second.value();
+      muIP3DErr = IPTools::absoluteImpactParameter3D(tt, pv).second.error();
+    }
+    muIP3D_    .push_back(muIP3D);
+    muIP3DErr_ .push_back(muIP3DErr);
 
     const reco::TrackRef glbMu = mu.globalTrack();
     const reco::TrackRef innMu = mu.innerTrack();
@@ -1887,13 +2040,28 @@ void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, ma
     if (innMu.isNull()) {
       muInnerD0_     .push_back(-99);
       muInnerDz_     .push_back(-99);
+      
+      muInnerD0Err_  .push_back(-99);
+      muInnerDzErr_  .push_back(-99);
+      muInnerPt_     .push_back(-99);
+      muInnerPtErr_  .push_back(-99);
+      muInnerEta_    .push_back(-99);
+     
+      
       muTrkLayers_   .push_back(-99);
       muPixelLayers_ .push_back(-99);
       muPixelHits_   .push_back(-99);
       muTrkQuality_  .push_back(-99);
     } else {
-      muInnerD0_     .push_back(innMu->dxy(pv));
-      muInnerDz_     .push_back(innMu->dz(pv));
+      muInnerD0_     .push_back(innMu->dxy(pv.position()));
+      muInnerDz_     .push_back(innMu->dz(pv.position()));
+      
+      muInnerD0Err_  .push_back(innMu->dxyError());
+      muInnerDzErr_  .push_back(innMu->dzError());
+      muInnerPt_     .push_back(innMu->pt());
+      muInnerPtErr_  .push_back(innMu->ptError());
+      muInnerEta_    .push_back(innMu->eta());
+      
       muTrkLayers_   .push_back(innMu->hitPattern().trackerLayersWithMeasurement());
       muPixelLayers_ .push_back(innMu->hitPattern().pixelLayersWithMeasurement());
       muPixelHits_   .push_back(innMu->hitPattern().numberOfValidPixelHits());
@@ -1906,436 +2074,52 @@ void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, ma
     muPFPhoIso_ .push_back(mu.pfIsolationR04().sumPhotonEt);
     muPFNeuIso_ .push_back(mu.pfIsolationR04().sumNeutralHadronEt);
     muPFPUIso_  .push_back(mu.pfIsolationR04().sumPUPt);
+    muIDSoft_   .push_back(mu.passed(reco::Muon::SoftMvaId));
+    muIDLoose_  .push_back(mu.passed(reco::Muon::CutBasedIdLoose));
+    muIDMedium_ .push_back(mu.passed(reco::Muon::CutBasedIdMedium));
+    muIDMediumPrompt_.push_back(mu.passed(reco::Muon::CutBasedIdMediumPrompt));
+    muIDTight_.push_back(mu.passed(reco::Muon::CutBasedIdTight));
+    muIDGlobalHighPt_.push_back(mu.passed(reco::Muon::CutBasedIdGlobalHighPt));
+    muIDTrkHighPt_.push_back(mu.passed(reco::Muon::CutBasedIdTrkHighPt));
+    muIDInTime_ .push_back(mu.passed(reco::Muon::InTimeMuon));
 
     nMu_++;
   } // muons loop
 }
 
-
-//LbyL addition
-
-void ggHiNtuplizer::fillHMPhotons(const edm::Event& e, const edm::EventSetup& es, math::XYZPoint& pv)
-{
-  // Fills tree branches with HM photons.
-
-  edm::Handle<edm::View<reco::Photon> > recoHMPhotonsHandle;
-  e.getByToken(recoHMPhotonsCollection_, recoHMPhotonsHandle);
-
-  edm::Handle<edm::ValueMap<reco::HIPhotonIsolation> > recoHMPhotonHiIsoHandle;
-
-  edm::ValueMap<reco::HIPhotonIsolation> isoMap2;
-  if (useValMapIso_) {
-    e.getByToken(recoHMPhotonsHiIso_, recoHMPhotonHiIsoHandle);
-    isoMap2 = * recoHMPhotonHiIsoHandle;
-  }
-
-  edm::Handle<EcalRecHitCollection> recHitsEBHandle;
-  if (doRecHitsEB_) {
-      e.getByToken(recHitsEB_, recHitsEBHandle);
-  }
-  edm::Handle<EcalRecHitCollection> recHitsEEHandle;
-  if (doRecHitsEE_) {
-      e.getByToken(recHitsEE_, recHitsEEHandle);
-  }
-
-  // loop over photons
-  for (auto HMpho = recoHMPhotonsHandle->begin(); HMpho != recoHMPhotonsHandle->end(); ++HMpho) {
-    HMphoE_             .push_back(HMpho->energy());
-    HMphoEt_            .push_back(HMpho->et());
-    HMphoEta_           .push_back(HMpho->eta());
-    HMphoPhi_           .push_back(HMpho->phi());
-
-    // energies from different types of corrections
-    HMphoEcorrStdEcal_  .push_back(HMpho->getCorrectedEnergy(reco::Photon::P4type::ecal_standard));
-    HMphoEcorrPhoEcal_  .push_back(HMpho->getCorrectedEnergy(reco::Photon::P4type::ecal_photons));
-    HMphoEcorrRegr1_    .push_back(HMpho->getCorrectedEnergy(reco::Photon::P4type::regression1));
-    HMphoEcorrRegr2_    .push_back(HMpho->getCorrectedEnergy(reco::Photon::P4type::regression2));
-    // errors for those corrections
-    HMphoEcorrErrStdEcal_  .push_back(HMpho->getCorrectedEnergyError(reco::Photon::P4type::ecal_standard));
-    HMphoEcorrErrPhoEcal_  .push_back(HMpho->getCorrectedEnergyError(reco::Photon::P4type::ecal_photons));
-    HMphoEcorrErrRegr1_    .push_back(HMpho->getCorrectedEnergyError(reco::Photon::P4type::regression1));
-    HMphoEcorrErrRegr2_    .push_back(HMpho->getCorrectedEnergyError(reco::Photon::P4type::regression2));
-
-    // SuperCluster info
-    HMphoSCE_           .push_back(HMpho->superCluster()->energy());
-    HMphoSCEt_          .push_back(HMpho->superCluster()->energy()/cosh(HMpho->superCluster()->eta()));
-    HMphoSCRawE_        .push_back(HMpho->superCluster()->rawEnergy());
-    HMphoSCEta_         .push_back(HMpho->superCluster()->eta());
-    HMphoSCPhi_         .push_back(HMpho->superCluster()->phi());
-    HMphoSCEtaWidth_    .push_back(HMpho->superCluster()->etaWidth());
-    HMphoSCPhiWidth_    .push_back(HMpho->superCluster()->phiWidth());
-    HMphoSCBrem_        .push_back(HMpho->superCluster()->phiWidth()/HMpho->superCluster()->etaWidth());
-    HMphoSCnHits_       .push_back(HMpho->superCluster()->size());
-    HMphoSCflags_       .push_back(HMpho->superCluster()->flags());
-    HMphoSCinClean_     .push_back((int)HMpho->superCluster()->isInClean());
-    HMphoSCinUnClean_   .push_back((int)HMpho->superCluster()->isInUnclean());
-    HMphoSCnBC_         .push_back((int)HMpho->superCluster()->clustersSize());
-    HMphoESEn_          .push_back(HMpho->superCluster()->preshowerEnergy());
-    // PF SuperCluster info
-    if (HMpho->parentSuperCluster().isAvailable() && HMpho->parentSuperCluster().isNonnull()) {
-        HMphoPSCE_           .push_back(HMpho->parentSuperCluster()->energy());
-        HMphoPSCRawE_        .push_back(HMpho->parentSuperCluster()->rawEnergy());
-        HMphoPSCEta_         .push_back(HMpho->parentSuperCluster()->eta());
-        HMphoPSCPhi_         .push_back(HMpho->parentSuperCluster()->phi());
-        HMphoPSCEtaWidth_    .push_back(HMpho->parentSuperCluster()->etaWidth());
-        HMphoPSCPhiWidth_    .push_back(HMpho->parentSuperCluster()->phiWidth());
-        HMphoPSCBrem_        .push_back(HMpho->parentSuperCluster()->phiWidth()/HMpho->parentSuperCluster()->etaWidth());
-        HMphoPSCnHits_       .push_back(HMpho->parentSuperCluster()->size());
-        HMphoPSCflags_       .push_back(HMpho->parentSuperCluster()->flags());
-        HMphoPSCinClean_     .push_back((int)HMpho->parentSuperCluster()->isInClean());
-        HMphoPSCinUnClean_   .push_back((int)HMpho->parentSuperCluster()->isInUnclean());
-        HMphoPSCnBC_         .push_back((int)HMpho->parentSuperCluster()->clustersSize());
-        HMphoPESEn_          .push_back(HMpho->parentSuperCluster()->preshowerEnergy());
-    }
-    else {
-        HMphoPSCE_           .push_back(-999);
-        HMphoPSCRawE_        .push_back(-999);
-        HMphoPSCEta_         .push_back(-999);
-        HMphoPSCPhi_         .push_back(-999);
-        HMphoPSCEtaWidth_    .push_back(-999);
-        HMphoPSCPhiWidth_    .push_back(-999);
-        HMphoPSCBrem_        .push_back(-999);
-        HMphoPSCnHits_       .push_back(-999);
-        HMphoPSCflags_       .push_back(-999);
-        HMphoPSCinClean_     .push_back(-999);
-        HMphoPSCinUnClean_   .push_back(-999);
-        HMphoPSCnBC_         .push_back(-999);
-        HMphoPESEn_          .push_back(-999);
-    }
-
-    HMphoIsPFPhoton_    .push_back((int)HMpho->isPFlowPhoton());
-    HMphoIsStandardPhoton_.push_back((int)HMpho->isStandardPhoton());
-    HMphoHasPixelSeed_  .push_back((int)HMpho->hasPixelSeed());
-    HMphoHasConversionTracks_.push_back((int)HMpho->hasConversionTracks());
-    // HMphoEleVeto_       .push_back((int)HMpho->passElectronVeto());   // TODO: not available in reco::
-    HMphoR9_            .push_back(HMpho->r9());
-    HMphoHadTowerOverEm_.push_back(HMpho->hadTowOverEm());
-    HMphoHoverE_        .push_back(HMpho->hadronicOverEm());
-    HMphoSigmaIEtaIEta_ .push_back(HMpho->sigmaIetaIeta());
-    // HMphoSigmaIEtaIPhi_ .push_back(HMpho->sep());   // TODO: not available in reco::
-    // HMphoSigmaIPhiIPhi_ .push_back(HMpho->spp());   // TODO: not available in reco::
-
-    // additional shower shape variables
-    HMphoE3x3_          .push_back(HMpho->e3x3());
-    HMphoE1x5_          .push_back(HMpho->e1x5());
-    HMphoE2x5_          .push_back(HMpho->e2x5());
-    HMphoE5x5_          .push_back(HMpho->e5x5());
-    HMphoMaxEnergyXtal_ .push_back(HMpho->maxEnergyXtal());
-    HMphoSigmaEtaEta_   .push_back(HMpho->sigmaEtaEta());
-    HMphoR1x5_          .push_back(HMpho->r1x5());
-    HMphoR2x5_          .push_back(HMpho->r2x5());
-
-    // full 5x5
-    HMphoR9_2012_           .push_back(HMpho->full5x5_r9());
-    HMphoSigmaIEtaIEta_2012_.push_back(HMpho->full5x5_sigmaIetaIeta());
-    HMphoE1x5_2012_.push_back(HMpho->full5x5_e1x5());
-    HMphoE2x5_2012_.push_back(HMpho->full5x5_e2x5());
-    HMphoE3x3_2012_.push_back(HMpho->full5x5_e3x3());
-    HMphoE5x5_2012_.push_back(HMpho->full5x5_e5x5());
-    HMphoMaxEnergyXtal_2012_.push_back(HMpho->full5x5_maxEnergyXtal());
-    HMphoSigmaEtaEta_2012_.push_back(HMpho->full5x5_sigmaEtaEta());
-    HMphoR1x5_2012_.push_back(HMpho->full5x5_r1x5());
-    HMphoR2x5_2012_.push_back(HMpho->full5x5_r2x5());
-
-    // seed BC
-    if (HMpho->superCluster()->seed().isAvailable() && HMpho->superCluster()->seed().isNonnull()) {
-        HMphoBC1E_        .push_back(HMpho->superCluster()->seed()->energy());
-        HMphoBC1Ecorr_    .push_back(HMpho->superCluster()->seed()->correctedEnergy());
-        HMphoBC1Eta_      .push_back(HMpho->superCluster()->seed()->eta());
-        HMphoBC1Phi_      .push_back(HMpho->superCluster()->seed()->phi());
-        HMphoBC1size_     .push_back(HMpho->superCluster()->seed()->size());
-        HMphoBC1flags_    .push_back(HMpho->superCluster()->seed()->flags());
-        HMphoBC1inClean_  .push_back(HMpho->superCluster()->seed()->isInClean());
-        HMphoBC1inUnClean_.push_back(HMpho->superCluster()->seed()->isInUnclean());
-        HMphoBC1rawID_    .push_back(HMpho->superCluster()->seed()->seed().rawId());
-    }
-    else {
-        HMphoBC1E_        .push_back(-999);
-        HMphoBC1Ecorr_    .push_back(-999);
-        HMphoBC1Eta_      .push_back(-999);
-        HMphoBC1Phi_      .push_back(-999);
-        HMphoBC1size_     .push_back(-999);
-        HMphoBC1flags_    .push_back(-999);
-        HMphoBC1inClean_  .push_back(-999);
-        HMphoBC1inUnClean_.push_back(-999);
-        HMphoBC1rawID_    .push_back(0);
-    }
-
-    // parameters of the very first PFCluster
-    // reco::CaloCluster_iterator bc = HMpho->superCluster()->clustersBegin();
-    // if (bc != HMpho->superCluster()->clustersEnd()) {
-    //    HMphoBC2E_  .push_back((*bc)->energy());
-    //    HMphoBC2Eta_.push_back((*bc)->eta());
-    // } else {
-    //    HMphoBC2E_  .push_back(-99);
-    //    HMphoBC2Eta_.push_back(-99);
-    // }
-
-    if (useValMapIso_) {
-      unsigned int idx = HMpho - recoHMPhotonsHandle->begin();
-      edm::RefToBase<reco::Photon> photonRef = recoHMPhotonsHandle->refAt(idx);
-
-      HMpho_ecalClusterIsoR2_.push_back(isoMap2[photonRef].ecalClusterIsoR2());
-      HMpho_ecalClusterIsoR3_.push_back(isoMap2[photonRef].ecalClusterIsoR3());
-      HMpho_ecalClusterIsoR4_.push_back(isoMap2[photonRef].ecalClusterIsoR4());
-      HMpho_ecalClusterIsoR5_.push_back(isoMap2[photonRef].ecalClusterIsoR5());
-      HMpho_hcalRechitIsoR1_.push_back(isoMap2[photonRef].hcalRechitIsoR1());
-      HMpho_hcalRechitIsoR2_.push_back(isoMap2[photonRef].hcalRechitIsoR2());
-      HMpho_hcalRechitIsoR3_.push_back(isoMap2[photonRef].hcalRechitIsoR3());
-      HMpho_hcalRechitIsoR4_.push_back(isoMap2[photonRef].hcalRechitIsoR4());
-      HMpho_hcalRechitIsoR5_.push_back(isoMap2[photonRef].hcalRechitIsoR5());
-      HMpho_trackIsoR1PtCut20_.push_back(isoMap2[photonRef].trackIsoR1PtCut20());
-      HMpho_trackIsoR2PtCut20_.push_back(isoMap2[photonRef].trackIsoR2PtCut20());
-      HMpho_trackIsoR3PtCut20_.push_back(isoMap2[photonRef].trackIsoR3PtCut20());
-      HMpho_trackIsoR4PtCut20_.push_back(isoMap2[photonRef].trackIsoR4PtCut20());
-      HMpho_trackIsoR5PtCut20_.push_back(isoMap2[photonRef].trackIsoR5PtCut20());
-      HMpho_swissCrx_.push_back(isoMap2[photonRef].swissCrx());
-      HMpho_seedTime_.push_back(isoMap2[photonRef].seedTime());
-    }
-
-    if (doRecHitsEB_ || doRecHitsEE_) {
-
-        int iBC = 0;
-        for (reco::CaloCluster_iterator bc = HMpho->superCluster()->clustersBegin(); bc != HMpho->superCluster()->clustersEnd(); ++bc) {
-
-            for (const auto& hitBC : (*bc)->hitsAndFractions()) {
-
-                const DetId & rhDetId = hitBC.first;
-                edm::Handle<EcalRecHitCollection>* recHitsHandle;
-
-                if (rhDetId.subdetId() == EcalBarrel && doRecHitsEB_) {
-                    recHitsHandle = (&recHitsEBHandle);
-                }
-                else if (rhDetId.subdetId() == EcalEndcap && doRecHitsEE_) {
-                    recHitsHandle = (&recHitsEEHandle);
-                }
-                else continue;
-
-                EcalRecHitCollection::const_iterator rhIter = (*recHitsHandle)->find(rhDetId);
-                const EcalRecHit & rh = (*rhIter);
-
-                HMrhRawId_.push_back(rhDetId.rawId());
-                if (rhDetId.subdetId() == EcalBarrel) {
-                    HMrhieta_.push_back(EBDetId(rhDetId).ieta());
-                    HMrhiphi_.push_back(EBDetId(rhDetId).iphi());
-                    HMrhix_.push_back(-999);
-                    HMrhiy_.push_back(-999);
-                }
-                else if (rhDetId.subdetId() == EcalEndcap) {
-                    HMrhieta_.push_back(-999);
-                    HMrhiphi_.push_back(-999);
-                    HMrhix_.push_back(EEDetId(rhDetId).ix());
-                    HMrhiy_.push_back(EEDetId(rhDetId).iy());
-                }
-                else {
-                    HMrhieta_.push_back(-999);
-                    HMrhiphi_.push_back(-999);
-                    HMrhix_.push_back(-999);
-                    HMrhiy_.push_back(-999);
-                }
-                HMrhE_.push_back(rh.energy());
-
-                math::XYZPoint posXYZ((geo->getPosition(rhDetId)).x() - pv.x(),
-                                      (geo->getPosition(rhDetId)).y() - pv.y(),
-                                      (geo->getPosition(rhDetId)).z() - pv.z());
-
-                HMrhEt_.push_back(rh.energy()*sin(posXYZ.theta()));
-                HMrhEta_.push_back(posXYZ.eta());
-                HMrhPhi_.push_back(posXYZ.phi());
-                HMrhChi2_.push_back(rh.chi2());
-                HMrhEerror_.push_back(rh.energyError());
-
-                uint32_t flagTmp = 0;
-                for (unsigned int iFlag=0; iFlag<32; ++iFlag) {
-                    if (rh.checkFlag(iFlag))
-                        flagTmp |= 1 << iFlag;
-                }
-                HMrhFlags_.push_back(flagTmp);
-
-                HMrhPhoIdx_.push_back(nPho_);
-                HMrhBCIdx_.push_back(iBC);
-                nHMRH_++;
-            }
-            iBC++;
-        }
-    }
-
-    if (doPfIso_) {
-      pfIsoCalculator pfIso(e, pfCollection_, pv);
-      // particle flow isolation
-      HMpfcIso1.push_back( pfIso.getPfIso(*HMpho, 1, 0.1, 0.02, 0.0, 0 ));
-      HMpfcIso2.push_back( pfIso.getPfIso(*HMpho, 1, 0.2, 0.02, 0.0, 0 ));
-      HMpfcIso3.push_back( pfIso.getPfIso(*HMpho, 1, 0.3, 0.02, 0.0, 0 ));
-      HMpfcIso4.push_back( pfIso.getPfIso(*HMpho, 1, 0.4, 0.02, 0.0, 0 ));
-      HMpfcIso5.push_back( pfIso.getPfIso(*HMpho, 1, 0.5, 0.02, 0.0, 0 ));
-
-      HMpfnIso1.push_back( pfIso.getPfIso(*HMpho, 5, 0.1, 0.0, 0.0, 0 ));
-      HMpfnIso2.push_back( pfIso.getPfIso(*HMpho, 5, 0.2, 0.0, 0.0, 0 ));
-      HMpfnIso3.push_back( pfIso.getPfIso(*HMpho, 5, 0.3, 0.0, 0.0, 0 ));
-      HMpfnIso4.push_back( pfIso.getPfIso(*HMpho, 5, 0.4, 0.0, 0.0, 0 ));
-      HMpfnIso5.push_back( pfIso.getPfIso(*HMpho, 5, 0.5, 0.0, 0.0, 0 ));
-
-      HMpfpIso1.push_back( pfIso.getPfIso(*HMpho, 4, 0.1, 0.0, 0.0, 0.015 ));
-      HMpfpIso2.push_back( pfIso.getPfIso(*HMpho, 4, 0.2, 0.0, 0.0, 0.015 ));
-      HMpfpIso3.push_back( pfIso.getPfIso(*HMpho, 4, 0.3, 0.0, 0.0, 0.015 ));
-      HMpfpIso4.push_back( pfIso.getPfIso(*HMpho, 4, 0.4, 0.0, 0.0, 0.015 ));
-      HMpfpIso5.push_back( pfIso.getPfIso(*HMpho, 4, 0.5, 0.0, 0.0, 0.015 ));
-    }
-
-    //////////////////////////////////// MC matching ////////////////////////////////////
-    if (doGenParticles_ && !isData_) {
-      constexpr float delta2 = 0.15*0.15;
-
-      bool gpTemp = false;
-      float currentMaxPt = -1;
-      int matchedIndex = -1;
-
-      for (unsigned igen = 0; igen < mcEt_.size(); ++igen) {
-        if (mcStatus_[igen] != 1 || mcPID_[igen] != 22) continue;
-        if (reco::deltaR2(HMpho->eta(), HMpho->phi(), mcEta_[igen], mcPhi_[igen]) < delta2 &&
-            mcPt_[igen] > currentMaxPt) {
-
-          gpTemp = true;
-          currentMaxPt = mcPt_[igen];
-          matchedIndex = igen;
-        }
-      }
-
-      // if no matching photon was found try with other particles
-      std::vector<int> otherPdgIds_ = {1, 11};
-      if ( !gpTemp ) {
-        currentMaxPt = -1;
-        for (unsigned igen = 0; igen < mcEt_.size(); ++igen) {
-          if (mcStatus_[igen] != 1 || find(otherPdgIds_.begin(), otherPdgIds_.end(), std::abs(mcPID_[igen])) == otherPdgIds_.end()) continue;
-          if (reco::deltaR2(HMpho->eta(), HMpho->phi(), mcEta_[igen], mcPhi_[igen]) < delta2 &&
-              mcPt_[igen] > currentMaxPt) {
-
-            gpTemp = true;
-            currentMaxPt = mcPt_[igen];
-            matchedIndex = igen;
-          }
-        } // end of loop over gen particles
-      } // if not matched to gen photon
-
-      HMpho_genMatchedIndex_.push_back(matchedIndex);
-    } // if it's a MC
-
-    nHMPho_++;
-  } // photons loop
-}
-
-void ggHiNtuplizer::fillGSFElectrons(const edm::Event& e, const edm::EventSetup& es, math::XYZPoint& pv)
-{
-  // Fills tree branches with reco GSF electrons tracks.
-
-  edm::Handle<reco::GsfTrackCollection> gsfTracksHandle;
-  e.getByToken(gsfTracks_, gsfTracksHandle);
-
-
- for (reco::GsfTrackCollection::const_iterator gtrk = gsfTracksHandle->begin(); gtrk != gsfTracksHandle->end(); ++gtrk) {
-     //cout << "event " << e.id().event() << " electron track pt : " << gtrk->pt() << "  inner momentum:" << gtrk->innerMomentum() << "  outer mom:" << gtrk->outerMomentum() << endl;   
-
-    elegsfD0_               .push_back(gtrk->dxy(pv));
-    elegsfDz_               .push_back(gtrk->dz(pv));
-    elegsfD0Err_            .push_back(gtrk->dxyError());
-    elegsfDzErr_            .push_back(gtrk->dzError());
-    elegsfTrkPt_            .push_back(gtrk->pt());
-    elegsfTrkP_             .push_back(gtrk->p());
-    elegsfTrkEta_           .push_back(gtrk->eta());
-    elegsfTrkPhi_           .push_back(gtrk->phi());
-    elegsfTrkCharge_        .push_back(gtrk->charge());
-    elegsfTrkChi2_          .push_back(gtrk->chi2());
-    elegsfTrkNdof_          .push_back(gtrk->ndof());
-    elegsfTrkNormalizedChi2_.push_back(gtrk->normalizedChi2());
-    elegsfTrkValidHits_     .push_back(gtrk->numberOfValidHits());
-    elegsfTrkMissHits_      .push_back(gtrk->numberOfLostHits());
-    elegsfTrkLayers_        .push_back(gtrk->hitPattern().trackerLayersWithMeasurement());
-    ngsfEle_++;
-  }  
-
-
-
-}
-
-void ggHiNtuplizer::fillGeneralTracks(const edm::Event& e, const edm::EventSetup& es, math::XYZPoint& pv)
+void ggHiNtuplizer::fillGeneralTracks(const edm::Event& e, const edm::EventSetup& es, reco::Vertex& pv)
 {
   // Fills tree branches for all tracks in the event.
 
-  edm::Handle<reco::TrackCollection >  genTracksHandle;
-  e.getByToken(genTracks_, genTracksHandle);
+  edm::Handle<reco::TrackCollection >  generalTracksHandle;
+  e.getByToken(generalTracks_, generalTracksHandle);
 
 
- for (reco::TrackCollection::const_iterator gentrk = genTracksHandle->begin(); gentrk != genTracksHandle->end(); ++gentrk) {
-    gentrkPt_             .push_back(gentrk->pt());            
-    gentrkP_              .push_back(gentrk->p());            
-    gentrkEta_            .push_back(gentrk->eta());           
-    gentrkPhi_            .push_back(gentrk->phi());     
-    gentrkcharge_         .push_back(gentrk->charge()); 
-    gentrkvx_	          .push_back(gentrk->vx());       
-    gentrkvy_		  .push_back(gentrk->vy());             
-    gentrkvz_		  .push_back(gentrk->vz());  
-    gentrknormchi2_       .push_back(gentrk->normalizedChi2());                   
-    gentrkchi2_           .push_back(gentrk->chi2());    
-    gentrkd0_             .push_back(gentrk->d0());               
-    gentrkdxy_            .push_back(gentrk->dxy());             
-    gentrkdz_             .push_back(gentrk->dz());     
-    gentrkdxyError_       .push_back(gentrk->dxyError());             
-    gentrkdzError_        .push_back(gentrk->dzError());   
-    gentrkValidHits_      .push_back(gentrk->numberOfValidHits());                     
-    gentrkMissHits_       .push_back(gentrk->numberOfLostHits());  
-    gentrkPurity_         .push_back(gentrk->reco::TrackBase::qualityByName("highPurity"));              
-    ngenTrk_++;
+ for (reco::TrackCollection::const_iterator trk = generalTracksHandle->begin(); trk != generalTracksHandle->end(); ++trk) {
+    trkPt_             .push_back(trk->pt());            
+    trkP_              .push_back(trk->p());            
+    trkEta_            .push_back(trk->eta());           
+    trkPhi_            .push_back(trk->phi());     
+    trkcharge_         .push_back(trk->charge()); 
+    trkvx_	       .push_back(trk->vx());       
+    trkvy_	       .push_back(trk->vy());             
+    trkvz_	       .push_back(trk->vz());  
+    trknormchi2_       .push_back(trk->normalizedChi2());                   
+    trkchi2_           .push_back(trk->chi2());    
+    trkd0_             .push_back(trk->d0());               
+    trkdxy_            .push_back(trk->dxy());             
+    trkdz_             .push_back(trk->dz());     
+    trkdxyError_       .push_back(trk->dxyError());             
+    trkdzError_        .push_back(trk->dzError());   
+    trkValidHits_      .push_back(trk->numberOfValidHits());                     
+    trkMissHits_       .push_back(trk->numberOfLostHits());  
+    trkPurity_         .push_back(trk->reco::TrackBase::qualityByName("highPurity"));              
+    nTrk_++;
   }  
 
+} //fill General tracks
 
-
-}
-
-void ggHiNtuplizer::fillHMSuperCluster(const edm::Event& e, const edm::EventSetup& es, math::XYZPoint& pv)
-{ 
-  edm::Handle<reco::SuperClusterCollection> scHybridHandle;
-  e.getByToken(hybridsc_, scHybridHandle);
-
- for (reco::SuperClusterCollection::const_iterator schy = scHybridHandle->begin(); schy != scHybridHandle->end(); ++schy) {
-      sc_hybrid_E_           .push_back(schy->energy());
-      sc_hybrid_Et_          .push_back(schy->energy()/cosh(schy->eta()));
-      sc_hybrid_Eta_         .push_back(schy->eta());
-      sc_hybrid_Phi_         .push_back(schy->phi());
-      sc_hybrid_x_           .push_back(schy->x());
-      sc_hybrid_y_           .push_back(schy->y());
-      sc_hybrid_z_           .push_back(schy->z());
-      sc_hybrid_EtaWidth_    .push_back(schy->etaWidth());
-      sc_hybrid_PhiWidth_    .push_back(schy->phiWidth());        
-      sc_hybrid_RawE_        .push_back(schy->rawEnergy());         
-      sc_hybrid_RawEt_       .push_back(schy->rawEnergy()/cosh(schy->eta()));     
-     
-      nsc_hybrid_ ++;
-   
-   }
-
-
-  edm::Handle<reco::SuperClusterCollection> scMult55Handle;
-  e.getByToken(mult55sc_, scMult55Handle);
-
- for (reco::SuperClusterCollection::const_iterator scm = scMult55Handle->begin(); scm != scMult55Handle->end(); ++scm) {
-      sc_mult55_E_           .push_back(scm->energy());
-      sc_mult55_Et_          .push_back(scm->energy()/cosh(scm->eta()));
-      sc_mult55_Eta_         .push_back(scm->eta());
-      sc_mult55_Phi_         .push_back(scm->phi());
-      sc_mult55_x_           .push_back(scm->x());
-      sc_mult55_y_           .push_back(scm->y());
-      sc_mult55_z_           .push_back(scm->z());
-      sc_mult55_EtaWidth_    .push_back(scm->etaWidth());
-      sc_mult55_PhiWidth_    .push_back(scm->phiWidth());        
-      sc_mult55_RawE_        .push_back(scm->rawEnergy());         
-      sc_mult55_RawEt_       .push_back(scm->rawEnergy()/cosh(scm->eta()));     
-     
-      nsc_mult55_ ++;
-   
-   }
-}
-
-void ggHiNtuplizer::fillCaloTower(const edm::Event& e, const edm::EventSetup& es, math::XYZPoint& pv)
+void ggHiNtuplizer::fillCaloTower(const edm::Event& e, const edm::EventSetup& es, reco::Vertex& pv)
 {
   // Fills tree branches for calo tower 
 
@@ -2354,5 +2138,5 @@ void ggHiNtuplizer::fillCaloTower(const edm::Event& e, const edm::EventSetup& es
     nTower_++;
   }
 } // calo tower loop
-     
+
 DEFINE_FWK_MODULE(ggHiNtuplizer);

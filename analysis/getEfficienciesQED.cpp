@@ -602,7 +602,7 @@ int main(int argc, char* argv[])
     InitializeTriggerTrees(triggerTrees, name);
     InitializeHistograms(hists, name);
     
-    auto events = make_unique<EventProcessor>(argc == 6 ? inputPaths[dataset] : inFileNames.at(dataset));
+    auto events = make_unique<EventProcessor>(argc == 6 ? inputPaths[dataset] : inFileNames.at(dataset), dataset);
     
     // Loop over events
     for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){

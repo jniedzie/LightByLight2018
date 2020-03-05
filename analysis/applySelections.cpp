@@ -303,3 +303,4 @@ int main(int argc, char* argv[])
   for(string outFilePath : outFilePaths) events->SaveOutputTree(outFilePath);
   
   return 0;
+}

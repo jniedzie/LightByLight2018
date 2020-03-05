@@ -38,7 +38,7 @@ bool HasTwoMatchingPhotons(const PhysObjects &genPhotons,
 int main()
 {
   config = ConfigManager(configPath);
-  unique_ptr<EventProcessor> eventProcessor(new EventProcessor(inFileNames.at(kMClbl)));
+  unique_ptr<EventProcessor> eventProcessor(new EventProcessor(inFileNames.at(kMClbl), kMClbl));
   
   // Prepare counters and histograms
   int nGenEvents                               = 0;

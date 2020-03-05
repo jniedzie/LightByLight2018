@@ -5,7 +5,8 @@
 #include "Helpers.hpp"
 #include "EventProcessor.hpp"
 
-EventProcessor::EventProcessor(string inputPath, vector<string> outputPaths) :
+EventProcessor::EventProcessor(string inputPath, EDataset _dataset, vector<string> outputPaths) :
+dataset(_dataset),
 currentEvent(new Event())
 {
   for(auto type : physObjTypes) nPhysObjects[type] = 0;
@@ -31,77 +32,100 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   for(int iTrigger=0; iTrigger<triggerNamesLbL.size(); iTrigger++){
     hltTree->SetBranchAddress(triggerNamesLbL[iTrigger].c_str(), &triggersLbL[iTrigger]);
   }
-  eventTree->SetBranchAddress("nMC"   , &nPhysObjects.at(kGenParticle));
-  eventTree->SetBranchAddress("mcEta" , &mcEta);
-  eventTree->SetBranchAddress("mcPhi" , &mcPhi);
-  eventTree->SetBranchAddress("mcEt"  , &mcEt);
-  eventTree->SetBranchAddress("mcPID" , &mcPID);
+  eventTree->SetBranchAddress("nMC"                   , &nPhysObjects.at(kGenParticle));
+  eventTree->SetBranchAddress("mcEta"                 , &mcEta);
+  eventTree->SetBranchAddress("mcPhi"                 , &mcPhi);
+  eventTree->SetBranchAddress("mcEt"                  , &mcEt);
+  eventTree->SetBranchAddress("mcPID"                 , &mcPID);
   
-  eventTree->SetBranchAddress("nPho"              , &nPhysObjects.at(kPhoton));
-  eventTree->SetBranchAddress("phoHoverE"         , &photonHoverE);
+  eventTree->SetBranchAddress("nPho"                  , &nPhysObjects.at(kPhoton));
+  eventTree->SetBranchAddress("phoHoverE"             , &photonHoverE);
+  eventTree->SetBranchAddress("phoEta"                , &photonEta);
+  eventTree->SetBranchAddress("phoPhi"                , &photonPhi);
+  eventTree->SetBranchAddress("phoEt"                 , &photonEt);
+  eventTree->SetBranchAddress("phoE"                  , &photonE);
+  eventTree->SetBranchAddress("phoSCEta"              , &photonSCEta);
+  eventTree->SetBranchAddress("phoSCPhi"              , &photonSCPhi);
+  eventTree->SetBranchAddress("phoSCEt"               , &photonSCEt);
+  eventTree->SetBranchAddress("phoSCE"                , &photonSCE);
+  eventTree->SetBranchAddress("phoSCEtaWidth"         , &photonSCEtaWidth);
+//  eventTree->SetBranchAddress("phoSigmaIEtaIEta"      , &photonSCEtaWidth);
+  eventTree->SetBranchAddress("phoSCPhiWidth"         , &photonSCPhiWidth);
   
-  eventTree->SetBranchAddress("phoSCEta"          , &photonSCEta);
-  eventTree->SetBranchAddress("phoSCPhi"          , &photonSCPhi);
-  eventTree->SetBranchAddress("phoSCEt"           , &photonSCEt);
-  eventTree->SetBranchAddress("phoSCE"            , &photonSCE);
-  eventTree->SetBranchAddress("phoSCEtaWidth"     , &photonSCEtaWidth);
-//  eventTree->SetBranchAddress("phoSigmaIEtaIEta"  , &photonSCEtaWidth);
-  eventTree->SetBranchAddress("phoSCPhiWidth"     , &photonSCPhiWidth);
+  eventTree->SetBranchAddress("phoMaxEnergyXtal"      , &photonEmax);
+  eventTree->SetBranchAddress("phoETop"               , &photonEtop);
+  eventTree->SetBranchAddress("phoEBottom"            , &photonEbottom);
+  eventTree->SetBranchAddress("phoELeft"              , &photonEleft);
+  eventTree->SetBranchAddress("phoERight"             , &photonEright);
+  eventTree->SetBranchAddress("phoHasConversionTracks", &photonIsConverted);
   
-  eventTree->SetBranchAddress("phoMaxEnergyXtal"  , &photonEmax);
-  eventTree->SetBranchAddress("phoETop"           , &photonEtop);
-  eventTree->SetBranchAddress("phoEBottom"        , &photonEbottom);
-  eventTree->SetBranchAddress("phoELeft"          , &photonEleft);
-  eventTree->SetBranchAddress("phoERight"         , &photonEright);
+  eventTree->SetBranchAddress("nTower"                , &nPhysObjects.at(kCaloTower));
+  eventTree->SetBranchAddress("CaloTower_hadE"        , &towerEnergyHad);
+  eventTree->SetBranchAddress("CaloTower_emE"         , &towerEnergyEm);
+  eventTree->SetBranchAddress("CaloTower_e"           , &towerEnergy);
+  eventTree->SetBranchAddress("CaloTower_et"          , &towerEt);
+  eventTree->SetBranchAddress("CaloTower_eta"         , &towerEta);
+  eventTree->SetBranchAddress("CaloTower_phi"         , &towerPhi);
   
-  eventTree->SetBranchAddress("nTower"            , &nPhysObjects.at(kCaloTower));
-  eventTree->SetBranchAddress("CaloTower_hadE"    , &towerEnergyHad);
-  eventTree->SetBranchAddress("CaloTower_emE"     , &towerEnergyEm);
-  eventTree->SetBranchAddress("CaloTower_e"       , &towerEnergy);
-  eventTree->SetBranchAddress("CaloTower_et"      , &towerEt);
-  eventTree->SetBranchAddress("CaloTower_eta"     , &towerEta);
-  eventTree->SetBranchAddress("CaloTower_phi"     , &towerPhi);
+  eventTree->SetBranchAddress("nTrk"                  , &nPhysObjects.at(kGeneralTrack));
+  eventTree->SetBranchAddress("trkPt"                 , &generalTrackPt);
+  eventTree->SetBranchAddress("trkP"                  , &generalTrackP);
+  eventTree->SetBranchAddress("trkEta"                , &generalTrackEta);
+  eventTree->SetBranchAddress("trkPhi"                , &generalTrackPhi);
+  eventTree->SetBranchAddress("trkcharge"             , &generalTrackCharge);
+  eventTree->SetBranchAddress("trkValidHits"          , &generalTrackValidHits);
+  eventTree->SetBranchAddress("trkMissHits"           , &generalTrackMissingHits);
   
-  eventTree->SetBranchAddress("nTrk"              , &nPhysObjects.at(kGeneralTrack));
-  eventTree->SetBranchAddress("trkPt"             , &generalTrackPt);
-  eventTree->SetBranchAddress("trkEta"            , &generalTrackEta);
-  eventTree->SetBranchAddress("trkPhi"            , &generalTrackPhi);
-  eventTree->SetBranchAddress("trkcharge"         , &generalTrackCharge);
-  eventTree->SetBranchAddress("trkValidHits"      , &generalTrackValidHits);
-  eventTree->SetBranchAddress("trkMissHits"       , &generalTrackMissingHits);
+  eventTree->SetBranchAddress("trkPurity"             , &generalTrackPurity);
+  eventTree->SetBranchAddress("trknormchi2"           , &generalTrackChi2);
+  eventTree->SetBranchAddress("trkdxy"                , &generalTrackDxy);
+  eventTree->SetBranchAddress("trkdz"                 , &generalTrackDz);
+  eventTree->SetBranchAddress("trkdxyError"           , &generalTrackDxyErr);
+  eventTree->SetBranchAddress("trkdzError"            , &generalTrackDzErr);
+  eventTree->SetBranchAddress("trkvx"                 , &generalTrackVertexX);
+  eventTree->SetBranchAddress("trkvy"                 , &generalTrackVertexY);
+  eventTree->SetBranchAddress("trkvz"                 , &generalTrackVertexZ);
   
-  eventTree->SetBranchAddress("trkPurity"         , &generalTrackPurity);
-  eventTree->SetBranchAddress("trknormchi2"       , &generalTrackChi2);
-  eventTree->SetBranchAddress("trkdxy"            , &generalTrackDxy);
-  eventTree->SetBranchAddress("trkdz"             , &generalTrackDz);
-  eventTree->SetBranchAddress("trkdxyError"       , &generalTrackDxyErr);
-  eventTree->SetBranchAddress("trkdzError"        , &generalTrackDzErr);
-  eventTree->SetBranchAddress("trkvx"             , &generalTrackVertexX);
-  eventTree->SetBranchAddress("trkvy"             , &generalTrackVertexY);
-  eventTree->SetBranchAddress("trkvz"             , &generalTrackVertexZ);
-  
-  eventTree->SetBranchAddress("nEle"              , &nPhysObjects.at(kElectron));
-  eventTree->SetBranchAddress("eleCharge"         , &electronCharge);
-  eventTree->SetBranchAddress("eleMissHits"       , &electronNmissing);
-  eventTree->SetBranchAddress("elePt"             , &electronPt);
-  eventTree->SetBranchAddress("eleEta"            , &electronEta);
-  eventTree->SetBranchAddress("elePhi"            , &electronPhi);
-  eventTree->SetBranchAddress("eleHoverE"         , &electronHoverE);
-  eventTree->SetBranchAddress("elePFRelIsoWithEA" , &electronRelIsoWithEA);
-  eventTree->SetBranchAddress("eledEtaAtVtx"      , &electronDetaSeed);
-  eventTree->SetBranchAddress("eleSCEta"          , &electronSCEta);
-//  eventTree->SetBranchAddress("eleSCEt"           , &electronSCEt);
-  eventTree->SetBranchAddress("eleSCPhi"          , &electronSCPhi);
-  eventTree->SetBranchAddress("eleSCEn"           , &electronSCEn);
+  eventTree->SetBranchAddress("nEle"                  , &nPhysObjects.at(kElectron));
+  eventTree->SetBranchAddress("eleCharge"             , &electronCharge);
+  eventTree->SetBranchAddress("eleMissHits"           , &electronNmissing);
+  eventTree->SetBranchAddress("elePt"                 , &electronPt);
+  eventTree->SetBranchAddress("eleEta"                , &electronEta);
+  eventTree->SetBranchAddress("elePhi"                , &electronPhi);
+  eventTree->SetBranchAddress("eleHoverE"             , &electronHoverE);
+  eventTree->SetBranchAddress("elePFRelIsoWithEA"     , &electronRelIsoWithEA);
+  eventTree->SetBranchAddress("eledEtaAtVtx"          , &electronDetaSeed);
+  eventTree->SetBranchAddress("eleSCEta"              , &electronSCEta);
+//  eventTree->SetBranchAddress("eleSCEt"               , &electronSCEt);
+  eventTree->SetBranchAddress("eleSCPhi"              , &electronSCPhi);
+  eventTree->SetBranchAddress("eleSCEn"               , &electronSCEn);
   
   eventTree->SetBranchAddress("elePFChIso"        , &electronChIso);
   eventTree->SetBranchAddress("elePFPhoIso"       , &electronPhoIso);
   eventTree->SetBranchAddress("elePFNeuIso"       , &electronNeuIso);
+
+  eventTree->SetBranchAddress("nMu"              , &nPhysObjects.at(kMuon));
+  eventTree->SetBranchAddress("muCharge"         , &muonCharge);
+//  eventTree->SetBranchAddress("muMissHits"       , &muonNmissing);
+  eventTree->SetBranchAddress("muPt"             , &muonPt);
+  eventTree->SetBranchAddress("muEta"            , &muonEta);
+  eventTree->SetBranchAddress("muPhi"            , &muonPhi);
+//  eventTree->SetBranchAddress("muHoverE"         , &muonHoverE);
+//  eventTree->SetBranchAddress("muPFRelIsoWithEA" , &muonRelIsoWithEA);
+//  eventTree->SetBranchAddress("mudEtaAtVtx"      , &muonDetaSeed);
+//  eventTree->SetBranchAddress("muSCEta"          , &muonSCEta);
+//  eventTree->SetBranchAddress("muSCEt"           , &muonSCEt);
+//  eventTree->SetBranchAddress("muSCPhi"          , &muonSCPhi);
+//  eventTree->SetBranchAddress("muSCEn"           , &muonSCEn);
   
-  l1Tree->SetBranchAddress("nEGs"                 , &nL1EGs);
-  l1Tree->SetBranchAddress("egEta"                , &L1EGeta);
-  l1Tree->SetBranchAddress("egPhi"                , &L1EGphi);
-  l1Tree->SetBranchAddress("egEt"                 , &L1EGet);
+  eventTree->SetBranchAddress("muPFChIso"        , &muonChIso);
+  eventTree->SetBranchAddress("muPFPhoIso"       , &muonPhoIso);
+  eventTree->SetBranchAddress("muPFNeuIso"       , &muonNeuIso);
+  
+  l1Tree->SetBranchAddress("nEGs"                     , &nL1EGs);
+  l1Tree->SetBranchAddress("egEta"                    , &L1EGeta);
+  l1Tree->SetBranchAddress("egPhi"                    , &L1EGphi);
+  l1Tree->SetBranchAddress("egEt"                     , &L1EGet);
 }
 
 void EventProcessor::SetupOutputTree(string outFileName)
@@ -153,6 +177,8 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   
   currentEvent->Reset();
   
+  currentEvent->dataset = dataset;
+  
   // Fill in collection of gen particles
   
   for(int iTrigger=0; iTrigger<triggerNamesLbL.size(); iTrigger++){
@@ -176,14 +202,14 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     auto photon = make_shared<PhysObject>();
     
     photon->hOverE   = photonHoverE->at(iPhoton);
-    photon->eta      = photonSCEta->at(iPhoton);
+    photon->eta      = photonEta->at(iPhoton);
     photon->etaSC    = photonSCEta->at(iPhoton);
-    photon->phi      = photonSCPhi->at(iPhoton);
+    photon->phi      = photonPhi->at(iPhoton);
     photon->phiSC    = photonSCPhi->at(iPhoton);
-    photon->et       = photonSCEt->at(iPhoton);
+    photon->et       = photonEt->at(iPhoton);
     photon->etSC     = photonSCEt->at(iPhoton);
     photon->pt       = photonSCEt->at(iPhoton);
-    photon->energy   = photonSCE->at(iPhoton);
+    photon->energy   = photonE->at(iPhoton);
     photon->energySC = photonSCE->at(iPhoton);
     photon->etaWidth = photonSCEtaWidth->at(iPhoton);
     photon->phiWidth = photonSCPhiWidth->at(iPhoton);
@@ -194,6 +220,8 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     if(photonEleft)   photon->energyLeft   = photonEleft->at(iPhoton);
     if(photonEright)  photon->energyRight  = photonEright->at(iPhoton);
     
+    photon->hasConversionTracks = photonIsConverted->at(iPhoton);
+    
     currentEvent->physObjects.at(kPhoton).push_back(photon);
   }
   
@@ -203,9 +231,13 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     auto tower = make_shared<PhysObject>();
     
     tower->eta       = towerEta->at(iTower);
+    tower->etaSC     = towerEta->at(iTower);
     tower->phi       = towerPhi->at(iTower);
+    tower->phiSC     = towerPhi->at(iTower);
     tower->energy    = towerEnergy->at(iTower);
+    tower->energySC  = towerEnergy->at(iTower);
     tower->et        = towerEt->at(iTower);
+    tower->etSC      = towerEt->at(iTower);
     tower->energyHad = towerEnergyHad->at(iTower);
     
     tower->energyEm  = towerEnergyEm->at(iTower);
@@ -220,6 +252,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     
     track->charge       = generalTrackCharge->at(iTrack);
     track->pt           = generalTrackPt->at(iTrack);
+    track->p            = generalTrackP->at(iTrack);
     track->eta          = generalTrackEta->at(iTrack);
     track->phi          = generalTrackPhi->at(iTrack);
     track->nValidHits   = generalTrackValidHits->at(iTrack);
@@ -261,6 +294,32 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     
     currentEvent->physObjects.at(kElectron).push_back(electron);
   }
+
+  // Fill in collection of muons
+  
+  for(size_t iMuon=0; iMuon<nPhysObjects.at(kMuon); iMuon++){
+    auto muon = make_shared<PhysObject>();
+    
+    muon->charge       = muonCharge->at(iMuon);
+//    muon->nMissingHits = muonNmissing->at(iMuon);
+    muon->pt           = muonPt->at(iMuon);
+    muon->eta          = muonEta->at(iMuon);
+    muon->phi          = muonPhi->at(iMuon);
+//    muon->hOverE       = muonHoverE->at(iMuon);
+    // TODO: fix missing RelIsoWithEA branch!!
+//    muon->relIsoWithEA = muonRelIsoWithEA->at(iMuon);
+//    muon->dEtaSeed     = muonDetaSeed->at(iMuon);
+//    muon->etaSC        = muonSCEta->at(iMuon);
+//    muon->etSC         = muonSCEt->at(iMuon);
+//    muon->phiSC        = muonSCPhi->at(iMuon);
+//    muon->energySC     = muonSCEn->at(iMuon);
+    muon->chargedIso   = muonChIso->at(iMuon);
+    muon->photonIso    = muonPhoIso->at(iMuon);
+    muon->neutralIso   = muonNeuIso->at(iMuon);
+    
+    currentEvent->physObjects.at(kMuon).push_back(muon);
+  }
+
   
   // Fill in collection of L1 EG objects
   

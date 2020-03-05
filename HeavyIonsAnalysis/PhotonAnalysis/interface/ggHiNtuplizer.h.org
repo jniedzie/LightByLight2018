@@ -10,6 +10,7 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/HIPhotonIsolation.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -24,6 +25,7 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 #include <TTree.h>
 
@@ -40,9 +42,10 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
 
    void fillGenParticles (const edm::Event&);
    void fillGenPileupInfo(const edm::Event&);
-   void fillElectrons    (const edm::Event&, const edm::EventSetup&, math::XYZPoint& pv);
-   void fillPhotons      (const edm::Event&, const edm::EventSetup&, math::XYZPoint& pv);
-   void fillMuons        (const edm::Event&, const edm::EventSetup&, math::XYZPoint& pv);
+   void fillSC           (const edm::Event&);
+   void fillElectrons    (const edm::Event&, const edm::EventSetup&, reco::Vertex& pv);
+   void fillPhotons      (const edm::Event&, const edm::EventSetup&, reco::Vertex& pv);
+   void fillMuons        (const edm::Event&, const edm::EventSetup&, reco::Vertex& pv);
 
    // Et and pT sums
    float getGenCalIso(edm::Handle<std::vector<reco::GenParticle> >&, reco::GenParticleCollection::const_iterator, float dRMax, bool removeMu, bool removeNu);
@@ -56,9 +59,14 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    bool runOnParticleGun_;
    bool useValMapIso_;
    bool doPfIso_;
+   bool removePhotonPfIsoFootprint_;
+   bool doEleEReg_;
+   bool doEffectiveAreas_;
    bool doVID_;
+   bool doPhoEReg_;
    bool doRecHitsEB_;
    bool doRecHitsEE_;
+   bool doSuperClusters_;
 
    // handles to collections of objects
    edm::EDGetTokenT<std::vector<PileupSummaryInfo> >    genPileupCollection_;
@@ -68,6 +76,8 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    edm::EDGetTokenT<edm::ValueMap<bool> > eleLooseIdMapToken_;
    edm::EDGetTokenT<edm::ValueMap<bool> > eleMediumIdMapToken_;
    edm::EDGetTokenT<edm::ValueMap<bool> > eleTightIdMapToken_;
+   edm::EDGetTokenT<reco::SuperClusterCollection> barrelSCToken_;
+   edm::EDGetTokenT<reco::SuperClusterCollection> endcapSCToken_;
    edm::EDGetTokenT<edm::View<reco::Photon> >      recoPhotonsCollection_;
    edm::EDGetTokenT<edm::ValueMap<reco::HIPhotonIsolation> > recoPhotonsHiIso_;
    edm::EDGetTokenT<edm::View<reco::Muon> >        recoMuonsCollection_;
@@ -77,10 +87,14 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    edm::EDGetTokenT<reco::ConversionCollection> conversionsToken_;
    edm::EDGetTokenT<edm::View<reco::PFCandidate> >    pfCollection_;
 
+   edm::EDGetToken particleBasedIsolationPhoton_;
+
    edm::EDGetTokenT<EcalRecHitCollection> recHitsEB_;
    edm::EDGetTokenT<EcalRecHitCollection> recHitsEE_;
 
    const CaloGeometry *geo;
+   const CaloTopology* topo;
+   const TransientTrackBuilder* tb;
 
    EffectiveAreas effectiveAreas_;
 
@@ -91,6 +105,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    ULong64_t      event_;
    UInt_t         lumis_;
    Bool_t         isData_;
+   Float_t        rho_;
 
    // PileupSummaryInfo
    Int_t          nPUInfo_;
@@ -133,12 +148,15 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    std::vector<float>  eleEn_;
    std::vector<float>  eleD0_;
    std::vector<float>  eleDz_;
+   std::vector<float>  eleIP3D_;
    std::vector<float>  eleD0Err_;
    std::vector<float>  eleDzErr_;
+   std::vector<float>  eleIP3DErr_;
    std::vector<float>  eleTrkPt_;
    std::vector<float>  eleTrkEta_;
    std::vector<float>  eleTrkPhi_;
    std::vector<int>    eleTrkCharge_;
+   std::vector<float>  eleTrkPtErr_;
    std::vector<float>  eleTrkChi2_;
    std::vector<float>  eleTrkNdof_;
    std::vector<float>  eleTrkNormalizedChi2_;
@@ -158,13 +176,19 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    std::vector<float>  eleHoverEBc_;
    std::vector<float>  eleEoverP_;
    std::vector<float>  eleEoverPInv_;
+   std::vector<float>  eleEcalE_;
+   std::vector<float>  elePAtVtx_;
+   std::vector<float>  elePAtSC_;
+   std::vector<float>  elePAtCluster_;
+   std::vector<float>  elePAtSeed_;
    std::vector<float>  eleBrem_;
    std::vector<float>  eledEtaAtVtx_;
    std::vector<float>  eledPhiAtVtx_;
+   std::vector<float>  eledEtaSeedAtVtx_;
    std::vector<float>  eleSigmaIEtaIEta_;
    std::vector<float>  eleSigmaIEtaIEta_2012_;
    std::vector<float>  eleSigmaIPhiIPhi_;
-// std::vector<int>    eleConvVeto_;     // TODO: not available in reco::
+   std::vector<int>    eleConvVeto_;
    std::vector<int>    eleMissHits_;
    std::vector<float>  eleESEffSigmaRR_;
    std::vector<float>  elePFChIso_;
@@ -179,6 +203,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    std::vector<float>  elePFNeuIso04_;
    std::vector<float>  elePFRelIsoWithEA_;
    std::vector<float>  elePFRelIsoWithDBeta_;
+   std::vector<float>  eleEffAreaTimesRho_;
    std::vector<float>  eleR9_;
    std::vector<float>  eleE3x3_;
    std::vector<float>  eleE5x5_;
@@ -194,6 +219,31 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    std::vector<float>  eleSeedCryPhi_;
    std::vector<float>  eleSeedCryIeta_;
    std::vector<float>  eleSeedCryIphi_;
+   std::vector<float>  eleSeedE3x3_;
+   std::vector<float>  eleSeedE5x5_;
+   std::vector<float>  eleSEE_;
+   std::vector<float>  eleSPP_;
+   std::vector<float>  eleSEP_;
+   std::vector<float>  eleSeedEMax_;
+   std::vector<float>  eleSeedE2nd_;
+   std::vector<float>  eleSeedETop_;
+   std::vector<float>  eleSeedEBottom_;
+   std::vector<float>  eleSeedELeft_;
+   std::vector<float>  eleSeedERight_;
+   std::vector<float>  eleSeedE2x5Max_;
+   std::vector<float>  eleSeedE2x5Top_;
+   std::vector<float>  eleSeedE2x5Bottom_;
+   std::vector<float>  eleSeedE2x5Left_;
+   std::vector<float>  eleSeedE2x5Right_;
+   std::vector<float>  eleESOverRaw_;
+   std::vector<float>  eleChargeMode_;
+   std::vector<float>  eleTrkQoverPMode_;
+   std::vector<float>  eleTrkPMode_;
+   std::vector<float>  eleTrkPtMode_;
+   std::vector<float>  eleTrkEtaMode_;
+   std::vector<float>  eleTrkPhiMode_;
+   std::vector<float>  eleTrkQoverPModeErr_;
+   std::vector<float>  eleTrkPtModeErr_;
    std::vector<float>  eleBC1E_;
    std::vector<float>  eleBC1Eta_;
    std::vector<float>  eleBC2E_;
@@ -202,8 +252,6 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    std::vector<int>    eleIDLoose_;
    std::vector<int>    eleIDMedium_;
    std::vector<int>    eleIDTight_;
-   std::vector<int>    elepassConversionVeto_;
-   std::vector<float>  eleEffAreaTimesRho_;
 
    // reco::Photon
    Int_t          nPho_;
@@ -254,30 +302,72 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    std::vector<int>    phoHasPixelSeed_;
    std::vector<int>    phoHasConversionTracks_;
 // std::vector<int>    phoEleVeto_;         // TODO: not available in reco::
-   std::vector<float>  phoR9_;
    std::vector<float>  phoHadTowerOverEm_;
    std::vector<float>  phoHoverE_;
+   std::vector<int>    phoHoverEValid_;
    std::vector<float>  phoSigmaIEtaIEta_;
-// std::vector<float>  phoSigmaIEtaIPhi_;   // TODO: not available in reco::
-// std::vector<float>  phoSigmaIPhiIPhi_;   // TODO: not available in reco::
+   std::vector<float>  phoR9_;
    std::vector<float>  phoE1x5_;
    std::vector<float>  phoE2x5_;
    std::vector<float>  phoE3x3_;
    std::vector<float>  phoE5x5_;
    std::vector<float>  phoMaxEnergyXtal_;
    std::vector<float>  phoSigmaEtaEta_;
-   std::vector<float>  phoR1x5_;
-   std::vector<float>  phoR2x5_;
-   std::vector<float>  phoR9_2012_;
+
    std::vector<float>  phoSigmaIEtaIEta_2012_;
+   std::vector<float>  phoR9_2012_;
    std::vector<float>  phoE1x5_2012_;
    std::vector<float>  phoE2x5_2012_;
    std::vector<float>  phoE3x3_2012_;
    std::vector<float>  phoE5x5_2012_;
    std::vector<float>  phoMaxEnergyXtal_2012_;
    std::vector<float>  phoSigmaEtaEta_2012_;
+
+   std::vector<float>  phoHadTowerOverEm1_;
+   std::vector<float>  phoHadTowerOverEm2_;
+   std::vector<float>  phoHoverE1_;
+   std::vector<float>  phoHoverE2_;
+
+   std::vector<float>  phoSigmaIEtaIPhi_;
+   std::vector<float>  phoSigmaIPhiIPhi_;
+   std::vector<float>  phoR1x5_;
+   std::vector<float>  phoR2x5_;
+   std::vector<float>  phoE2nd_;
+   std::vector<float>  phoETop_;
+   std::vector<float>  phoEBottom_;
+   std::vector<float>  phoELeft_;
+   std::vector<float>  phoERight_;
+   std::vector<float>  phoE1x3_;
+   std::vector<float>  phoE2x2_;
+   std::vector<float>  phoE2x5Max_;
+   std::vector<float>  phoE2x5Top_;
+   std::vector<float>  phoE2x5Bottom_;
+   std::vector<float>  phoE2x5Left_;
+   std::vector<float>  phoE2x5Right_;
+   //std::vector<float>  phoSMMajor_;   // TODO: enable when they become available in future releases
+   //std::vector<float>  phoSMMinor_;   // TODO: enable when they become available in future releases
+   //std::vector<float>  phoSMAlpha_;   // TODO: enable when they become available in future releases
+
+   std::vector<float>  phoSigmaIEtaIPhi_2012_;
+   std::vector<float>  phoSigmaIPhiIPhi_2012_;
    std::vector<float>  phoR1x5_2012_;
    std::vector<float>  phoR2x5_2012_;
+   std::vector<float>  phoE2nd_2012_;
+   std::vector<float>  phoETop_2012_;
+   std::vector<float>  phoEBottom_2012_;
+   std::vector<float>  phoELeft_2012_;
+   std::vector<float>  phoERight_2012_;
+   std::vector<float>  phoE1x3_2012_;
+   std::vector<float>  phoE2x2_2012_;
+   std::vector<float>  phoE2x5Max_2012_;
+   std::vector<float>  phoE2x5Top_2012_;
+   std::vector<float>  phoE2x5Bottom_2012_;
+   std::vector<float>  phoE2x5Left_2012_;
+   std::vector<float>  phoE2x5Right_2012_;
+   //std::vector<float>  phoSMMajor_2012_;   // TODO: enable when they become available in future releases
+   //std::vector<float>  phoSMMinor_2012_;   // TODO: enable when they become available in future releases
+   //std::vector<float>  phoSMAlpha_2012_;   // TODO: enable when they become available in future releases
+
    std::vector<float>  phoBC1E_;
    std::vector<float>  phoBC1Ecorr_;
    std::vector<float>  phoBC1Eta_;
@@ -309,6 +399,13 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    std::vector<float>  pho_seedTime_;
    std::vector<int>    pho_genMatchedIndex_;
 
+   /* supercluster info */
+   int nSC_;
+   std::vector<float> scE_;
+   std::vector<float> scRawE_;
+   std::vector<float> scEta_;
+   std::vector<float> scPhi_;
+
    // rechit info
    int nRH_;
    std::vector<uint32_t> rhRawId_;
@@ -327,23 +424,92 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    std::vector<int> rhBCIdx_;    // index of this rechit's BC in the SC
 
    // photon pf isolation stuff
-   std::vector<float> pfcIso1;
-   std::vector<float> pfcIso2;
-   std::vector<float> pfcIso3;
-   std::vector<float> pfcIso4;
-   std::vector<float> pfcIso5;
+   std::vector<float> pfcIso1_;
+   std::vector<float> pfcIso2_;
+   std::vector<float> pfcIso3_;
+   std::vector<float> pfcIso4_;
+   std::vector<float> pfcIso5_;
 
-   std::vector<float> pfpIso1;
-   std::vector<float> pfpIso2;
-   std::vector<float> pfpIso3;
-   std::vector<float> pfpIso4;
-   std::vector<float> pfpIso5;
+   std::vector<float> pfpIso1_;
+   std::vector<float> pfpIso2_;
+   std::vector<float> pfpIso3_;
+   std::vector<float> pfpIso4_;
+   std::vector<float> pfpIso5_;
 
-   std::vector<float> pfnIso1;
-   std::vector<float> pfnIso2;
-   std::vector<float> pfnIso3;
-   std::vector<float> pfnIso4;
-   std::vector<float> pfnIso5;
+   std::vector<float> pfnIso1_;
+   std::vector<float> pfnIso2_;
+   std::vector<float> pfnIso3_;
+   std::vector<float> pfnIso4_;
+   std::vector<float> pfnIso5_;
+
+   std::vector<float> pfpIso1subSC_;
+   std::vector<float> pfpIso2subSC_;
+   std::vector<float> pfpIso3subSC_;
+   std::vector<float> pfpIso4subSC_;
+   std::vector<float> pfpIso5subSC_;
+
+   // photon pf isolation UE-subtracted
+   std::vector<float> pfcIso1subUE_;
+   std::vector<float> pfcIso2subUE_;
+   std::vector<float> pfcIso3subUE_;
+   std::vector<float> pfcIso4subUE_;
+   std::vector<float> pfcIso5subUE_;
+
+   std::vector<float> pfpIso1subUE_;
+   std::vector<float> pfpIso2subUE_;
+   std::vector<float> pfpIso3subUE_;
+   std::vector<float> pfpIso4subUE_;
+   std::vector<float> pfpIso5subUE_;
+
+   std::vector<float> pfnIso1subUE_;
+   std::vector<float> pfnIso2subUE_;
+   std::vector<float> pfnIso3subUE_;
+   std::vector<float> pfnIso4subUE_;
+   std::vector<float> pfnIso5subUE_;
+
+   std::vector<float> pfpIso1subSCsubUE_;
+   std::vector<float> pfpIso2subSCsubUE_;
+   std::vector<float> pfpIso3subSCsubUE_;
+   std::vector<float> pfpIso4subSCsubUE_;
+   std::vector<float> pfpIso5subSCsubUE_;
+
+   // photon pf isolation with pT cut and UE-subtracted
+   std::vector<float> pfcIso1pTgt1p0subUE_;
+   std::vector<float> pfcIso2pTgt1p0subUE_;
+   std::vector<float> pfcIso3pTgt1p0subUE_;
+   std::vector<float> pfcIso4pTgt1p0subUE_;
+   std::vector<float> pfcIso5pTgt1p0subUE_;
+
+   std::vector<float> pfcIso1pTgt2p0subUE_;
+   std::vector<float> pfcIso2pTgt2p0subUE_;
+   std::vector<float> pfcIso3pTgt2p0subUE_;
+   std::vector<float> pfcIso4pTgt2p0subUE_;
+   std::vector<float> pfcIso5pTgt2p0subUE_;
+
+   // remove if deemed useless
+   std::vector<float> pfcIso1pTgt3p0subUE_;
+   std::vector<float> pfcIso2pTgt3p0subUE_;
+   std::vector<float> pfcIso3pTgt3p0subUE_;
+   std::vector<float> pfcIso4pTgt3p0subUE_;
+   std::vector<float> pfcIso5pTgt3p0subUE_;
+   // remove if deemed useless - END
+
+   // photon pf isolation UE-subtracted and cone excluded
+   std::vector<float> pfcIso2subUEec_;
+   std::vector<float> pfcIso3subUEec_;
+   std::vector<float> pfcIso4subUEec_;
+
+   std::vector<float> pfpIso2subUEec_;
+   std::vector<float> pfpIso3subUEec_;
+   std::vector<float> pfpIso4subUEec_;
+
+   std::vector<float> pfnIso2subUEec_;
+   std::vector<float> pfnIso3subUEec_;
+   std::vector<float> pfnIso4subUEec_;
+
+   std::vector<float> pfcIso2pTgt2p0subUEec_;
+   std::vector<float> pfcIso3pTgt2p0subUEec_;
+   std::vector<float> pfcIso4pTgt2p0subUEec_;
 
    // reco::Muon
    Int_t          nMu_;
@@ -353,11 +519,28 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    std::vector<int>    muCharge_;
    std::vector<int>    muType_;
    std::vector<int>    muIsGood_;
+   
+   std::vector<int>    muIsGlobal_;
+   std::vector<int>    muIsTracker_;
+   std::vector<int>    muIsPF_;
+   std::vector<int>    muIsSTA_;
+
    std::vector<float>  muD0_;
    std::vector<float>  muDz_;
+   std::vector<float>  muIP3D_;
+   std::vector<float>  muD0Err_;
+   std::vector<float>  muDzErr_;
+   std::vector<float>  muIP3DErr_;
    std::vector<float>  muChi2NDF_;
    std::vector<float>  muInnerD0_;
    std::vector<float>  muInnerDz_;
+
+   std::vector<float>  muInnerD0Err_;
+   std::vector<float>  muInnerDzErr_;
+   std::vector<float>  muInnerPt_;
+   std::vector<float>  muInnerPtErr_;
+   std::vector<float>  muInnerEta_;
+
    std::vector<int>    muTrkLayers_;
    std::vector<int>    muPixelLayers_;
    std::vector<int>    muPixelHits_;
@@ -369,6 +552,15 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    std::vector<float>  muPFPhoIso_;
    std::vector<float>  muPFNeuIso_;
    std::vector<float>  muPFPUIso_;
+   //https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideMuonIdRun2#Muon_selectors_Since_9_4_X
+   std::vector<int>    muIDSoft_;
+   std::vector<int>    muIDLoose_;
+   std::vector<int>    muIDMedium_;
+   std::vector<int>    muIDMediumPrompt_;
+   std::vector<int>    muIDTight_;
+   std::vector<int>    muIDGlobalHighPt_;
+   std::vector<int>    muIDTrkHighPt_;
+   std::vector<int>    muIDInTime_;
 };
 
 #endif
