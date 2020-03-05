@@ -75,6 +75,7 @@ private:
   
   vector<int>   *generalTrackCharge     = nullptr;
   vector<float> *generalTrackPt         = nullptr;
+  vector<float> *generalTrackP          = nullptr;
   vector<float> *generalTrackEta        = nullptr;
   vector<float> *generalTrackPhi        = nullptr;
   vector<int>   *generalTrackValidHits  = nullptr;

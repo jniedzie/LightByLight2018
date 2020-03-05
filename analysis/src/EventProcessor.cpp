@@ -66,6 +66,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   
   eventTree->SetBranchAddress("nTrk"                  , &nPhysObjects.at(kGeneralTrack));
   eventTree->SetBranchAddress("trkPt"                 , &generalTrackPt);
+  eventTree->SetBranchAddress("trkP"                  , &generalTrackP);
   eventTree->SetBranchAddress("trkEta"                , &generalTrackEta);
   eventTree->SetBranchAddress("trkPhi"                , &generalTrackPhi);
   eventTree->SetBranchAddress("trkcharge"             , &generalTrackCharge);
@@ -244,6 +245,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     
     track->charge       = generalTrackCharge->at(iTrack);
     track->pt           = generalTrackPt->at(iTrack);
+    track->p            = generalTrackP->at(iTrack);
     track->eta          = generalTrackEta->at(iTrack);
     track->phi          = generalTrackPhi->at(iTrack);
     track->nValidHits   = generalTrackValidHits->at(iTrack);

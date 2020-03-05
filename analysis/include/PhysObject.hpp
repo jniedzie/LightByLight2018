@@ -22,10 +22,11 @@ public:
   ~PhysObject();
   
   // Trivial getters:
-  double GetEta() const;
-  double GetPhi() const;
-  double GetEt()  const;
-  double GetPt()  const;
+  double GetEta()       const;
+  double GetPhi()       const;
+  double GetEt()        const;
+  double GetPt()        const;
+  double GetMomentum()  const;
   
   double GetEtaSC()     const;
   double GetEtSC()      const;
@@ -87,6 +88,7 @@ private:
   
   double et;        ///< Transverse energy
   double pt;        ///< Transverse momentum
+  double p;         ///< Momentum
   
   double energyHad; ///< Energy in hadronic part of calo
   double energyEm;  ///< Energy in EM part of calo
