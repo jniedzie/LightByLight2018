@@ -104,6 +104,7 @@ bool PhysObjectProcessor::IsInCrackOrHEM(const PhysObject &a)
   if(fabs(a.GetEta()) > config.params("ecalCrackMin") && fabs(a.GetEta()) < config.params("ecalCrackMax")) return true;
   
   if(a.GetEta() < -minEtaEE &&
+     a.GetEta() > -maxEtaEE &&
      a.GetPhi() > config.params("ecalHEMmin") &&
      a.GetPhi() < config.params("ecalHEMmax")) return true;
   

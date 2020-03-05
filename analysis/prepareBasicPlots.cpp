@@ -217,33 +217,44 @@ void fillNoiseHists(Event &event, const map<string, TH1D*> &hists, string datase
   PhysObjects towers = event.GetPhysObjects(kCaloTower);
   
   for(auto tower : towers){
-    double eta = fabs(tower->GetEta());
+    if(physObjectProcessor.IsInCrackOrHEM(*tower)) continue;
     
-    if(eta < maxEtaEB){
-      if(!leadingFilled[kEB]){
-        hists.at(sample+"_EB_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyEm());
-        leadingFilled[kEB] = true;
+    ECaloType subdetHad = tower->GetTowerSubdetHad();
+    ECaloType subdetEm = tower->GetTowerSubdetEm();
+    
+    if(subdetEm==kEB){
+      if(   !event.IsOverlappingWithGoodPhoton(*tower)
+         && !event.IsOverlappingWithGoodElectron(*tower)){
+        if(!leadingFilled[kEB]){
+          hists.at(sample+"_EB_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyEm());
+          leadingFilled[kEB] = true;
+        }
       }
     }
-    if(eta > minEtaEE && eta < maxEtaEE){
-      if(!leadingFilled[kEE]){
-        hists.at(sample+"_EE_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyEm());
-        leadingFilled[kEE] = true;
+    if(subdetEm==kEE){
+      if(fabs(tower->GetEta()) < config.params("maxEtaEEtower")){
+        if(   !event.IsOverlappingWithGoodPhoton(*tower)
+           && !event.IsOverlappingWithGoodElectron(*tower)){
+          if(!leadingFilled[kEE]){
+            hists.at(sample+"_EE_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyEm());
+            leadingFilled[kEE] = true;
+          }
+        }
       }
     }
-    if(eta < maxEtaHB){
+    if(subdetHad==kHB){
       if(!leadingFilled[kHB]){
         hists.at(sample+"_HB_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyHad());
         leadingFilled[kHB] = true;
       }
     }
-    if(eta > minEtaHE && eta < maxEtaHE){
+    if(subdetHad==kHE){
       if(!leadingFilled[kHE]){
         hists.at(sample+"_HE_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyHad());
         leadingFilled[kHE] = true;
       }
     }
-    if(tower->GetEta() > minEtaHF && tower->GetEta() < maxEtaHF){
+    if(subdetHad==kHFp){
       hists.at(sample+"_HFp_"+suffix+datasetName)->Fill(tower->GetEnergy());
       
       if(!leadingFilled[kHFp]){
@@ -251,7 +262,7 @@ void fillNoiseHists(Event &event, const map<string, TH1D*> &hists, string datase
         leadingFilled[kHFp] = true;
       }
     }
-    if(tower->GetEta() > -maxEtaHF && tower->GetEta() < -minEtaHF){
+    if(subdetHad==kHFm){
       hists.at(sample+"_HFm_"+suffix+datasetName)->Fill(tower->GetEnergy());
       if(!leadingFilled[kHFm]){
         hists.at(sample+"_HFm_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergy());
