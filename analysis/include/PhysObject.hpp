@@ -46,6 +46,8 @@ public:
   double GetDz()            const;
   double GetDxyErr()        const;
   double GetDzErr()         const;
+  double GetXYdistanceFromBeamSpot(EDataset dataset) const;
+  double GetZdistanceFromBeamSpot(EDataset dataset)  const;
   double GetVertexX()       const;
   double GetVertexY()       const;
   double GetVertexZ()       const;
@@ -70,6 +72,8 @@ public:
   /// Returns calo sub-det
   ECaloType GetTowerSubdetHad() const;
   ECaloType GetTowerSubdetEm()  const;
+  
+  bool IsConverted() const;
   
 private:
   double eta;       ///< Pseudorapidity
@@ -114,6 +118,8 @@ private:
   
   double relIsoWithEA;  ///< Relative isolation
   double dEtaSeed;      ///< Seed Δη
+  
+  bool hasConversionTracks; ///< Is it a converted photon
   
   friend class EventProcessor;
   friend class PhysObjectProcessor;

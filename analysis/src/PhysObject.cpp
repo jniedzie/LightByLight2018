@@ -48,7 +48,9 @@ photonIso(-9999),
 neutralIso(-9999),
 
 relIsoWithEA(-9999),
-dEtaSeed(-9999)
+dEtaSeed(-9999),
+
+hasConversionTracks(false)
 {
   
 }
@@ -188,6 +190,20 @@ double PhysObject::GetDzErr() const
   return dzErr;
 }
 
+double PhysObject::GetXYdistanceFromBeamSpot(EDataset dataset) const
+{
+  if(vx < -999 || vy < -999) cout<<"WARNING - carefull, vx or vy probably not set"<<endl;
+  auto [bs_x, bs_y, bs_z] = GetBeamSpot(dataset);
+  return sqrt(pow(bs_x - vx, 2) + pow(bs_y - vy, 2));
+}
+
+double PhysObject::GetZdistanceFromBeamSpot(EDataset dataset) const
+{
+  if(vz < -999) cout<<"WARNING - carefull, vz probably not set"<<endl;
+  auto [bs_x, bs_y, bs_z] = GetBeamSpot(dataset);
+  return fabs(bs_z - vz);
+}
+
 double PhysObject::GetVertexX() const
 {
   if(vx < -999) cout<<"WARNING - carefull, vx probably not set"<<endl;
@@ -306,4 +322,9 @@ double PhysObject::GetNeutralIso() const
 {
   if(neutralIso < 0) cout<<"WARNING - carefull, neutralIso probably not set"<<endl;
   return neutralIso;
+}
+
+bool PhysObject::IsConverted() const
+{
+  return hasConversionTracks;
 }

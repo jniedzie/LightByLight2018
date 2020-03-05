@@ -3,6 +3,9 @@
 # Type: Data
 # Input: AOD
 
+# keep disabled by default until fully commissioned
+cleanJets = False
+
 import FWCore.ParameterSet.Config as cms
 process = cms.Process('HiForest')
 
@@ -26,13 +29,14 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
     fileNames = cms.untracked.vstring(
-        "file:/afs/cern.ch/work/r/rbi/public/forest/step2_t0streamer_RAW2DIGI_L1Reco_RECO.root"
-        ),
+        #"file:/afs/cern.ch/work/r/rbi/public/forest/HIHardProbes_HIRun2018A-PromptReco-v2_AOD.root"
+        "file:/afs/cern.ch/work/r/rchudasa/private/CMSSW_10_3_4/src/step3_RAW2DIGI_L1Reco_RECO.root"
+),
     )
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(-1)
     )
 
 ###############################################################################
@@ -46,7 +50,9 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '103X_dataRun2_Prompt_v2', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, '103X_dataRun2_Prompt_v2', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, '103X_dataRun2_Prompt_fixEcalADCToGeV_v1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '103X_dataRun2_Prompt_LowPtPhotonReg_v1', '')
 process.HiForest.GlobalTagLabel = process.GlobalTag.globaltag
 
 print('\n\033[31m~*~ USING CENTRALITY TABLE FOR PbPb 2018 DATA ~*~\033[0m\n')
@@ -59,9 +65,6 @@ process.GlobalTag.toGet.extend([
         ),
     ])
 
-from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_PbPb5020
-process = overrideJEC_PbPb5020(process)
-
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")
 process.centralityBin.centralityVariable = cms.string("HFtowers")
@@ -71,7 +74,7 @@ process.centralityBin.centralityVariable = cms.string("HFtowers")
 ###############################################################################
 
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string("HiForestAOD.root"))
+    fileName = cms.string("HiForestAOD_lbyl_reco.root"))
 
 ###############################################################################
 # Additional Reconstruction and Analysis: Main Body
@@ -82,18 +85,13 @@ process.TFileService = cms.Service("TFileService",
 #############################
 # jet reco sequence
 process.load('HeavyIonsAnalysis.JetAnalysis.fullJetSequence_pponAA_data_cff')
-# replace above with this one for JEC:
-# process.load('HeavyIonsAnalysis.JetAnalysis.fullJetSequence_JEC_cff')
-
-# temporary
-process.akPu4Calocorr.payload = "AK4Calo"
-process.akPu4PFcorr.payload = "AK4PF"
-process.akCs4PFcorr.payload = "AK4PF"
-process.akPu4PFJets.jetPtMin = 1
 
 process.load('HeavyIonsAnalysis.JetAnalysis.hiFJRhoAnalyzer_cff')
 process.load("HeavyIonsAnalysis.JetAnalysis.pfcandAnalyzer_cfi")
 process.pfcandAnalyzer.doTrackMatching  = cms.bool(True)
+
+from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_DATA_PbPb5020_2018
+process = overrideJEC_DATA_PbPb5020_2018(process)
 
 ###############################################################################
 
@@ -105,6 +103,9 @@ process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cfi')
 process.load('HeavyIonsAnalysis.EventAnalysis.skimanalysis_cfi')
 process.load('HeavyIonsAnalysis.EventAnalysis.hltobject_cfi')
 process.load('HeavyIonsAnalysis.EventAnalysis.l1object_cfi')
+
+from HeavyIonsAnalysis.EventAnalysis.hltobject_cfi import trigger_list_data
+process.hltobject.triggerNames = trigger_list_data
 
 ###############################################################################
 
@@ -122,9 +123,14 @@ process.load('HeavyIonsAnalysis.TrackAnalysis.TrkAnalyzers_cff')
 #####################
 # Photons
 #####################
+SSHIRun2018A = "HeavyIonsAnalysis/PhotonAnalysis/data/SSHIRun2018A.dat"
+process.load('HeavyIonsAnalysis.PhotonAnalysis.correctedElectronProducer_cfi')
+process.correctedElectrons.correctionFile = SSHIRun2018A
+
 process.load('HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi')
 process.ggHiNtuplizer.doGenParticles = False
-process.ggHiNtuplizerGED.doGenParticles = False
+#process.ggHiNtuplizerGED.doGenParticles = False
+#process.ggHiNtuplizerGED.gsfElectronLabel = "correctedElectrons"
 
 ###############################################################################
 
@@ -149,7 +155,7 @@ process.akPu4CaloCombinedSecondaryVertexV2BJetTags.tagInfos = cms.VInputTag(
 
 # trained on CS jets
 process.CSVscikitTags.weightFile = cms.FileInPath(
-    'HeavyIonsAnalysis/JetAnalysis/data/TMVA_Btag_CsJets_PbPb_BDTG.weights.xml')
+    'HeavyIonsAnalysis/JetAnalysis/data/TMVA_Btag_CsJets_PbPb2018_BDTG.weights.xml')
 
 ###############################################################################
 
@@ -170,6 +176,11 @@ process.pfTowerspp.doHF = False
 #https://twiki.cern.ch/twiki/bin/view/CMS/HITracking2018PbPb#Peripheral%20Vertex%20Recovery
 process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesRecovery_cfi")
 
+# clean bad PF candidates
+if cleanJets:
+    process.load("RecoHI.HiJetAlgos.HiBadParticleFilter_cfi")
+    process.pfBadCandAnalyzer = process.pfcandAnalyzer.clone(pfCandidateLabel = cms.InputTag("filteredParticleFlow","cleaned"))
+    process.pfFilter = cms.Path(process.filteredParticleFlow + process.pfBadCandAnalyzer)
 
 #########################
 # Main analysis list
@@ -177,18 +188,21 @@ process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesRecovery_cf
 
 process.ana_step = cms.Path(
     process.offlinePrimaryVerticesRecovery +
-    process.HiForest +
+    #process.HiForest +
     process.hltanalysis +
     process.hltobject +
-    #process.l1object +
-    process.centralityBin +
-    process.hiEvtAnalyzer +
-    process.jetSequence +
+    process.l1object +
+    #process.centralityBin +
+    #process.hiEvtAnalyzer +
+    #process.jetSequence +
+    #process.hiPuRhoR3Analyzer + 
+    #process.correctedElectrons +
     process.ggHiNtuplizer +
-    process.ggHiNtuplizerGED +
-    process.hiFJRhoAnalyzer +
-    process.pfcandAnalyzer +
-    process.pfcandAnalyzerCS +
+    #process.ggHiNtuplizerGED +
+    #process.hiFJRhoAnalyzer +
+    #process.hiFJRhoAnalyzerFinerBins +
+    #process.pfcandAnalyzer +
+    #process.pfcandAnalyzerCS +
     process.trackSequencesPP +
     process.zdcdigi +
     process.QWzdcreco +
@@ -214,7 +228,7 @@ process.ana_step = cms.Path(
 #########################
 # Event Selection
 #########################
-
+'''
 process.load('HeavyIonsAnalysis.Configuration.collisionEventSelection_cff')
 process.pclusterCompatibilityFilter = cms.Path(process.clusterCompatibilityFilter)
 process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter)
@@ -253,10 +267,15 @@ process.HBHENoiseFilterResultRun2Tight = cms.Path(process.fHBHENoiseFilterResult
 process.HBHEIsoNoiseFilterResult = cms.Path(process.fHBHEIsoNoiseFilterResult)
 
 process.pAna = cms.EndPath(process.skimanalysis)
-
+'''
 from HLTrigger.Configuration.CustomConfigs import MassReplaceInputTag
 process = MassReplaceInputTag(process,"offlinePrimaryVertices","offlinePrimaryVerticesRecovery")
 process.offlinePrimaryVerticesRecovery.oldVertexLabel = "offlinePrimaryVertices"
+
+if cleanJets == True:
+    from HLTrigger.Configuration.CustomConfigs import MassReplaceInputTag
+    process = MassReplaceInputTag(process,"particleFlow","filteredParticleFlow")                                                                                                               
+    process.filteredParticleFlow.PFCandidates  = "particleFlow"
 
 ###############################################################################
 

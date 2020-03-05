@@ -31,68 +31,69 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   for(int iTrigger=0; iTrigger<triggerNamesLbL.size(); iTrigger++){
     hltTree->SetBranchAddress(triggerNamesLbL[iTrigger].c_str(), &triggersLbL[iTrigger]);
   }
-  eventTree->SetBranchAddress("nMC"   , &nPhysObjects.at(kGenParticle));
-  eventTree->SetBranchAddress("mcEta" , &mcEta);
-  eventTree->SetBranchAddress("mcPhi" , &mcPhi);
-  eventTree->SetBranchAddress("mcEt"  , &mcEt);
-  eventTree->SetBranchAddress("mcPID" , &mcPID);
+  eventTree->SetBranchAddress("nMC"                   , &nPhysObjects.at(kGenParticle));
+  eventTree->SetBranchAddress("mcEta"                 , &mcEta);
+  eventTree->SetBranchAddress("mcPhi"                 , &mcPhi);
+  eventTree->SetBranchAddress("mcEt"                  , &mcEt);
+  eventTree->SetBranchAddress("mcPID"                 , &mcPID);
   
-  eventTree->SetBranchAddress("nPho"              , &nPhysObjects.at(kPhoton));
-  eventTree->SetBranchAddress("phoHoverE"         , &photonHoverE);
+  eventTree->SetBranchAddress("nPho"                  , &nPhysObjects.at(kPhoton));
+  eventTree->SetBranchAddress("phoHoverE"             , &photonHoverE);
   
-  eventTree->SetBranchAddress("phoSCEta"          , &photonSCEta);
-  eventTree->SetBranchAddress("phoSCPhi"          , &photonSCPhi);
-  eventTree->SetBranchAddress("phoSCEt"           , &photonSCEt);
-  eventTree->SetBranchAddress("phoSCE"            , &photonSCE);
-  eventTree->SetBranchAddress("phoSCEtaWidth"     , &photonSCEtaWidth);
-//  eventTree->SetBranchAddress("phoSigmaIEtaIEta"  , &photonSCEtaWidth);
-  eventTree->SetBranchAddress("phoSCPhiWidth"     , &photonSCPhiWidth);
+  eventTree->SetBranchAddress("phoSCEta"              , &photonSCEta);
+  eventTree->SetBranchAddress("phoSCPhi"              , &photonSCPhi);
+  eventTree->SetBranchAddress("phoSCEt"               , &photonSCEt);
+  eventTree->SetBranchAddress("phoSCE"                , &photonSCE);
+  eventTree->SetBranchAddress("phoSCEtaWidth"         , &photonSCEtaWidth);
+//  eventTree->SetBranchAddress("phoSigmaIEtaIEta"      , &photonSCEtaWidth);
+  eventTree->SetBranchAddress("phoSCPhiWidth"         , &photonSCPhiWidth);
   
-  eventTree->SetBranchAddress("phoMaxEnergyXtal"  , &photonEmax);
-  eventTree->SetBranchAddress("phoETop"           , &photonEtop);
-  eventTree->SetBranchAddress("phoEBottom"        , &photonEbottom);
-  eventTree->SetBranchAddress("phoELeft"          , &photonEleft);
-  eventTree->SetBranchAddress("phoERight"         , &photonEright);
+  eventTree->SetBranchAddress("phoMaxEnergyXtal"      , &photonEmax);
+  eventTree->SetBranchAddress("phoETop"               , &photonEtop);
+  eventTree->SetBranchAddress("phoEBottom"            , &photonEbottom);
+  eventTree->SetBranchAddress("phoELeft"              , &photonEleft);
+  eventTree->SetBranchAddress("phoERight"             , &photonEright);
+  eventTree->SetBranchAddress("phoHasConversionTracks", &photonIsConverted);
   
-  eventTree->SetBranchAddress("nTower"            , &nPhysObjects.at(kCaloTower));
-  eventTree->SetBranchAddress("CaloTower_hadE"    , &towerEnergyHad);
-  eventTree->SetBranchAddress("CaloTower_emE"     , &towerEnergyEm);
-  eventTree->SetBranchAddress("CaloTower_e"       , &towerEnergy);
-  eventTree->SetBranchAddress("CaloTower_et"      , &towerEt);
-  eventTree->SetBranchAddress("CaloTower_eta"     , &towerEta);
-  eventTree->SetBranchAddress("CaloTower_phi"     , &towerPhi);
+  eventTree->SetBranchAddress("nTower"                , &nPhysObjects.at(kCaloTower));
+  eventTree->SetBranchAddress("CaloTower_hadE"        , &towerEnergyHad);
+  eventTree->SetBranchAddress("CaloTower_emE"         , &towerEnergyEm);
+  eventTree->SetBranchAddress("CaloTower_e"           , &towerEnergy);
+  eventTree->SetBranchAddress("CaloTower_et"          , &towerEt);
+  eventTree->SetBranchAddress("CaloTower_eta"         , &towerEta);
+  eventTree->SetBranchAddress("CaloTower_phi"         , &towerPhi);
   
-  eventTree->SetBranchAddress("nTrk"              , &nPhysObjects.at(kGeneralTrack));
-  eventTree->SetBranchAddress("trkPt"             , &generalTrackPt);
-  eventTree->SetBranchAddress("trkEta"            , &generalTrackEta);
-  eventTree->SetBranchAddress("trkPhi"            , &generalTrackPhi);
-  eventTree->SetBranchAddress("trkcharge"         , &generalTrackCharge);
-  eventTree->SetBranchAddress("trkValidHits"      , &generalTrackValidHits);
-  eventTree->SetBranchAddress("trkMissHits"       , &generalTrackMissingHits);
+  eventTree->SetBranchAddress("nTrk"                  , &nPhysObjects.at(kGeneralTrack));
+  eventTree->SetBranchAddress("trkPt"                 , &generalTrackPt);
+  eventTree->SetBranchAddress("trkEta"                , &generalTrackEta);
+  eventTree->SetBranchAddress("trkPhi"                , &generalTrackPhi);
+  eventTree->SetBranchAddress("trkcharge"             , &generalTrackCharge);
+  eventTree->SetBranchAddress("trkValidHits"          , &generalTrackValidHits);
+  eventTree->SetBranchAddress("trkMissHits"           , &generalTrackMissingHits);
   
-  eventTree->SetBranchAddress("trkPurity"         , &generalTrackPurity);
-  eventTree->SetBranchAddress("trknormchi2"       , &generalTrackChi2);
-  eventTree->SetBranchAddress("trkdxy"            , &generalTrackDxy);
-  eventTree->SetBranchAddress("trkdz"             , &generalTrackDz);
-  eventTree->SetBranchAddress("trkdxyError"       , &generalTrackDxyErr);
-  eventTree->SetBranchAddress("trkdzError"        , &generalTrackDzErr);
-  eventTree->SetBranchAddress("trkvx"             , &generalTrackVertexX);
-  eventTree->SetBranchAddress("trkvy"             , &generalTrackVertexY);
-  eventTree->SetBranchAddress("trkvz"             , &generalTrackVertexZ);
+  eventTree->SetBranchAddress("trkPurity"             , &generalTrackPurity);
+  eventTree->SetBranchAddress("trknormchi2"           , &generalTrackChi2);
+  eventTree->SetBranchAddress("trkdxy"                , &generalTrackDxy);
+  eventTree->SetBranchAddress("trkdz"                 , &generalTrackDz);
+  eventTree->SetBranchAddress("trkdxyError"           , &generalTrackDxyErr);
+  eventTree->SetBranchAddress("trkdzError"            , &generalTrackDzErr);
+  eventTree->SetBranchAddress("trkvx"                 , &generalTrackVertexX);
+  eventTree->SetBranchAddress("trkvy"                 , &generalTrackVertexY);
+  eventTree->SetBranchAddress("trkvz"                 , &generalTrackVertexZ);
   
-  eventTree->SetBranchAddress("nEle"              , &nPhysObjects.at(kElectron));
-  eventTree->SetBranchAddress("eleCharge"         , &electronCharge);
-  eventTree->SetBranchAddress("eleMissHits"       , &electronNmissing);
-  eventTree->SetBranchAddress("elePt"             , &electronPt);
-  eventTree->SetBranchAddress("eleEta"            , &electronEta);
-  eventTree->SetBranchAddress("elePhi"            , &electronPhi);
-  eventTree->SetBranchAddress("eleHoverE"         , &electronHoverE);
-  eventTree->SetBranchAddress("elePFRelIsoWithEA" , &electronRelIsoWithEA);
-  eventTree->SetBranchAddress("eledEtaAtVtx"      , &electronDetaSeed);
-  eventTree->SetBranchAddress("eleSCEta"          , &electronSCEta);
-//  eventTree->SetBranchAddress("eleSCEt"           , &electronSCEt);
-  eventTree->SetBranchAddress("eleSCPhi"          , &electronSCPhi);
-  eventTree->SetBranchAddress("eleSCEn"           , &electronSCEn);
+  eventTree->SetBranchAddress("nEle"                  , &nPhysObjects.at(kElectron));
+  eventTree->SetBranchAddress("eleCharge"             , &electronCharge);
+  eventTree->SetBranchAddress("eleMissHits"           , &electronNmissing);
+  eventTree->SetBranchAddress("elePt"                 , &electronPt);
+  eventTree->SetBranchAddress("eleEta"                , &electronEta);
+  eventTree->SetBranchAddress("elePhi"                , &electronPhi);
+  eventTree->SetBranchAddress("eleHoverE"             , &electronHoverE);
+  eventTree->SetBranchAddress("elePFRelIsoWithEA"     , &electronRelIsoWithEA);
+  eventTree->SetBranchAddress("eledEtaAtVtx"          , &electronDetaSeed);
+  eventTree->SetBranchAddress("eleSCEta"              , &electronSCEta);
+//  eventTree->SetBranchAddress("eleSCEt"               , &electronSCEt);
+  eventTree->SetBranchAddress("eleSCPhi"              , &electronSCPhi);
+  eventTree->SetBranchAddress("eleSCEn"               , &electronSCEn);
   
   eventTree->SetBranchAddress("elePFChIso"        , &electronChIso);
   eventTree->SetBranchAddress("elePFPhoIso"       , &electronPhoIso);
@@ -115,12 +116,11 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   eventTree->SetBranchAddress("muPFChIso"        , &muonChIso);
   eventTree->SetBranchAddress("muPFPhoIso"       , &muonPhoIso);
   eventTree->SetBranchAddress("muPFNeuIso"       , &muonNeuIso);
-
   
-  l1Tree->SetBranchAddress("nEGs"                 , &nL1EGs);
-  l1Tree->SetBranchAddress("egEta"                , &L1EGeta);
-  l1Tree->SetBranchAddress("egPhi"                , &L1EGphi);
-  l1Tree->SetBranchAddress("egEt"                 , &L1EGet);
+  l1Tree->SetBranchAddress("nEGs"                     , &nL1EGs);
+  l1Tree->SetBranchAddress("egEta"                    , &L1EGeta);
+  l1Tree->SetBranchAddress("egPhi"                    , &L1EGphi);
+  l1Tree->SetBranchAddress("egEt"                     , &L1EGet);
 }
 
 void EventProcessor::SetupOutputTree(string outFileName)
@@ -212,6 +212,8 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     if(photonEbottom) photon->energyBottom = photonEbottom->at(iPhoton);
     if(photonEleft)   photon->energyLeft   = photonEleft->at(iPhoton);
     if(photonEright)  photon->energyRight  = photonEright->at(iPhoton);
+    
+    photon->hasConversionTracks = photonIsConverted->at(iPhoton);
     
     currentEvent->physObjects.at(kPhoton).push_back(photon);
   }

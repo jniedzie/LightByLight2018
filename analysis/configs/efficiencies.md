@@ -41,6 +41,8 @@ diphotonMaxRapidity:               9999999
 diphotonMinMass:                    5.0
 diphotonMaxAco:                     0.01
 
+photonRejectConverted:            1
+
 ### Electron ID cuts:
 electronMinPt:                            2.0
 electronMaxEta:                         2.4

@@ -1,13 +1,24 @@
 
-string inputPath  = "../results/basicPlots_withHFcheck_et3p5GeV.root";
+string inputPath  = "../results/basicPlots_default.root";
 
 vector<tuple<string, string>> histParams = {
-  { "lbl_photon_et"          , "photon E_{t} (GeV)"      },
-  { "lbl_photon_eta"         , "photon #eta"             },
-  { "lbl_photon_phi"         , "photon #phi"             },
-  { "lbl_diphoton_mass"      , "diphoton m_{inv} (GeV)"  },
-  { "lbl_diphoton_rapidity"  , "diphoton rapidity"       },
-  { "lbl_diphoton_pt"        , "diphoton p_{t}"          },
+  { "lbl_photon_et"         , "photon E_{t} (GeV)"      },
+  { "lbl_photon_eta"        , "photon #eta"             },
+  { "lbl_photon_phi"        , "photon #phi"             },
+  { "lbl_diphoton_mass"     , "diphoton m_{inv} (GeV)"  },
+  { "lbl_diphoton_rapidity" , "diphoton rapidity"       },
+  { "lbl_diphoton_pt"       , "diphoton p_{t}"          },
+  
+  { "track_dz"              , "track d_{z} (cm)"        },
+  { "track_dxy"             , "track d_{xy} (cm)"       },
+  { "track_valid_hits"      , "N_{hits}^{valid}"        },
+  { "track_pt"              , "track p_{t}"             },
+  { "track_eta"             , "track #eta"              },
+  { "track_missing_hits"    , "N_{hits}^{missing}"      },
+  { "nTracks"               , "N_{tracks}"              },
+  
+  { "lbl_nee_failing"       , "# failing calo"          },
+  
 };
 
 void compareLowHighAco()
@@ -16,14 +27,14 @@ void compareLowHighAco()
   TFile *inFile = TFile::Open(inputPath.c_str());
   
   TCanvas *canvas = new TCanvas("canvas", "canvas", 2800, 1800);
-  canvas->Divide(3, 2);
+  canvas->Divide(4, 4);
   
   int iCanvas=1;
   
   for(auto &[histName, xAxis] : histParams){
     canvas->cd(iCanvas++);
     
-    TH1D *histLowAco  = (TH1D*)inFile->Get((histName+"_Data").c_str());
+    TH1D *histLowAco  = (TH1D*)inFile->Get((histName+"_low_aco_Data").c_str());
     TH1D *histHighAco = (TH1D*)inFile->Get((histName+"_high_aco_Data").c_str());
     
     if(!histLowAco || !histHighAco){
@@ -49,10 +60,14 @@ void compareLowHighAco()
     histHighAco->DrawNormalized("pe");
     histLowAco->DrawNormalized("pesame");
     
+//    histHighAco->Scale(1./histHighAco->GetBinContent(3)*histLowAco->GetBinContent(3));
+//    histHighAco->Draw("pe");
+//    histLowAco->Draw("pesame");
+    
     if(iCanvas==2){
       TLegend *leg = new TLegend(0.6, 0.7, 0.9, 0.9);
       leg->AddEntry(histLowAco, "A_{#phi} < 0.01", "ep");
-      leg->AddEntry(histHighAco,"A_{#phi} > 0.04", "ep");
+      leg->AddEntry(histHighAco,"A_{#phi} > 0.01", "ep");
       leg->Draw();
     }
     

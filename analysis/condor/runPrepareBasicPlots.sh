@@ -54,6 +54,21 @@ then
   # add pt > 900 MeV requirement on tracks
   configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_tracks+pt900.md"
   suffix="_tracks+pt900"
+elif [ $3 -eq 10 ]
+then
+  # add pt > 200 MeV requirement on tracks
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_tracks+pt200.md"
+  suffix="_tracks+pt200"
+elif [ $3 -eq 11 ]
+then
+  # add pt > 300 MeV requirement on tracks
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_tracks+pt300.md"
+  suffix="_tracks+pt300"
+elif [ $3 -eq 12 ]
+then
+  # add pt > 400 MeV requirement on tracks
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_tracks+pt400.md"
+  suffix="_tracks+pt400"
 fi
 
 # for the data:
