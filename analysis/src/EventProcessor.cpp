@@ -5,7 +5,8 @@
 #include "Helpers.hpp"
 #include "EventProcessor.hpp"
 
-EventProcessor::EventProcessor(string inputPath, vector<string> outputPaths) :
+EventProcessor::EventProcessor(string inputPath, EDataset _dataset, vector<string> outputPaths) :
+dataset(_dataset),
 currentEvent(new Event())
 {
   for(auto type : physObjTypes) nPhysObjects[type] = 0;
@@ -171,6 +172,8 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   l1Tree->GetEntry(iEvent);
   
   currentEvent->Reset();
+  
+  currentEvent->dataset = dataset;
   
   // Fill in collection of gen particles
   

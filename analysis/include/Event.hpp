@@ -77,6 +77,8 @@ private:
   /// Returns noise threshold for given tower in EM calos
   double GetEmThresholdForTower(const PhysObject &tower);
   
+  EDataset dataset;
+  
   friend class EventProcessor;
 };
 

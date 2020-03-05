@@ -302,11 +302,17 @@ PhysObjects Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
     if(fabs(track->GetDxy()) > config.params("trackMaxDxy")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
     
+    if(fabs(track->GetXYdistanceFromBeamSpot(dataset)) > config.params("trackMaxXYdistanceFromBS")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
+    
     if(fabs(track->GetDxy() / track->GetDxyErr()) > config.params("trackMaxDxyOverSigma")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 4
     
     if(fabs(track->GetDz()) > config.params("trackMaxDz")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 5
+    
+    if(fabs(track->GetZdistanceFromBeamSpot(dataset)) > config.params("trackMaxZdistanceFromBS")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
     
     if(fabs(track->GetDz() / track->GetDzErr()) > config.params("trackMaxDzOverSigma")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 6

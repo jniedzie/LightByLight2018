@@ -15,7 +15,7 @@ public:
   /// Default constructor.
   /// \param inputPath Path to the file
   /// \param outputPaths Paths to the output files, in case one wants to save selected events to a new tree(s)
-  EventProcessor(string inputPath, vector<string> outputPaths = {});
+  EventProcessor(string inputPath, EDataset _dataset, vector<string> outputPaths = {});
   
   /// Default destructor
   ~EventProcessor();
@@ -37,6 +37,8 @@ private:
   map<string, TTree*> outEventTree, outHltTree, outL1Tree;  ///< Output trees
   map<string, TDirectory*> dirEvent, dirHLT, dirL1;         ///< Output directories
   map<string, TFile*> outFile;                              ///< Output files
+  
+  EDataset dataset; ///< Dataset type (Data, MC_QED, MC_CEP etc.)
   
   shared_ptr<Event> currentEvent; ///< Pointer to the current event
   

@@ -507,7 +507,7 @@ int main(int argc, char* argv[])
       
       cout<<"Creating "<<name<<" plots"<<endl;
       
-      auto events = make_unique<EventProcessor>(inFileNames.at(dataset));
+      auto events = make_unique<EventProcessor>(inFileNames.at(dataset), dataset);
       
       for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
         if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
@@ -530,20 +530,22 @@ int main(int argc, char* argv[])
     }
   }
   else{
-    auto events = make_unique<EventProcessor>(inputPath);
-    
-    for(string suffix : suffixes){
-      InitializeHistograms(hists, sampleName, suffix);
-    }
-    
     EDataset dataset = nDatasets;
-    
+       
     if(sampleName == "Data")    dataset = kData;
     if(sampleName == "QED_SC")  dataset = kMCqedSC;
     if(sampleName == "QED_SL")  dataset = kMCqedSL;
     if(sampleName == "LbL")     dataset = kMClbl;
     if(sampleName == "CEP")     dataset = kMCcep;
+       
     
+    auto events = make_unique<EventProcessor>(inputPath, dataset);
+    
+    for(string suffix : suffixes){
+      InitializeHistograms(hists, sampleName, suffix);
+    }
+    
+   
     if(dataset == nDatasets){
       cout<<"ERROR -- unknown dataset name provided: "<<sampleName<<endl;
       exit(0);
