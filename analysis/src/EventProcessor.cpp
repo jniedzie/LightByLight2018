@@ -5,7 +5,8 @@
 #include "Helpers.hpp"
 #include "EventProcessor.hpp"
 
-EventProcessor::EventProcessor(string inputPath, vector<string> outputPaths) :
+EventProcessor::EventProcessor(string inputPath, EDataset _dataset, vector<string> outputPaths) :
+dataset(_dataset),
 currentEvent(new Event())
 {
   for(auto type : physObjTypes) nPhysObjects[type] = 0;
@@ -39,7 +40,10 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   
   eventTree->SetBranchAddress("nPho"                  , &nPhysObjects.at(kPhoton));
   eventTree->SetBranchAddress("phoHoverE"             , &photonHoverE);
-  
+  eventTree->SetBranchAddress("phoEta"                , &photonEta);
+  eventTree->SetBranchAddress("phoPhi"                , &photonPhi);
+  eventTree->SetBranchAddress("phoEt"                 , &photonEt);
+  eventTree->SetBranchAddress("phoE"                  , &photonE);
   eventTree->SetBranchAddress("phoSCEta"              , &photonSCEta);
   eventTree->SetBranchAddress("phoSCPhi"              , &photonSCPhi);
   eventTree->SetBranchAddress("phoSCEt"               , &photonSCEt);
@@ -65,6 +69,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   
   eventTree->SetBranchAddress("nTrk"                  , &nPhysObjects.at(kGeneralTrack));
   eventTree->SetBranchAddress("trkPt"                 , &generalTrackPt);
+  eventTree->SetBranchAddress("trkP"                  , &generalTrackP);
   eventTree->SetBranchAddress("trkEta"                , &generalTrackEta);
   eventTree->SetBranchAddress("trkPhi"                , &generalTrackPhi);
   eventTree->SetBranchAddress("trkcharge"             , &generalTrackCharge);
@@ -172,6 +177,8 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   
   currentEvent->Reset();
   
+  currentEvent->dataset = dataset;
+  
   // Fill in collection of gen particles
   
   for(int iTrigger=0; iTrigger<triggerNamesLbL.size(); iTrigger++){
@@ -195,14 +202,14 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     auto photon = make_shared<PhysObject>();
     
     photon->hOverE   = photonHoverE->at(iPhoton);
-    photon->eta      = photonSCEta->at(iPhoton);
+    photon->eta      = photonEta->at(iPhoton);
     photon->etaSC    = photonSCEta->at(iPhoton);
-    photon->phi      = photonSCPhi->at(iPhoton);
+    photon->phi      = photonPhi->at(iPhoton);
     photon->phiSC    = photonSCPhi->at(iPhoton);
-    photon->et       = photonSCEt->at(iPhoton);
+    photon->et       = photonEt->at(iPhoton);
     photon->etSC     = photonSCEt->at(iPhoton);
     photon->pt       = photonSCEt->at(iPhoton);
-    photon->energy   = photonSCE->at(iPhoton);
+    photon->energy   = photonE->at(iPhoton);
     photon->energySC = photonSCE->at(iPhoton);
     photon->etaWidth = photonSCEtaWidth->at(iPhoton);
     photon->phiWidth = photonSCPhiWidth->at(iPhoton);
@@ -224,9 +231,13 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     auto tower = make_shared<PhysObject>();
     
     tower->eta       = towerEta->at(iTower);
+    tower->etaSC     = towerEta->at(iTower);
     tower->phi       = towerPhi->at(iTower);
+    tower->phiSC     = towerPhi->at(iTower);
     tower->energy    = towerEnergy->at(iTower);
+    tower->energySC  = towerEnergy->at(iTower);
     tower->et        = towerEt->at(iTower);
+    tower->etSC      = towerEt->at(iTower);
     tower->energyHad = towerEnergyHad->at(iTower);
     
     tower->energyEm  = towerEnergyEm->at(iTower);
@@ -241,6 +252,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     
     track->charge       = generalTrackCharge->at(iTrack);
     track->pt           = generalTrackPt->at(iTrack);
+    track->p            = generalTrackP->at(iTrack);
     track->eta          = generalTrackEta->at(iTrack);
     track->phi          = generalTrackPhi->at(iTrack);
     track->nValidHits   = generalTrackValidHits->at(iTrack);

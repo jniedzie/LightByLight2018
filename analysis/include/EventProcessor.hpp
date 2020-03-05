@@ -15,7 +15,7 @@ public:
   /// Default constructor.
   /// \param inputPath Path to the file
   /// \param outputPaths Paths to the output files, in case one wants to save selected events to a new tree(s)
-  EventProcessor(string inputPath, vector<string> outputPaths = {});
+  EventProcessor(string inputPath, EDataset _dataset, vector<string> outputPaths = {});
   
   /// Default destructor
   ~EventProcessor();
@@ -38,6 +38,8 @@ private:
   map<string, TDirectory*> dirEvent, dirHLT, dirL1;         ///< Output directories
   map<string, TFile*> outFile;                              ///< Output files
   
+  EDataset dataset; ///< Dataset type (Data, MC_QED, MC_CEP etc.)
+  
   shared_ptr<Event> currentEvent; ///< Pointer to the current event
   
   // Handles to variables stored in ntuple trees
@@ -50,6 +52,10 @@ private:
   vector<float> *mcPID                  = nullptr;
   
   vector<float> *photonHoverE           = nullptr;
+  vector<float> *photonEta              = nullptr;
+  vector<float> *photonPhi              = nullptr;
+  vector<float> *photonEt               = nullptr;
+  vector<float> *photonE                = nullptr;
   vector<float> *photonSCEta            = nullptr;
   vector<float> *photonSCPhi            = nullptr;
   vector<float> *photonSCEt             = nullptr;
@@ -73,6 +79,7 @@ private:
   
   vector<int>   *generalTrackCharge     = nullptr;
   vector<float> *generalTrackPt         = nullptr;
+  vector<float> *generalTrackP          = nullptr;
   vector<float> *generalTrackEta        = nullptr;
   vector<float> *generalTrackPhi        = nullptr;
   vector<int>   *generalTrackValidHits  = nullptr;

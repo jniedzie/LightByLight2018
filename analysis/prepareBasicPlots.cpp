@@ -217,33 +217,43 @@ void fillNoiseHists(Event &event, const map<string, TH1D*> &hists, string datase
   PhysObjects towers = event.GetPhysObjects(kCaloTower);
   
   for(auto tower : towers){
-    double eta = fabs(tower->GetEta());
     
-    if(eta < maxEtaEB){
-      if(!leadingFilled[kEB]){
-        hists.at(sample+"_EB_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyEm());
-        leadingFilled[kEB] = true;
+    ECaloType subdetHad = tower->GetTowerSubdetHad();
+    ECaloType subdetEm = tower->GetTowerSubdetEm();
+    
+    if(subdetEm==kEB){
+      if(   !event.IsOverlappingWithGoodPhoton(*tower)
+         && !event.IsOverlappingWithGoodElectron(*tower)){
+        if(!leadingFilled[kEB]){
+          hists.at(sample+"_EB_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyEm());
+          leadingFilled[kEB] = true;
+        }
       }
     }
-    if(eta > minEtaEE && eta < maxEtaEE){
-      if(!leadingFilled[kEE]){
-        hists.at(sample+"_EE_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyEm());
-        leadingFilled[kEE] = true;
+    if(subdetEm==kEE){
+      if(fabs(tower->GetEta()) < config.params("maxEtaEEtower")
+         && !event.IsOverlappingWithGoodPhoton(*tower)
+         && !event.IsOverlappingWithGoodElectron(*tower)
+         && !physObjectProcessor.IsInHEM(*tower)){
+        if(!leadingFilled[kEE]){
+          hists.at(sample+"_EE_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyEm());
+          leadingFilled[kEE] = true;
+        }
       }
     }
-    if(eta < maxEtaHB){
+    if(subdetHad==kHB){
       if(!leadingFilled[kHB]){
         hists.at(sample+"_HB_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyHad());
         leadingFilled[kHB] = true;
       }
     }
-    if(eta > minEtaHE && eta < maxEtaHE){
+    if(subdetHad==kHE){
       if(!leadingFilled[kHE]){
         hists.at(sample+"_HE_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergyHad());
         leadingFilled[kHE] = true;
       }
     }
-    if(tower->GetEta() > minEtaHF && tower->GetEta() < maxEtaHF){
+    if(subdetHad==kHFp){
       hists.at(sample+"_HFp_"+suffix+datasetName)->Fill(tower->GetEnergy());
       
       if(!leadingFilled[kHFp]){
@@ -251,7 +261,7 @@ void fillNoiseHists(Event &event, const map<string, TH1D*> &hists, string datase
         leadingFilled[kHFp] = true;
       }
     }
-    if(tower->GetEta() > -maxEtaHF && tower->GetEta() < -minEtaHF){
+    if(subdetHad==kHFm){
       hists.at(sample+"_HFm_"+suffix+datasetName)->Fill(tower->GetEnergy());
       if(!leadingFilled[kHFm]){
         hists.at(sample+"_HFm_leading_tower_"+suffix+datasetName)->Fill(tower->GetEnergy());
@@ -507,7 +517,7 @@ int main(int argc, char* argv[])
       
       cout<<"Creating "<<name<<" plots"<<endl;
       
-      auto events = make_unique<EventProcessor>(inFileNames.at(dataset));
+      auto events = make_unique<EventProcessor>(inFileNames.at(dataset), dataset);
       
       for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
         if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
@@ -530,20 +540,22 @@ int main(int argc, char* argv[])
     }
   }
   else{
-    auto events = make_unique<EventProcessor>(inputPath);
-    
-    for(string suffix : suffixes){
-      InitializeHistograms(hists, sampleName, suffix);
-    }
-    
     EDataset dataset = nDatasets;
-    
+       
     if(sampleName == "Data")    dataset = kData;
     if(sampleName == "QED_SC")  dataset = kMCqedSC;
     if(sampleName == "QED_SL")  dataset = kMCqedSL;
     if(sampleName == "LbL")     dataset = kMClbl;
     if(sampleName == "CEP")     dataset = kMCcep;
+       
     
+    auto events = make_unique<EventProcessor>(inputPath, dataset);
+    
+    for(string suffix : suffixes){
+      InitializeHistograms(hists, sampleName, suffix);
+    }
+    
+   
     if(dataset == nDatasets){
       cout<<"ERROR -- unknown dataset name provided: "<<sampleName<<endl;
       exit(0);

@@ -42,7 +42,8 @@ public:
   double GetAcoplanarity(const PhysObject &a, const PhysObject &b);
   
   /// Checks if physics object falls into HEM region of transition between barrel and endcap
-  bool IsInCrackOrHEM(const PhysObject &a);
+  bool IsInCrack(const PhysObject &a);
+  bool IsInHEM(const PhysObject &a);
   
   struct CompareByEnergy{
     bool operator() (const shared_ptr<PhysObject> &o1, const shared_ptr<PhysObject> &o2){

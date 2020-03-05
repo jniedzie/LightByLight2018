@@ -16,6 +16,7 @@ energySC(-1),
 
 et(-1),
 pt(-1),
+p(-1),
 
 energyHad(-9999),
 energyEm(-9999),
@@ -111,6 +112,12 @@ double PhysObject::GetPt()  const
   return pt;
 }
 
+double PhysObject::GetMomentum()  const
+{
+  if(p<0) cout<<"WARNING - carefull, p probably not set"<<endl;
+  return p;
+}
+
 double PhysObject::GetEtaWidth()  const
 {
   if(etaWidth < 0)
@@ -194,14 +201,25 @@ double PhysObject::GetXYdistanceFromBeamSpot(EDataset dataset) const
 {
   if(vx < -999 || vy < -999) cout<<"WARNING - carefull, vx or vy probably not set"<<endl;
   auto [bs_x, bs_y, bs_z] = GetBeamSpot(dataset);
-  return sqrt(pow(bs_x - vx, 2) + pow(bs_y - vy, 2));
+  double px = pt * cos(phi);
+  double py = pt * sin(phi);
+  
+  return (-(vx - bs_x) * py + (vy - bs_y) * px) / pt;
+//  return sqrt(pow(bs_x - vx, 2) + pow(bs_y - vy, 2));
 }
 
 double PhysObject::GetZdistanceFromBeamSpot(EDataset dataset) const
 {
   if(vz < -999) cout<<"WARNING - carefull, vz probably not set"<<endl;
   auto [bs_x, bs_y, bs_z] = GetBeamSpot(dataset);
-  return fabs(bs_z - vz);
+  double px = pt * cos(phi);
+  double py = pt * sin(phi);
+  
+  double theta = 2*atan(exp(-eta));
+  double pz = p * cos(theta);
+  
+  return (vz - bs_z) - ((vx - bs_x) * px + (vy - bs_y) * py) / pt * pz / pt;
+//  return fabs(bs_z - vz);
 }
 
 double PhysObject::GetVertexX() const

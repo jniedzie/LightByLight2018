@@ -1,8 +1,7 @@
 #include "../include/Helpers.hpp"
 
 //string inputPath  = "../results/basicPlots_default.root";
-string inputPath  = "../results/basicPlots_default_new.root";
-
+//string inputPath  = "../results/basicPlots_default_new.root";
 
 //string inputPath  = "../results/basicPlots_tracks+nhits3.root";
 //string inputPath  = "../results/basicPlots_tracks+nhits5.root";
@@ -17,10 +16,12 @@ string inputPath  = "../results/basicPlots_default_new.root";
 //string inputPath  = "../results/basicPlots_tracks+pt900.root";
 
 //string inputPath  = "../results/basicPlots_tracks+chi2_2p5.root";
+string inputPath  = "../results/basicPlots_tracks+dxybs1mm.root";
 //string inputPath  = "../results/basicPlots_tracks+dxy1mm.root";
+//string inputPath  = "../results/basicPlots_pho+conversions.root";
 
 //string inputPath  = "../results/basicPlots_test.root";
-//string inputPath  = "../results/basicPlots_test_new.root";
+
 string outputPath = "../plots/distributions";
 
 map<EDataset, double> initialNevents = {
@@ -65,7 +66,10 @@ vector<tuple<string, int, int>> canvasParams = {
   {"Dielectron"   , 2 , 3 },
   {"Same sign ee" , 2 , 2 },
   {"QED calo"     , 2 , 2 },
-  {"tracks"       , 4 , 4 },
+  {"tracks"       , 3 , 3 },
+  {"vertex"       , 3 , 3 },
+  {"vertex/track" , 2 , 2 },
+  {"LbL calo"     , 3 , 3 },
 };
 
 enum ENorm { kXsec, kEntries, kFirstBin };
@@ -112,23 +116,33 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "track_pt_all"                    , "track p_{t} (GeV)"       , false, kEntries ,   7   , 2  , 5 ,   0  , 10  },
   { "track_eta_all"                   , "track #eta"              , false, kEntries ,   7   , 3  , 1 , -3.0 , 3.0 },
   { "track_phi_all"                   , "track #phi"              , false, kEntries ,   7   , 4  , 1 , -3.5 , 3.5 },
-  { "track_dxy_all"                   , "track d_{xy} (cm)"       , true , kEntries ,   7   , 5  ,20 ,    0 , 0.2 },
-  { "track_dz_all"                    , "track d_{z} (cm)"        , true , kEntries ,   7   , 6  ,300,  -30 , 30  },
+  { "track_chi2_all"                  , "track #chi^{2}/NDF"      , true , kEntries ,   7   , 5  , 1 ,   0  , 20  },
+  { "track_valid_hits_all"            , "N_{hits}^{valid}"        , false, kEntries ,   7   , 6  , 1 ,   0  , 30  },
+  { "track_missing_hits_all"          , "N_{hits}^{missing}"      , false, kEntries ,   7   , 7  , 1 ,   0  , 20  },
+  { "track_purity_all"                , "track purity"            , false, kEntries ,   7   , 8  , 1 ,   0  , 20  },
+  { "tracks_cut_flow_all"             , ""                        , false, kFirstBin,   7   , 9  , 1 ,   0  , 10  },
   
-//  { "track_dxy_from_bs_all"           , "track d_{xy} (cm)"       , true , kEntries ,   7   , 5  ,20 ,    0 , 0.2 },
-//  { "track_dz_from_bs_all"            , "track d_{z} (cm)"        , true , kEntries ,   7   , 6  ,300,  -30 , 30  },
+  { "track_dxy_all"                   , "track d_{xy} (cm)"       , true , kEntries ,   8   , 1  ,20 ,    0 , 0.2 },
+  { "track_dz_all"                    , "track d_{z} (cm)"        , true , kEntries ,   8   , 2  ,300,  -30 , 30  },
+  { "track_dxy_from_bs_all"           , "|RP, BS|_{xy} (cm)"      , true , kEntries ,   8   , 3  ,100,    0 , 0.5 },
+  { "track_dz_from_bs_all"            , "|RP, BS|_{z} (cm)"       , true , kEntries ,   8   , 4  ,300,    0 , 30  },
+  { "track_dxy_over_sigma_all"        , "|d_{xy}/#sigma_{xy}|"    , true , kEntries ,   8   , 5  , 2 ,    0 , 10  },
+  { "track_dz_over_sigma_all"         , "|d_{z}/#sigma_{z}|"      , true , kEntries ,   8   , 6  , 2 ,    0 , 10  },
+  { "track_vx_all"                    , "track vertex x (cm)"     , true , kEntries ,   8   , 7  ,25 ,  -0.5, 0.5 },
+  { "track_vy_all"                    , "track vertex y (cm)"     , true , kEntries ,   8   , 8  ,25 ,  -0.5, 0.5 },
+  { "track_vz_all"                    , "track vertex z (cm)"     , true , kEntries ,   8   , 9  ,600,  -30 , 30  },
   
-  { "track_dxy_over_sigma_all"        , "|d_{xy}/#sigma_{xy}|"    , true , kEntries ,   7   , 7  , 2 ,    0 , 10  },
-  { "track_dz_over_sigma_all"         , "|d_{z}/#sigma_{z}|"      , true , kEntries ,   7   , 8  , 2 ,    0 , 10  },
-  { "track_vx_all"                    , "track vertex x (cm)"     , true , kEntries ,   7   , 9  , 1 ,  -10 , 10  },
-  { "track_vy_all"                    , "track vertex y (cm)"     , true , kEntries ,   7   , 10 , 1 ,  -10 , 10  },
-  { "track_vz_all"                    , "track vertex z (cm)"     , true , kEntries ,   7   , 11 , 1 ,  -30 , 30  },
-  { "track_chi2_all"                  , "track #chi^{2}/NDF"      , true , kEntries ,   7   , 12 , 1 ,   0  , 20  },
-  { "track_valid_hits_all"            , "N_{hits}^{valid}"        , false, kEntries ,   7   , 13 , 1 ,   0  , 30  },
-  { "track_missing_hits_all"          , "N_{hits}^{missing}"      , false, kEntries ,   7   , 14 , 1 ,   0  , 20  },
-  { "track_purity_all"                , "track purity"            , false, kEntries ,   7   , 15 , 1 ,   0  , 20  },
-  { "tracks_cut_flow_all"             , ""                        , false, kFirstBin,   7   , 16 , 1 ,   0  , 10  },
+  { "track_dxy_1_track_all"           , "1 track d_{xy} (cm)"     , true , kEntries ,   9   , 1  ,20 ,    0 , 0.2 },
+  { "track_dxy_2_track_all"           , "2 tracks d_{xy} (cm)"    , true , kEntries ,   9   , 2  ,20 ,    0 , 0.2 },
+  { "track_dxy_3_track_all"           , "3 tracks d_{xy} (cm)"    , true , kEntries ,   9   , 3  ,20 ,    0 , 0.2 },
+  { "track_dxy_ge4_track_all"         , "≥4 tracks d_{xy} (cm)"   , true , kEntries ,   9   , 4  ,20 ,    0 , 0.2 },
   
+  { "lbl_EB_leading_tower_all"        , "EB leading energy (GeV)" , true , kEntries ,   10   , 1  , 1 ,   0  , 20  },
+  { "lbl_EE_leading_tower_all"        , "EE leading energy (GeV)" , true , kEntries ,   10   , 2  , 1 ,   0  , 20  },
+  { "lbl_HB_leading_tower_all"        , "HB leading energy (GeV)" , true , kEntries ,   10   , 3  , 1 ,   0  , 20  },
+  { "lbl_HE_leading_tower_all"        , "HE leading energy (GeV)" , true , kEntries ,   10   , 4  , 1 ,   0  , 20  },
+  { "lbl_HFp_leading_tower_all"       , "HF+ leading energy (GeV)", true , kEntries ,   10   , 5  , 1 ,   0  , 20  },
+  { "lbl_HFm_leading_tower_all"       , "HF- leading energy (GeV)", true , kEntries ,   10   , 6  , 1 ,   0  , 20  },
 };
 
 void fillLabels(TH1D *hist, vector<const char*> labels)

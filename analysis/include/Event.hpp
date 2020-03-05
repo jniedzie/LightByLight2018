@@ -52,6 +52,12 @@ public:
   /// Returns map of towers by subdetector which are above threshold and do not overlap with good photons nor electrons
   map<ECaloType, PhysObjects> GetCaloTowersAboveThresholdByDet();
 
+  /// Checks if given tower overlaps with one of the photons passing selections
+  bool IsOverlappingWithGoodPhoton(const PhysObject &tower);
+  
+  /// Checks if given tower overlaps with one of the electrons passing selections
+  bool IsOverlappingWithGoodElectron(const PhysObject &tower);
+  
 private:
   map<string, bool> triggersLbL; ///< Vactor of booleans corresponding to LbL triggers
   
@@ -68,14 +74,10 @@ private:
   PhysObjects GetGoodMatchedElectron();
   PhysObjects GetGoodGeneralTracks(TH1D *cutFlowHist=nullptr);
   
-  /// Checks if given tower overlaps with one of the photons passing selections
-  bool IsOverlappingWithGoodPhoton(const PhysObject &tower);
-  
-  /// Checks if given tower overlaps with one of the electrons passing selections
-  bool IsOverlappingWithGoodElectron(const PhysObject &tower);
-  
   /// Returns noise threshold for given tower in EM calos
   double GetEmThresholdForTower(const PhysObject &tower);
+  
+  EDataset dataset;
   
   friend class EventProcessor;
 };
