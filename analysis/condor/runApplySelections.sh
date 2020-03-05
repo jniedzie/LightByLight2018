@@ -2,7 +2,7 @@
 
 configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/applySelections.md"
 basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
-
+sampleName=""
 
 # for the data:
 inputPath=""
@@ -19,6 +19,7 @@ outputPath=""
 
 if [ $2 -eq 0 ] # data
 then
+  sampleName="Data"
   inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
   outputPathReco="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_forRecoEff_tmp"
   outputPathTrigger="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_forTriggerEff_tmp"
@@ -35,13 +36,15 @@ then
 elif [ $2 -eq 1 ] # MC
 then
   # QED
+#   sampleName="QED_SC"
 #  inputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
   
   # LbL
+#  sampleName="LbL"
 #  inputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_lbl/ntuples_1034/ntuples_lbl_1034/ntuples_lbl_1034/200207_114802/0000/HiForestAOD_LbyL_${1}.root"
   
   # CEP
-  inputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_cep/ntuples_1034/ntuples_cep_1034/ntuples_cep_1034/200211_054704/0000/HiForestAOD_cep_${1}.root"
+  sampleName="CEP" inputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_cep/ntuples_1034/ntuples_cep_1034/ntuples_cep_1034/200211_054704/0000/HiForestAOD_cep_${1}.root"
   
   outputPathReco="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_cep_sc_forRecoEff"
   outputPathTrigger="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_cep_sc_forTriggerEff"
@@ -57,6 +60,7 @@ then
   mkdir -p $outputPathQEDsignal
 elif [ $2 -eq 2 ] # Data passing LbL selections
 then
+  sampleName="Data"
   inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
   outputPathLowAco="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_passingLbL_lowAco"
   outputPathHighAco="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_passingLbL_highAco"
@@ -66,19 +70,20 @@ elif [ $2 -eq 3 ] # Loose selections
 then
   if [ $3 -eq 0 ] # data, 8000 chunks
   then
+    sampleName="Data"
     inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
     outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_doubleEG2"
   elif [ $3 -eq 1 ] # QED SC, 96 chunks, max chunk number: 96
   then
-    inputPath="${basePath}/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
+    sampleName="QED_SC" inputPath="${basePath}/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
     outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/mc_qed_sc_doubleEG2"
   elif [ $3 -eq 2 ] # CEP SC, 408 chunks, max chunk number: 411
   then
-    inputPath="${basePath}/mc_cep/ntuples_1034/ntuples_cep_1034/ntuples_cep_1034/200211_054704/0000/HiForestAOD_cep_${1}.root"
+    sampleName="CEP" inputPath="${basePath}/mc_cep/ntuples_1034/ntuples_cep_1034/ntuples_cep_1034/200211_054704/0000/HiForestAOD_cep_${1}.root"
     outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/mc_cep_sc_doubleEG2"
   elif [ $3 -eq 3 ] # LbL SC, 362 chunks, max chunk number: 376
   then
-    inputPath="${basePath}/mc_lbl/ntuples_1034/ntuples_lbl_1034/ntuples_lbl_1034/200207_114802/0000/HiForestAOD_LbyL_${1}.root"
+    sampleName="LbL"    inputPath="${basePath}/mc_lbl/ntuples_1034/ntuples_lbl_1034/ntuples_lbl_1034/200207_114802/0000/HiForestAOD_LbyL_${1}.root"
     outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/mc_lbl_sc_doubleEG2"
   fi
   mkdir -p $outputPath
@@ -108,14 +113,14 @@ echo "Output: ${output}"
 
 if [ $2 -eq 0 ] # data
 then
-  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $configPath $inputPath $outputReco $outputTrigger $outputHFveto $outputExclusivity $outputLbLsignal $outputQEDsignal
+  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $configPath $inputPath $outputReco $outputTrigger $outputHFveto $outputExclusivity $outputLbLsignal $outputQEDsignal $sampleName
 elif [ $2 -eq 1 ] # MC
 then
-  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $configPath $inputPath $outputReco $outputTrigger $outputHFveto $outputExclusivity $outputLbLsignal $outputQEDsignal
+  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $configPath $inputPath $outputReco $outputTrigger $outputHFveto $outputExclusivity $outputLbLsignal $outputQEDsignal $sampleName
 elif [ $2 -eq 2 ] # Data passing LbL selections
 then
-  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $configPath $inputPath $outputLowAco $outputHighAco
+  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $configPath $inputPath $outputLowAco $outputHighAco $sampleName
 elif [ $2 -eq 3 ] # Data passing LbL selections
 then
-  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $configPath $inputPath $output
+  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $configPath $inputPath $output $sampleName
 fi

@@ -53,6 +53,7 @@ PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
 {
   if(   type == kPhoton
      || type == kElectron
+     || type == kMuon
      || type == kCaloTower
      || type == kGeneralTrack
      || type == kL1EG){
@@ -62,6 +63,7 @@ PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
   else if(type == kGoodPhoton)          return GetGoodPhotons();
   else if(type == kGoodElectron)        return GetGoodElectrons(cutFlowHist);
   else if(type == kGoodMatchedElectron) return GetGoodMatchedElectron();
+  else if(type == kGoodMuon)        return GetGoodMuons(cutFlowHist);
   else if(type == kGoodGeneralTrack)    return GetGoodGeneralTracks(cutFlowHist);
   
   cout<<"ERROR -- unrecognized phys object type: "<<type<<"!!!"<<endl;
@@ -91,6 +93,10 @@ PhysObjects Event::GetGoodPhotons()
   physObjects.at(kGoodPhoton).clear();
   
   for(auto photon : physObjects.at(kPhoton)){
+    
+    // Check if photon converted
+    if(config.params("photonRejectConverted") && photon->IsConverted()) continue;
+    
     // Check Et
     if(photon->GetEt() < config.params("photonMinEt")) continue;
     
@@ -191,6 +197,68 @@ PhysObjects Event::GetGoodElectrons(TH1D *cutFlowHist)
   return physObjects.at(kGoodElectron);
 }
 
+PhysObjects Event::GetGoodMuons(TH1D *cutFlowHist)
+{
+  if(physObjectsReady.at(kGoodMuon)) return physObjects.at(kGoodMuon);
+  
+  physObjects.at(kGoodMuon).clear();
+  
+  for(auto muon : physObjects.at(kMuon)){
+//    int cutFlowIndex=0;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 0
+    
+    // Check pt
+//    if(muon->GetPt() < config.params("muonMinPt")) continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 1
+    
+    // Check eta
+//    double eta = fabs(muon->GetEtaSC());
+//    if(eta > config.params("ecalCrackMin") &&
+//       eta < config.params("ecalCrackMax"))   continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 2
+    
+//    if(eta >= config.params("muonMaxEta")) continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
+    
+    // Check for HEM issue
+//    if(muon->GetEtaSC() < -minEtaEE &&
+//       muon->GetPhiSC() > config.params("ecalHEMmin") &&
+//       muon->GetPhiSC() < config.params("ecalHEMmax")) continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 4
+    
+    // Check n missing hits
+//    if(muon->GetNmissingHits() > config.params("muonMaxNmissingHits")) continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 5
+    
+//    string subdet = "";
+//    if((eta < maxEtaEB)) subdet = "Barrel";
+//    else if((eta < maxEtaEE)) subdet = "Endcap";
+    
+    // Check H/E
+//    if(muon->GetHoverE() >= config.params("muonMaxHoverE_"+subdet)) continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 6
+    
+    // Check Δη at vertex
+//    if(muon->GetDetaSeed() >= config.params("muonMaxDetaSeed"+subdet)) continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 7
+    
+    // Check isolation
+//    if(muon->GetChargedIso() >= config.params("muonMaxChargedIso"+subdet)) continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 8
+    
+//    if(muon->GetPhotonIso()  >= config.params("muonMaxPhotonIso"+subdet))  continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 9
+    
+//    if(muon->GetNeutralIso() >= config.params("muonMaxNeutralIso"+subdet)) continue;
+//    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
+
+    physObjects.at(kGoodMuon).push_back(muon);
+  }
+  physObjectsReady.at(kGoodMuon) = true;
+  return physObjects.at(kGoodMuon);
+}
+
+
 PhysObjects Event::GetGoodMatchedElectron()
 {
   if(physObjectsReady.at(kGoodMatchedElectron)) return physObjects.at(kGoodMatchedElectron);
@@ -234,11 +302,17 @@ PhysObjects Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
     if(fabs(track->GetDxy()) > config.params("trackMaxDxy")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
     
+    if(fabs(track->GetXYdistanceFromBeamSpot(dataset)) > config.params("trackMaxXYdistanceFromBS")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
+    
     if(fabs(track->GetDxy() / track->GetDxyErr()) > config.params("trackMaxDxyOverSigma")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 4
     
     if(fabs(track->GetDz()) > config.params("trackMaxDz")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 5
+    
+    if(fabs(track->GetZdistanceFromBeamSpot(dataset)) > config.params("trackMaxZdistanceFromBS")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
     
     if(fabs(track->GetDz() / track->GetDzErr()) > config.params("trackMaxDzOverSigma")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 6
@@ -260,13 +334,10 @@ PhysObjects Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
 bool Event::HasAdditionalTowers()
 {
   for(auto tower : physObjects.at(kCaloTower)){
-    
-    if(physObjectProcessor.IsInCrackOrHEM(*tower)) continue;
-    
+
     ECaloType subdetHad = tower->GetTowerSubdetHad();
     ECaloType subdetEm = tower->GetTowerSubdetEm();
-    
-    
+        
     if(subdetHad==kHFp || subdetHad==kHFm){ // Check HF exclusivity
       if(tower->GetEnergy() > config.params("noiseThreshold"+caloName.at(subdetHad))){
         return true;
@@ -277,9 +348,17 @@ bool Event::HasAdditionalTowers()
         return true;
       }
     }
-    else if(subdetEm==kEB || subdetEm==kEE){ // Check EB and EE exclusivity
-      if(subdetEm == kEE && fabs(tower->GetEta()) > config.params("maxEtaEEtower")) continue;
+    else if(subdetEm==kEB){
+      if(IsOverlappingWithGoodPhoton(*tower)) continue;
+      if(IsOverlappingWithGoodElectron(*tower)) continue;
       
+      if(tower->GetEnergyEm() > GetEmThresholdForTower(*tower)){
+        return true;
+      }
+    }
+    if(subdetEm==kEE){ // Check EB and EE exclusivity
+      if(fabs(tower->GetEta()) > config.params("maxEtaEEtower")) continue;
+      if(physObjectProcessor.IsInHEM(*tower)) continue;
       if(IsOverlappingWithGoodPhoton(*tower)) continue;
       if(IsOverlappingWithGoodElectron(*tower)) continue;
       
@@ -298,9 +377,7 @@ bool Event::HasAdditionalTowers(map<ECaloType, bool> &failingCalo)
   
   
   for(auto tower : physObjects.at(kCaloTower)){
-    
-    if(physObjectProcessor.IsInCrackOrHEM(*tower)) continue;
-    
+
     ECaloType subdetHad = tower->GetTowerSubdetHad();
     ECaloType subdetEm = tower->GetTowerSubdetEm();
     
@@ -317,9 +394,18 @@ bool Event::HasAdditionalTowers(map<ECaloType, bool> &failingCalo)
         passes = false;
       }
     }
-    else if((subdetEm==kEB || subdetEm==kEE) && !failingCalo[subdetEm]){ // Check EB and EE exclusivity
-      if(subdetEm == kEE && fabs(tower->GetEta()) > config.params("maxEtaEEtower")) continue;
+    else if(subdetEm==kEB && !failingCalo[subdetEm]){ // Check EB and EE exclusivity
+      if(IsOverlappingWithGoodPhoton(*tower)) continue;
+      if(IsOverlappingWithGoodElectron(*tower)) continue;
       
+      if(tower->GetEnergyEm() > GetEmThresholdForTower(*tower)){
+        failingCalo[subdetEm] = true;
+        passes = false;
+      }
+    }
+    else if(subdetEm==kEE && !failingCalo[subdetEm]){ // Check EB and EE exclusivity
+      if(fabs(tower->GetEta()) > config.params("maxEtaEEtower")) continue;
+      if(physObjectProcessor.IsInHEM(*tower)) continue;
       if(IsOverlappingWithGoodPhoton(*tower)) continue;
       if(IsOverlappingWithGoodElectron(*tower)) continue;
       
@@ -358,8 +444,8 @@ bool Event::IsOverlappingWithGoodPhoton(const PhysObject &tower)
   for(int iPhoton=0; iPhoton<GetPhysObjects(kGoodPhoton).size(); iPhoton++){
     auto photon = GetPhysObjects(kGoodPhoton)[iPhoton];
     
-    double deltaEta = fabs(photon->GetEta() - tower.GetEta());
-    double deltaPhi = fabs(photon->GetPhi() - tower.GetPhi());
+    double deltaEta = fabs(photon->GetEtaSC() - tower.GetEta());
+    double deltaPhi = fabs(photon->GetPhiSC() - tower.GetPhi());
     
     if(deltaEta < maxDeltaEta && deltaPhi < maxDeltaPhi){
       overlapsWithPhoton = true;
@@ -378,8 +464,8 @@ bool Event::IsOverlappingWithGoodElectron(const PhysObject &tower)
   double maxDeltaPhi = (subdet == kEB ) ? config.params("maxDeltaPhiEB") : config.params("maxDeltaPhiEE");
   
   for(auto electron : GetGoodElectrons()){
-    double deltaEta = fabs(electron->GetEta() - tower.GetEta());
-    double deltaPhi = fabs(electron->GetPhi() - tower.GetPhi());
+    double deltaEta = fabs(electron->GetEtaSC() - tower.GetEta());
+    double deltaPhi = fabs(electron->GetPhiSC() - tower.GetPhi());
     
     if(deltaEta < maxDeltaEta && deltaPhi < maxDeltaPhi){
       overlapsWithElectron = true;
@@ -423,10 +509,6 @@ map<ECaloType, PhysObjects> Event::GetCaloTowersAboveThresholdByDet()
   
   for(auto tower : physObjects.at(kCaloTower)){
     
-    if(physObjectProcessor.IsInCrackOrHEM(*tower))  continue;
-    if(IsOverlappingWithGoodPhoton(*tower))         continue;
-    if(IsOverlappingWithGoodElectron(*tower))       continue;
-    
     ECaloType subdetHad = tower->GetTowerSubdetHad();
     ECaloType subdetEm  = tower->GetTowerSubdetEm();
     
@@ -438,11 +520,18 @@ map<ECaloType, PhysObjects> Event::GetCaloTowersAboveThresholdByDet()
       }
     }
     else if(subdetHad==kHB || subdetHad==kHE){
+      if(physObjectProcessor.IsInCrack(*tower)) continue;
       if(tower->GetEnergyHad() > config.params("noiseThreshold"+caloName.at(subdetHad))){
         caloTowersByDet[subdetHad].push_back(tower);
       }
     }
     else if(subdetEm == kEB || subdetEm == kEE){
+      if(subdetEm == kEE && fabs(tower->GetEta()) > config.params("maxEtaEEtower")) continue;
+      if(physObjectProcessor.IsInCrack(*tower)) continue;
+      if(physObjectProcessor.IsInHEM(*tower)) continue;
+      if(IsOverlappingWithGoodPhoton(*tower)) continue;
+      if(IsOverlappingWithGoodElectron(*tower)) continue;
+      
       if((tower->GetEnergyEm() > GetEmThresholdForTower(*tower))){
         caloTowersByDet[subdetHad].push_back(tower);
       }

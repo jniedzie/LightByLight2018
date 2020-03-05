@@ -26,7 +26,7 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
     fileNames = cms.untracked.vstring(
-        "file:/afs/cern.ch/work/r/rbi/public/forest/step2_RAW2DIGI_L1Reco_RECO_pp_on_AA.root"
+        "file:/afs/cern.ch/work/r/rbi/public/forest/HINPbPbAutumn18DR_Pythia8_Ze10e10_TuneCP5_5p02TeV_AODSIM.root"
         ),
     )
 
@@ -49,18 +49,16 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic_hi', '')
 process.HiForest.GlobalTagLabel = process.GlobalTag.globaltag
 
-print('\n\033[31m~*~ USING CENTRALITY TABLE FOR Hydjet Drum5Ev8 ~*~\033[0m\n')
+print('\n\033[31m~*~ USING CENTRALITY TABLE FOR Hydjet Drum5F ~*~\033[0m\n')
 process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
 process.GlobalTag.toGet.extend([
     cms.PSet(record = cms.string("HeavyIonRcd"),
-        tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5Ev8_v1030pre5x02_mc"),
+        # tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5Ev8_v1030pre5x02_mc"),
+        tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5F_v1032x01_mc"),
         connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
         label = cms.untracked.string("HFtowers")
         ),
     ])
-
-from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_PbPb5020
-process = overrideJEC_PbPb5020(process)
 
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")
@@ -82,19 +80,13 @@ process.TFileService = cms.Service("TFileService",
 #############################
 # jet reco sequence
 process.load('HeavyIonsAnalysis.JetAnalysis.fullJetSequence_pponAA_MB_cff')
-# replace above with this one for JEC:
-# process.load('HeavyIonsAnalysis.JetAnalysis.fullJetSequence_JEC_cff')
-
-# temporary
-process.akPu4Calocorr.payload = "AK4Calo"
-process.akPu4PFcorr.payload = "AK4PF"
-process.akCs4PFcorr.payload = "AK4PF"
-process.akPu4PFJets.jetPtMin = 1
 
 process.load('HeavyIonsAnalysis.JetAnalysis.hiFJRhoAnalyzer_cff')
 process.load("HeavyIonsAnalysis.JetAnalysis.pfcandAnalyzer_cfi")
 process.pfcandAnalyzer.doTrackMatching  = cms.bool(True)
 
+from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_MC_PbPb5020_2018
+process = overrideJEC_MC_PbPb5020_2018(process)
 ###############################################################################
 
 #############################
@@ -116,6 +108,11 @@ process.hiEvtAnalyzer.doMC = cms.bool(True) # general MC info
 process.hiEvtAnalyzer.doHiMC = cms.bool(True) # HI specific MC info
 process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cfi')
 process.load('HeavyIonsAnalysis.EventAnalysis.skimanalysis_cfi')
+process.load('HeavyIonsAnalysis.EventAnalysis.hltobject_cfi')
+process.load('HeavyIonsAnalysis.EventAnalysis.l1object_cfi')
+
+from HeavyIonsAnalysis.EventAnalysis.hltobject_cfi import trigger_list_mc
+process.hltobject.triggerNames = trigger_list_mc
 
 ###############################################################################
 
@@ -133,8 +130,12 @@ process.load('HeavyIonsAnalysis.TrackAnalysis.TrkAnalyzers_cff')
 #####################
 # Photons
 #####################
+SS2018PbPbMC = "HeavyIonsAnalysis/PhotonAnalysis/data/SS2018PbPbMC.dat"
+process.load('HeavyIonsAnalysis.PhotonAnalysis.correctedElectronProducer_cfi')
+process.correctedElectrons.correctionFile = SS2018PbPbMC
 
 process.load('HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi')
+process.ggHiNtuplizerGED.gsfElectronLabel = "correctedElectrons"
 
 ###############################################################################
 
@@ -160,7 +161,7 @@ process.akPu4CaloCombinedSecondaryVertexV2BJetTags.tagInfos = cms.VInputTag(
 
 # trained on CS jets
 process.CSVscikitTags.weightFile = cms.FileInPath(
-    'HeavyIonsAnalysis/JetAnalysis/data/TMVA_Btag_CsJets_PbPb_BDTG.weights.xml')
+    'HeavyIonsAnalysis/JetAnalysis/data/TMVA_Btag_CsJets_PbPb2018_BDTG.weights.xml')
 
 ###############################################################################
 
@@ -183,14 +184,19 @@ process.ana_step = cms.Path(
     process.HiForest +
     process.runAnalyzer +
     process.hltanalysis +
+    process.hltobject +
+    # process.l1object +
     process.centralityBin +
     process.hiEvtAnalyzer +
     process.genCleanedSequence +
     process.jetSequence +
+    process.hiPuRhoR3Analyzer + 
     process.HiGenParticleAna +
+    process.correctedElectrons +
     process.ggHiNtuplizer +
     process.ggHiNtuplizerGED +
     process.hiFJRhoAnalyzer +
+    process.hiFJRhoAnalyzerFinerBins +
     process.pfcandAnalyzer +
     process.pfcandAnalyzerCS +
     process.trackSequencesPP +
