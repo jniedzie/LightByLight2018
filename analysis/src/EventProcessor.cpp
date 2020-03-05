@@ -40,7 +40,10 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   
   eventTree->SetBranchAddress("nPho"                  , &nPhysObjects.at(kPhoton));
   eventTree->SetBranchAddress("phoHoverE"             , &photonHoverE);
-  
+  eventTree->SetBranchAddress("phoEta"                , &photonEta);
+  eventTree->SetBranchAddress("phoPhi"                , &photonPhi);
+  eventTree->SetBranchAddress("phoEt"                 , &photonEt);
+  eventTree->SetBranchAddress("phoE"                  , &photonE);
   eventTree->SetBranchAddress("phoSCEta"              , &photonSCEta);
   eventTree->SetBranchAddress("phoSCPhi"              , &photonSCPhi);
   eventTree->SetBranchAddress("phoSCEt"               , &photonSCEt);
@@ -199,14 +202,14 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     auto photon = make_shared<PhysObject>();
     
     photon->hOverE   = photonHoverE->at(iPhoton);
-    photon->eta      = photonSCEta->at(iPhoton);
+    photon->eta      = photonEta->at(iPhoton);
     photon->etaSC    = photonSCEta->at(iPhoton);
-    photon->phi      = photonSCPhi->at(iPhoton);
+    photon->phi      = photonPhi->at(iPhoton);
     photon->phiSC    = photonSCPhi->at(iPhoton);
-    photon->et       = photonSCEt->at(iPhoton);
+    photon->et       = photonEt->at(iPhoton);
     photon->etSC     = photonSCEt->at(iPhoton);
     photon->pt       = photonSCEt->at(iPhoton);
-    photon->energy   = photonSCE->at(iPhoton);
+    photon->energy   = photonE->at(iPhoton);
     photon->energySC = photonSCE->at(iPhoton);
     photon->etaWidth = photonSCEtaWidth->at(iPhoton);
     photon->phiWidth = photonSCPhiWidth->at(iPhoton);
@@ -228,9 +231,13 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     auto tower = make_shared<PhysObject>();
     
     tower->eta       = towerEta->at(iTower);
+    tower->etaSC     = towerEta->at(iTower);
     tower->phi       = towerPhi->at(iTower);
+    tower->phiSC     = towerPhi->at(iTower);
     tower->energy    = towerEnergy->at(iTower);
+    tower->energySC  = towerEnergy->at(iTower);
     tower->et        = towerEt->at(iTower);
+    tower->etSC      = towerEt->at(iTower);
     tower->energyHad = towerEnergyHad->at(iTower);
     
     tower->energyEm  = towerEnergyEm->at(iTower);

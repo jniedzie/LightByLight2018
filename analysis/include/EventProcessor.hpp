@@ -52,6 +52,10 @@ private:
   vector<float> *mcPID                  = nullptr;
   
   vector<float> *photonHoverE           = nullptr;
+  vector<float> *photonEta              = nullptr;
+  vector<float> *photonPhi              = nullptr;
+  vector<float> *photonEt               = nullptr;
+  vector<float> *photonE                = nullptr;
   vector<float> *photonSCEta            = nullptr;
   vector<float> *photonSCPhi            = nullptr;
   vector<float> *photonSCEt             = nullptr;

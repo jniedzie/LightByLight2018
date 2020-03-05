@@ -16,10 +16,11 @@
 //string inputPath  = "../results/basicPlots_tracks+pt900.root";
 
 //string inputPath  = "../results/basicPlots_tracks+chi2_2p5.root";
+string inputPath  = "../results/basicPlots_tracks+dxybs1mm.root";
 //string inputPath  = "../results/basicPlots_tracks+dxy1mm.root";
 //string inputPath  = "../results/basicPlots_pho+conversions.root";
 
-string inputPath  = "../results/basicPlots_test.root";
+//string inputPath  = "../results/basicPlots_test.root";
 
 string outputPath = "../plots/distributions";
 
@@ -46,7 +47,7 @@ const bool drawLegends = false;
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
   kData,
-//  kMCcep,
+  kMCcep,
   kMCqedSC,
 //  kMCqedSL,
   kMClbl,
@@ -136,12 +137,12 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "track_dxy_3_track_all"           , "3 tracks d_{xy} (cm)"    , true , kEntries ,   9   , 3  ,20 ,    0 , 0.2 },
   { "track_dxy_ge4_track_all"         , "≥4 tracks d_{xy} (cm)"   , true , kEntries ,   9   , 4  ,20 ,    0 , 0.2 },
   
-  { "lbl_EB_leading_tower_all"        , "EB leading energy (GeV)" , true , kXsec ,   10   , 1  , 1 ,   0  , 20  },
-  { "lbl_EE_leading_tower_all"        , "EE leading energy (GeV)" , true , kXsec ,   10   , 2  , 1 ,   0  , 20  },
-  { "lbl_HB_leading_tower_all"        , "HB leading energy (GeV)" , true , kXsec ,   10   , 3  , 1 ,   0  , 20  },
-  { "lbl_HE_leading_tower_all"        , "HE leading energy (GeV)" , true , kXsec ,   10   , 4  , 1 ,   0  , 20  },
-  { "lbl_HFp_leading_tower_all"       , "HF+ leading energy (GeV)", true , kXsec ,   10   , 5  , 1 ,   0  , 20  },
-  { "lbl_HFm_leading_tower_all"       , "HF- leading energy (GeV)", true , kXsec ,   10   , 6  , 1 ,   0  , 20  },
+  { "lbl_EB_leading_tower_all"        , "EB leading energy (GeV)" , true , kEntries ,   10   , 1  , 1 ,   0  , 20  },
+  { "lbl_EE_leading_tower_all"        , "EE leading energy (GeV)" , true , kEntries ,   10   , 2  , 1 ,   0  , 20  },
+  { "lbl_HB_leading_tower_all"        , "HB leading energy (GeV)" , true , kEntries ,   10   , 3  , 1 ,   0  , 20  },
+  { "lbl_HE_leading_tower_all"        , "HE leading energy (GeV)" , true , kEntries ,   10   , 4  , 1 ,   0  , 20  },
+  { "lbl_HFp_leading_tower_all"       , "HF+ leading energy (GeV)", true , kEntries ,   10   , 5  , 1 ,   0  , 20  },
+  { "lbl_HFm_leading_tower_all"       , "HF- leading energy (GeV)", true , kEntries ,   10   , 6  , 1 ,   0  , 20  },
 };
 
 void fillLabels(TH1D *hist, vector<const char*> labels)
