@@ -60,6 +60,18 @@ TLorentzVector PhysObjectProcessor::GetDielectron(const PhysObject &a, const Phy
   return aVec + bVec;
 }
 
+TLorentzVector PhysObjectProcessor::GetDimuon(const PhysObject &a, const PhysObject &b)
+{
+  TLorentzVector aVec, bVec;
+  
+  double muMass = 105.6583755e-3;
+  aVec.SetPtEtaPhiM(a.pt, a.eta, a.phi, muMass);
+  bVec.SetPtEtaPhiM(b.pt, b.eta, b.phi, muMass);
+
+  return aVec + bVec;
+}
+
+
 double PhysObjectProcessor::GetAcoplanarity(const PhysObject &a, const PhysObject &b)
 {
   double phi1 = a.GetPhi();

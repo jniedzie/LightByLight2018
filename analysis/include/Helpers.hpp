@@ -34,12 +34,15 @@
 
 #include <ostream>
 #include <sstream>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <map>
 #include <tuple>
 #include <memory>
+
+
 
 using namespace std;
 
@@ -49,6 +52,7 @@ const vector<string> triggerNamesLbL = {
   "HLT_HIUPC_SingleEG3_NotMBHF2AND_v1",
   "HLT_HIUPC_SingleEG5_NotMBHF2AND_v1",
   "HLT_HIUPC_SingleEG3_BptxAND_SinglePixelTrack_MaxPixelTrack_v1",
+  "HLT_HIUPC_SingleMuOpen_NotMBHF2AND_v1",
 };
 
 enum EDataset{
@@ -91,6 +95,8 @@ enum EPhysObjType {
   kElectron,
   kGoodElectron,
   kGoodMatchedElectron,
+  kMuon,
+  kGoodMuon,
   kL1EG,
 };
 
@@ -105,6 +111,8 @@ const vector<EPhysObjType> physObjTypes = {
   kElectron,
   kGoodElectron,
   kGoodMatchedElectron,
+  kMuon,
+  kGoodMuon,
   kL1EG,
 };
 

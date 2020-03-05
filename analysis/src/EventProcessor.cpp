@@ -95,9 +95,27 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   eventTree->SetBranchAddress("eleSCPhi"              , &electronSCPhi);
   eventTree->SetBranchAddress("eleSCEn"               , &electronSCEn);
   
-  eventTree->SetBranchAddress("elePFChIso"            , &electronChIso);
-  eventTree->SetBranchAddress("elePFPhoIso"           , &electronPhoIso);
-  eventTree->SetBranchAddress("elePFNeuIso"           , &electronNeuIso);
+  eventTree->SetBranchAddress("elePFChIso"        , &electronChIso);
+  eventTree->SetBranchAddress("elePFPhoIso"       , &electronPhoIso);
+  eventTree->SetBranchAddress("elePFNeuIso"       , &electronNeuIso);
+
+  eventTree->SetBranchAddress("nMu"              , &nPhysObjects.at(kMuon));
+  eventTree->SetBranchAddress("muCharge"         , &muonCharge);
+//  eventTree->SetBranchAddress("muMissHits"       , &muonNmissing);
+  eventTree->SetBranchAddress("muPt"             , &muonPt);
+  eventTree->SetBranchAddress("muEta"            , &muonEta);
+  eventTree->SetBranchAddress("muPhi"            , &muonPhi);
+//  eventTree->SetBranchAddress("muHoverE"         , &muonHoverE);
+//  eventTree->SetBranchAddress("muPFRelIsoWithEA" , &muonRelIsoWithEA);
+//  eventTree->SetBranchAddress("mudEtaAtVtx"      , &muonDetaSeed);
+//  eventTree->SetBranchAddress("muSCEta"          , &muonSCEta);
+//  eventTree->SetBranchAddress("muSCEt"           , &muonSCEt);
+//  eventTree->SetBranchAddress("muSCPhi"          , &muonSCPhi);
+//  eventTree->SetBranchAddress("muSCEn"           , &muonSCEn);
+  
+  eventTree->SetBranchAddress("muPFChIso"        , &muonChIso);
+  eventTree->SetBranchAddress("muPFPhoIso"       , &muonPhoIso);
+  eventTree->SetBranchAddress("muPFNeuIso"       , &muonNeuIso);
   
   l1Tree->SetBranchAddress("nEGs"                     , &nL1EGs);
   l1Tree->SetBranchAddress("egEta"                    , &L1EGeta);
@@ -264,6 +282,32 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     
     currentEvent->physObjects.at(kElectron).push_back(electron);
   }
+
+  // Fill in collection of muons
+  
+  for(size_t iMuon=0; iMuon<nPhysObjects.at(kMuon); iMuon++){
+    auto muon = make_shared<PhysObject>();
+    
+    muon->charge       = muonCharge->at(iMuon);
+//    muon->nMissingHits = muonNmissing->at(iMuon);
+    muon->pt           = muonPt->at(iMuon);
+    muon->eta          = muonEta->at(iMuon);
+    muon->phi          = muonPhi->at(iMuon);
+//    muon->hOverE       = muonHoverE->at(iMuon);
+    // TODO: fix missing RelIsoWithEA branch!!
+//    muon->relIsoWithEA = muonRelIsoWithEA->at(iMuon);
+//    muon->dEtaSeed     = muonDetaSeed->at(iMuon);
+//    muon->etaSC        = muonSCEta->at(iMuon);
+//    muon->etSC         = muonSCEt->at(iMuon);
+//    muon->phiSC        = muonSCPhi->at(iMuon);
+//    muon->energySC     = muonSCEn->at(iMuon);
+    muon->chargedIso   = muonChIso->at(iMuon);
+    muon->photonIso    = muonPhoIso->at(iMuon);
+    muon->neutralIso   = muonNeuIso->at(iMuon);
+    
+    currentEvent->physObjects.at(kMuon).push_back(muon);
+  }
+
   
   // Fill in collection of L1 EG objects
   

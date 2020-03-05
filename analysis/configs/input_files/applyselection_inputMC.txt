@@ -1,0 +1,5 @@
+/afs/cern.ch/user/m/mnickel/private/LightByLight2018/analysis/configs/efficiencies.md
+/eos/cms/store/group/phys_top/gkrintir/LbL/GammaGamma2MuMu_GENSIM_woPtCut_PbPb5TeV_v1/crab_GammaGamma2MuMu_GENSIM_woPtCut/200222_153302/0000/HiForestAOD_250.root
+/eos/user/m/mnickel/TauTau/testdata/data_sig_mu_250-MC.root
+/eos/user/m/mnickel/TauTau/testdata/data_mu_ele_250-MC.root
+/eos/user/m/mnickel/TauTau/testdata/data_mu_mu_250-MC.root

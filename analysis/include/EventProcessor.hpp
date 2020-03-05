@@ -103,6 +103,23 @@ private:
   vector<float> *electronPhoIso         = nullptr;
   vector<float> *electronNeuIso         = nullptr;
 
+
+  vector<int>   *muonCharge         = nullptr;
+//  vector<int>   *muonNmissing       = nullptr;
+  vector<float> *muonPt             = nullptr;
+  vector<float> *muonEta            = nullptr;
+  vector<float> *muonPhi            = nullptr;
+//  vector<float> *muonHoverE         = nullptr;
+//  vector<float> *muonRelIsoWithEA   = nullptr;
+//  vector<float> *muonDetaSeed       = nullptr;
+//  vector<float> *muonSCEta          = nullptr;
+//  vector<float> *muonSCEt           = nullptr;
+//  vector<float> *muonSCPhi          = nullptr;
+//  vector<float> *muonSCEn           = nullptr;
+  vector<float> *muonChIso          = nullptr;
+  vector<float> *muonPhoIso         = nullptr;
+  vector<float> *muonNeuIso         = nullptr;
+
   vector<float> *L1EGeta                = nullptr;
   vector<float> *L1EGphi                = nullptr;
   vector<float> *L1EGet                 = nullptr;
