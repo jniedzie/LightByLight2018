@@ -8,6 +8,7 @@
 #include "EventProcessor.hpp"
 #include "ConfigManager.hpp"
 #include "PhysObjectProcessor.hpp"
+#include "Logger.hpp"
 
 string configPath = "configs/efficiencies.md";
 string outputPath = "results/efficienciesLbL.root";
@@ -62,7 +63,7 @@ int main()
   // Loop over events
   int iEvent;
   for(iEvent=0; iEvent<eventProcessor->GetNevents(); iEvent++){
-    if(iEvent%10000 == 0) cout<<"Processing event "<<iEvent<<endl;
+    if(iEvent%10000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
     if(iEvent >= config.params("maxEvents")) break;
     
     auto event = eventProcessor->GetEvent(iEvent);
@@ -141,23 +142,23 @@ int main()
   }
   
   // Print the results
-  cout<<"\n\n------------------------------------------------------------------------"<<endl;
-  cout<<"N event analyzed: "<<iEvent<<endl;
-  cout<<"N gen events within limits: "<<nGenEvents<<endl;
-  cout<<"N events passing all selections: "<<nEventsPassingAll<<endl;
-  cout<<"N events with matched photons passing selection: "<<nEventsIDmatched<<endl;
-  cout<<"N events passing ID: "<<nEventsPassingID<<endl;
-  cout<<"N events passing ID and trigger: "<<nEventsPassingIDandTrigger<<endl;
-  cout<<"N events passing ID, trigger and charged excl: "<<nEventsPassingIDandTriggerAndChargedExcl<<endl;
-  cout<<"N events passing ID, trigger and both excl: "<<nEventsPassingIDandTriggerAndBothExcl<<endl;
+  Log(0)<<"\n\n------------------------------------------------------------------------\n";
+  Log(0)<<"N event analyzed: "<<iEvent<<"\n";
+  Log(0)<<"N gen events within limits: "<<nGenEvents<<"\n";
+  Log(0)<<"N events passing all selections: "<<nEventsPassingAll<<"\n";
+  Log(0)<<"N events with matched photons passing selection: "<<nEventsIDmatched<<"\n";
+  Log(0)<<"N events passing ID: "<<nEventsPassingID<<"\n";
+  Log(0)<<"N events passing ID and trigger: "<<nEventsPassingIDandTrigger<<"\n";
+  Log(0)<<"N events passing ID, trigger and charged excl: "<<nEventsPassingIDandTriggerAndChargedExcl<<"\n";
+  Log(0)<<"N events passing ID, trigger and both excl: "<<nEventsPassingIDandTriggerAndBothExcl<<"\n";
   
-  cout<<"Diphoton efficiency: "; PrintEfficiency(nEventsPassingAll, nGenEvents);
-  cout<<"Reco+ID efficiency: "; PrintEfficiency(nEventsIDmatched, nGenEvents);
-  cout<<"Trigger efficiency: "; PrintEfficiency(nEventsPassingIDandTrigger, nEventsPassingID);
-  cout<<"Cherged exclusivity efficiency: "; PrintEfficiency(nEventsPassingIDandTriggerAndChargedExcl, nEventsPassingIDandTrigger);
-  cout<<"Neutral exclusivity efficiency: "; PrintEfficiency(nEventsPassingIDandTriggerAndBothExcl, nEventsPassingIDandTriggerAndChargedExcl);
+  Log(0)<<"Diphoton efficiency: "; PrintEfficiency(nEventsPassingAll, nGenEvents);
+  Log(0)<<"Reco+ID efficiency: "; PrintEfficiency(nEventsIDmatched, nGenEvents);
+  Log(0)<<"Trigger efficiency: "; PrintEfficiency(nEventsPassingIDandTrigger, nEventsPassingID);
+  Log(0)<<"Cherged exclusivity efficiency: "; PrintEfficiency(nEventsPassingIDandTriggerAndChargedExcl, nEventsPassingIDandTrigger);
+  Log(0)<<"Neutral exclusivity efficiency: "; PrintEfficiency(nEventsPassingIDandTriggerAndBothExcl, nEventsPassingIDandTriggerAndChargedExcl);
   
-  cout<<"------------------------------------------------------------------------\n\n"<<endl;
+  Log(0)<<"------------------------------------------------------------------------\n\n\n";
   
   // Save histograms
   TFile *outFile = new TFile(outputPath.c_str(), "recreate");

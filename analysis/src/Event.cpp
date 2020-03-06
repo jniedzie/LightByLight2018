@@ -4,6 +4,7 @@
 
 #include "Event.hpp"
 #include "PhysObjectProcessor.hpp"
+#include "Logger.hpp"
 
 Event::Event()
 {
@@ -66,7 +67,7 @@ PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
   else if(type == kGoodMuon)        return GetGoodMuons(cutFlowHist);
   else if(type == kGoodGeneralTrack)    return GetGoodGeneralTracks(cutFlowHist);
   
-  cout<<"ERROR -- unrecognized phys object type: "<<type<<"!!!"<<endl;
+  Log(0)<<"ERROR -- unrecognized phys object type: "<<type<<"!!!\n";
   return PhysObjects();
 }
 
@@ -107,7 +108,7 @@ PhysObjects Event::GetGoodPhotons()
     photon->GetEnergyCrystalRight();
     
     if(E4 < 0){
-      cout<<"WARNING -- swiss cross cannot be calculated. The event will pass this selection automatically!!"<<endl;
+      Log(1)<<"WARNING -- swiss cross cannot be calculated. The event will pass this selection automatically!!\n";
     }
     else{
       double swissCross = E4/photon->GetEnergyCrystalMax();
@@ -499,7 +500,7 @@ double Event::GetEmThresholdForTower(const PhysObject &tower)
   else{
     threshold = config.params("noiseThreshold"+caloName.at(subdet));
   }
-  if(threshold < 0) cout<<"ERROR - could not find threshold for thower !!"<<endl;
+  if(threshold < 0) Log(0)<<"ERROR - could not find threshold for thower !!\n";
   return threshold;
 }
 

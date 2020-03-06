@@ -3,6 +3,7 @@
 //  Created by Jeremi Niedziela on 23/07/2019.
 
 #include "PhysObject.hpp"
+#include "Logger.hpp"
 
 PhysObject::PhysObject() :
 eta(9999),
@@ -68,7 +69,7 @@ ECaloType PhysObject::GetTowerSubdetHad() const
   if(fabs(eta) > 0 && fabs(eta) < maxEtaHB) return kHB;
   if(fabs(eta) > minEtaHE && fabs(eta) < maxEtaHE) return kHE;
 
-  cout<<"ERROR - could not determine calo tower sub-det!!"<<endl;
+  Log(0)<<"ERROR - could not determine calo tower sub-det!!\n";
   
   return nCaloTypes;
 }
@@ -81,125 +82,124 @@ ECaloType PhysObject::GetTowerSubdetEm() const
   if(fabs(eta) > 0 && fabs(eta) < maxEtaEB) return kEB;
   if(fabs(eta) > minEtaEE && fabs(eta) < maxEtaEE) return kEE;
   
-  cout<<"ERROR - could not determine calo tower sub-det!!"<<endl;
+  Log(0)<<"ERROR - could not determine calo tower sub-det!!\n";
   
   return nCaloTypes;
 }
 
 
-
 double PhysObject::GetEta() const
 {
-  if(eta>999) cout<<"WARNING - carefull, eta probably not set"<<endl;
+  if(eta>999) Log(1)<<"WARNING - carefull, eta probably not set\n";
   return eta;
 }
 
 double PhysObject::GetPhi() const
 {
-  if(phi>999) cout<<"WARNING - carefull, phi probably not set"<<endl;
+  if(phi>999) Log(1)<<"WARNING - carefull, phi probably not set\n";
   return phi;
 }
 
 double PhysObject::GetEt()  const
 {
-  if(et < 0) cout<<"WARNING - carefull, et probably not set"<<endl;
+  if(et < 0) Log(1)<<"WARNING - carefull, et probably not set\n";
   return et;
 }
 
 double PhysObject::GetPt()  const
 {
-  if(pt<0) cout<<"WARNING - carefull, pt probably not set"<<endl;
+  if(pt<0) Log(1)<<"WARNING - carefull, pt probably not set\n";
   return pt;
 }
 
 double PhysObject::GetMomentum()  const
 {
-  if(p<0) cout<<"WARNING - carefull, p probably not set"<<endl;
+  if(p<0) Log(1)<<"WARNING - carefull, p probably not set\n";
   return p;
 }
 
 double PhysObject::GetEtaWidth()  const
 {
   if(etaWidth < 0)
-    cout<<"WARNING - carefull, etaWidth probably not set"<<endl;
+    Log(1)<<"WARNING - carefull, etaWidth probably not set\n";
   return etaWidth;
 }
 
 double PhysObject::GetPhiWidth()  const
 {
-  if(phiWidth < 0) cout<<"WARNING - carefull, phiWidth probably not set"<<endl;
+  if(phiWidth < 0) Log(1)<<"WARNING - carefull, phiWidth probably not set\n";
   return phiWidth;
 }
 
 double PhysObject::GetHoverE()  const
 {
-  if(hOverE < 0) cout<<"WARNING - carefull, hOverE probably not set"<<endl;
+  if(hOverE < 0) Log(1)<<"WARNING - carefull, hOverE probably not set\n";
   return hOverE;
 }
 
 int PhysObject::GetPID() const
 {
-  if(pdgID==0) cout<<"WARNING - carefull, pdgID probably not set"<<endl;
+  if(pdgID==0) Log(1)<<"WARNING - carefull, pdgID probably not set\n";
   return pdgID;
 }
 
 int PhysObject::GetCharge() const
 {
-  if(charge > 999) cout<<"WARNING - carefull, charge probably not set"<<endl;
+  if(charge > 999) Log(1)<<"WARNING - carefull, charge probably not set\n";
   return charge;
 }
 
 int PhysObject::GetNmissingHits() const
 {
-  if(nMissingHits < 0) cout<<"WARNING - carefull, nMissingHits probably not set"<<endl;
+  if(nMissingHits < 0) Log(1)<<"WARNING - carefull, nMissingHits probably not set\n";
   return nMissingHits;
 }
 
 int PhysObject::GetNvalidHits() const
 {
-  if(nValidHits < 0) cout<<"WARNING - carefull, nValidHits probably not set"<<endl;
+  if(nValidHits < 0) Log(1)<<"WARNING - carefull, nValidHits probably not set\n";
   return nValidHits;
 }
 
 int PhysObject::GetPurity() const
 {
-  if(purity < -999) cout<<"WARNING - carefull, purity probably not set"<<endl;
+  if(purity < -999) Log(1)<<"WARNING - carefull, purity probably not set\n";
   return purity;
 }
 
 double PhysObject::GetChi2() const
 {
-  if(chi2 < -999) cout<<"WARNING - carefull, chi2 probably not set"<<endl;
+  if(chi2 < -999) Log(1)<<"WARNING - carefull, chi2 probably not set\n";
   return chi2;
 }
 
 double PhysObject::GetDxy() const
 {
-  if(dxy < -999) cout<<"WARNING - carefull, dxy probably not set"<<endl;
+  if(dxy < -999) Log(1)<<"WARNING - carefull, dxy probably not set\n";
   return dxy;
 }
 
 double PhysObject::GetDz() const
 {
-  if(dz < -999) cout<<"WARNING - carefull, dz probably not set"<<endl;
+  if(dz < -999) Log(1)<<"WARNING - carefull, dz probably not set\n";
   return dz;
 }
 
 double PhysObject::GetDxyErr() const
 {
-  if(dxyErr < -999) cout<<"WARNING - carefull, dxyErr probably not set"<<endl;
+  if(dxyErr < -999) Log(1)<<"WARNING - carefull, dxyErr probably not set\n";
   return dxyErr;
 }
 
 double PhysObject::GetDzErr() const
 {
-  if(dzErr < -999) cout<<"WARNING - carefull, dzErr probably not set"<<endl;
+  if(dzErr < -999) Log(1)<<"WARNING - carefull, dzErr probably not set\n";
   return dzErr;
 }
 
 double PhysObject::GetXYdistanceFromBeamSpot(EDataset dataset) const
 {
-  if(vx < -999 || vy < -999) cout<<"WARNING - carefull, vx or vy probably not set"<<endl;
+  if(vx < -999 || vy < -999) Log(1)<<"WARNING - carefull, vx or vy probably not set\n";
   auto [bs_x, bs_y, bs_z] = GetBeamSpot(dataset);
   double px = pt * cos(phi);
   double py = pt * sin(phi);
@@ -210,7 +210,7 @@ double PhysObject::GetXYdistanceFromBeamSpot(EDataset dataset) const
 
 double PhysObject::GetZdistanceFromBeamSpot(EDataset dataset) const
 {
-  if(vz < -999) cout<<"WARNING - carefull, vz probably not set"<<endl;
+  if(vz < -999) Log(1)<<"WARNING - carefull, vz probably not set\n";
   auto [bs_x, bs_y, bs_z] = GetBeamSpot(dataset);
   double px = pt * cos(phi);
   double py = pt * sin(phi);
@@ -224,121 +224,121 @@ double PhysObject::GetZdistanceFromBeamSpot(EDataset dataset) const
 
 double PhysObject::GetVertexX() const
 {
-  if(vx < -999) cout<<"WARNING - carefull, vx probably not set"<<endl;
+  if(vx < -999) Log(1)<<"WARNING - carefull, vx probably not set\n";
   return vx;
 }
 
 double PhysObject::GetVertexY() const
 {
-  if(vy < -999) cout<<"WARNING - carefull, vy probably not set"<<endl;
+  if(vy < -999) Log(1)<<"WARNING - carefull, vy probably not set\n";
   return vy;
 }
 
 double PhysObject::GetVertexZ() const
 {
-  if(vz < -999) cout<<"WARNING - carefull, vz probably not set"<<endl;
+  if(vz < -999) Log(1)<<"WARNING - carefull, vz probably not set\n";
   return vz;
 }
 
 double PhysObject::GetEnergy()     const
 {
-  if(energy<0) cout<<"WARNING - carefull, energy probably not set"<<endl;
+  if(energy<0) Log(1)<<"WARNING - carefull, energy probably not set\n";
   return energy;
 }
 
 double PhysObject::GetEnergyHad() const
 {
-  if(energyHad < -999) cout<<"WARNING - carefull, energyHad probably not set"<<endl;
+  if(energyHad < -999) Log(1)<<"WARNING - carefull, energyHad probably not set\n";
   return energyHad;
 }
 
 double PhysObject::GetEnergyCrystalMax() const
 {
-  if(energyMax < -999) cout<<"WARNING - carefull, energyMax probably not set"<<endl;
+  if(energyMax < -999) Log(1)<<"WARNING - carefull, energyMax probably not set\n";
   return energyMax;
 }
 
 double PhysObject::GetEnergyCrystalTop() const
 {
-  if(energyTop < -999) cout<<"WARNING - carefull, energyTop probably not set"<<endl;
+  if(energyTop < -999) Log(1)<<"WARNING - carefull, energyTop probably not set\n";
   return energyTop;
 }
 
 double PhysObject::GetEnergyCrystalBottom() const
 {
-  if(energyBottom < -999) cout<<"WARNING - carefull, energyBottom probably not set"<<endl;
+  if(energyBottom < -999) Log(1)<<"WARNING - carefull, energyBottom probably not set\n";
   return energyBottom;
 }
 
 double PhysObject::GetEnergyCrystalLeft() const
 {
-  if(energyLeft < -999) cout<<"WARNING - carefull, energyLeft probably not set"<<endl;
+  if(energyLeft < -999) Log(1)<<"WARNING - carefull, energyLeft probably not set\n";
   return energyLeft;
 }
 
 double PhysObject::GetEnergyCrystalRight() const
 {
-  if(energyRight < -999) cout<<"WARNING - carefull, energyRight probably not set"<<endl;
+  if(energyRight < -999) Log(1)<<"WARNING - carefull, energyRight probably not set\n";
   return energyRight;
 }
 
 double PhysObject::GetEnergyEm() const
 {
-  if(energyEm < -999) cout<<"WARNING - carefull, energyEm probably not set"<<endl;
+  if(energyEm < -999) Log(1)<<"WARNING - carefull, energyEm probably not set\n";
   return energyEm;
 }
 
 double PhysObject::GetEtaSC() const
 {
-  if(etaSC > 999) cout<<"WARNING - carefull, etaSC probably not set"<<endl;
+  if(etaSC > 999) Log(1)<<"WARNING - carefull, etaSC probably not set\n";
   return etaSC;
 }
 
 double PhysObject::GetEtSC() const
 {
-  if(etSC < 0) cout<<"WARNING - carefull, etSC probably not set"<<endl;
+  if(etSC < 0) Log(1)<<"WARNING - carefull, etSC probably not set\n";
   return etSC;
 }
 
 double PhysObject::GetPhiSC() const
 {
-  if(phiSC > 999) cout<<"WARNING - carefull, phiSC probably not set"<<endl;
+  if(phiSC > 999) Log(1)<<"WARNING - carefull, phiSC probably not set\n";
   return phiSC;
 }
 
 double PhysObject::GetEnergySC() const
 {
-  if(energySC < 0) cout<<"WARNING - carefull, energySC probably not set"<<endl;
+  if(energySC < 0) Log(1)<<"WARNING - carefull, energySC probably not set\n";
   return energySC;
 }
 
 double PhysObject::GetRelIsoWithEA() const
 {
-  if(relIsoWithEA < 0) cout<<"WARNING - carefull, relIsoWithEA probably not set"<<endl;
+  if(relIsoWithEA < 0) Log(1)<<"WARNING - carefull, relIsoWithEA probably not set\n";
   return relIsoWithEA;
 }
 
 double PhysObject::GetDetaSeed() const
 {
-  if(dEtaSeed < -999) cout<<"WARNING - carefull, dEtaSeed probably not set"<<endl;
+  if(dEtaSeed < -999) Log(1)<<"WARNING - carefull, dEtaSeed probably not set\n";
   return dEtaSeed;
 }
 
 double PhysObject::GetChargedIso() const
 {
-  if(chargedIso < 0) cout<<"WARNING - carefull, chargedIso probably not set"<<endl;
+  if(chargedIso < 0) Log(1)<<"WARNING - carefull, chargedIso probably not set\n";
   return chargedIso;
 }
 
 double PhysObject::GetPhotonIso() const
 {
-  if(photonIso < 0) cout<<"WARNING - carefull, photonIso probably not set"<<endl;
+  if(photonIso < 0) Log(1)<<"WARNING - carefull, photonIso probably not set\n";
   return photonIso;
 }
 
 double PhysObject::GetNeutralIso() const
 {
-  if(neutralIso < 0) cout<<"WARNING - carefull, neutralIso probably not set"<<endl;
+  if(neutralIso < 0) Log(1)<<"WARNING - carefull, neutralIso probably not set\n";
   return neutralIso;
 }
 

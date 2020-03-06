@@ -3,8 +3,7 @@
 //  Created by Jeremi Niedziela on 23/07/2019.
 
 #include "ConfigManager.hpp"
-#include <fstream>
-#include <sstream>
+#include "Logger.hpp"
 
 ConfigManager config("init");
 
@@ -37,7 +36,7 @@ ConfigManager::ConfigManager(string path)
 double ConfigManager::params(string name)
 {
   if(_params.find(name) == _params.end()){
-    cout<<"ERROR -- requested param "<<name<<" doesn't exist in the configuration"<<endl;
+    Log(0)<<"ERROR -- requested param "<<name<<" doesn't exist in the configuration\n";
     return 0;
   }
   return _params.at(name);
