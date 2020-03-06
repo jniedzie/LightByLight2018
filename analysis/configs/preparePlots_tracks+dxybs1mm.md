@@ -12,11 +12,11 @@ maxDeltaPhiEE:  0.4
 ### Don't look at towers that are in very noisy region of EE
 maxEtaEEtower:      2.3
 
-### Charged exclusivity cuts (GeV)
+### Track cuts:
 trackMinPt:                              0.1 
 trackMaxEta:                           2.4
 trackMaxDxy:                           999999
-trackMaxXYdistanceFromBS:  999999
+trackMaxXYdistanceFromBS:  0.1
 trackMaxDxyOverSigma:         999999
 trackMaxDz:                             999999
 trackMaxZdistanceFromBS:    999999
@@ -38,7 +38,7 @@ photonMinSwissCross:             0.005
 diphotonMaxPt:                        1.0
 diphotonMaxRapidity:               9999999
 diphotonMinMass:                    5.0
-diphotonMaxAco:                     0.01
+diphotonMaxAco:                      0.01
 photonRejectConverted:           1
 
 ### Electron ID cuts:

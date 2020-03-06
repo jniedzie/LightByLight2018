@@ -9,6 +9,7 @@ if [ $3 -eq 0 ]
 then
 # default
   configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_default.md"
+  suffix="_default"
 elif [ $3 -eq 1 ]
 then
 # HF thresholds increased to 20 GeV
@@ -79,6 +80,16 @@ then
   # add d_xy < 1 mm requirement on tracks
   configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_tracks+dxy1mm.md"
   suffix="_tracks+dxy1mm"
+elif [ $3 -eq 15 ]
+then
+  # add pt < 0.8 requirement on diphoton
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_diphoton+pt_0p8.md"
+  suffix="_diphoton+pt_0p8"
+elif [ $3 -eq 16 ]
+then
+  # add dxy_bs < 1 mm requirement on tracks
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_tracks+dxybs1mm.md"
+  suffix="_tracks+dxybs1mm"
 fi
 
 # for the data:
@@ -90,7 +101,7 @@ basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
 
 if [ $2 -eq 0 ]
 then
-  sampleName="Data" # last chunk number: 7149
+  sampleName="Data" # last chunk number: 7440
 #  inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
   inputPath="${basePath}/skimmed_ntuples/data_doubleEG2/ntuples_loose_selections_${1}.root"
   outputPath="${basePath}/analysis/basicPlots/basicPlots_data${suffix}"
