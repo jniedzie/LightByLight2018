@@ -389,13 +389,13 @@ bool Event::HasAdditionalTowers(map<ECaloType, bool> &failingCalo)
         passes = false;
       }
     }
-    else if((subdetHad==kHB || subdetHad==kHE) && !failingCalo[subdetHad]){ // Check HB and HE exclusivity
+    if((subdetHad==kHB || subdetHad==kHE) && !failingCalo[subdetHad]){ // Check HB and HE exclusivity
       if(tower->GetEnergyHad() > config.params("noiseThreshold"+caloName.at(subdetHad))){
         failingCalo[subdetHad] = true;
         passes = false;
       }
     }
-    else if(subdetEm==kEB && !failingCalo[subdetEm]){ // Check EB and EE exclusivity
+    if(subdetEm==kEB && !failingCalo[subdetEm]){ // Check EB and EE exclusivity
       if(IsOverlappingWithGoodPhoton(*tower)) continue;
       if(IsOverlappingWithGoodElectron(*tower)) continue;
       
@@ -404,7 +404,7 @@ bool Event::HasAdditionalTowers(map<ECaloType, bool> &failingCalo)
         passes = false;
       }
     }
-    else if(subdetEm==kEE && !failingCalo[subdetEm]){ // Check EB and EE exclusivity
+    if(subdetEm==kEE && !failingCalo[subdetEm]){ // Check EB and EE exclusivity
       if(fabs(tower->GetEta()) > config.params("maxEtaEEtower")) continue;
       if(physObjectProcessor.IsInHEM(*tower)) continue;
       if(IsOverlappingWithGoodPhoton(*tower)) continue;
