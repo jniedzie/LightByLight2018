@@ -1,8 +1,5 @@
 ##  Efficiencies config
 
-### Verbosity level (0: critical errors only, 1: errors and warnings, 2: full debug log):
-verbosityLevel: 0
-
 ### Max number of events to analyze
 maxEvents: 9999999
 
@@ -15,7 +12,7 @@ maxDeltaPhiEE:  0.4
 ### Don't look at towers that are in very noisy region of EE
 maxEtaEEtower:      2.3
 
-### Track cuts:
+### Charged exclusivity cuts (GeV)
 trackMinPt:                              0.1 
 trackMaxEta:                           2.4
 trackMaxDxy:                           999999
@@ -38,10 +35,10 @@ photonMaxHoverEendcap:       0.0590
 photonMaxEtaWidthBarrel:       0.0106
 photonMaxEtaWidthEndcap:    0.0272
 photonMinSwissCross:             0.005
-diphotonMaxPt:                        1.0
+diphotonMaxPt:                        0.8
 diphotonMaxRapidity:               9999999
 diphotonMinMass:                    5.0
-diphotonMaxAco:                      0.01
+diphotonMaxAco:                     0.01
 photonRejectConverted:           1
 
 ### Electron ID cuts:

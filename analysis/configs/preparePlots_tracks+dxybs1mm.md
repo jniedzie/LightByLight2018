@@ -1,8 +1,5 @@
 ##  Efficiencies config
 
-### Verbosity level (0: critical errors only, 1: errors and warnings, 2: full debug log):
-verbosityLevel: 0
-
 ### Max number of events to analyze
 maxEvents: 9999999
 
@@ -19,7 +16,7 @@ maxEtaEEtower:      2.3
 trackMinPt:                              0.1 
 trackMaxEta:                           2.4
 trackMaxDxy:                           999999
-trackMaxXYdistanceFromBS:  999999
+trackMaxXYdistanceFromBS:  0.1
 trackMaxDxyOverSigma:         999999
 trackMaxDz:                             999999
 trackMaxZdistanceFromBS:    999999

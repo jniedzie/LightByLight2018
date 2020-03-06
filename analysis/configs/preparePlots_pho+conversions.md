@@ -1,8 +1,5 @@
 ##  Efficiencies config
 
-### Verbosity level (0: critical errors only, 1: errors and warnings, 2: full debug log):
-verbosityLevel: 0
-
 ### Max number of events to analyze
 maxEvents: 9999999
 
@@ -15,17 +12,15 @@ maxDeltaPhiEE:  0.4
 ### Don't look at towers that are in very noisy region of EE
 maxEtaEEtower:      2.3
 
-### Track cuts:
-trackMinPt:                              0.1 
-trackMaxEta:                           2.4
-trackMaxDxy:                           999999
-trackMaxXYdistanceFromBS:  999999
-trackMaxDxyOverSigma:         999999
-trackMaxDz:                             999999
-trackMaxZdistanceFromBS:    999999
-trackMaxDzOverSigma:           999999
-trackMinNvalidHits:                  0
-trackMaxChi2:                          999999
+### Charged exclusivity cuts (GeV)
+trackMinPt:                   0.1 
+trackMaxEta:                2.4
+trackMinNvalidHits:      0
+trackMaxDxy:                      999999
+trackMaxDxyOverSigma:    999999
+trackMaxDz:                        999999
+trackMaxDzOverSigma:      999999
+trackMaxChi2:              999999
 
 ### Max ΔR for matching for reco+ID efficiency
 maxDeltaR:              0.3
@@ -41,8 +36,8 @@ photonMinSwissCross:             0.005
 diphotonMaxPt:                        1.0
 diphotonMaxRapidity:               9999999
 diphotonMinMass:                    5.0
-diphotonMaxAco:                      0.01
-photonRejectConverted:           1
+diphotonMaxAco:                     0.01
+photonRejectConverted:            1
 
 ### Electron ID cuts:
 electronMinPt:                            2.0

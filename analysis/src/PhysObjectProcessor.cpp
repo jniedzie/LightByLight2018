@@ -4,6 +4,7 @@
 
 #include "PhysObjectProcessor.hpp"
 #include "ConfigManager.hpp"
+#include "Logger.hpp"
 
 PhysObjectProcessor physObjectProcessor = PhysObjectProcessor();
 
@@ -93,7 +94,7 @@ double PhysObjectProcessor::GetAcoplanarity(const PhysObject &a, const PhysObjec
   double aco = 1 - deltaPhi/TMath::Pi();
   
   if(aco < 0){
-    cout<<"ERROR -- acoplanarity <0, which should never happen!!"<<endl;
+    Log(0)<<"ERROR -- acoplanarity <0, which should never happen!!\n";
   }
   
   return aco;
