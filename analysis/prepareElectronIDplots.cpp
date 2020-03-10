@@ -6,6 +6,7 @@
 #include "EventProcessor.hpp"
 #include "PhysObjectProcessor.hpp"
 #include "ConfigManager.hpp"
+#include "Logger.hpp"
 
 string configPath = "configs/efficiencies.md";
 string outputPath = "results/electronID_test.root";
@@ -50,7 +51,7 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
                     string datasetName)
 {
   for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
-    if(iEvent%10000==0) cout<<"Processing event "<<iEvent<<endl;
+    if(iEvent%10000==0) Log(0)<<"Processing event "<<iEvent<<"\n";
     if(iEvent >= config.params("maxEvents")) break;
     
     auto event = events->GetEvent(iEvent);
@@ -115,8 +116,8 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
 int main(int argc, char* argv[])
 {
   if(argc != 1 && argc != 8){
-    cout<<"This app requires 0 or 7 parameters."<<endl;
-    cout<<"./getEfficienciesData configPath inputPathData inputPathLbL inputPathQED_SC inputPathQED_SL inputPathCEP outputPath"<<endl;
+    Log(0)<<"This app requires 0 or 7 parameters.\n";
+    Log(0)<<"./getEfficienciesData configPath inputPathData inputPathLbL inputPathQED_SC inputPathQED_SL inputPathCEP outputPath\n";
     exit(0);
   }
   
@@ -156,7 +157,7 @@ int main(int argc, char* argv[])
                                 get<4>(params), get<5>(params), get<6>(params));
     }
     
-    cout<<"Creating "<<name<<" plots"<<endl;
+    Log(0)<<"Creating "<<name<<" plots\n";
     auto events = make_unique<EventProcessor>(argc == 8 ? inputPaths[dataset] : inFileNames.at(dataset), dataset);
     fillHistograms(events, hists, hists2D, name);
     

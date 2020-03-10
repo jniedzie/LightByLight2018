@@ -18,7 +18,7 @@ bool storeHLTtrees = false;
 bool IsGoodForRecoEfficiency(Event &event)
 {
   // Check trigger
-  if(!event.HasSingleEG3Trigger() && !event.HasSingleEG5Trigger()) return false;
+  if(!event.HasTrigger(kSingleEG3noHF) && !event.HasTrigger(kSingleEG5noHF)) return false;
   
   // Make sure that there are 2 tracks with opposite charges
   if(event.GetPhysObjects(kGoodGeneralTrack).size() != 2) return false;
@@ -36,7 +36,7 @@ bool IsGoodForRecoEfficiency(Event &event)
 bool IsGoodForTrigger(Event &event)
 {
   // Check trigger
-  if(!event.HasSingleEG3Trigger() && !event.HasSingleEG5Trigger()) return false;
+  if(!event.HasTrigger(kSingleEG3noHF) && !event.HasTrigger(kSingleEG5noHF)) return false;
   
   // Check if there are at least two electrons
   if(event.GetPhysObjects(kElectron).size() < 2) return false;
@@ -52,7 +52,7 @@ bool IsGoodForTrigger(Event &event)
 bool IsGoodForHFveto(Event &event)
 {
   // Check trigger
-  if(!event.HasSingleEG3noHFvetoTrigger()) return false;
+  if(!event.HasTrigger(kSingleEG3singleTrack)) return false;
   
   // Check if there are at least two electrons
   if(event.GetPhysObjects(kElectron).size() < 2) return false;
@@ -68,7 +68,7 @@ bool IsGoodForHFveto(Event &event)
 bool IsGoodForExclusivity(Event &event)
 {
   // Check trigger
-  if(!event.HasDoubleEG2Trigger()) return false;
+  if(!event.HasTrigger(kDoubleEG2noHF)) return false;
   
   // Check if there are at least two electrons
   if(event.GetPhysObjects(kElectron).size() < 2) return false;
@@ -83,7 +83,7 @@ bool IsGoodForExclusivity(Event &event)
 bool IsGoodForLbLsignal(Event &event)
 {
   // Check trigger
-  if(!event.HasDoubleEG2Trigger()) return false;
+  if(!event.HasTrigger(kDoubleEG2noHF)) return false;
   
   // Check exclusivity criteria
   if(event.HasAdditionalTowers()) return false;
@@ -96,7 +96,7 @@ bool IsGoodForLbLsignal(Event &event)
 bool IsGoodForQEDsignal(Event &event)
 {
   // Check trigger
-  if(!event.HasDoubleEG2Trigger()) return false;
+  if(!event.HasTrigger(kDoubleEG2noHF)) return false;
   
   // Check exclusivity criteria
   if(event.HasAdditionalTowers()) return false;
@@ -109,7 +109,7 @@ bool IsGoodForQEDsignal(Event &event)
 bool IsPassingLooseSelection(Event &event)
 {
   // Check trigger
-  if(!event.HasDoubleEG2Trigger()) return false;
+  if(!event.HasTrigger(kDoubleEG2noHF)) return false;
   
   // Check exclusivity criteria
   //  if(event.HasAdditionalTowers()) return false;
@@ -122,7 +122,7 @@ bool IsPassingLooseSelection(Event &event)
 bool IsPassingAllLbLCuts(Event &event, bool doHighAco)
 {
   // Check trigger
-  //  if(!event.HasDoubleEG2Trigger()) return false;
+  //  if(!event.HasTrigger(kDoubleEG2noHF)) return false;
   
   // Check exclusivity criteria
   if(event.HasAdditionalTowers()) return false;
@@ -151,7 +151,7 @@ bool IsPassingAllLbLCuts(Event &event, bool doHighAco)
 bool IsGoodForSingleMuon(Event &event)
 {
   // Check trigger
-  if(!event.HasSingleMuonTrigger()) return false;
+  if(!event.HasTrigger(kSingleMuOpenNoHF)) return false;
   
   return false;
 }
@@ -160,7 +160,7 @@ bool IsGoodForSingleMuon(Event &event)
 bool IsGoodForMuEle(Event &event)
 {
   // Check trigger
-  if(!event.HasSingleMuonTrigger()) return false;
+  if(!event.HasTrigger(kSingleMuOpenNoHF)) return false;
   // Check Electrons
   if(event.GetPhysObjects(kElectron).size() != 1) return false;
   if(event.GetPhysObjects(kMuon).size() != 1) return false;
@@ -175,7 +175,7 @@ bool IsGoodForMuEle(Event &event)
 bool IsGoodForMuMu(Event &event)
 {
   // Check trigger
-  if(!event.HasSingleMuonTrigger()) return false;
+  if(!event.HasTrigger(kSingleMuOpenNoHF)) return false;
   if(event.GetPhysObjects(kMuon).size() != 2) return false;
   if(event.GetPhysObjects(kGeneralTrack).size() != 2 ) return false;
   if(event.GetPhysObjects(kMuon)[0]->GetCharge() ==

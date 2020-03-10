@@ -9,6 +9,7 @@
 #include "PhysObjectProcessor.hpp"
 #include "ConfigManager.hpp"
 #include "EventDisplay.hpp"
+#include "Logger.hpp"
 
 string configPath = "configs/efficiencies.md";
 //string configPath = "/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/efficiencies.md";
@@ -96,7 +97,7 @@ void CheckRecoEfficiency(Event &event, map<string, TH1D*> &hists, string dataset
   hists[cutThouthName]->Fill(cutLevel++); // 0
   
   // Check trigger
-  if(!event.HasSingleEG3Trigger()) return;
+  if(!event.HasTrigger(kSingleEG3noHF)) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Preselect events with exactly two tracks
@@ -221,29 +222,29 @@ void CheckTriggerEfficiency(Event &event, map<string, TTree*> &trees, map<string
   // Check trigger
   
   // has EG3
-//    if(!event.HasSingleEG3Trigger()) return;
+//    if(!event.HasTrigger(kSingleEG3noHF)) return;
 //    double threshold = 3.0;
   
   // has EG5
-//  if(!event.HasSingleEG5Trigger()) return;
+//  if(!event.HasTrigger(kSingleEG5noHF)) return;
 //  double threshold = 5.0;
   
   // has only EG3
-//  if(!event.HasSingleEG3Trigger() || event.HasSingleEG5Trigger()) return;
+//  if(!event.HasTrigger(kSingleEG3noHF) || event.HasTrigger(kSingleEG5noHF)) return;
 //  double threshold = 3.0;
   
   // has only EG5
-//  if(event.HasSingleEG3Trigger() || !event.HasSingleEG5Trigger()) return;
+//  if(event.HasTrigger(kSingleEG3noHF) || !event.HasTrigger(kSingleEG5noHF)) return;
 //  double threshold = 5.0;
   
   // has either of the triggers
-  if(!event.HasSingleEG3Trigger() && !event.HasSingleEG5Trigger()) return;
+  if(!event.HasTrigger(kSingleEG3noHF) && !event.HasTrigger(kSingleEG5noHF)) return;
   double threshold = 3.0;
-  if(event.HasSingleEG3Trigger()) threshold = 3.0;
-  if(event.HasSingleEG5Trigger()) threshold = 5.0;
+  if(event.HasTrigger(kSingleEG3noHF)) threshold = 3.0;
+  if(event.HasTrigger(kSingleEG5noHF)) threshold = 5.0;
   
-//  if(!event.HasSingleEG3Trigger()) return;
-//  if(!event.HasSingleEG5Trigger()) return;
+//  if(!event.HasTrigger(kSingleEG3noHF)) return;
+//  if(!event.HasTrigger(kSingleEG5noHF)) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Neutral exclusivity
@@ -312,7 +313,7 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
   hists[cutThouthName]->Fill(cutLevel++); // 0
   
   // Check trigger with no HF veto
-  if(!event.HasSingleEG3noHFvetoTrigger()) return;
+  if(!event.HasTrigger(kSingleEG3singleTrack)) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Neutral exclusivity
@@ -354,7 +355,7 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
   hists["trigger_HFveto_eff_den_"+datasetName]->Fill(1);
   
   // Check if it also has double EG2 trigger
-  if(!event.HasDoubleEG2Trigger()) return;
+  if(!event.HasTrigger(kDoubleEG2noHF)) return;
   hists[cutThouthName]->Fill(cutLevel++); // 7
   hists["trigger_HFveto_eff_num_"+datasetName]->Fill(1);
 }
@@ -366,7 +367,7 @@ void CheckCHEefficiency(Event &event, map<string, TH1D*> &hists, string datasetN
   int cutLevel = 0;
   hists[cutThouthName]->Fill(cutLevel++); // 0
   
-  if(!event.HasDoubleEG2Trigger()) return;
+  if(!event.HasTrigger(kDoubleEG2noHF)) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Check that there are exaclty two electrons
@@ -409,7 +410,7 @@ void CheckNEEefficiency(Event &event, map<string, TH1D*> &hists, string datasetN
   int cutLevel = 0;
   hists[cutThouthName]->Fill(cutLevel++); // 0
   
-  if(!event.HasDoubleEG2Trigger()) return;
+  if(!event.HasTrigger(kDoubleEG2noHF)) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Check that there are exaclty two electrons
@@ -518,7 +519,7 @@ void InitializeHistograms(map<string, TH1D*> &hists, const string &datasetType)
 void PrintAndSaveResults(TFile *outFile, map<string, TH1D*> &hists,
                          const map<string, TTree*> &triggerTrees, const string &datasetType)
 {
-  cout<<"\n\n------------------------------------------------------------------------"<<endl;
+  Log(0)<<"\n\n------------------------------------------------------------------------\n";
   outFile->cd();
   
   for(auto histName : histParams){
@@ -536,41 +537,41 @@ void PrintAndSaveResults(TFile *outFile, map<string, TH1D*> &hists,
   if(doRecoEfficiency){
     nTag    = hists["reco_id_eff_den_"+datasetType]->GetBinContent(1);
     nProbe  = hists["reco_id_eff_num_"+datasetType]->GetBinContent(1);
-    cout<<"Reco N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<endl;
-    cout<<" efficiency: "; PrintEfficiency(nProbe, nTag);
+    Log(0)<<"Reco N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<"\n";
+    Log(0)<<" efficiency: "; PrintEfficiency(nProbe, nTag);
   }
   if(doHFvetoEfficiency){
     nTag    = hists["trigger_HFveto_eff_den_"+datasetType]->GetBinContent(1);
     nProbe  = hists["trigger_HFveto_eff_num_"+datasetType]->GetBinContent(1);
-    cout<<"HF veto N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<endl;
-    cout<<" efficiency: "; PrintEfficiency(nProbe, nTag);
+    Log(0)<<"HF veto N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<"\n";
+    Log(0)<<" efficiency: "; PrintEfficiency(nProbe, nTag);
   }
   if(doCHEefficiency){
     nTag    = hists["charged_exclusivity_eff_den_"+datasetType]->GetBinContent(1);
     nProbe  = hists["charged_exclusivity_eff_num_"+datasetType]->GetBinContent(1);
-    cout<<"Charged exclusivity N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<endl;
-    cout<<" efficiency: "; PrintEfficiency(nProbe, nTag);
+    Log(0)<<"Charged exclusivity N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<"\n";
+    Log(0)<<" efficiency: "; PrintEfficiency(nProbe, nTag);
   }
   if(doNEEefficiency){
     nTag    = hists["neutral_exclusivity_eff_den_"+datasetType]->GetBinContent(1);
     nProbe  = hists["neutral_exclusivity_eff_num_"+datasetType]->GetBinContent(1);
-    cout<<"Neutral N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<endl;
-    cout<<" efficiency: "; PrintEfficiency(nProbe, nTag);
+    Log(0)<<"Neutral N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<"\n";
+    Log(0)<<" efficiency: "; PrintEfficiency(nProbe, nTag);
   }
   
   
   outFile->cd(("triggerTree_"+datasetType).c_str());
   triggerTrees.at(datasetType)->Write();
   
-  cout<<"------------------------------------------------------------------------\n\n"<<endl;
+  Log(0)<<"------------------------------------------------------------------------\n\n\n";
 }
 
 /// Checks that number of arguments provided is correct and sets corresponding variables
 void ReadInputArguments(int argc, char* argv[], map<EDataset, string> &inputPaths)
 {
   if(argc != 1 && argc != 6){
-    cout<<"This app requires 0 or 5 parameters."<<endl;
-    cout<<"./getEfficienciesData configPath inputPathData inputPathQED_SC inputPathQED_SL outputPath"<<endl;
+    Log(0)<<"This app requires 0 or 5 parameters.\n";
+    Log(0)<<"./getEfficienciesData configPath inputPathData inputPathQED_SC inputPathQED_SL outputPath\n";
     exit(0);
   }
   if(argc == 6){
@@ -606,7 +607,7 @@ int main(int argc, char* argv[])
     
     // Loop over events
     for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
-      if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
+      if(iEvent%1000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
       if(iEvent >= config.params("maxEvents")) break;
       
       auto event = events->GetEvent(iEvent);

@@ -4,6 +4,7 @@
 
 #include "Event.hpp"
 #include "PhysObjectProcessor.hpp"
+#include "Logger.hpp"
 
 Event::Event()
 {
@@ -24,29 +25,9 @@ void Event::Reset()
   for(auto &[type, ready] : physObjectsReady) ready = false;
 }
 
-bool Event::HasSingleEG3Trigger() const
+bool Event::HasTrigger(ETrigger trigger) const
 {
-  return triggersLbL.at("HLT_HIUPC_SingleEG3_NotMBHF2AND_v1");
-}
-
-bool Event::HasSingleEG5Trigger() const
-{
-  return triggersLbL.at("HLT_HIUPC_SingleEG5_NotMBHF2AND_v1");
-}
-
-bool Event::HasDoubleEG2Trigger() const
-{
-  return triggersLbL.at("HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1");
-}
-
-bool Event::HasSingleEG3noHFvetoTrigger() const
-{
-  return triggersLbL.at("HLT_HIUPC_SingleEG3_BptxAND_SinglePixelTrack_MaxPixelTrack_v1");
-}
-
-bool Event::HasSingleMuonTrigger() const
-{
-  return triggersLbL.at("HLT_HIUPC_SingleMuOpen_NotMBHF2AND_v1");
+  return triggerValues.at(trigger);
 }
 
 PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
@@ -66,7 +47,7 @@ PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
   else if(type == kGoodMuon)        return GetGoodMuons(cutFlowHist);
   else if(type == kGoodGeneralTrack)    return GetGoodGeneralTracks(cutFlowHist);
   
-  cout<<"ERROR -- unrecognized phys object type: "<<type<<"!!!"<<endl;
+  Log(0)<<"ERROR -- unrecognized phys object type: "<<type<<"!!!\n";
   return PhysObjects();
 }
 
@@ -107,7 +88,7 @@ PhysObjects Event::GetGoodPhotons()
     photon->GetEnergyCrystalRight();
     
     if(E4 < 0){
-      cout<<"WARNING -- swiss cross cannot be calculated. The event will pass this selection automatically!!"<<endl;
+      Log(1)<<"WARNING -- swiss cross cannot be calculated. The event will pass this selection automatically!!\n";
     }
     else{
       double swissCross = E4/photon->GetEnergyCrystalMax();
@@ -303,27 +284,27 @@ PhysObjects Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
     
     if(fabs(track->GetXYdistanceFromBeamSpot(dataset)) > config.params("trackMaxXYdistanceFromBS")) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
-    
-    if(fabs(track->GetDxy() / track->GetDxyErr()) > config.params("trackMaxDxyOverSigma")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 4
     
-    if(fabs(track->GetDz()) > config.params("trackMaxDz")) continue;
+    if(fabs(track->GetDxy() / track->GetDxyErr()) > config.params("trackMaxDxyOverSigma")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 5
     
+    if(fabs(track->GetDz()) > config.params("trackMaxDz")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 6
+    
     if(fabs(track->GetZdistanceFromBeamSpot(dataset)) > config.params("trackMaxZdistanceFromBS")) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 7
     
     if(fabs(track->GetDz() / track->GetDzErr()) > config.params("trackMaxDzOverSigma")) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 6
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 8
     
     // Check n hits
     if(track->GetNvalidHits() < config.params("trackMinNvalidHits")) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 7
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 9
     
     // Check chi2
     if(track->GetChi2() > config.params("trackMaxChi2")) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 8
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
     
     physObjects.at(kGoodGeneralTrack).push_back(track);
   }
@@ -343,12 +324,12 @@ bool Event::HasAdditionalTowers()
         return true;
       }
     }
-    else if(subdetHad==kHB || subdetHad==kHE){ // Check HB and HE exclusivity
+    if(subdetHad==kHB || subdetHad==kHE){ // Check HB and HE exclusivity
       if(tower->GetEnergyHad() > config.params("noiseThreshold"+caloName.at(subdetHad))){
         return true;
       }
     }
-    else if(subdetEm==kEB){
+    if(subdetEm==kEB){
       if(IsOverlappingWithGoodPhoton(*tower)) continue;
       if(IsOverlappingWithGoodElectron(*tower)) continue;
       
@@ -388,13 +369,13 @@ bool Event::HasAdditionalTowers(map<ECaloType, bool> &failingCalo)
         passes = false;
       }
     }
-    else if((subdetHad==kHB || subdetHad==kHE) && !failingCalo[subdetHad]){ // Check HB and HE exclusivity
+    if((subdetHad==kHB || subdetHad==kHE) && !failingCalo[subdetHad]){ // Check HB and HE exclusivity
       if(tower->GetEnergyHad() > config.params("noiseThreshold"+caloName.at(subdetHad))){
         failingCalo[subdetHad] = true;
         passes = false;
       }
     }
-    else if(subdetEm==kEB && !failingCalo[subdetEm]){ // Check EB and EE exclusivity
+    if(subdetEm==kEB && !failingCalo[subdetEm]){ // Check EB and EE exclusivity
       if(IsOverlappingWithGoodPhoton(*tower)) continue;
       if(IsOverlappingWithGoodElectron(*tower)) continue;
       
@@ -403,7 +384,7 @@ bool Event::HasAdditionalTowers(map<ECaloType, bool> &failingCalo)
         passes = false;
       }
     }
-    else if(subdetEm==kEE && !failingCalo[subdetEm]){ // Check EB and EE exclusivity
+    if(subdetEm==kEE && !failingCalo[subdetEm]){ // Check EB and EE exclusivity
       if(fabs(tower->GetEta()) > config.params("maxEtaEEtower")) continue;
       if(physObjectProcessor.IsInHEM(*tower)) continue;
       if(IsOverlappingWithGoodPhoton(*tower)) continue;
@@ -499,7 +480,7 @@ double Event::GetEmThresholdForTower(const PhysObject &tower)
   else{
     threshold = config.params("noiseThreshold"+caloName.at(subdet));
   }
-  if(threshold < 0) cout<<"ERROR - could not find threshold for thower !!"<<endl;
+  if(threshold < 0) Log(0)<<"ERROR - could not find threshold for thower !!\n";
   return threshold;
 }
 

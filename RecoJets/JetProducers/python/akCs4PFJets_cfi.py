@@ -12,7 +12,11 @@ akCs4PFJets = cms.EDProducer(
     etaMap    = cms.InputTag('hiFJRhoProducer','mapEtaEdges'),
     rho       = cms.InputTag('hiFJRhoProducer','mapToRho'),
     rhom      = cms.InputTag('hiFJRhoProducer','mapToRhoM'),
+    rhoFlowFitParams    = cms.InputTag('hiFJRhoFlowModulationProducer','rhoFlowFitParams'),  
     csAlpha   = cms.double(1.),
+    useModulatedRho = cms.bool(False),
+    minFlowChi2Prob = cms.double(0.05),
+    maxFlowChi2Prob = cms.double(0.95),
     writeJetsWithConst = cms.bool(True),
     jetCollInstanceName = cms.string("pfParticlesCs")
 )

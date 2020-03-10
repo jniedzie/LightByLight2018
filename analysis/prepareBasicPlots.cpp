@@ -7,6 +7,7 @@
 #include "PhysObjectProcessor.hpp"
 #include "ConfigManager.hpp"
 #include "EventDisplay.hpp"
+#include "Logger.hpp"
 
 string configPath = "configs/efficiencies.md";
 string outputPath = "results/basicPlots_test.root";
@@ -341,7 +342,7 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   int cutThrough=0;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 0
   
-  if(checkTriggers && !event.HasDoubleEG2Trigger()) return;
+  if(checkTriggers && !event.HasTrigger(kDoubleEG2noHF)) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 1
   
   if(event.GetPhysObjects(kGoodGeneralTrack).size() != 0) return;
@@ -401,7 +402,7 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
 
 void fillCHEhistograms(Event &event, const map<string, TH1D*> &hists, EDataset dataset)
 {
-  if(checkTriggers && !event.HasDoubleEG2Trigger()) return;
+  if(checkTriggers && !event.HasTrigger(kDoubleEG2noHF)) return;
   if(event.HasAdditionalTowers()) return;
   
   fillTracksHists(event, hists, dataset, "all");
@@ -426,7 +427,7 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   int cutThrough=0;
   hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 0
     
-  if(checkTriggers && !event.HasDoubleEG2Trigger()) return;
+  if(checkTriggers && !event.HasTrigger(kDoubleEG2noHF)) return;
   hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 1
   
   if(event.HasAdditionalTowers()) return;
@@ -484,8 +485,8 @@ void InitializeHistograms(map<string, TH1D*> &hists, string datasetType, string 
 int main(int argc, char* argv[])
 {
   if(argc != 1 && argc != 5){
-    cout<<"This app requires 0 or 4 parameters."<<endl;
-    cout<<"./prepareBasicPlots configPath inputPath outputPath datasetName[Data|QED_SC|QED_SL|LbL|CEP]"<<endl;
+    Log(0)<<"This app requires 0 or 4 parameters.\n";
+    Log(0)<<"./prepareBasicPlots configPath inputPath outputPath datasetName[Data|QED_SC|QED_SL|LbL|CEP]\n";
     exit(0);
   }
   string inputPath = "";
@@ -515,12 +516,13 @@ int main(int argc, char* argv[])
     for(auto dataset : datasetsToAnalyze){
       string name = datasetName.at(dataset);
       
-      cout<<"Creating "<<name<<" plots"<<endl;
+      Log(0)<<"Creating "<<name<<" plots\n";
       
       auto events = make_unique<EventProcessor>(inFileNames.at(dataset), dataset);
       
       for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
-        if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
+        if(iEvent%1000 == 0)  Log(1)<<"Processing event "<<iEvent<<"\n";
+        if(iEvent%10000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
         if(iEvent >= config.params("maxEvents")) break;
         
         auto event = events->GetEvent(iEvent);
@@ -557,12 +559,13 @@ int main(int argc, char* argv[])
     
    
     if(dataset == nDatasets){
-      cout<<"ERROR -- unknown dataset name provided: "<<sampleName<<endl;
+      Log(0)<<"ERROR -- unknown dataset name provided: "<<sampleName<<"\n";
       exit(0);
     }
     
     for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
-      if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
+      if(iEvent%1000 == 0)  Log(1)<<"Processing event "<<iEvent<<"\n";
+      if(iEvent%10000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
       if(iEvent >= config.params("maxEvents")) break;
       
       auto event = events->GetEvent(iEvent);
@@ -580,7 +583,7 @@ int main(int argc, char* argv[])
     for(auto &[histName, hist] : hists) hist->Write();
   }
 
-  cout<<"N events with 3 photons: "<<nThreePhotonEvents<<endl;
+  Log(0)<<"N events with 3 photons: "<<nThreePhotonEvents<<"\n";
   
   outFile->Close();
   

@@ -10,7 +10,7 @@ dataset(_dataset),
 currentEvent(new Event())
 {
   for(auto type : physObjTypes) nPhysObjects[type] = 0;
-  for(auto triggerName : triggerNamesLbL) triggersLbL.push_back(0);
+  for(auto trigger : triggers) triggerValues[trigger] = 0;
   SetupBranches(inputPath, outputPaths);
 }
 
@@ -29,8 +29,8 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   
   for(string outputPath : outputPaths) SetupOutputTree(outputPath);
   
-  for(int iTrigger=0; iTrigger<triggerNamesLbL.size(); iTrigger++){
-    hltTree->SetBranchAddress(triggerNamesLbL[iTrigger].c_str(), &triggersLbL[iTrigger]);
+  for(auto &[trigger, name] : triggerNames){
+    hltTree->SetBranchAddress(name.c_str()            , &triggerValues[trigger]);
   }
   eventTree->SetBranchAddress("nMC"                   , &nPhysObjects.at(kGenParticle));
   eventTree->SetBranchAddress("mcEta"                 , &mcEta);
@@ -179,12 +179,11 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   
   currentEvent->dataset = dataset;
   
-  // Fill in collection of gen particles
-  
-  for(int iTrigger=0; iTrigger<triggerNamesLbL.size(); iTrigger++){
-    currentEvent->triggersLbL[triggerNamesLbL[iTrigger]] = triggersLbL[iTrigger];
+  for(ETrigger trigger : triggers){
+    currentEvent->triggerValues[trigger] = triggerValues[trigger];
   }
   
+  // Fill in collection of gen particles
   for(int iGenPart=0; iGenPart<nPhysObjects.at(kGenParticle); iGenPart++){
     auto genParticle = make_shared<PhysObject>();
     

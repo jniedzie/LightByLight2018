@@ -16,9 +16,19 @@
 //string inputPath  = "../results/basicPlots_tracks+pt900.root";
 
 //string inputPath  = "../results/basicPlots_tracks+chi2_2p5.root";
-string inputPath  = "../results/basicPlots_tracks+dxybs1mm.root";
+//string inputPath  = "../results/basicPlots_tracks+dxybs1mm.root";
+//string inputPath  = "../results/basicPlots_tracks+dxybs1mm_new.root";
 //string inputPath  = "../results/basicPlots_tracks+dxy1mm.root";
+
+string inputPath  = "../results/basicPlots_tracks+no_cuts.root";
+//string inputPath  = "../results/basicPlots_EBnoise_1p0.root";
+//string inputPath  = "../results/basicPlots_EEnoiseEtaDep.root";
+//string inputPath  = "../results/basicPlots_EEnoiseEta_2p4.root";
+
+
 //string inputPath  = "../results/basicPlots_pho+conversions.root";
+//string inputPath  = "../results/basicPlots_diphoton+pt_0p8.root";
+//string inputPath  = "../results/basicPlots_diphoton+pt_0p8_new.root";
 
 //string inputPath  = "../results/basicPlots_test.root";
 
@@ -65,11 +75,11 @@ vector<tuple<string, int, int>> canvasParams = {
   {"Electron"     , 2 , 2 },
   {"Dielectron"   , 2 , 3 },
   {"Same sign ee" , 2 , 2 },
-  {"QED calo"     , 2 , 2 },
+  {"QED calo"     , 3 , 3 },
   {"tracks"       , 3 , 3 },
   {"vertex"       , 3 , 3 },
   {"vertex/track" , 2 , 2 },
-  {"LbL calo"     , 3 , 3 },
+  {"LbL calo"     , 3 , 2 },
 };
 
 enum ENorm { kXsec, kEntries, kFirstBin };
@@ -106,11 +116,14 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "samesign_dielectron_pt_all"      , "dielectron p_{t}"        , false, kXsec    ,   5   , 2  , 1 ,   0  , 2.0 },
   { "samesign_dielectron_rapidity_all", "dielectron rapidity"     , false, kXsec    ,   5   , 3  , 1 ,  -3.0, 3.0 },
   
-  { "qed_HFp_all"                     , "HF+ energy (GeV)"        , true , kEntries ,   6   , 1  , 1 ,   0  , 20  },
-  { "qed_HFm_all"                     , "HF- energy (GeV)"        , true , kEntries ,   6   , 2  , 1 ,   0  , 20  },
-  { "qed_HFp_leading_tower_all"       , "HF+ leading energy (GeV)", true , kEntries ,   6   , 3  , 1 ,   0  , 20  },
-  { "qed_HFm_leading_tower_all"       , "HF- leading energy (GeV)", true , kEntries ,   6   , 4  , 1 ,   0  , 20  },
-  
+  { "qed_HFp_all"                     , "HF+ energy (GeV)"        , true , kEntries ,   6   , 1  , 1 ,   0  , 10  },
+  { "qed_HFm_all"                     , "HF- energy (GeV)"        , true , kEntries ,   6   , 2  , 1 ,   0  , 10  },
+  { "qed_HFp_leading_tower_all"       , "HF+ leading energy (GeV)", true , kEntries ,   6   , 3  , 1 ,   0  , 10  },
+  { "qed_HFm_leading_tower_all"       , "HF- leading energy (GeV)", true , kEntries ,   6   , 4  , 1 ,   0  , 10  },
+  { "qed_EB_leading_tower_all"        , "EB leading energy (GeV)" , true , kEntries ,   6   , 5  , 1 ,   0  , 5   },
+  { "qed_EE_leading_tower_all"        , "EE leading energy (GeV)" , true , kEntries ,   6   , 6  , 1 ,   0  , 10  },
+  { "qed_HB_leading_tower_all"        , "HB leading energy (GeV)" , true , kEntries ,   6   , 7  , 1 ,   0  , 5   },
+  { "qed_HE_leading_tower_all"        , "HE leading energy (GeV)" , true , kEntries ,   6   , 8  , 1 ,   0  , 5  },
   
   { "track_charge_all"                , "track charge"            , false, kEntries ,   7   , 1  , 1 ,   -1 , 2   },
   { "track_pt_all"                    , "track p_{t} (GeV)"       , false, kEntries ,   7   , 2  , 5 ,   0  , 10  },
@@ -124,8 +137,8 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   
   { "track_dxy_all"                   , "track d_{xy} (cm)"       , true , kEntries ,   8   , 1  ,20 ,    0 , 0.2 },
   { "track_dz_all"                    , "track d_{z} (cm)"        , true , kEntries ,   8   , 2  ,300,  -30 , 30  },
-  { "track_dxy_from_bs_all"           , "|RP, BS|_{xy} (cm)"      , true , kEntries ,   8   , 3  ,100,    0 , 0.5 },
-  { "track_dz_from_bs_all"            , "|RP, BS|_{z} (cm)"       , true , kEntries ,   8   , 4  ,300,    0 , 30  },
+  { "track_dxy_from_bs_all"           , "|track, BS|_{xy} (cm)"   , true , kEntries ,   8   , 3  ,100,    0 , 0.5 },
+  { "track_dz_from_bs_all"            , "|track, BS|_{z} (cm)"    , true , kEntries ,   8   , 4  ,300,    0 , 30  },
   { "track_dxy_over_sigma_all"        , "|d_{xy}/#sigma_{xy}|"    , true , kEntries ,   8   , 5  , 2 ,    0 , 10  },
   { "track_dz_over_sigma_all"         , "|d_{z}/#sigma_{z}|"      , true , kEntries ,   8   , 6  , 2 ,    0 , 10  },
   { "track_vx_all"                    , "track vertex x (cm)"     , true , kEntries ,   8   , 7  ,25 ,  -0.5, 0.5 },
@@ -137,12 +150,12 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "track_dxy_3_track_all"           , "3 tracks d_{xy} (cm)"    , true , kEntries ,   9   , 3  ,20 ,    0 , 0.2 },
   { "track_dxy_ge4_track_all"         , "≥4 tracks d_{xy} (cm)"   , true , kEntries ,   9   , 4  ,20 ,    0 , 0.2 },
   
-  { "lbl_EB_leading_tower_all"        , "EB leading energy (GeV)" , true , kEntries ,   10   , 1  , 1 ,   0  , 20  },
-  { "lbl_EE_leading_tower_all"        , "EE leading energy (GeV)" , true , kEntries ,   10   , 2  , 1 ,   0  , 20  },
-  { "lbl_HB_leading_tower_all"        , "HB leading energy (GeV)" , true , kEntries ,   10   , 3  , 1 ,   0  , 20  },
-  { "lbl_HE_leading_tower_all"        , "HE leading energy (GeV)" , true , kEntries ,   10   , 4  , 1 ,   0  , 20  },
-  { "lbl_HFp_leading_tower_all"       , "HF+ leading energy (GeV)", true , kEntries ,   10   , 5  , 1 ,   0  , 20  },
-  { "lbl_HFm_leading_tower_all"       , "HF- leading energy (GeV)", true , kEntries ,   10   , 6  , 1 ,   0  , 20  },
+  { "lbl_EB_leading_tower_all"        , "EB leading energy (GeV)" , true , kEntries ,   10   , 1  , 1 ,   0  , 5   },
+  { "lbl_EE_leading_tower_all"        , "EE leading energy (GeV)" , true , kEntries ,   10   , 2  , 1 ,   0  , 10  },
+  { "lbl_HB_leading_tower_all"        , "HB leading energy (GeV)" , true , kEntries ,   10   , 3  , 1 ,   0  , 5   },
+  { "lbl_HE_leading_tower_all"        , "HE leading energy (GeV)" , true , kEntries ,   10   , 4  , 1 ,   0  , 5   },
+  { "lbl_HFp_leading_tower_all"       , "HF+ leading energy (GeV)", true , kEntries ,   10   , 5  , 1 ,   0  , 10  },
+  { "lbl_HFm_leading_tower_all"       , "HF- leading energy (GeV)", true , kEntries ,   10   , 6  , 1 ,   0  , 10  },
 };
 
 void fillLabels(TH1D *hist, vector<const char*> labels)
