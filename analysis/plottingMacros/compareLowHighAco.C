@@ -1,24 +1,37 @@
 
 string inputPath  = "../results/basicPlots_default.root";
 
-vector<tuple<string, string>> histParams = {
-  { "lbl_photon_et"         , "photon E_{t} (GeV)"      },
-  { "lbl_photon_eta"        , "photon #eta"             },
-  { "lbl_photon_phi"        , "photon #phi"             },
-  { "lbl_diphoton_mass"     , "diphoton m_{inv} (GeV)"  },
-  { "lbl_diphoton_rapidity" , "diphoton rapidity"       },
-  { "lbl_diphoton_pt"       , "diphoton p_{t}"          },
+vector<tuple<string, string, int, double, double>> histParams = {
+
+  { "lbl_photon_eta"        , "photon #eta"             , 1, -4 , 4 },
+  { "lbl_photon_phi"        , "photon #phi"             , 1, -4 , 4 },
+//  { "lbl_diphoton_mass"     , "diphoton m_{inv} (GeV)"  },
+//  { "lbl_diphoton_rapidity" , "diphoton rapidity"       },
   
-  { "track_dz"              , "track d_{z} (cm)"        },
-  { "track_dxy"             , "track d_{xy} (cm)"       },
-  { "track_valid_hits"      , "N_{hits}^{valid}"        },
-  { "track_pt"              , "track p_{t}"             },
-  { "track_eta"             , "track #eta"              },
-  { "track_missing_hits"    , "N_{hits}^{missing}"      },
-  { "nTracks"               , "N_{tracks}"              },
+//
+//  { "track_dz"              , "track d_{z} (cm)"        },
+//  { "track_dxy"             , "track d_{xy} (cm)"       },
+//  { "track_valid_hits"      , "N_{hits}^{valid}"        },
+
+//  { "track_eta"             , "track #eta"              },
+//  { "track_missing_hits"    , "N_{hits}^{missing}"      },
+//  { "nTracks"               , "N_{tracks}"              },
+//
+//  { "lbl_nee_failing"       , "# failing calo"          },
   
-  { "lbl_nee_failing"       , "# failing calo"          },
+//  name                      axis                      rebin min max
+//  { "lbl_diphoton_pt"       , "diphoton p_{t}"          , 1 , 0 , 5  },
+//  { "lbl_photon_et"         , "photon E_{t} (GeV)"      , 1 , 0 , 10 },
+  { "track_pt"              , "track p_{t}"             , 10, 0 , 10 },
+  { "lbl_EB_leading_tower"  , "EB leading energy (GeV)" , 1 , 0 , 5  },
+  { "lbl_EE_leading_tower"  , "EE leading energy (GeV)" , 1 , 0 , 10 },
+  { "lbl_HB_leading_tower"  , "HB leading energy (GeV)" , 1 , 0 , 5  },
+  { "lbl_HE_leading_tower"  , "HE leading energy (GeV)" , 1 , 0 , 5  },
+  { "lbl_HFp_leading_tower" , "HF+ leading energy (GeV)", 1 , 0 , 10 },
+  { "lbl_HFm_leading_tower" , "HF- leading energy (GeV)", 1 , 0 , 10 },
   
+  
+  { "track_dxy_from_bs"     , "|track, BS|_{xy} (cm)"   ,100, 0 , 0.5},
 };
 
 void compareLowHighAco()
@@ -31,7 +44,7 @@ void compareLowHighAco()
   
   int iCanvas=1;
   
-  for(auto &[histName, xAxis] : histParams){
+  for(auto &[histName, xAxis, rebin, minX, maxX] : histParams){
     canvas->cd(iCanvas++);
     
     TH1D *histLowAco  = (TH1D*)inFile->Get((histName+"_low_aco_Data").c_str());
@@ -45,17 +58,21 @@ void compareLowHighAco()
     histLowAco->SetMarkerColor(kGreen+2);
     histLowAco->SetMarkerStyle(20);
     histLowAco->SetMarkerSize(0.7);
+    histLowAco->Rebin(rebin);
     
     histHighAco->SetLineColor(kRed);
     histHighAco->SetMarkerColor(kRed);
     histHighAco->SetMarkerStyle(20);
     histHighAco->SetMarkerSize(0.7);
+    histHighAco->Rebin(rebin);
     
     histHighAco->SetTitle("");
     histHighAco->GetXaxis()->SetTitle(xAxis.c_str());
     histHighAco->GetXaxis()->SetTitleSize(0.07);
     
     gPad->SetBottomMargin(0.2);
+    
+    histHighAco->GetXaxis()->SetRangeUser(minX, maxX);
     
     histHighAco->DrawNormalized("pe");
     histLowAco->DrawNormalized("pesame");
