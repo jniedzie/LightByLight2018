@@ -25,29 +25,9 @@ void Event::Reset()
   for(auto &[type, ready] : physObjectsReady) ready = false;
 }
 
-bool Event::HasSingleEG3Trigger() const
+bool Event::HasTrigger(ETrigger trigger) const
 {
-  return triggersLbL.at("HLT_HIUPC_SingleEG3_NotMBHF2AND_v1");
-}
-
-bool Event::HasSingleEG5Trigger() const
-{
-  return triggersLbL.at("HLT_HIUPC_SingleEG5_NotMBHF2AND_v1");
-}
-
-bool Event::HasDoubleEG2Trigger() const
-{
-  return triggersLbL.at("HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1");
-}
-
-bool Event::HasSingleEG3noHFvetoTrigger() const
-{
-  return triggersLbL.at("HLT_HIUPC_SingleEG3_BptxAND_SinglePixelTrack_MaxPixelTrack_v1");
-}
-
-bool Event::HasSingleMuonTrigger() const
-{
-  return triggersLbL.at("HLT_HIUPC_SingleMuOpen_NotMBHF2AND_v1");
+  return triggerValues.at(trigger);
 }
 
 PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)

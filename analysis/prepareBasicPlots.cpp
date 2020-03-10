@@ -342,7 +342,7 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   int cutThrough=0;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 0
   
-  if(checkTriggers && !event.HasDoubleEG2Trigger()) return;
+  if(checkTriggers && !event.HasTrigger(kDoubleEG2noHF)) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 1
   
   if(event.GetPhysObjects(kGoodGeneralTrack).size() != 0) return;
@@ -402,7 +402,7 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
 
 void fillCHEhistograms(Event &event, const map<string, TH1D*> &hists, EDataset dataset)
 {
-  if(checkTriggers && !event.HasDoubleEG2Trigger()) return;
+  if(checkTriggers && !event.HasTrigger(kDoubleEG2noHF)) return;
   if(event.HasAdditionalTowers()) return;
   
   fillTracksHists(event, hists, dataset, "all");
@@ -427,7 +427,7 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   int cutThrough=0;
   hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 0
     
-  if(checkTriggers && !event.HasDoubleEG2Trigger()) return;
+  if(checkTriggers && !event.HasTrigger(kDoubleEG2noHF)) return;
   hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 1
   
   if(event.HasAdditionalTowers()) return;

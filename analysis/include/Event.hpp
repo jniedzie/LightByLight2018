@@ -19,11 +19,15 @@ public:
   /// Default destructor
   ~Event();
   
+  /// Removes all physics objects from the event, resets all flags
   void Reset();
   
+  /// Returns a vector of physics objects
+  /// \param type Defines which type of physics objects to return (as defined in Helpers.hpp)
+  /// \param cutFlowHist Optional. Will be filled in case selections are applied to get requested
+  /// type and they have not been applied before for this event
   PhysObjects GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist=nullptr);
 
-  
   /// Check if there are calo towers above noise threshold. In ECal they must not overlap with
   /// photons nor electrons passing ID selections. Returns true as soon as the first tower above
   /// the threshold is found.
@@ -36,16 +40,10 @@ public:
   /// contained towers above noise threshold
   bool HasAdditionalTowers(map<ECaloType, bool> &failingCalo);
   
-  // Check if triggers fired
-  bool HasSingleEG3Trigger()          const;
-  bool HasSingleEG5Trigger()          const;
-  bool HasDoubleEG2Trigger()          const;
-  bool HasSingleEG3noHFvetoTrigger()  const;
+  /// Checks if given trigger fired in the event
+  /// \param trigger Trigger to check, as defined in Helpers.hpp
+  bool HasTrigger(ETrigger trigger) const;
  
-  /// Checks if UPC Single Mu Open fired
-  bool HasSingleMuonTrigger() const;
- 
-  
   /// Sorts calo towers by energy, from highest to lowest
   void SortCaloTowersByEnergy();
   
@@ -59,12 +57,10 @@ public:
   bool IsOverlappingWithGoodElectron(const PhysObject &tower);
   
 private:
-  map<string, bool> triggersLbL; ///< Vactor of booleans corresponding to LbL triggers
-  
+  map<ETrigger, bool> triggerValues; ///< Vactor of booleans corresponding to LbL triggers
   
   map<EPhysObjType, PhysObjects> physObjects;      ///< Map of physics objects in the event
   map<EPhysObjType, bool>        physObjectsReady; ///< Is collection ready?
-  
   
   /// Updates and returns vector of objects passing selections
   PhysObjects GetGoodGenPhotons() const;
