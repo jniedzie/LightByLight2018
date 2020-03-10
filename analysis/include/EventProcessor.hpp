@@ -68,7 +68,7 @@ private:
   vector<float> *photonEbottom          = nullptr;
   vector<float> *photonEleft            = nullptr;
   vector<float> *photonEright           = nullptr;
-  vector<bool>  *photonIsConverted      = nullptr;
+  vector<int>   *photonIsConverted      = nullptr;
   
   vector<float> *towerEta               = nullptr;
   vector<float> *towerPhi               = nullptr;
