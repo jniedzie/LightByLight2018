@@ -43,7 +43,7 @@ private:
   shared_ptr<Event> currentEvent; ///< Pointer to the current event
   
   // Handles to variables stored in ntuple trees
-  vector<int>    triggersLbL;
+  map<ETrigger, int>    triggerValues;
   
   vector<float> *mcEta                  = nullptr;
   vector<float> *mcPhi                  = nullptr;
@@ -68,7 +68,7 @@ private:
   vector<float> *photonEbottom          = nullptr;
   vector<float> *photonEleft            = nullptr;
   vector<float> *photonEright           = nullptr;
-  vector<bool>  *photonIsConverted      = nullptr;
+  vector<int>   *photonIsConverted      = nullptr;
   
   vector<float> *towerEta               = nullptr;
   vector<float> *towerPhi               = nullptr;

@@ -97,7 +97,7 @@ void CheckRecoEfficiency(Event &event, map<string, TH1D*> &hists, string dataset
   hists[cutThouthName]->Fill(cutLevel++); // 0
   
   // Check trigger
-  if(!event.HasSingleEG3Trigger()) return;
+  if(!event.HasTrigger(kSingleEG3noHF)) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Preselect events with exactly two tracks
@@ -222,29 +222,29 @@ void CheckTriggerEfficiency(Event &event, map<string, TTree*> &trees, map<string
   // Check trigger
   
   // has EG3
-//    if(!event.HasSingleEG3Trigger()) return;
+//    if(!event.HasTrigger(kSingleEG3noHF)) return;
 //    double threshold = 3.0;
   
   // has EG5
-//  if(!event.HasSingleEG5Trigger()) return;
+//  if(!event.HasTrigger(kSingleEG5noHF)) return;
 //  double threshold = 5.0;
   
   // has only EG3
-//  if(!event.HasSingleEG3Trigger() || event.HasSingleEG5Trigger()) return;
+//  if(!event.HasTrigger(kSingleEG3noHF) || event.HasTrigger(kSingleEG5noHF)) return;
 //  double threshold = 3.0;
   
   // has only EG5
-//  if(event.HasSingleEG3Trigger() || !event.HasSingleEG5Trigger()) return;
+//  if(event.HasTrigger(kSingleEG3noHF) || !event.HasTrigger(kSingleEG5noHF)) return;
 //  double threshold = 5.0;
   
   // has either of the triggers
-  if(!event.HasSingleEG3Trigger() && !event.HasSingleEG5Trigger()) return;
+  if(!event.HasTrigger(kSingleEG3noHF) && !event.HasTrigger(kSingleEG5noHF)) return;
   double threshold = 3.0;
-  if(event.HasSingleEG3Trigger()) threshold = 3.0;
-  if(event.HasSingleEG5Trigger()) threshold = 5.0;
+  if(event.HasTrigger(kSingleEG3noHF)) threshold = 3.0;
+  if(event.HasTrigger(kSingleEG5noHF)) threshold = 5.0;
   
-//  if(!event.HasSingleEG3Trigger()) return;
-//  if(!event.HasSingleEG5Trigger()) return;
+//  if(!event.HasTrigger(kSingleEG3noHF)) return;
+//  if(!event.HasTrigger(kSingleEG5noHF)) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Neutral exclusivity
@@ -313,7 +313,7 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
   hists[cutThouthName]->Fill(cutLevel++); // 0
   
   // Check trigger with no HF veto
-  if(!event.HasSingleEG3noHFvetoTrigger()) return;
+  if(!event.HasTrigger(kSingleEG3singleTrack)) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Neutral exclusivity
@@ -355,7 +355,7 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
   hists["trigger_HFveto_eff_den_"+datasetName]->Fill(1);
   
   // Check if it also has double EG2 trigger
-  if(!event.HasDoubleEG2Trigger()) return;
+  if(!event.HasTrigger(kDoubleEG2noHF)) return;
   hists[cutThouthName]->Fill(cutLevel++); // 7
   hists["trigger_HFveto_eff_num_"+datasetName]->Fill(1);
 }
@@ -367,7 +367,7 @@ void CheckCHEefficiency(Event &event, map<string, TH1D*> &hists, string datasetN
   int cutLevel = 0;
   hists[cutThouthName]->Fill(cutLevel++); // 0
   
-  if(!event.HasDoubleEG2Trigger()) return;
+  if(!event.HasTrigger(kDoubleEG2noHF)) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Check that there are exaclty two electrons
@@ -410,7 +410,7 @@ void CheckNEEefficiency(Event &event, map<string, TH1D*> &hists, string datasetN
   int cutLevel = 0;
   hists[cutThouthName]->Fill(cutLevel++); // 0
   
-  if(!event.HasDoubleEG2Trigger()) return;
+  if(!event.HasTrigger(kDoubleEG2noHF)) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Check that there are exaclty two electrons

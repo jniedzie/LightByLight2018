@@ -42,19 +42,32 @@
 #include <tuple>
 #include <memory>
 
-
-
 using namespace std;
 
 // List of allowed LbL triggers
-const vector<string> triggerNamesLbL = {
-  "HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1",
-  "HLT_HIUPC_SingleEG3_NotMBHF2AND_v1",
-  "HLT_HIUPC_SingleEG5_NotMBHF2AND_v1",
-  "HLT_HIUPC_SingleEG3_BptxAND_SinglePixelTrack_MaxPixelTrack_v1",
-  "HLT_HIUPC_SingleMuOpen_NotMBHF2AND_v1",
+
+enum ETrigger{
+  kDoubleEG2noHF,
+  kSingleEG3noHF,
+  kSingleEG5noHF,
+  kSingleEG3singleTrack,
+  kSingleMuOpenNoHF,
+  nTriggers
 };
 
+const vector<ETrigger> triggers = {
+  kDoubleEG2noHF, kSingleEG3noHF, kSingleEG5noHF,
+  kSingleEG3singleTrack, kSingleMuOpenNoHF,
+};
+
+const map<ETrigger, string> triggerNames = {
+  { kDoubleEG2noHF       , "HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1"                            },
+  { kSingleEG3noHF       , "HLT_HIUPC_SingleEG3_NotMBHF2AND_v1"                            },
+  { kSingleEG5noHF       , "HLT_HIUPC_SingleEG5_NotMBHF2AND_v1"                            },
+  { kSingleEG3singleTrack, "HLT_HIUPC_SingleEG3_BptxAND_SinglePixelTrack_MaxPixelTrack_v1" },
+  { kSingleMuOpenNoHF    , "HLT_HIUPC_SingleMuOpen_NotMBHF2AND_v1"                         },
+};
+  
 enum EDataset{
   kData,
   kData_SingleEG3,

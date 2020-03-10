@@ -80,7 +80,7 @@ int main()
     TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*goodGenPhotons[0], *goodGenPhotons[1]);
     
     // Check properties of this event
-    bool hasLbLTrigger            = event->HasDoubleEG2Trigger();
+    bool hasLbLTrigger            = event->HasTrigger(kDoubleEG2noHF);
     bool hasTwoPhotonsPassingID   = photonsPassing.size() == 2;
     bool passesNeutralExclusivity = ! event->HasAdditionalTowers();
     bool passesChargedExclusivity = event->GetPhysObjects(kGoodGeneralTrack).size() == 0;
@@ -126,12 +126,12 @@ int main()
     }
     
     if(hasTwoPhotonsPassingID &&
-       event->HasSingleEG3Trigger()){
+       event->HasTrigger(kSingleEG3noHF)){
       hists["trigger_single_eff_num"]->Fill(diphoton.M());
     }
     
     if(hasTwoPhotonsPassingID &&
-       event->HasDoubleEG2Trigger()){
+       event->HasTrigger(kDoubleEG2noHF)){
       hists["trigger_double_eff_num"]->Fill(diphoton.M());
     }
     
