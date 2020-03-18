@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Starting runPrepareBasicPlots"
+
 # ./runPrepareBasicPlots.sh fileNumber sampleType configType
 
 configPath=""
@@ -9,7 +11,7 @@ if [ $3 -eq 0 ]
 then
 # default
   configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_default.md"
-  suffix="_default"
+  suffix="_default_tracker_branches"
 elif [ $3 -eq 1 ]
 then
 # HF thresholds increased to 20 GeV
@@ -90,6 +92,26 @@ then
   # add dxy_bs < 1 mm requirement on tracks
   configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_tracks+dxybs1mm.md"
   suffix="_tracks+dxybs1mm"
+elif [ $3 -eq 17 ]
+then
+  # remove all track requirements
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_tracks+no_cuts.md"
+  suffix="_tracks+no_cuts"
+elif [ $3 -eq 18 ]
+then
+  # remove all track requirements
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_EEnoiseEtaDep.md"
+  suffix="_EEnoiseEtaDep"
+elif [ $3 -eq 19 ]
+then
+  # remove all track requirements
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_EEnoiseEta_2p4.md"
+  suffix="_EEnoiseEta_2p4"
+elif [ $3 -eq 20 ]
+then
+  # remove all track requirements
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_EBnoise_1p0.md"
+  suffix="_EBnoise_1p0"
 fi
 
 # for the data:
@@ -101,27 +123,31 @@ basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
 
 if [ $2 -eq 0 ]
 then
-  sampleName="Data" # last chunk number: 7440
+  sampleName="Data" # last chunk number: 7440, merged into 80 files
 #  inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
-  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2/ntuples_loose_selections_${1}.root"
+  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2/merged/merged_ntuples_${1}.root"
+#  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2/ntuples_loose_selections_${1}.root"
   outputPath="${basePath}/analysis/basicPlots/basicPlots_data${suffix}"
   
 elif [ $2 -eq 1 ]
 then
-  sampleName="QED_SC" # last chunk numer: 95
-  inputPath="${basePath}/skimmed_ntuples/mc_qed_sc_doubleEG2/ntuples_loose_selections_${1}.root"
-#  inputPath="${basePath}/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
+  sampleName="QED_SC" # last chunk numer: 95, merged into 1 file
+  inputPath="${basePath}/skimmed_ntuples/mc_qed_sc_doubleEG2/merged_ntuples.root"
+#  inputPath="${basePath}/skimmed_ntuples/mc_qed_sc_doubleEG2/ntuples_loose_selections_${1}.root"
+# inputPath="${basePath}/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
   outputPath="${basePath}/analysis/basicPlots/basicPlots_mc_qed_sc${suffix}"
 elif [ $2 -eq 2 ]
 then
-  sampleName="CEP" # last chunk numer: 410
-  inputPath="${basePath}/skimmed_ntuples/mc_cep_sc_doubleEG2/ntuples_loose_selections_${1}.root"
+  sampleName="CEP" # last chunk numer: 410, merged into 1 file
+  inputPath="${basePath}/skimmed_ntuples/mc_cep_sc_doubleEG2/merged_ntuples.root"
+#  inputPath="${basePath}/skimmed_ntuples/mc_cep_sc_doubleEG2/ntuples_loose_selections_${1}.root"
 #  inputPath="${basePath}/mc_cep/ntuples_1034/ntuples_cep_1034/ntuples_cep_1034/200211_054704/0000/HiForestAOD_cep_${1}.root"
   outputPath="${basePath}/analysis/basicPlots/basicPlots_mc_cep_sc${suffix}"
 elif [ $2 -eq 3 ]
 then
-  sampleName="LbL" # last chunk numer: 375
-  inputPath="${basePath}/skimmed_ntuples/mc_lbl_sc_doubleEG2/ntuples_loose_selections_${1}.root"
+  sampleName="LbL" # last chunk numer: 375, merged into 1 file
+  inputPath="${basePath}/skimmed_ntuples/mc_lbl_sc_doubleEG2/merged_ntuples.root"
+#  inputPath="${basePath}/skimmed_ntuples/mc_lbl_sc_doubleEG2/ntuples_loose_selections_${1}.root"
 #  inputPath="${basePath}/mc_lbl/ntuples_1034/ntuples_lbl_1034/ntuples_lbl_1034/200207_114802/0000/HiForestAOD_LbyL_${1}.root"
   outputPath="${basePath}/analysis/basicPlots/basicPlots_mc_lbl_sc${suffix}"
 elif [ $2 -eq 4 ]
