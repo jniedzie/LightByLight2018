@@ -126,6 +126,13 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   l1Tree->SetBranchAddress("egEta"                    , &L1EGeta);
   l1Tree->SetBranchAddress("egPhi"                    , &L1EGphi);
   l1Tree->SetBranchAddress("egEt"                     , &L1EGet);
+  
+  
+  eventTree->SetBranchAddress("nDisplacedTracks",   &currentEvent->nDisplacedTracks);
+  eventTree->SetBranchAddress("nPixelClusters"  ,   &currentEvent->nPixelClusters);
+  eventTree->SetBranchAddress("nPixelRecHits"   ,   &currentEvent->nPixelRecHits);
+  eventTree->SetBranchAddress("nDedxHits"       ,   &currentEvent->nDedxHits);
+  
 }
 
 void EventProcessor::SetupOutputTree(string outFileName)

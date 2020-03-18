@@ -12,6 +12,10 @@ Event::Event()
     physObjectsReady[type] = false;
     physObjects[type] = PhysObjects();
   }
+  nDisplacedTracks = 0;
+  nPixelClusters = 0;
+  nPixelRecHits = 0;
+  nDedxHits = 0;
 }
 
 Event::~Event()
@@ -23,6 +27,11 @@ void Event::Reset()
 {
   for(auto &[type, objects] : physObjects)    objects.clear();
   for(auto &[type, ready] : physObjectsReady) ready = false;
+  
+  nDisplacedTracks = 0;
+  nPixelClusters = 0;
+  nPixelRecHits = 0;
+  nDedxHits = 0;
 }
 
 bool Event::HasTrigger(ETrigger trigger) const

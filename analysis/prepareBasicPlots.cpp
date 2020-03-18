@@ -123,6 +123,12 @@ vector<tuple<string, int, double, double>> histParams = {
   {"track_vz"               ,300000,-50  , 50    },
   
   {"tracks_cut_flow"        , 15  , 0   , 15    },
+  
+  {"nDisplacedTracks"       , 100 , 0   , 100   },
+  {"nDedxHits"              , 100 , 0   , 100   },
+  {"nPixelClusters"         , 100 , 0   , 100   },
+  {"nPixelRecHits"          , 100 , 0   , 100   },
+  
 };
 
 void fillTriphotonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, bool saveEventDisplays=false)
@@ -282,6 +288,11 @@ void fillTracksHists(Event &event, const map<string, TH1D*> &hists, EDataset dat
   int nTracks = (int)event.GetPhysObjects(kGeneralTrack).size();
   
   hists.at("nTracks_"+suffix+name)->Fill(nTracks);
+  
+  hists.at("nDisplacedTracks_"+suffix+name)->Fill(event.GetNdisplacedTracks());
+  hists.at("nDedxHits_"+suffix+name)->Fill(event.GetNdedxHits());
+  hists.at("nPixelClusters_"+suffix+name)->Fill(event.GetNpixelClusters());
+  hists.at("nPixelRecHits_"+suffix+name)->Fill(event.GetNpixelRecHits());
   
   for(auto track : event.GetPhysObjects(kGeneralTrack)){
     double trackPt = track->GetPt();
