@@ -128,10 +128,10 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
   l1Tree->SetBranchAddress("egEt"                     , &L1EGet);
   
   
-  eventTree->SetBranchAddress("nDisplacedTracks",   &currentEvent->nDisplacedTracks);
-  eventTree->SetBranchAddress("nPixelClusters"  ,   &currentEvent->nPixelClusters);
-  eventTree->SetBranchAddress("nPixelRecHits"   ,   &currentEvent->nPixelRecHits);
-  eventTree->SetBranchAddress("nDedxHits"       ,   &currentEvent->nDedxHits);
+  eventTree->SetBranchAddress("nDisplacedTracks",   &nDisplacedTracks);
+  eventTree->SetBranchAddress("nPixelClusters"  ,   &nPixelClusters);
+  eventTree->SetBranchAddress("nPixelRecHits"   ,   &nPixelRecHits);
+  eventTree->SetBranchAddress("nDedxHits"       ,   &nDedxHits);
   
 }
 
@@ -185,6 +185,10 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   currentEvent->Reset();
   
   currentEvent->dataset = dataset;
+  currentEvent->nDisplacedTracks = nDisplacedTracks;
+  currentEvent->nPixelRecHits = nPixelRecHits;
+  currentEvent->nPixelClusters = nPixelClusters;
+  currentEvent->nDedxHits = nDedxHits;
   
   for(ETrigger trigger : triggers){
     currentEvent->triggerValues[trigger] = triggerValues[trigger];
