@@ -124,10 +124,10 @@ vector<tuple<string, int, double, double>> histParams = {
   
   {"tracks_cut_flow"        , 15  , 0   , 15    },
   
-  {"nDisplacedTracks"       , 100 , 0   , 100   },
-  {"nDedxHits"              , 100 , 0   , 100   },
-  {"nPixelClusters"         , 100 , 0   , 100   },
-  {"nPixelRecHits"          , 100 , 0   , 100   },
+  {"nDisplacedTracks"       , 2000, 0   , 2000  },
+  {"nDedxHits"              , 2000, 0   , 2000  },
+  {"nPixelClusters"         , 2000, 0   , 2000  },
+  {"nPixelRecHits"          , 2000, 0   , 2000  },
   
 };
 
