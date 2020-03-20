@@ -13,11 +13,11 @@ maxDeltaEtaEE:  0.15
 maxDeltaPhiEE:  0.4
 
 ### Don't look at towers that are in very noisy region of EE
-maxEtaEEtower:      2.4
+maxEtaEEtower:      2.3
 
 ### Charged exclusivity cuts (GeV)
-trackMinPt:                              0.0 
-trackMaxEta:                            999999
+trackMinPt:                              0.1 
+trackMaxEta:                           2.4
 trackMaxDxy:                           999999
 trackMaxXYdistanceFromBS:  999999
 trackMaxDxyOverSigma:         999999
@@ -26,9 +26,6 @@ trackMaxZdistanceFromBS:    999999
 trackMaxDzOverSigma:           999999
 trackMinNvalidHits:                  0
 trackMaxChi2:                          999999
-
-### Tracker hit cuts
-maxNpixelRecHits:                 999999
 
 ### Max ΔR for matching for reco+ID efficiency
 maxDeltaR:              0.3
@@ -74,7 +71,7 @@ ecalHEMmin:  -1.5
 ecalHEMmax: -1.0
  
 ### Calorimeter noise thresolds (GeV)
-noiseThresholdEB:        2.0
+noiseThresholdEB:        1.0
 noiseThresholdEE:        7.6
 noiseThresholdHB:        2.8
 noiseThresholdHE:        2.4

@@ -1,5 +1,9 @@
 
-string inputPath  = "../results/basicPlots_default.root";
+//string inputPath  = "../results/basicPlots_default.root";
+string inputPath  = "../results/basicPlots_data_default_tracker_branches.root";
+
+
+
 
 vector<tuple<string, string, int, double, double>> histParams = {
 
@@ -30,8 +34,8 @@ vector<tuple<string, string, int, double, double>> histParams = {
   { "lbl_HFp_leading_tower" , "HF+ leading energy (GeV)", 1 , 0 , 10 },
   { "lbl_HFm_leading_tower" , "HF- leading energy (GeV)", 1 , 0 , 10 },
   
-  
   { "track_dxy_from_bs"     , "|track, BS|_{xy} (cm)"   ,100, 0 , 0.5},
+  { "nPixelClusters"        , "N_{clusters}^{pixel}"    , 10 , 0 , 350},
 };
 
 void compareLowHighAco()

@@ -135,6 +135,11 @@ private:
   unsigned short int nL1EGs;
   
   
+  int nDisplacedTracks = 0;
+  int nPixelClusters = 0;
+  int nPixelRecHits = 0;
+  int nDedxHits = 0;
+  
   /// Opens input trees and sets branches
   void SetupBranches(string inputPath, vector<string> outputPaths);
   

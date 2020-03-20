@@ -56,6 +56,11 @@ public:
   /// Checks if given tower overlaps with one of the electrons passing selections
   bool IsOverlappingWithGoodElectron(const PhysObject &tower);
   
+  inline int GetNdisplacedTracks()  const { return nDisplacedTracks;}
+  inline int GetNpixelClusters()    const { return nPixelClusters;  }
+  inline int GetNpixelRecHits()     const { return nPixelRecHits;   }
+  inline int GetNdedxHits()         const { return nDedxHits;       }
+  
 private:
   map<ETrigger, bool> triggerValues; ///< Vactor of booleans corresponding to LbL triggers
   
@@ -74,6 +79,11 @@ private:
   double GetEmThresholdForTower(const PhysObject &tower);
   
   EDataset dataset;
+  
+  int nDisplacedTracks;
+  int nPixelClusters;
+  int nPixelRecHits;
+  int nDedxHits;
   
   friend class EventProcessor;
 };
