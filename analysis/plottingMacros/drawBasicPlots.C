@@ -20,7 +20,7 @@
 //string inputPath  = "../results/basicPlots_tracks+dxybs1mm_new.root";
 //string inputPath  = "../results/basicPlots_tracks+dxy1mm.root";
 
-string inputPath  = "../results/basicPlots_tracks+no_cuts.root";
+//string inputPath  = "../results/basicPlots_tracks+no_cuts.root";
 //string inputPath  = "../results/basicPlots_EBnoise_1p0.root";
 //string inputPath  = "../results/basicPlots_EEnoiseEtaDep.root";
 //string inputPath  = "../results/basicPlots_EEnoiseEta_2p4.root";
@@ -30,7 +30,7 @@ string inputPath  = "../results/basicPlots_tracks+no_cuts.root";
 //string inputPath  = "../results/basicPlots_diphoton+pt_0p8.root";
 //string inputPath  = "../results/basicPlots_diphoton+pt_0p8_new.root";
 
-//string inputPath  = "../results/basicPlots_test.root";
+string inputPath  = "../results/basicPlots_test.root";
 
 string outputPath = "../plots/distributions";
 
@@ -176,7 +176,7 @@ void setCutflowLabels(TH1D *hist, bool lbl)
     "dielectron m_{inv}", "dielectron p_{t}", "dielectron y"
   };
   vector<const char *> labelsLbL = {
-    "Initial", "Trigger", "CHE", "NEE", "2 good photons",
+    "Initial", "Trigger", "CHE", "N_{hits}^{pixel}", "NEE", "2 good photons",
     "diphoton m_{inv}", "diphoton p_{t}", "diphoton y", "acoplanarity"
   };
   fillLabels(hist, lbl ? labelsLbL : labelsQED);
