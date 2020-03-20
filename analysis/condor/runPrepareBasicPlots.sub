@@ -1,10 +1,10 @@
 Universe              = vanilla
 executable            = runPrepareBasicPlots.sh
-arguments             = $(ProcId) 3 15
+arguments             = $(ProcId) 0 0
 GetEnv                = True
 output                = output/$(ClusterId).$(ProcId).out
 error                 = error/$(ClusterId).$(ProcId).err
 log                   = log/$(ClusterId).log
 requirements 	      = (OpSysAndVer =?= "CentOS7")
 +JobFlavour           = "espresso"
-queue 375
+queue 60
