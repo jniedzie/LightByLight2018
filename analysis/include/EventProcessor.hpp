@@ -134,6 +134,9 @@ private:
   map<EPhysObjType, int> nPhysObjects;     ///< Stores number of physics objects
   unsigned short int nL1EGs;
   
+  uint runNumber = 0;
+  uint lumiSection = 0;
+  ULong64_t eventNumber = 0;
   
   int nDisplacedTracks = 0;
   int nPixelClusters = 0;
