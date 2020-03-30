@@ -35,7 +35,7 @@ vector<tuple<string, string, int, double, double>> histParams = {
   { "lbl_HFm_leading_tower" , "HF- leading energy (GeV)", 1 , 0 , 10 },
   
   { "track_dxy_from_bs"     , "|track, BS|_{xy} (cm)"   ,100, 0 , 0.5},
-  { "nPixelClusters"        , "N_{clusters}^{pixel}"    , 10 , 0 , 350},
+  { "nPixelClusters"        , "N_{clusters}^{pixel}"    , 1 , 0 , 100},
 };
 
 void compareLowHighAco()
