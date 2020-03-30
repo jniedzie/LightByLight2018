@@ -112,6 +112,31 @@ then
   # remove all track requirements
   configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_EBnoise_1p0.md"
   suffix="_EBnoise_1p0"
+elif [ $3 -eq 21 ]
+then
+  # max 50 pixel hits
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_50hits.md"
+  suffix="_50hits"
+elif [ $3 -eq 22 ]
+then
+  # max 100 pixel hits
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_100hits.md"
+  suffix="_100hits"
+elif [ $3 -eq 23 ]
+then
+  # max 200 pixel hits
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_200hits.md"
+  suffix="_200hits"
+elif [ $3 -eq 24 ]
+then
+  # max 300 pixel hits
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_300hits.md"
+  suffix="_300hits"
+elif [ $3 -eq 25 ]
+then
+  # max 150 pixel hits
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_150hits.md"
+  suffix="_150hits"
 fi
 
 # for the data:
