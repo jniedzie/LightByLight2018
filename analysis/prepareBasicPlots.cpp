@@ -412,6 +412,9 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   fillNoiseHists(   event, hists, name, "lbl", suffix);
   fillNoiseHists(   event, hists, name, "lbl", "all");
   fillTracksHists(  event, hists, dataset, "pass_lbl");
+
+  // we found a good event!! cool, dump it to the log
+  Log(0) << "PASSING! Run=" << event.GetRunNumber() << " LS=" << event.GetLumiSection() << " Evt=" << event.GetEventNumber() << " aco=" << aco << "\n";
 }
 
 void fillCHEhistograms(Event &event, const map<string, TH1D*> &hists, EDataset dataset)
