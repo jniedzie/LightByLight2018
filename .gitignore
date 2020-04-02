@@ -1,3 +1,5 @@
+HeavyIonsAnalysis/PhotonAnalysis/test/crab_projects/*
+*.pyc
 papers/*
 superchic3.0/*
 flat_pt_electron/gen_sim/log/*
