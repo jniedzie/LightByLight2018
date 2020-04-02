@@ -2,6 +2,12 @@
 
 //string inputPath  = "../results/basicPlots_default.root";
 //string inputPath  = "../results/basicPlots_default_new.root";
+//string inputPath  = "../results/basicPlots_data_default_tracker_branches.root";
+//string inputPath  = "../results/basicPlots_data_50hits.root";
+//string inputPath  = "../results/basicPlots_data_100hits.root";
+//string inputPath  = "../results/basicPlots_data_150hits.root";
+//string inputPath  = "../results/basicPlots_data_200hits.root";
+//string inputPath  = "../results/basicPlots_data_300hits.root";
 
 //string inputPath  = "../results/basicPlots_tracks+nhits3.root";
 //string inputPath  = "../results/basicPlots_tracks+nhits5.root";
@@ -57,8 +63,8 @@ const bool drawLegends = false;
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
   kData,
-  kMCcep,
-  kMCqedSC,
+//  kMCcep,
+//  kMCqedSC,
 //  kMCqedSL,
   kMClbl,
 };
@@ -70,7 +76,7 @@ const int baseHistHeight = baseHistWidth/goldenRatio;
 vector<tuple<string, int, int>> canvasParams = {
   // title       col row
   {"Photon"       , 2 , 2 },
-  {"Diphoton"     , 2 , 3 },
+  {"Diphoton"     , 2 , 4 },
   {"Triphoton"    , 2 , 2 },
   {"Electron"     , 2 , 2 },
   {"Dielectron"   , 2 , 3 },
@@ -95,7 +101,10 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "lbl_diphoton_mass_all"           , "diphoton m_{inv} (GeV)"  , false, kXsec    ,   1   , 2  , 1 ,   0  , 50  },
   { "lbl_diphoton_pt_all"             , "diphoton p_{t}"          , false, kXsec    ,   1   , 3  , 1 ,   0  , 2.0 },
   { "lbl_diphoton_rapidity_all"       , "diphoton rapidity"       , false, kXsec    ,   1   , 4  , 1 , -3.0 , 3.0 },
-  { "lbl_cut_flow_all"                , ""                        , false, kFirstBin,   1   , 5  , 1 ,   0  , 10  },
+  { "lbl_n_all_photons_all"           , "N_{photons}^{all}"       , false, kEntries ,   1   , 5  , 1 ,   0  , 100 },
+  { "lbl_n_all_calo_towers_all"       , "N_{towers}^{all}"        , false, kEntries ,   1   , 6  , 1 ,   0  , 100 },
+  { "lbl_n_all_L1EG_all"              , "N_{L1EG}^{all}"          , false, kEntries ,   1   , 7  , 1 ,   0  , 100 },
+  { "lbl_cut_flow_all"                , ""                        , false, kFirstBin,   1   , 8  , 1 ,   0  , 10  },
   
   { "lbl_triphoton_mass_all"          , "triphoton m_{inv} (GeV)" , false, kXsec    ,   2   , 1  , 2 ,   0  , 30  },
   { "lbl_triphoton_rapidity_all"      , "triphoton rapidity"      , false, kXsec    ,   2   , 2  , 1 , -3.0 , 3.0 },
@@ -503,9 +512,8 @@ void drawBasicPlots()
       }
     }
     
-    if(!backgroundsSum) continue;
+    if(backgroundsSum) ratio->Divide(backgroundsSum);
     
-    ratio->Divide(backgroundsSum);
     ratio->Draw();
     
     ratio->SetMaximum(1.2 * getMaxHistValue(ratio));
