@@ -29,7 +29,7 @@ then
   basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed/lhe_starlight_with_cuts/"
   baseFileName="starlight_QED_p"
   nFiles=12000
-  outPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed/lhe_starlight_with_cuts/merged_QED_SL.lhe"
+  outPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed/lhe_starlight_with_cuts/merged_QED_SL_fixed.lhe"
 fi
 
 /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/mergeLHE/merge $basePath $baseFileName $nFiles $outPath

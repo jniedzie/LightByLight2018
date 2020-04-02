@@ -1,6 +1,6 @@
 Universe              = vanilla
 executable            = runMerge.sh
-arguments             = 0
+arguments             = 3
 GetEnv                = True
 output                = output/$(ClusterId).$(ProcId).out
 error                 = output/$(ClusterId).$(ProcId).err
