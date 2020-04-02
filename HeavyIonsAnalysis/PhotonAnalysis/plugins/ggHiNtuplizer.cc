@@ -92,11 +92,22 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
   //**addition for LbyL analysis
   doGeneralTracks_          = ps.getParameter<bool>("doGeneralTracks");
   doCaloTower_              = ps.getParameter<bool>("doCaloTower");
+  doTrackerHits_            = ps.getParameter<bool>("doTrackerHits");
   
-  if (doGeneralTracks_) generalTracks_       = consumes<reco::TrackCollection>        (ps.getParameter<edm::InputTag>("generalTrk"));
-  if (doCaloTower_) CaloTowerCollection_     = consumes<edm::SortedCollection<CaloTower>>(ps.getParameter<edm::InputTag>("recoCaloTower"));
+  if(doGeneralTracks_){
+    generalTracks_ = consumes<reco::TrackCollection>(ps.getParameter<edm::InputTag>("generalTrk"));
+    DisplacedTracksCollection_ = consumes<std::vector<reco::Track>>(edm::InputTag("displacedTracks"));
+  }
+  if(doCaloTower_){
+    CaloTowerCollection_ = consumes<edm::SortedCollection<CaloTower>>(ps.getParameter<edm::InputTag>("recoCaloTower"));
+  }
   
-
+  if (doTrackerHits_){
+    DeDxHitInfoCollection_    = consumes<std::vector<reco::DeDxHitInfo>>(edm::InputTag("dedxHitInfo"));
+    PixelClustersCollection_  = consumes<edmNew::DetSetVector<SiPixelCluster>>(edm::InputTag("siPixelClusters"));
+    PixelRecHitsCollection_   = consumes<edmNew::DetSetVector<SiPixelRecHit>>(edm::InputTag("siPixelRecHits"));
+  }
+  
   // initialize output TTree
   edm::Service<TFileService> fs;
   tree_ = fs->make<TTree>("EventTree", "Event data");
@@ -586,11 +597,14 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("trkd0",           &trkd0_);
     tree_->Branch("trkdxy",          &trkdxy_);
     tree_->Branch("trkdz",           &trkdz_);
+    tree_->Branch("trkdxyBS",        &trkdxyBS_);
+    tree_->Branch("trkdzBS",         &trkdzBS_);
     tree_->Branch("trkdxyError",     &trkdxyError_);
     tree_->Branch("trkdzError",      &trkdzError_);
     tree_->Branch("trkValidHits",    &trkValidHits_);
     tree_->Branch("trkMissHits",     &trkMissHits_);
     tree_->Branch("trkPurity",       &trkPurity_);
+    tree_->Branch("nDisplacedTracks",&nDisplacedTracks_);
   }
 
   if (doCaloTower_){
@@ -601,6 +615,12 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("CaloTower_et",          &CaloTower_et_);
     tree_->Branch("CaloTower_eta",         &CaloTower_eta_);
     tree_->Branch("CaloTower_phi",         &CaloTower_phi_);
+  }
+  
+  if(doTrackerHits_){
+    tree_->Branch("nTrackerHits",   &nTrackerHits_);
+    tree_->Branch("nPixelClusters", &nPixelClusters_);
+    tree_->Branch("nPixelRecHits",  &nPixelRecHits_);
   }
 }
 
@@ -1064,10 +1084,13 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     trkd0_             .clear(); 
     trkdxy_            .clear();
     trkdz_             .clear();
+    trkdxyBS_          .clear();
+    trkdzBS_           .clear();
     trkdxyError_       .clear();     
     trkdzError_        .clear();
     trkValidHits_      .clear();                     
-    trkMissHits_       .clear();  
+    trkMissHits_       .clear();
+    nDisplacedTracks_ = 0;
   }
 
   if (doCaloTower_){
@@ -1078,6 +1101,12 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     CaloTower_et_         .clear();
     CaloTower_eta_        .clear();
     CaloTower_phi_        .clear();
+  }
+  
+  if(doTrackerHits_){
+    nTrackerHits_   = 0;
+    nPixelClusters_ = 0;
+    nPixelRecHits_  = 0;
   }
 
   run_    = e.id().run();
@@ -1131,6 +1160,7 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   if (doMuons_) fillMuons(e, es, pv);
   if (doGeneralTracks_) fillGeneralTracks(e, es, pv);
   if (doCaloTower_) fillCaloTower(e, es, pv);
+  if (doTrackerHits_) fillTrackerHits(e);
 
   tree_->Fill();
 }
@@ -2094,7 +2124,14 @@ void ggHiNtuplizer::fillGeneralTracks(const edm::Event& e, const edm::EventSetup
   edm::Handle<reco::TrackCollection >  generalTracksHandle;
   e.getByToken(generalTracks_, generalTracksHandle);
 
+  edm::Handle<reco::BeamSpot> theBeamSpot;
+  e.getByToken(beamSpotToken_, theBeamSpot);
 
+  reco::TrackBase::Point beamSpotPosition = theBeamSpot->position();
+  
+//  std::cout<<theBeamSpot->position().x()<<"\t"<<theBeamSpot->position().y()<<"\t"<<theBeamSpot->position().z()<<std::endl;
+  //reco::TrackBase::Point(0.010, 0.047, 0.903)
+  
  for (reco::TrackCollection::const_iterator trk = generalTracksHandle->begin(); trk != generalTracksHandle->end(); ++trk) {
     trkPt_             .push_back(trk->pt());            
     trkP_              .push_back(trk->p());            
@@ -2108,7 +2145,9 @@ void ggHiNtuplizer::fillGeneralTracks(const edm::Event& e, const edm::EventSetup
     trkchi2_           .push_back(trk->chi2());    
     trkd0_             .push_back(trk->d0());               
     trkdxy_            .push_back(trk->dxy());             
-    trkdz_             .push_back(trk->dz());     
+    trkdz_             .push_back(trk->dz());
+    trkdxyBS_          .push_back(trk->dxy(beamSpotPosition));
+    trkdzBS_           .push_back(trk->dz(beamSpotPosition));
     trkdxyError_       .push_back(trk->dxyError());             
     trkdzError_        .push_back(trk->dzError());   
     trkValidHits_      .push_back(trk->numberOfValidHits());                     
@@ -2117,6 +2156,15 @@ void ggHiNtuplizer::fillGeneralTracks(const edm::Event& e, const edm::EventSetup
     nTrk_++;
   }  
 
+  
+  // Displaced tracks
+  edm::Handle<std::vector<reco::Track>> DisplacedTracksHandle;
+  e.getByToken(DisplacedTracksCollection_, DisplacedTracksHandle);
+  
+  for(auto track = DisplacedTracksHandle->begin(); track != DisplacedTracksHandle->end(); ++track){
+    nDisplacedTracks_++;
+  }
+  
 } //fill General tracks
 
 void ggHiNtuplizer::fillCaloTower(const edm::Event& e, const edm::EventSetup& es, reco::Vertex& pv)
@@ -2139,4 +2187,49 @@ void ggHiNtuplizer::fillCaloTower(const edm::Event& e, const edm::EventSetup& es
   }
 } // calo tower loop
 
+void ggHiNtuplizer::fillTrackerHits(const edm::Event& event)
+{
+  // dE/dx hit info
+  edm::Handle<std::vector<reco::DeDxHitInfo>> TrackerHitsHandle;
+  event.getByToken(DeDxHitInfoCollection_, TrackerHitsHandle);
+  
+  for(auto hit = TrackerHitsHandle->begin(); hit != TrackerHitsHandle->end(); ++hit){
+//       CaloTower_emE_  .push_back(calo->emEnergy());
+    nTrackerHits_++;
+  }
+  
+  // Pixel Clusters
+  edm::Handle<edmNew::DetSetVector<SiPixelCluster>> PixelClustersHandle;
+  event.getByToken(PixelClustersCollection_, PixelClustersHandle);
+  
+  for(auto cluster = PixelClustersHandle->begin(); cluster != PixelClustersHandle->end(); ++cluster){
+    nPixelClusters_++;
+  }
+  
+  // Pixel Rec hits
+  edm::Handle<edmNew::DetSetVector<SiPixelRecHit>> PixelRecHitsHandle;
+  event.getByToken(PixelRecHitsCollection_, PixelRecHitsHandle);
+  
+  for(auto recHit = PixelRecHitsHandle->begin(); recHit != PixelRecHitsHandle->end(); ++recHit){
+    nPixelRecHits_++;
+  }
+}
+
 DEFINE_FWK_MODULE(ggHiNtuplizer);
+
+
+//
+//// Conversions and secondary vertices
+//vector<reco::Conversion>                        "allConversions"                              ""                "reRECO"
+//vector<reco::Conversion>                        "conversions"                                 ""                "reRECO"
+//vector<reco::Conversion>                        "uncleanedOnlyAllConversions"                 ""                "reRECO"
+//
+//vector<reco::Track>                             "ckfInOutTracksFromConversions"               ""                "reRECO"
+//vector<reco::Track>                             "ckfOutInTracksFromConversions"               ""                "reRECO"
+//vector<reco::Track>                             "conversionStepTracks"                        ""                "reRECO"
+//vector<reco::Track>                             "uncleanedOnlyCkfInOutTracksFromConversions"  ""                "reRECO"
+//vector<reco::Track>                             "uncleanedOnlyCkfOutInTracksFromConversions"  ""                "reRECO"
+//
+//vector<reco::Vertex>                            "inclusiveSecondaryVertices"                  ""                "reRECO"
+//vector<reco::VertexCompositePtrCandidate>       "inclusiveCandidateSecondaryVertices"         ""                "reRECO"
+//vector<reco::VertexCompositePtrCandidate>       "inclusiveCandidateSecondaryVerticesCvsL"     ""                "reRECO"
