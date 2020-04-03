@@ -269,4 +269,24 @@ string to_string_with_precision(const T a_value, const int n = 6)
   return out.str();
 }
 
+inline long long GetEntryNumber(TTree *tree, uint runNumber, uint lumiSection, ULong64_t eventNumber)
+{
+  // uberhack to select needed entry directly...
+  tree->Draw("Entry$>>hist(Entries$,0,Entries$)",
+             ("lumis=="+to_string(lumiSection)+
+              "&&run=="+to_string(runNumber)+
+              "&&event=="+to_string(eventNumber)).c_str(),
+             "goff");
+  
+  TH1I *hist = (TH1I*)gDirectory->Get("hist");
+  Long64_t iEntry = hist->GetBinLowEdge(hist->FindFirstBinAbove(0));
+  if(hist) delete hist;
+  
+  if(iEntry==0){
+    cout<<"No event with run: "<<runNumber<<"\tlumi: "<<lumiSection<<"\tevNumber: "<<eventNumber<<" was found\n";
+    return -1;
+  }
+  return iEntry;
+}
+
 #endif /* Helpers_h */

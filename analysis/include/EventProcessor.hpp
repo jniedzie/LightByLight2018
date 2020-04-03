@@ -15,7 +15,9 @@ public:
   /// Default constructor.
   /// \param inputPath Path to the file
   /// \param outputPaths Paths to the output files, in case one wants to save selected events to a new tree(s)
-  EventProcessor(string inputPath, EDataset _dataset, vector<string> outputPaths = {});
+  /// \param secondaryInputPath Path to file containing additional information that will be loaded for each event
+  EventProcessor(string inputPath, EDataset _dataset, vector<string> outputPaths = {},
+                 string secondaryInputPath="");
   
   /// Default destructor
   ~EventProcessor();
@@ -33,10 +35,10 @@ public:
   shared_ptr<Event> GetEvent(int iEvent);
   
 private:
-  TTree *eventTree, *hltTree, *l1Tree;                      ///< Input trees
-  map<string, TTree*> outEventTree, outHltTree, outL1Tree;  ///< Output trees
-  map<string, TDirectory*> dirEvent, dirHLT, dirL1;         ///< Output directories
-  map<string, TFile*> outFile;                              ///< Output files
+  TTree *eventTree, *hltTree, *l1Tree, *pixelTree;                        ///< Input trees
+  map<string, TTree*> outEventTree, outHltTree, outL1Tree, outPixelTree;  ///< Output trees
+  map<string, TDirectory*> dirEvent, dirHLT, dirL1, dirPixelTree;         ///< Output directories
+  map<string, TFile*> outFile;                                            ///< Output files
   
   EDataset dataset; ///< Dataset type (Data, MC_QED, MC_CEP etc.)
   
@@ -144,7 +146,7 @@ private:
   int nDedxHits = 0;
   
   /// Opens input trees and sets branches
-  void SetupBranches(string inputPath, vector<string> outputPaths);
+  void SetupBranches(string inputPath, vector<string> outputPaths, string secondaryInputPath);
   
   /// Creates output file and copies intput trees to it (without copying the entries)
   void SetupOutputTree(string outFileName);
