@@ -7,8 +7,14 @@ string inputPath  = "../results/basicPlots_data_default_tracker_branches.root";
 
 vector<tuple<string, string, int, double, double>> histParams = {
 
+//  name                      axis                      rebin min max
   { "lbl_photon_eta"        , "photon #eta"             , 1, -4 , 4 },
   { "lbl_photon_phi"        , "photon #phi"             , 1, -4 , 4 },
+  
+  { "lbl_n_all_photons"     , "N_{photons}^{all}"       , 1 ,0  , 20 },
+  { "lbl_n_all_calo_towers" , "N_{towers}^{all}"        , 1 ,0  , 20 },
+  { "lbl_n_all_L1EG"        , "N_{L1EG}^{all}"          , 1 ,0  , 20 },
+  
 //  { "lbl_diphoton_mass"     , "diphoton m_{inv} (GeV)"  },
 //  { "lbl_diphoton_rapidity" , "diphoton rapidity"       },
   

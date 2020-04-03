@@ -2,7 +2,7 @@
 
 //string inputPath  = "../results/basicPlots_default.root";
 //string inputPath  = "../results/basicPlots_default_new.root";
-//string inputPath  = "../results/basicPlots_data_default_tracker_branches.root";
+string inputPath  = "../results/basicPlots_data_default_tracker_branches.root";
 //string inputPath  = "../results/basicPlots_data_50hits.root";
 //string inputPath  = "../results/basicPlots_data_100hits.root";
 //string inputPath  = "../results/basicPlots_data_150hits.root";
@@ -36,7 +36,7 @@
 //string inputPath  = "../results/basicPlots_diphoton+pt_0p8.root";
 //string inputPath  = "../results/basicPlots_diphoton+pt_0p8_new.root";
 
-string inputPath  = "../results/basicPlots_test.root";
+//string inputPath  = "../results/basicPlots_test.root";
 
 string outputPath = "../plots/distributions";
 
@@ -66,7 +66,7 @@ const vector<EDataset> datasetsToAnalyze = {
 //  kMCcep,
 //  kMCqedSC,
 //  kMCqedSL,
-  kMClbl,
+//  kMClbl,
 };
 
 const double goldenRatio = 1.61803398875;
