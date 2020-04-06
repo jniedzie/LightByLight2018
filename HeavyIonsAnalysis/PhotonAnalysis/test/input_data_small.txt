@@ -1,1 +1,0 @@
-/store/group/phys_diffraction/lbyl_2018/HIForward_Reco/HIForward/pbpb_forward_2018/190708_134435/0000/step2_RAW2DIGI_L1Reco_RECO_1.root
