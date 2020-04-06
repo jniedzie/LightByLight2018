@@ -1,4 +1,5 @@
 HeavyIonsAnalysis/PhotonAnalysis/test/crab_projects/*
+addPixelTrackInfo
 *.pyc
 papers/*
 superchic3.0/*

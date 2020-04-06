@@ -12,11 +12,11 @@ bool storeHLTtrees = false;
 int main(int argc, char* argv[])
 {
   if(argc != 5){
-    cout<<"./getEfficienciesData inputPath secondaryInputPath outputPath datasetName[Data|QED_SC|QED_SL|LbL|CEP]"<<endl;
+    cout<<"./addPixelTrackInfo inputPath secondaryInputPath outputPath datasetName[Data|QED_SC|QED_SL|LbL|CEP]"<<endl;
     exit(0);
   }
   
-  cout<<"Starting appendPixelTrackInfo"<<endl;
+  cout<<"Starting addPixelTrackInfo"<<endl;
   
   string inFilePath = argv[1];
   string secondaryInputPath = argv[2];
@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
   string sampleName = argv[4];
   
   config = ConfigManager("configs/applySelections.md");
+  cout<<"Config created"<<endl;
   
   EDataset dataset = nDatasets;
   if(sampleName == "Data")    dataset = kData;
@@ -32,11 +33,13 @@ int main(int argc, char* argv[])
   if(sampleName == "LbL")     dataset = kMClbl;
   if(sampleName == "CEP")     dataset = kMCcep;
   
+  cout<<"Loading events...";
   auto events = make_unique<EventProcessor>(inFilePath, dataset, outFilePaths, secondaryInputPath);
-  cout<<"Event processor created"<<endl;
+  cout<<" done!"<<endl;
   
   // Loop over events
   for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
+    if(iEvent==config.params("maxEvents")) break;
     if(iEvent%1000 == 0) cout<<"Processing event "<<iEvent<<endl;
 
     events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);

@@ -31,7 +31,13 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   
   if(secondaryInputPath != ""){
     TFile *secondatyInFile = TFile::Open(secondaryInputPath.c_str());
-    pixelTree = (TTree*)secondatyInFile->Get("ggHiNtuplizer/EventTree");
+    if(!secondatyInFile){
+      cout<<"ERROR -- secondary input file not found: "<<secondaryInputPath<<endl;
+    }
+    pixelTree = (TTree*)secondatyInFile->Get("ggHiNtuplizer_pixelOnly/EventTree");
+    if(!pixelTree){
+      cout<<"ERROR -- pixel tree not found in file: "<<secondaryInputPath<<endl;
+    }
   }
   
   for(string outputPath : outputPaths) SetupOutputTree(outputPath);
@@ -180,10 +186,8 @@ void EventProcessor::AddEventToOutputTree(int iEvent, string outFileName, bool s
   outL1Tree[outFileName]->Fill();
   
   if(pixelTree){
-    long long secondaryTreeEntry = GetEntryNumber(pixelTree,
-                                            currentEvent->runNumber,
-                                            currentEvent->lumiSection,
-                                            currentEvent->eventNumber);
+    long long secondaryTreeEntry = GetEntryNumber(pixelTree, runNumber, lumiSection, eventNumber);
+    
     if(secondaryTreeEntry < 0){
       Log(0)<<"Couldn't find secondary entry for this event.\n";
       return;
@@ -385,10 +389,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   
   if(!pixelTree) return currentEvent;
   
-  long long secondaryTreeEntry = GetEntryNumber(pixelTree,
-                                          currentEvent->runNumber,
-                                          currentEvent->lumiSection,
-                                          currentEvent->eventNumber);
+  long long secondaryTreeEntry = GetEntryNumber(pixelTree, runNumber, lumiSection, eventNumber);
   
   if(secondaryTreeEntry < 0){
     Log(0)<<"Couldn't find secondary entry for this event.\n";
