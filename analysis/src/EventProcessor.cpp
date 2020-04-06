@@ -29,7 +29,10 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   hltTree   = (TTree*)inFile->Get("hltanalysis/HltTree");
   l1Tree    = (TTree*)inFile->Get("l1object/L1UpgradeFlatTree");
   
-  if(secondaryInputPath != ""){
+  if(secondaryInputPath == ""){
+    pixelTree = (TTree*)inFile->Get("pixelTracks/EventTree");
+  }
+  else{
     TFile *secondatyInFile = TFile::Open(secondaryInputPath.c_str());
     if(!secondatyInFile){
       cout<<"ERROR -- secondary input file not found: "<<secondaryInputPath<<endl;
@@ -88,7 +91,6 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("trkcharge"             , &generalTrackCharge);
   eventTree->SetBranchAddress("trkValidHits"          , &generalTrackValidHits);
   eventTree->SetBranchAddress("trkMissHits"           , &generalTrackMissingHits);
-  
   eventTree->SetBranchAddress("trkPurity"             , &generalTrackPurity);
   eventTree->SetBranchAddress("trknormchi2"           , &generalTrackChi2);
   eventTree->SetBranchAddress("trkdxy"                , &generalTrackDxy);
@@ -131,23 +133,46 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
 //  eventTree->SetBranchAddress("muSCPhi"          , &muonSCPhi);
 //  eventTree->SetBranchAddress("muSCEn"           , &muonSCEn);
   
-  eventTree->SetBranchAddress("muPFChIso"        , &muonChIso);
-  eventTree->SetBranchAddress("muPFPhoIso"       , &muonPhoIso);
-  eventTree->SetBranchAddress("muPFNeuIso"       , &muonNeuIso);
+  eventTree->SetBranchAddress("muPFChIso"       , &muonChIso);
+  eventTree->SetBranchAddress("muPFPhoIso"      , &muonPhoIso);
+  eventTree->SetBranchAddress("muPFNeuIso"      , &muonNeuIso);
   
-  l1Tree->SetBranchAddress("nEGs"                     , &nL1EGs);
-  l1Tree->SetBranchAddress("egEta"                    , &L1EGeta);
-  l1Tree->SetBranchAddress("egPhi"                    , &L1EGphi);
-  l1Tree->SetBranchAddress("egEt"                     , &L1EGet);
+  l1Tree->SetBranchAddress("nEGs"               , &nL1EGs);
+  l1Tree->SetBranchAddress("egEta"              , &L1EGeta);
+  l1Tree->SetBranchAddress("egPhi"              , &L1EGphi);
+  l1Tree->SetBranchAddress("egEt"               , &L1EGet);
   
-  eventTree->SetBranchAddress("run"   ,   &runNumber);
-  eventTree->SetBranchAddress("lumis" ,   &lumiSection);
-  eventTree->SetBranchAddress("event" ,   &eventNumber);
+  eventTree->SetBranchAddress("run"             , &runNumber);
+  eventTree->SetBranchAddress("lumis"           , &lumiSection);
+  eventTree->SetBranchAddress("event"           , &eventNumber);
   
-  eventTree->SetBranchAddress("nDisplacedTracks",   &nDisplacedTracks);
-  eventTree->SetBranchAddress("nPixelClusters"  ,   &nPixelClusters);
-  eventTree->SetBranchAddress("nPixelRecHits"   ,   &nPixelRecHits);
-  eventTree->SetBranchAddress("nDedxHits"       ,   &nDedxHits);
+  eventTree->SetBranchAddress("nDisplacedTracks", &nDisplacedTracks);
+  eventTree->SetBranchAddress("nPixelClusters"  , &nPixelClusters);
+  eventTree->SetBranchAddress("nPixelRecHits"   , &nPixelRecHits);
+  eventTree->SetBranchAddress("nDedxHits"       , &nDedxHits);
+ 
+  if(!pixelTree){
+    Log(0)<<"WARNING -- no pixel tree available. Pixel variables will not be set!\n";
+    return;
+  }
+  
+  pixelTree->SetBranchAddress("nPix"            , &nPhysObjects.at(kPixelTrack));
+  pixelTree->SetBranchAddress("pixPt"           , &pixelTrackPt);
+  pixelTree->SetBranchAddress("pixP"            , &pixelTrackP);
+  pixelTree->SetBranchAddress("pixEta"          , &pixelTrackEta);
+  pixelTree->SetBranchAddress("pixPhi"          , &pixelTrackPhi);
+  pixelTree->SetBranchAddress("pixcharge"       , &pixelTrackCharge);
+  pixelTree->SetBranchAddress("pixValidHits"    , &pixelTrackValidHits);
+  pixelTree->SetBranchAddress("pixMissHits"     , &pixelTrackMissingHits);
+  pixelTree->SetBranchAddress("pixPurity"       , &pixelTrackPurity);
+  pixelTree->SetBranchAddress("pixnormchi2"     , &pixelTrackChi2);
+  pixelTree->SetBranchAddress("pixdxy"          , &pixelTrackDxy);
+  pixelTree->SetBranchAddress("pixdz"           , &pixelTrackDz);
+  pixelTree->SetBranchAddress("pixdxyError"     , &pixelTrackDxyErr);
+  pixelTree->SetBranchAddress("pixdzError"      , &pixelTrackDzErr);
+  pixelTree->SetBranchAddress("pixvx"           , &pixelTrackVertexX);
+  pixelTree->SetBranchAddress("pixvy"           , &pixelTrackVertexY);
+  pixelTree->SetBranchAddress("pixvz"           , &pixelTrackVertexZ);
   
 }
 
@@ -389,18 +414,29 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   
   if(!pixelTree) return currentEvent;
   
-  long long secondaryTreeEntry = GetEntryNumber(pixelTree, runNumber, lumiSection, eventNumber);
-  
-  if(secondaryTreeEntry < 0){
-    Log(0)<<"Couldn't find secondary entry for this event.\n";
-    return currentEvent;
-  }
-  
-  pixelTree->GetEntry(secondaryTreeEntry);
-  // end of uberhack
-  
-  // TODO: add pixel info to event using pixelTree
-  // ...
+  // Fill in collection of pixel tracks
+   for(size_t iTrack=0; iTrack<nPhysObjects.at(kPixelTrack); iTrack++){
+     auto track = make_shared<PhysObject>();
+     
+     track->charge       = pixelTrackCharge->at(iTrack);
+     track->pt           = pixelTrackPt->at(iTrack);
+     track->p            = pixelTrackP->at(iTrack);
+     track->eta          = pixelTrackEta->at(iTrack);
+     track->phi          = pixelTrackPhi->at(iTrack);
+     track->nValidHits   = pixelTrackValidHits->at(iTrack);
+     track->nMissingHits = pixelTrackMissingHits->at(iTrack);
+     track->purity       = pixelTrackPurity->at(iTrack);
+     track->chi2         = pixelTrackChi2->at(iTrack);
+     track->dxy          = pixelTrackDxy->at(iTrack);
+     track->dz           = pixelTrackDz->at(iTrack);
+     track->dxyErr       = pixelTrackDxyErr->at(iTrack);
+     track->dzErr        = pixelTrackDzErr->at(iTrack);
+     track->vx           = pixelTrackVertexX->at(iTrack);
+     track->vy           = pixelTrackVertexY->at(iTrack);
+     track->vz           = pixelTrackVertexZ->at(iTrack);
+     
+     currentEvent->physObjects.at(kPixelTrack).push_back(track);
+   }
   
   return currentEvent;
 }

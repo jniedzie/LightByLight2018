@@ -46,7 +46,8 @@ PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
      || type == kMuon
      || type == kCaloTower
      || type == kGeneralTrack
-     || type == kL1EG){
+     || type == kL1EG
+     || type == kPixelTrack){
     return physObjects.at(type);
   }
   else if(type == kGoodGenPhoton)       return GetGoodGenPhotons();

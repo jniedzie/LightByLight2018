@@ -113,11 +113,11 @@ private:
   vector<float> *electronNeuIso         = nullptr;
 
 
-  vector<int>   *muonCharge         = nullptr;
-//  vector<int>   *muonNmissing       = nullptr;
-  vector<float> *muonPt             = nullptr;
-  vector<float> *muonEta            = nullptr;
-  vector<float> *muonPhi            = nullptr;
+  vector<int>   *muonCharge             = nullptr;
+//  vector<int>   *muonNmissing           = nullptr;
+  vector<float> *muonPt                 = nullptr;
+  vector<float> *muonEta                = nullptr;
+  vector<float> *muonPhi                = nullptr;
 //  vector<float> *muonHoverE         = nullptr;
 //  vector<float> *muonRelIsoWithEA   = nullptr;
 //  vector<float> *muonDetaSeed       = nullptr;
@@ -125,13 +125,32 @@ private:
 //  vector<float> *muonSCEt           = nullptr;
 //  vector<float> *muonSCPhi          = nullptr;
 //  vector<float> *muonSCEn           = nullptr;
-  vector<float> *muonChIso          = nullptr;
-  vector<float> *muonPhoIso         = nullptr;
-  vector<float> *muonNeuIso         = nullptr;
+  vector<float> *muonChIso              = nullptr;
+  vector<float> *muonPhoIso             = nullptr;
+  vector<float> *muonNeuIso             = nullptr;
 
   vector<float> *L1EGeta                = nullptr;
   vector<float> *L1EGphi                = nullptr;
   vector<float> *L1EGet                 = nullptr;
+  
+  vector<int>   *pixelTrackCharge       = nullptr;
+  vector<float> *pixelTrackPt           = nullptr;
+  vector<float> *pixelTrackP            = nullptr;
+  vector<float> *pixelTrackEta          = nullptr;
+  vector<float> *pixelTrackPhi          = nullptr;
+  vector<int>   *pixelTrackValidHits    = nullptr;
+  vector<int>   *pixelTrackMissingHits  = nullptr;
+  vector<int>   *pixelTrackPurity       = nullptr;
+  vector<float> *pixelTrackChi2         = nullptr;
+  vector<float> *pixelTrackDxy          = nullptr;
+  vector<float> *pixelTrackDz           = nullptr;
+  vector<float> *pixelTrackDxyErr       = nullptr;
+  vector<float> *pixelTrackDzErr        = nullptr;
+  vector<float> *pixelTrackVertexX      = nullptr;
+  vector<float> *pixelTrackVertexY      = nullptr;
+  vector<float> *pixelTrackVertexZ      = nullptr;
+  
+
   
   map<EPhysObjType, int> nPhysObjects;     ///< Stores number of physics objects
   unsigned short int nL1EGs;

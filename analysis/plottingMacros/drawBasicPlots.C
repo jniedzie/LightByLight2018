@@ -181,7 +181,7 @@ void fillLabels(TH1D *hist, vector<const char*> labels)
 void setCutflowLabels(TH1D *hist, bool lbl)
 {
   vector<const char *> labelsQED = {
-    "Initial", "Trigger", "NEE", "CHE", "2 good electrons", "opposite q",
+    "Initial", "Trigger", "NEE", "CHE", "CHE_{pix}", "2 good electrons", "opposite q",
     "dielectron m_{inv}", "dielectron p_{t}", "dielectron y"
   };
   vector<const char *> labelsLbL = {
