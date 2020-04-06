@@ -4,14 +4,16 @@
 
 #include "Helpers.hpp"
 #include "EventProcessor.hpp"
+#include "Logger.hpp"
 
-EventProcessor::EventProcessor(string inputPath, EDataset _dataset, vector<string> outputPaths) :
+EventProcessor::EventProcessor(string inputPath, EDataset _dataset, vector<string> outputPaths,
+                               string secondaryInputPath) :
 dataset(_dataset),
 currentEvent(new Event())
 {
   for(auto type : physObjTypes) nPhysObjects[type] = 0;
   for(auto trigger : triggers) triggerValues[trigger] = 0;
-  SetupBranches(inputPath, outputPaths);
+  SetupBranches(inputPath, outputPaths, secondaryInputPath);
 }
 
 EventProcessor::~EventProcessor()
@@ -19,13 +21,18 @@ EventProcessor::~EventProcessor()
   
 }
 
-void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths)
+void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths, string secondaryInputPath)
 {
   // Read trees from input files
   TFile *inFile = TFile::Open(inputPath.c_str());
   eventTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
   hltTree   = (TTree*)inFile->Get("hltanalysis/HltTree");
   l1Tree    = (TTree*)inFile->Get("l1object/L1UpgradeFlatTree");
+  
+  if(secondaryInputPath != ""){
+    TFile *secondatyInFile = TFile::Open(secondaryInputPath.c_str());
+    pixelTree = (TTree*)secondatyInFile->Get("ggHiNtuplizer/EventTree");
+  }
   
   for(string outputPath : outputPaths) SetupOutputTree(outputPath);
   
@@ -143,9 +150,9 @@ void EventProcessor::SetupOutputTree(string outFileName)
   outFile[outFileName] = new TFile(outFileName.c_str(), "recreate");
   outFile[outFileName]->cd();
   
-  dirEvent[outFileName]  = outFile[outFileName]->mkdir("ggHiNtuplizer");
-  dirHLT[outFileName]    = outFile[outFileName]->mkdir("hltanalysis");
-  dirL1[outFileName]     = outFile[outFileName]->mkdir("l1object");
+  dirEvent[outFileName]     = outFile[outFileName]->mkdir("ggHiNtuplizer");
+  dirHLT[outFileName]       = outFile[outFileName]->mkdir("hltanalysis");
+  dirL1[outFileName]        = outFile[outFileName]->mkdir("l1object");
   
   outEventTree[outFileName] = eventTree->CloneTree(0);
   outHltTree[outFileName]   = hltTree->CloneTree(0);
@@ -154,6 +161,12 @@ void EventProcessor::SetupOutputTree(string outFileName)
   outEventTree[outFileName]->Reset();
   outHltTree[outFileName]->Reset();
   outL1Tree[outFileName]->Reset();
+  
+  if(pixelTree){
+    dirPixelTree[outFileName] = outFile[outFileName]->mkdir("pixelTracks");
+    outPixelTree[outFileName] = pixelTree->CloneTree(0);
+    outPixelTree[outFileName]->Reset();
+  }
 }
 
 void EventProcessor::AddEventToOutputTree(int iEvent, string outFileName, bool saveHLTtree)
@@ -165,6 +178,19 @@ void EventProcessor::AddEventToOutputTree(int iEvent, string outFileName, bool s
   outEventTree[outFileName]->Fill();
   if(saveHLTtree) outHltTree[outFileName]->Fill();
   outL1Tree[outFileName]->Fill();
+  
+  if(pixelTree){
+    long long secondaryTreeEntry = GetEntryNumber(pixelTree,
+                                            currentEvent->runNumber,
+                                            currentEvent->lumiSection,
+                                            currentEvent->eventNumber);
+    if(secondaryTreeEntry < 0){
+      Log(0)<<"Couldn't find secondary entry for this event.\n";
+      return;
+    }
+    pixelTree->GetEntry(secondaryTreeEntry);
+    outPixelTree[outFileName]->Fill();
+  }
 }
 
 void EventProcessor::SaveOutputTree(string outFileName)
@@ -175,6 +201,12 @@ void EventProcessor::SaveOutputTree(string outFileName)
   outL1Tree[outFileName]->Write();
   dirEvent[outFileName]->cd();
   outEventTree[outFileName]->Write();
+  
+  if(pixelTree){
+    dirPixelTree[outFileName]->cd();
+    outPixelTree[outFileName]->Write();
+  }
+  
   outFile[outFileName]->Close();
 }
 
@@ -351,5 +383,25 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     currentEvent->physObjects.at(kL1EG).push_back(L1EG);
   }
   
+  if(!pixelTree) return currentEvent;
+  
+  long long secondaryTreeEntry = GetEntryNumber(pixelTree,
+                                          currentEvent->runNumber,
+                                          currentEvent->lumiSection,
+                                          currentEvent->eventNumber);
+  
+  if(secondaryTreeEntry < 0){
+    Log(0)<<"Couldn't find secondary entry for this event.\n";
+    return currentEvent;
+  }
+  
+  pixelTree->GetEntry(secondaryTreeEntry);
+  // end of uberhack
+  
+  // TODO: add pixel info to event using pixelTree
+  // ...
+  
   return currentEvent;
 }
+
+

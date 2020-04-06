@@ -1,4 +1,3 @@
-  
 //  applySelections.cpp
 //
 //  Created by Jeremi Niedziela on 16/01/2020.
