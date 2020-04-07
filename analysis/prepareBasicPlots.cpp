@@ -9,7 +9,7 @@
 #include "EventDisplay.hpp"
 #include "Logger.hpp"
 
-string configPath = "configs/efficiencies.md";
+string configPath = "configs/preparePlots_default.md";
 string outputPath = "results/basicPlots_test.root";
 
 bool saveCalosFailingNEE = true;
@@ -20,13 +20,13 @@ int nThreePhotonEvents = 0;
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
-//  kData,
+  kData,
   //  kData_SingleEG3,
   //  kData_recoEff,
   //  kData_triggerEff,
   //  kData_HFveto,
   //  kData_exclusivity,
-  kData_LbLsignal,
+//  kData_LbLsignal,
 //  kData_QEDsignal,
 //    kMCqedSC,
   //  kMCqedSC_SingleEG3,
@@ -35,10 +35,10 @@ const vector<EDataset> datasetsToAnalyze = {
   //  kMCqedSC_HFveto,
   //  kMCqedSC_exclusivity,
 //  kMCqedSC_LbLsignal,
-  kMCqedSC_QEDsignal,
+//  kMCqedSC_QEDsignal,
   //  kMCqedSL,
     kMClbl,
-    kMCcep
+//    kMCcep
 };
 
 vector<string> suffixes = {
@@ -68,6 +68,9 @@ vector<tuple<string, int, double, double>> histParams = {
   {"lbl_HE_leading_tower"   , 200 , 0   , 20    },
   {"lbl_HFp_leading_tower"  , 200 , 0   , 20    },
   {"lbl_HFm_leading_tower"  , 200 , 0   , 20    },
+  {"lbl_n_all_photons"      , 100 , 0   , 100   },
+  {"lbl_n_all_calo_towers"  , 100 , 0   , 100   },
+  {"lbl_n_all_L1EG"         , 100 , 0   , 100   },
   
   {"qed_acoplanarity"       , 500 , 0   , 1.0   },
   {"qed_electron_pt"        , 400 , 0   , 200.0 },
@@ -177,6 +180,9 @@ void fillPhotonHists(Event &event, const map<string, TH1D*> &hists, string datas
     hists.at("lbl_photon_eta_"+suffix+datasetName)->Fill(photon->GetEta());
     hists.at("lbl_photon_phi_"+suffix+datasetName)->Fill(photon->GetPhi());
   }
+  hists.at("lbl_n_all_photons_"+suffix+datasetName)->Fill(event.GetPhysObjects(kPhoton).size());
+  hists.at("lbl_n_all_calo_towers_"+suffix+datasetName)->Fill(event.GetPhysObjects(kCaloTower).size());
+  hists.at("lbl_n_all_L1EG_"+suffix+datasetName)->Fill(event.GetPhysObjects(kL1EG).size());
 }
 
 void fillDiphotonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
@@ -359,8 +365,11 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   if(event.GetPhysObjects(kGoodGeneralTrack).size() != 0) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 2
   
-  if(event.GetNpixelRecHits() > config.params("maxNpixelRecHits")) return;
+  if(event.GetPhysObjects(kPixelTrack).size() != 0) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 3
+  
+  if(event.GetNpixelRecHits() > config.params("maxNpixelRecHits")) return;
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 4
   
   if(saveCalosFailingNEE){
     map<ECaloType, bool> failingCalo;
@@ -373,24 +382,24 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   else{
     if(event.HasAdditionalTowers()) return;
   }
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 4
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 5
   
   if(saveTriphotonHists) fillTriphotonHists(event, hists, name);
   
   if(event.GetPhysObjects(kGoodPhoton).size() != 2) return;
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 5
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 6
   
   TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*event.GetPhysObjects(kGoodPhoton)[0],
                                                             *event.GetPhysObjects(kGoodPhoton)[1]);
   
   if(diphoton.M() < config.params("diphotonMinMass")) return;
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 6
-  
-  if(diphoton.Pt() > config.params("diphotonMaxPt")) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 7
   
-  if(fabs(diphoton.Rapidity()) > config.params("diphotonMaxRapidity")) return;
+  if(diphoton.Pt() > config.params("diphotonMaxPt")) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 8
+  
+  if(fabs(diphoton.Rapidity()) > config.params("diphotonMaxRapidity")) return;
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 9
   
   double aco = physObjectProcessor.GetAcoplanarity(*event.GetPhysObjects(kGoodPhoton)[0],
                                                    *event.GetPhysObjects(kGoodPhoton)[1]);
@@ -402,7 +411,7 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   }
   else{
     suffix = "low_aco";
-    hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 9
+    hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 10
   }
   
   fillPhotonHists(  event, hists, name, suffix);

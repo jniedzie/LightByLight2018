@@ -16,8 +16,9 @@ process = cms.Process('HiForest')
 process.load("HeavyIonsAnalysis.JetAnalysis.HiForest_cff")
 process.HiForest.inputLines = cms.vstring("HiForest 103X")
 import subprocess, os
-version = subprocess.check_output(['git',
-    '-C', os.path.expandvars('$CMSSW_BASE/src'), 'describe', '--tags'])
+version = ''
+# version = subprocess.check_output(['git',
+#     '-C', os.path.expandvars('$CMSSW_BASE/src'), 'describe', '--tags'])
 if version == '':
     version = 'no git info'
 process.HiForest.HiForestVersion = cms.string(version)
@@ -30,7 +31,8 @@ process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
     fileNames = cms.untracked.vstring(
         #"file:/afs/cern.ch/work/r/rbi/public/forest/HIHardProbes_HIRun2018A-PromptReco-v2_AOD.root"
-        'file:B3B60266-96AA-A146-8658-4FE0F40F9D00.root'
+        "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/B3B60266-96AA-A146-8658-4FE0F40F9D00.root"
+        # 'file:B3B60266-96AA-A146-8658-4FE0F40F9D00.root'
         #"file:/afs/cern.ch/work/r/rchudasa/private/hiforest_1034/CMSSW_10_3_4/src/from_old_1034_repo/step3_RAW2DIGI_L1Reco_RECO.root"
         #"file:/afs/cern.ch/work/r/rchudasa/private/hiforest_1034/CMSSW_10_3_4/src/from_old_1034_repo/wo_lbyl_mod/step3_RAW2DIGI_L1Reco_RECO.root"
 ),
@@ -77,7 +79,7 @@ process.centralityBin.centralityVariable = cms.string("HFtowers")
 
 process.TFileService = cms.Service("TFileService",
     #fileName = cms.string("data_HiForestAOD_wohlt_eta2p3_norechit.root"))
-    fileName = cms.string("data_HiForestAOD_swiss_cross.root"))
+    fileName = cms.string("data_HiForestAOD.root"))
 
 ###############################################################################
 # Additional Reconstruction and Analysis: Main Body
@@ -87,7 +89,7 @@ process.TFileService = cms.Service("TFileService",
 # Jets
 #############################
 # jet reco sequence
-process.load('HeavyIonsAnalysis.JetAnalysis.fullJetSequence_pponAA_data_cff')
+# process.load('HeavyIonsAnalysis.JetAnalysis.fullJetSequence_pponAA_data_cff')
 
 process.load('HeavyIonsAnalysis.JetAnalysis.hiFJRhoAnalyzer_cff')
 process.load("HeavyIonsAnalysis.JetAnalysis.pfcandAnalyzer_cfi")
@@ -178,6 +180,7 @@ process.rechitanalyzerpp.zdcRecHitSrc = cms.InputTag("QWzdcreco")
 #Recover peripheral primary vertices
 #https://twiki.cern.ch/twiki/bin/view/CMS/HITracking2018PbPb#Peripheral%20Vertex%20Recovery
 process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesRecovery_cfi")
+process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
 # clean bad PF candidates
 if cleanJets:

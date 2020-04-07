@@ -15,7 +15,9 @@ public:
   /// Default constructor.
   /// \param inputPath Path to the file
   /// \param outputPaths Paths to the output files, in case one wants to save selected events to a new tree(s)
-  EventProcessor(string inputPath, EDataset _dataset, vector<string> outputPaths = {});
+  /// \param secondaryInputPath Path to file containing additional information that will be loaded for each event
+  EventProcessor(string inputPath, EDataset _dataset, vector<string> outputPaths = {},
+                 string secondaryInputPath="");
   
   /// Default destructor
   ~EventProcessor();
@@ -33,10 +35,10 @@ public:
   shared_ptr<Event> GetEvent(int iEvent);
   
 private:
-  TTree *eventTree, *hltTree, *l1Tree;                      ///< Input trees
-  map<string, TTree*> outEventTree, outHltTree, outL1Tree;  ///< Output trees
-  map<string, TDirectory*> dirEvent, dirHLT, dirL1;         ///< Output directories
-  map<string, TFile*> outFile;                              ///< Output files
+  TTree *eventTree, *hltTree, *l1Tree, *pixelTree;                        ///< Input trees
+  map<string, TTree*> outEventTree, outHltTree, outL1Tree, outPixelTree;  ///< Output trees
+  map<string, TDirectory*> dirEvent, dirHLT, dirL1, dirPixelTree;         ///< Output directories
+  map<string, TFile*> outFile;                                            ///< Output files
   
   EDataset dataset; ///< Dataset type (Data, MC_QED, MC_CEP etc.)
   
@@ -111,11 +113,11 @@ private:
   vector<float> *electronNeuIso         = nullptr;
 
 
-  vector<int>   *muonCharge         = nullptr;
-//  vector<int>   *muonNmissing       = nullptr;
-  vector<float> *muonPt             = nullptr;
-  vector<float> *muonEta            = nullptr;
-  vector<float> *muonPhi            = nullptr;
+  vector<int>   *muonCharge             = nullptr;
+//  vector<int>   *muonNmissing           = nullptr;
+  vector<float> *muonPt                 = nullptr;
+  vector<float> *muonEta                = nullptr;
+  vector<float> *muonPhi                = nullptr;
 //  vector<float> *muonHoverE         = nullptr;
 //  vector<float> *muonRelIsoWithEA   = nullptr;
 //  vector<float> *muonDetaSeed       = nullptr;
@@ -123,17 +125,39 @@ private:
 //  vector<float> *muonSCEt           = nullptr;
 //  vector<float> *muonSCPhi          = nullptr;
 //  vector<float> *muonSCEn           = nullptr;
-  vector<float> *muonChIso          = nullptr;
-  vector<float> *muonPhoIso         = nullptr;
-  vector<float> *muonNeuIso         = nullptr;
+  vector<float> *muonChIso              = nullptr;
+  vector<float> *muonPhoIso             = nullptr;
+  vector<float> *muonNeuIso             = nullptr;
 
   vector<float> *L1EGeta                = nullptr;
   vector<float> *L1EGphi                = nullptr;
   vector<float> *L1EGet                 = nullptr;
   
+  vector<int>   *pixelTrackCharge       = nullptr;
+  vector<float> *pixelTrackPt           = nullptr;
+  vector<float> *pixelTrackP            = nullptr;
+  vector<float> *pixelTrackEta          = nullptr;
+  vector<float> *pixelTrackPhi          = nullptr;
+  vector<int>   *pixelTrackValidHits    = nullptr;
+  vector<int>   *pixelTrackMissingHits  = nullptr;
+  vector<int>   *pixelTrackPurity       = nullptr;
+  vector<float> *pixelTrackChi2         = nullptr;
+  vector<float> *pixelTrackDxy          = nullptr;
+  vector<float> *pixelTrackDz           = nullptr;
+  vector<float> *pixelTrackDxyErr       = nullptr;
+  vector<float> *pixelTrackDzErr        = nullptr;
+  vector<float> *pixelTrackVertexX      = nullptr;
+  vector<float> *pixelTrackVertexY      = nullptr;
+  vector<float> *pixelTrackVertexZ      = nullptr;
+  
+
+  
   map<EPhysObjType, int> nPhysObjects;     ///< Stores number of physics objects
   unsigned short int nL1EGs;
   
+  uint runNumber = 0;
+  uint lumiSection = 0;
+  ULong64_t eventNumber = 0;
   
   int nDisplacedTracks = 0;
   int nPixelClusters = 0;
@@ -141,7 +165,7 @@ private:
   int nDedxHits = 0;
   
   /// Opens input trees and sets branches
-  void SetupBranches(string inputPath, vector<string> outputPaths);
+  void SetupBranches(string inputPath, vector<string> outputPaths, string secondaryInputPath);
   
   /// Creates output file and copies intput trees to it (without copying the entries)
   void SetupOutputTree(string outFileName);

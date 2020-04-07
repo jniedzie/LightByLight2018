@@ -1,5 +1,8 @@
 ##  Efficiencies config
 
+### Verbosity level (0: critical errors only, 1: errors and warnings, 2: full debug log):
+verbosityLevel: 0
+
 ### Max number of events to analyze
 maxEvents: 9999999
 

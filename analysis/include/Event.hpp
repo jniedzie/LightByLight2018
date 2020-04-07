@@ -56,6 +56,10 @@ public:
   /// Checks if given tower overlaps with one of the electrons passing selections
   bool IsOverlappingWithGoodElectron(const PhysObject &tower);
   
+  inline uint      GetRunNumber()   const { return runNumber;   }
+  inline uint      GetLumiSection() const { return lumiSection; }
+  inline ULong64_t GetEventNumber() const { return eventNumber; }
+  
   inline int GetNdisplacedTracks()  const { return nDisplacedTracks;}
   inline int GetNpixelClusters()    const { return nPixelClusters;  }
   inline int GetNpixelRecHits()     const { return nPixelRecHits;   }
@@ -84,6 +88,10 @@ private:
   int nPixelClusters;
   int nPixelRecHits;
   int nDedxHits;
+  
+  uint runNumber;
+  uint lumiSection;
+  ULong64_t eventNumber;
   
   friend class EventProcessor;
 };
