@@ -2,6 +2,7 @@
 
 //string inputPath  = "../results/basicPlots_default.root";
 //string inputPath  = "../results/basicPlots_default_new.root";
+//string inputPath  = "../results/basicPlots_data_default_withPixelTrackCuts.root";
 string inputPath  = "../results/basicPlots_data_default_tracker_branches.root";
 //string inputPath  = "../results/basicPlots_data_50hits.root";
 //string inputPath  = "../results/basicPlots_data_100hits.root";
@@ -181,11 +182,11 @@ void fillLabels(TH1D *hist, vector<const char*> labels)
 void setCutflowLabels(TH1D *hist, bool lbl)
 {
   vector<const char *> labelsQED = {
-    "Initial", "Trigger", "NEE", "CHE", "CHE_{pix}", "2 good electrons", "opposite q",
+    "Initial", "Trigger", "NEE", "CHE", "2 good electrons", "opposite q",
     "dielectron m_{inv}", "dielectron p_{t}", "dielectron y"
   };
   vector<const char *> labelsLbL = {
-    "Initial", "Trigger", "CHE", "N_{hits}^{pixel}", "NEE", "2 good photons",
+    "Initial", "Trigger", "CHE", "CHE_{pix}", "N_{hits}^{pixel}", "NEE", "2 good photons",
     "diphoton m_{inv}", "diphoton p_{t}", "diphoton y", "acoplanarity"
   };
   fillLabels(hist, lbl ? labelsLbL : labelsQED);
