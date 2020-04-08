@@ -11,7 +11,7 @@ if [ $3 -eq 0 ]
 then
 # default
   configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_default.md"
-  suffix="_default_tracker_branches"
+  suffix="_default_withPixelTrackCuts"
 elif [ $3 -eq 1 ]
 then
 # HF thresholds increased to 20 GeV
@@ -150,7 +150,8 @@ if [ $2 -eq 0 ]
 then
   sampleName="Data" # last chunk number: 7440, merged into 80 files
 #  inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
-    inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_tracker_branches/merged/merged_ntuples_${1}.root"
+#    inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_tracker_branches/merged/merged_ntuples_${1}.root"
+    inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_trackerAndPixelBranches/ntuples_${1}.root"
 #  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2/ntuples_loose_selections_${1}.root"
   outputPath="${basePath}/analysis/basicPlots/basicPlots_data${suffix}"
   
