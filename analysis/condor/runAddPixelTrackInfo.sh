@@ -11,10 +11,10 @@ outputPath=""
 if [ $2 -eq 0 ] # data
 then
   sampleName="Data"
-  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_tracker_branches/merged/merged_ntuples_${1}.root"
+  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_noPixelTracks/ntuples_loose_selections_${1}.root"
 #  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2/merged/merged_ntuples_${1}.root"
   secondaryInputPath="${basePath}/pixel_ntuples/ntuples_pixel_data.root"
-  outputPath="${basePath}/skimmed_ntuples/data_doubleEG2_trackerAndPixelBranches_new"
+  outputPath="${basePath}/skimmed_ntuples/data_doubleEG2_complete"
   mkdir -p $outputPath
   outputPath="${outputPath}/ntuples_${1}.root"
 fi

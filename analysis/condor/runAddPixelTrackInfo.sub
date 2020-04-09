@@ -7,4 +7,4 @@ error                 = error/$(ClusterId).$(ProcId).err
 log                   = log/$(ClusterId).log
 requirements 	      = (OpSysAndVer =?= "CentOS7")
 +JobFlavour           = "nextweek"
-queue 60
+queue 8000
