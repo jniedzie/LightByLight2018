@@ -37,7 +37,7 @@ const vector<EDataset> datasetsToAnalyze = {
 //  kMCqedSC_LbLsignal,
 //  kMCqedSC_QEDsignal,
   //  kMCqedSL,
-    kMClbl,
+//    kMClbl,
 //    kMCcep
 };
 
@@ -71,6 +71,11 @@ vector<tuple<string, int, double, double>> histParams = {
   {"lbl_n_all_photons"      , 100 , 0   , 100   },
   {"lbl_n_all_calo_towers"  , 100 , 0   , 100   },
   {"lbl_n_all_L1EG"         , 100 , 0   , 100   },
+  {"lbl_zdc_energy"         , 1000, 0   , 50000 },
+  {"lbl_n_zdc"              , 100 , 0   , 100   },
+  {"lbl_bad_photon_et"      , 100 , 0   , 100.0 },
+  {"lbl_bad_photon_eta"     , 6   ,-2.4 , 2.4   },
+  {"lbl_bad_photon_phi"     , 8   ,-4.0 , 4.0   },
   
   {"qed_acoplanarity"       , 500 , 0   , 1.0   },
   {"qed_electron_pt"        , 400 , 0   , 200.0 },
@@ -183,6 +188,21 @@ void fillPhotonHists(Event &event, const map<string, TH1D*> &hists, string datas
   hists.at("lbl_n_all_photons_"+suffix+datasetName)->Fill(event.GetPhysObjects(kPhoton).size());
   hists.at("lbl_n_all_calo_towers_"+suffix+datasetName)->Fill(event.GetPhysObjects(kCaloTower).size());
   hists.at("lbl_n_all_L1EG_"+suffix+datasetName)->Fill(event.GetPhysObjects(kL1EG).size());
+  
+  for(auto zdc : event.GetPhysObjects(kZDC)){
+    hists.at("lbl_zdc_energy_"+suffix+datasetName)->Fill(zdc->GetEnergy());
+  }
+  hists.at("lbl_n_zdc_"+suffix+datasetName)->Fill(event.GetPhysObjects(kZDC).size());
+  
+  for(auto photon : event.GetPhysObjects(kPhoton)){
+    if(find(event.GetPhysObjects(kGoodPhoton).begin(),
+            event.GetPhysObjects(kGoodPhoton).end(),
+            photon) != event.GetPhysObjects(kGoodPhoton).end()) continue;
+    
+    hists.at("lbl_bad_photon_et_" +suffix+datasetName)->Fill(photon->GetEt());
+    hists.at("lbl_bad_photon_eta_"+suffix+datasetName)->Fill(photon->GetEta());
+    hists.at("lbl_bad_photon_phi_"+suffix+datasetName)->Fill(photon->GetPhi());
+  }
 }
 
 void fillDiphotonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
