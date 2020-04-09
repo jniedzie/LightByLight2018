@@ -1,9 +1,11 @@
 Universe              = vanilla
 executable            = runTauTauApplySelection.sh
+arguments             = $(ProcId) $(ClusterId)
 GetEnv                = True
 output                = output/$(ClusterId).$(ProcId).out
 error                 = error/$(ClusterId).$(ProcId).err
 log                   = log/$(ClusterId).log
-requirements 	      = (OpSysAndVer =?= "CentOS7")
+requirements          = (OpSysAndVer =?= "CentOS7")
 +JobFlavour           = "espresso"
-queue
+queue 40
+
