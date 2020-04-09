@@ -14,14 +14,18 @@ then
   inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_tracker_branches/merged/merged_ntuples_${1}.root"
 #  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2/merged/merged_ntuples_${1}.root"
   secondaryInputPath="${basePath}/pixel_ntuples/ntuples_pixel_data.root"
-  outputPath="${basePath}/skimmed_ntuples/data_doubleEG2_trackerAndPixelBranches/ntuples_${1}.root"
-  
+  outputPath="${basePath}/skimmed_ntuples/data_doubleEG2_trackerAndPixelBranches_new"
+  mkdir -p $outputPath
+  outputPath="${outputPath}/ntuples_${1}.root"
 fi
 
-mkdir -p $outputPath
-
 echo "Input path: ${inputPath}"
-echo "Secondary input path: ${inputPath}"
+echo "Secondary input path: ${secondaryInputPath}"
 echo "Output path: ${outputPath}"
 
-/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/addPixelTrackInfo $inputPath $secondaryInputPath $outputPath $sampleName
+echo "Executing command:"
+echo "/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/addPixelTrackInfo ${inputPath} ${secondaryInputPath} ${outputPath} ${sampleName}"
+
+cd /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/
+. setenv.sh
+./addPixelTrackInfo $inputPath $secondaryInputPath $outputPath $sampleName

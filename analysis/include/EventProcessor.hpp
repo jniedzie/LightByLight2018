@@ -35,10 +35,10 @@ public:
   shared_ptr<Event> GetEvent(int iEvent);
   
 private:
-  TTree *eventTree, *hltTree, *l1Tree, *pixelTree;                        ///< Input trees
-  map<string, TTree*> outEventTree, outHltTree, outL1Tree, outPixelTree;  ///< Output trees
-  map<string, TDirectory*> dirEvent, dirHLT, dirL1, dirPixelTree;         ///< Output directories
-  map<string, TFile*> outFile;                                            ///< Output files
+  TTree *eventTree, *hltTree, *l1Tree, *zdcTree, *pixelTree;                          ///< Input trees
+  map<string, TTree*> outEventTree, outHltTree, outL1Tree, outZdcTree, outPixelTree;  ///< Output trees
+  map<string, TDirectory*> dirEvent, dirHLT, dirL1, dirZdc, dirPixel;                 ///< Output directories
+  map<string, TFile*> outFile;                                                        ///< Output files
   
   EDataset dataset; ///< Dataset type (Data, MC_QED, MC_CEP etc.)
   

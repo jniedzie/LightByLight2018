@@ -25,9 +25,10 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
 {
   // Read trees from input files
   TFile *inFile = TFile::Open(inputPath.c_str());
-  eventTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
-  hltTree   = (TTree*)inFile->Get("hltanalysis/HltTree");
-  l1Tree    = (TTree*)inFile->Get("l1object/L1UpgradeFlatTree");
+  eventTree     = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
+  hltTree       = (TTree*)inFile->Get("hltanalysis/HltTree");
+  l1Tree        = (TTree*)inFile->Get("l1object/L1UpgradeFlatTree");
+  zdcTree       = (TTree*)inFile->Get("rechitanalyzerpp/zdcrechit");
   
   if(secondaryInputPath == ""){
     pixelTree = (TTree*)inFile->Get("pixelTracks/EventTree");
@@ -184,17 +185,20 @@ void EventProcessor::SetupOutputTree(string outFileName)
   dirEvent[outFileName]     = outFile[outFileName]->mkdir("ggHiNtuplizer");
   dirHLT[outFileName]       = outFile[outFileName]->mkdir("hltanalysis");
   dirL1[outFileName]        = outFile[outFileName]->mkdir("l1object");
+  dirZdc[outFileName]       = outFile[outFileName]->mkdir("rechitanalyzerpp");
   
   outEventTree[outFileName] = eventTree->CloneTree(0);
   outHltTree[outFileName]   = hltTree->CloneTree(0);
   outL1Tree[outFileName]    = l1Tree->CloneTree(0);
+  outZdcTree[outFileName]   = zdcTree->CloneTree(0);
   
   outEventTree[outFileName]->Reset();
   outHltTree[outFileName]->Reset();
   outL1Tree[outFileName]->Reset();
+  outZdcTree[outFileName]->Reset();
   
   if(pixelTree){
-    dirPixelTree[outFileName] = outFile[outFileName]->mkdir("pixelTracks");
+    dirPixel[outFileName] = outFile[outFileName]->mkdir("pixelTracks");
     outPixelTree[outFileName] = pixelTree->CloneTree(0);
     outPixelTree[outFileName]->Reset();
   }
@@ -205,10 +209,12 @@ void EventProcessor::AddEventToOutputTree(int iEvent, string outFileName, bool s
   eventTree->GetEntry(iEvent);
   hltTree->GetEntry(iEvent);
   l1Tree->GetEntry(iEvent);
+  zdcTree->GetEntry(iEvent);
   
   outEventTree[outFileName]->Fill();
   if(saveHLTtree) outHltTree[outFileName]->Fill();
   outL1Tree[outFileName]->Fill();
+  outZdcTree[outFileName]->Fill();
   
   if(pixelTree){
     long long secondaryTreeEntry = GetEntryNumber(pixelTree, runNumber, lumiSection, eventNumber);
@@ -230,9 +236,11 @@ void EventProcessor::SaveOutputTree(string outFileName)
   outL1Tree[outFileName]->Write();
   dirEvent[outFileName]->cd();
   outEventTree[outFileName]->Write();
+  dirZdc[outFileName]->cd();
+  outZdcTree[outFileName]->Write();
   
   if(pixelTree){
-    dirPixelTree[outFileName]->cd();
+    dirPixel[outFileName]->cd();
     outPixelTree[outFileName]->Write();
   }
   
@@ -245,6 +253,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   hltTree->GetEntry(iEvent);
   eventTree->GetEntry(iEvent);
   l1Tree->GetEntry(iEvent);
+  zdcTree->GetEntry(iEvent);
   
   currentEvent->Reset();
   
