@@ -150,7 +150,12 @@ private:
   vector<float> *pixelTrackVertexY      = nullptr;
   vector<float> *pixelTrackVertexZ      = nullptr;
   
-
+  int nZDCs;
+  float *zdcE                   = nullptr;
+  float *zdcSaturation          = nullptr;
+  int   *zdcZside               = nullptr;
+  int   *zdcSection             = nullptr;
+  int   *zdcChannel             = nullptr;
   
   map<EPhysObjType, int> nPhysObjects;     ///< Stores number of physics objects
   unsigned short int nL1EGs;
