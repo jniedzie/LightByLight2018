@@ -428,7 +428,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     currentEvent->physObjects.at(kL1EG).push_back(L1EG);
   }
   
-  for(size_t iZDC=0; iZDC<nPhysObjects.at(kZDC); iZDC++){
+  for(size_t iZDC=0; iZDC<nZDCs; iZDC++){
     auto zdc = make_shared<PhysObject>();
     
     zdc->energy = zdcE[iZDC];

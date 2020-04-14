@@ -47,6 +47,7 @@ PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
      || type == kCaloTower
      || type == kGeneralTrack
      || type == kL1EG
+     || type == kZDC
      || type == kPixelTrack){
     return physObjects.at(type);
   }

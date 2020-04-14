@@ -178,6 +178,17 @@ void fillTriphotonHists(Event &event, const map<string, TH1D*> &hists, string da
   }
 }
 
+void fillNobjectsHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
+{
+  if(suffix != "") suffix += "_";
+  
+  hists.at("lbl_n_all_photons_"+suffix+datasetName)->Fill(event.GetPhysObjects(kPhoton).size());
+  hists.at("lbl_n_all_calo_towers_"+suffix+datasetName)->Fill(event.GetPhysObjects(kCaloTower).size());
+  hists.at("lbl_n_all_L1EG_"+suffix+datasetName)->Fill(event.GetPhysObjects(kL1EG).size());
+  hists.at("lbl_n_pixel_tracks_"+suffix+datasetName)->Fill(event.GetPhysObjects(kPixelTrack).size());
+  hists.at("lbl_n_zdc_"+suffix+datasetName)->Fill(event.GetPhysObjects(kZDC).size());
+}
+
 void fillPhotonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
 {
   if(suffix != "") suffix += "_";
@@ -186,15 +197,10 @@ void fillPhotonHists(Event &event, const map<string, TH1D*> &hists, string datas
     hists.at("lbl_photon_eta_"+suffix+datasetName)->Fill(photon->GetEta());
     hists.at("lbl_photon_phi_"+suffix+datasetName)->Fill(photon->GetPhi());
   }
-  hists.at("lbl_n_all_photons_"+suffix+datasetName)->Fill(event.GetPhysObjects(kPhoton).size());
-  hists.at("lbl_n_all_calo_towers_"+suffix+datasetName)->Fill(event.GetPhysObjects(kCaloTower).size());
-  hists.at("lbl_n_all_L1EG_"+suffix+datasetName)->Fill(event.GetPhysObjects(kL1EG).size());
-  hists.at("lbl_n_pixel_tracks_"+suffix+datasetName)->Fill(event.GetPhysObjects(kPixelTrack).size());
   
   for(auto zdc : event.GetPhysObjects(kZDC)){
     hists.at("lbl_zdc_energy_"+suffix+datasetName)->Fill(zdc->GetEnergy());
   }
-  hists.at("lbl_n_zdc_"+suffix+datasetName)->Fill(event.GetPhysObjects(kZDC).size());
   
   auto goodPhotons = event.GetPhysObjects(kGoodPhoton);
   
@@ -378,6 +384,7 @@ void fillTracksHists(Event &event, const map<string, TH1D*> &hists, EDataset dat
 void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset dataset)
 {
   string name = datasetName.at(dataset);
+  
   int cutThrough=0;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 0
   
@@ -435,7 +442,9 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
     suffix = "low_aco";
     hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 10
   }
-
+  
+  fillNobjectsHists(  event, hists, name, suffix);
+  fillNobjectsHists(  event, hists, name, "all");
   fillPhotonHists(  event, hists, name, suffix);
   fillPhotonHists(  event, hists, name, "all");
   fillDiphotonHists(event, hists, name, suffix);
