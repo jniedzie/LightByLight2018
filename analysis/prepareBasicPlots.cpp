@@ -77,6 +77,7 @@ vector<tuple<string, int, double, double>> histParams = {
   {"lbl_bad_photon_eta"     , 6   ,-2.4 , 2.4   },
   {"lbl_bad_photon_phi"     , 8   ,-4.0 , 4.0   },
   {"lbl_n_pixel_tracks"     , 100 , 0   , 100   },
+  {"lbl_zdc_sum_energy"     , 20000, 0   , 1000000 },
   
   {"qed_acoplanarity"       , 500 , 0   , 1.0   },
   {"qed_electron_pt"        , 400 , 0   , 200.0 },
@@ -197,10 +198,12 @@ void fillPhotonHists(Event &event, const map<string, TH1D*> &hists, string datas
     hists.at("lbl_photon_eta_"+suffix+datasetName)->Fill(photon->GetEta());
     hists.at("lbl_photon_phi_"+suffix+datasetName)->Fill(photon->GetPhi());
   }
-  
+  double zdcEnergySum = 0;
   for(auto zdc : event.GetPhysObjects(kZDC)){
     hists.at("lbl_zdc_energy_"+suffix+datasetName)->Fill(zdc->GetEnergy());
+    zdcEnergySum += zdc->GetEnergy();
   }
+  hists.at("lbl_zdc_sum_energy_"+suffix+datasetName)->Fill(zdcEnergySum);
   
   auto goodPhotons = event.GetPhysObjects(kGoodPhoton);
   

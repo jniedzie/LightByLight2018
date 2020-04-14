@@ -137,7 +137,9 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "lbl_HFm_leading_tower_all"       , "HF- leading energy (GeV)", true , kEntries ,   10   , 6  , 1 ,   0  , 10  },
   
   { "lbl_n_pixel_tracks_all"          , "LbL N_{tracks}^{pixel}"  , false, kEntries ,   11   , 1  , 1 ,   0  , 10  },
-  { "lbl_n_zdc_all"                   , "LbL N_{ZDC}"             , false, kEntries ,   11   , 2  , 1 ,   0  , 10  },
+  { "lbl_n_zdc_all"                   , "LbL N_{ZDC}"             , false, kEntries ,   11   , 2  , 1 ,   0  , 20  },
+  { "lbl_zdc_energy_all"              , "LbL E_{ZDC} (A.U.)"      , true , kEntries ,   11   , 3  , 1 ,   0  ,50000},
+  
 };
 
 void fillLabels(TH1D *hist, vector<const char*> labels)
