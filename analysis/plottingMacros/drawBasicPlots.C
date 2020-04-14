@@ -1,9 +1,10 @@
 #include "../include/Helpers.hpp"
 
 //string inputPath  = "../results/basicPlots_default.root";
-//string inputPath  = "../results/basicPlots_default_new.root";
+string inputPath  = "../results/basicPlots_data_default_new.root";
 //string inputPath  = "../results/basicPlots_data_default_withPixelTrackCuts.root";
-string inputPath  = "../results/basicPlots_data_default_tracker_branches.root";
+//string inputPath  = "../results/basicPlots_data_default_tracker_branches.root";
+//string inputPath  = "../results/basicPlots_data_default_withPixelTrackCuts.root";
 //string inputPath  = "../results/basicPlots_data_50hits.root";
 //string inputPath  = "../results/basicPlots_data_100hits.root";
 //string inputPath  = "../results/basicPlots_data_150hits.root";

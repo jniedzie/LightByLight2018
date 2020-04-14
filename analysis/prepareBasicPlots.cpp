@@ -76,6 +76,7 @@ vector<tuple<string, int, double, double>> histParams = {
   {"lbl_bad_photon_et"      , 100 , 0   , 100.0 },
   {"lbl_bad_photon_eta"     , 6   ,-2.4 , 2.4   },
   {"lbl_bad_photon_phi"     , 8   ,-4.0 , 4.0   },
+  {"lbl_n_pixel_tracks"     , 100 , 0   , 100   },
   
   {"qed_acoplanarity"       , 500 , 0   , 1.0   },
   {"qed_electron_pt"        , 400 , 0   , 200.0 },
@@ -188,16 +189,17 @@ void fillPhotonHists(Event &event, const map<string, TH1D*> &hists, string datas
   hists.at("lbl_n_all_photons_"+suffix+datasetName)->Fill(event.GetPhysObjects(kPhoton).size());
   hists.at("lbl_n_all_calo_towers_"+suffix+datasetName)->Fill(event.GetPhysObjects(kCaloTower).size());
   hists.at("lbl_n_all_L1EG_"+suffix+datasetName)->Fill(event.GetPhysObjects(kL1EG).size());
+  hists.at("lbl_n_pixel_tracks_"+suffix+datasetName)->Fill(event.GetPhysObjects(kPixelTrack).size());
   
   for(auto zdc : event.GetPhysObjects(kZDC)){
     hists.at("lbl_zdc_energy_"+suffix+datasetName)->Fill(zdc->GetEnergy());
   }
   hists.at("lbl_n_zdc_"+suffix+datasetName)->Fill(event.GetPhysObjects(kZDC).size());
   
+  auto goodPhotons = event.GetPhysObjects(kGoodPhoton);
+  
   for(auto photon : event.GetPhysObjects(kPhoton)){
-    if(find(event.GetPhysObjects(kGoodPhoton).begin(),
-            event.GetPhysObjects(kGoodPhoton).end(),
-            photon) != event.GetPhysObjects(kGoodPhoton).end()) continue;
+    if(find(goodPhotons.begin(), goodPhotons.end(), photon) != goodPhotons.end()) continue;
     
     hists.at("lbl_bad_photon_et_" +suffix+datasetName)->Fill(photon->GetEt());
     hists.at("lbl_bad_photon_eta_"+suffix+datasetName)->Fill(photon->GetEta());
@@ -382,10 +384,10 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   if(checkTriggers && !event.HasTrigger(kDoubleEG2noHF)) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 1
   
-  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 0) return;
+  if(event.GetPhysObjects(kGoodGeneralTrack).size() > config.params("maxNtracks")) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 2
   
-  if(event.GetPhysObjects(kPixelTrack).size() != 0) return;
+  if(event.GetPhysObjects(kPixelTrack).size() > config.params("maxNpixelTracks")) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 3
   
   if(event.GetNpixelRecHits() > config.params("maxNpixelRecHits")) return;
@@ -433,7 +435,7 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
     suffix = "low_aco";
     hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 10
   }
-  
+
   fillPhotonHists(  event, hists, name, suffix);
   fillPhotonHists(  event, hists, name, "all");
   fillDiphotonHists(event, hists, name, suffix);

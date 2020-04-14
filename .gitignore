@@ -78,6 +78,8 @@ analysis/results/reco_eff_event_displays_QED_SC/*
 generatorsConfigs/input_ee.DAT
 generatorsConfigs/input_mumu.DAT
 generatorsConfigs/slight_mumu.in
+generatorsConfigs/input_ALP_hgcal.DAT
+generatorsConfigs/input_ALP_nose.DAT
 analysis/plots/*
 analysis/results/*
 mergeLHE/output/

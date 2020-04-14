@@ -1,8 +1,7 @@
 
 //string inputPath  = "../results/basicPlots_default.root";
-string inputPath  = "../results/basicPlots_data_default_tracker_branches.root";
-
-
+//string inputPath  = "../results/basicPlots_data_default_tracker_branches.root";
+string inputPath  = "../results/basicPlots_data_default_new.root";
 
 
 vector<tuple<string, string, int, double, double>> histParams = {
@@ -14,6 +13,8 @@ vector<tuple<string, string, int, double, double>> histParams = {
   { "lbl_n_all_photons"     , "N_{photons}^{all}"       , 1 ,0  , 20 },
   { "lbl_n_all_calo_towers" , "N_{towers}^{all}"        , 1 ,0  , 20 },
   { "lbl_n_all_L1EG"        , "N_{L1EG}^{all}"          , 1 ,0  , 20 },
+  
+  { "lbl_zdc_energy"        , "E_{ZDC}"                 , 1 ,0  , 50000 },
   
 //  { "lbl_diphoton_mass"     , "diphoton m_{inv} (GeV)"  },
 //  { "lbl_diphoton_rapidity" , "diphoton rapidity"       },
