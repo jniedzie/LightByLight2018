@@ -136,9 +136,10 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "lbl_HFp_leading_tower_all"       , "HF+ leading energy (GeV)", true , kEntries ,   10   , 5  , 1 ,   0  , 10  },
   { "lbl_HFm_leading_tower_all"       , "HF- leading energy (GeV)", true , kEntries ,   10   , 6  , 1 ,   0  , 10  },
   
-  { "lbl_n_pixel_tracks_all"          , "LbL N_{tracks}^{pixel}"  , false, kEntries ,   11   , 1  , 1 ,   0  , 10  },
+  { "lbl_n_pixel_tracks_all"          , "LbL N_{tracks}^{pixel}"  , false, kEntries ,   11   , 1  , 1 ,   0  , 20  },
   { "lbl_n_zdc_all"                   , "LbL N_{ZDC}"             , false, kEntries ,   11   , 2  , 1 ,   0  , 20  },
   { "lbl_zdc_energy_all"              , "LbL E_{ZDC} (A.U.)"      , true , kEntries ,   11   , 3  , 1 ,   0  ,50000},
+  { "lbl_zdc_sum_energy_all"          , "LbL #Sum E_{ZDC} (A.U.)" , true , kEntries ,   11   , 4  , 50,   0 ,100000},
   
 };
 
@@ -160,7 +161,7 @@ void setCutflowLabels(TH1D *hist, bool lbl)
     "dielectron m_{inv}", "dielectron p_{t}", "dielectron y"
   };
   vector<const char *> labelsLbL = {
-    "Initial", "Trigger", "CHE", "CHE_{pix}", "N_{hits}^{pixel}", "NEE", "2 good photons",
+    "Initial", "Trigger", "CHE", "CHE_{pix}", "N_{hits}^{pixel}", "NEE", "ZDC", "2 good photons",
     "diphoton m_{inv}", "diphoton p_{t}", "diphoton y", "acoplanarity"
   };
   fillLabels(hist, lbl ? labelsLbL : labelsQED);

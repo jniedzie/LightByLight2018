@@ -14,9 +14,16 @@ then
   suffix="_default"
 elif [ $3 -eq 1 ]
 then
-# HF thresholds increased to 20 GeV
   configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_noPixelTracks.md"
   suffix="_noPixelTracks"
+elif [ $3 -eq 2 ]
+then
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_ZDCcut.md"
+  suffix="_ZDCcut"
+elif [ $3 -eq 3 ]
+then
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_totalZDCcit.md"
+  suffix="_totalZDCcit"
 fi
 
 # for the data:

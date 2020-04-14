@@ -30,11 +30,11 @@ trackMaxChi2:                          999999
 
 ### Pixel cuts
 maxNpixelRecHits:                  999999
-maxNpixelTracks:                    0
+maxNpixelTracks:                    999999
 
 ### ZDC cuts
 maxZDCenergy:                       999999
-maxTotalZDCenergy:                999999
+maxTotalZDCenergy:                2500
 
 ### Max ΔR for matching for reco+ID efficiency
 maxDeltaR:              0.3
