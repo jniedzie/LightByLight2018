@@ -1,13 +1,13 @@
 void checkNevents()
 {
-  string baseBathOld = "/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_doubleEG2_tracker_branches/merged/";
-  string baseBathNew = "/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_doubleEG2_trackerAndPixelBranches/";
+  string baseBathOld = "/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_doubleEG2_noPixelTracks/merged/";
+  string baseBathNew = "/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/data_doubleEG2_complete/merged/";
   
   
   for(int iFile=0; iFile<60; iFile++){
-    cout<<"\niFile: "<<iFile<<endl;
     
-    string fileNameNew = "ntuples_"+to_string(iFile)+".root";
+    
+    string fileNameNew = "merged_ntuples_"+to_string(iFile)+".root";
     string fileNameOld = "merged_ntuples_"+to_string(iFile)+".root";
     
     int entriesNew = -1;
@@ -29,7 +29,10 @@ void checkNevents()
       else          entriesOld = treeOld->GetEntries();
     }
     
-    cout<<"Entries old: "<<entriesOld<<"\tnew: "<<entriesNew<<endl;
+    if(entriesOld != entriesNew){
+      cout<<"\niFile: "<<iFile<<endl;
+      cout<<"Entries old: "<<entriesOld<<"\tnew: "<<entriesNew<<endl;
+    }
   }
   
 }
