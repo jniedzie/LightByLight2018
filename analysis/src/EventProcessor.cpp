@@ -438,6 +438,8 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   
   if(!pixelTree) return currentEvent;
   
+  pixelTree->GetEntry(iEvent);
+  
   // Fill in collection of pixel tracks
    for(size_t iTrack=0; iTrack<nPhysObjects.at(kPixelTrack); iTrack++){
      auto track = make_shared<PhysObject>();
