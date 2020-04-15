@@ -432,6 +432,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     auto zdc = make_shared<PhysObject>();
     
     zdc->energy = zdcE[iZDC];
+    zdc->zSide  = zdcZside[iZDC];
     
     currentEvent->physObjects.at(kZDC).push_back(zdc);
   }

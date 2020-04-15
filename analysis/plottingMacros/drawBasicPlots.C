@@ -1,6 +1,10 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/basicPlots_data_default.root";
+//string inputPath  = "../results/basicPlots_data_default.root";
+//string inputPath  = "../results/basicPlots_data_noPixelTracks.root";
+//string inputPath  = "../results/basicPlots_data_ZDCcut.root";
+string inputPath  = "../results/basicPlots_data_ZDCcut_200.root";
+//string inputPath  = "../results/basicPlots_data_totalZDCcut.root";
 
 //string inputPath  = "../results/basicPlots_test.root";
 
@@ -74,7 +78,7 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "lbl_n_all_photons_all"           , "N_{photons}^{all}"       , false, kEntries ,   1   , 5  , 1 ,   0  , 100 },
   { "lbl_n_all_calo_towers_all"       , "N_{towers}^{all}"        , false, kEntries ,   1   , 6  , 1 ,   0  , 100 },
   { "lbl_n_all_L1EG_all"              , "N_{L1EG}^{all}"          , false, kEntries ,   1   , 7  , 1 ,   0  , 100 },
-  { "lbl_cut_flow_all"                , ""                        , true , kFirstBin,   1   , 8  , 1 ,   0  , 10  },
+  { "lbl_cut_flow_all"                , ""                        , true , kFirstBin,   1   , 8  , 1 ,   0  , 12  },
   
   { "lbl_triphoton_mass_all"          , "triphoton m_{inv} (GeV)" , false, kXsec    ,   2   , 1  , 2 ,   0  , 30  },
   { "lbl_triphoton_rapidity_all"      , "triphoton rapidity"      , false, kXsec    ,   2   , 2  , 1 , -3.0 , 3.0 },
@@ -161,7 +165,7 @@ void setCutflowLabels(TH1D *hist, bool lbl)
     "dielectron m_{inv}", "dielectron p_{t}", "dielectron y"
   };
   vector<const char *> labelsLbL = {
-    "Initial", "Trigger", "CHE", "CHE_{pix}", "N_{hits}^{pixel}", "NEE", "ZDC", "2 good photons",
+    "Initial", "Trigger", "CHE", "CHE_{pix}", "N_{hits}^{pixel}", "ZDC", "NEE", "2 good photons",
     "diphoton m_{inv}", "diphoton p_{t}", "diphoton y", "acoplanarity"
   };
   fillLabels(hist, lbl ? labelsLbL : labelsQED);

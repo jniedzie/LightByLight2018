@@ -52,7 +52,8 @@ neutralIso(-9999),
 relIsoWithEA(-9999),
 dEtaSeed(-9999),
 
-hasConversionTracks(false)
+hasConversionTracks(false),
+zSide(-9999)
 {
   
 }
@@ -345,4 +346,10 @@ double PhysObject::GetNeutralIso() const
 bool PhysObject::IsConverted() const
 {
   return hasConversionTracks;
+}
+
+int PhysObject::GetZside() const
+{
+  if(zSide < -999) Log(1)<<"WARNING - carefull, zSide probably not set\n";
+  return zSide;
 }
