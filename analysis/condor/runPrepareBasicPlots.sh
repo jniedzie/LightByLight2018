@@ -19,11 +19,15 @@ then
 elif [ $3 -eq 2 ]
 then
   configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_ZDCcut.md"
-  suffix="_ZDCcut"
+  suffix="_ZDCcut_200"
 elif [ $3 -eq 3 ]
 then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_totalZDCcit.md"
-  suffix="_totalZDCcit"
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_totalZDCcut.md"
+  suffix="_totalZDCcut"
+elif [ $3 -eq 4 ]
+then
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_newCuts.md"
+  suffix="_newCuts"
 fi
 
 # for the data:
