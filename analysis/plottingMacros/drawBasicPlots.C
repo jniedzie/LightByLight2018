@@ -1,40 +1,11 @@
 #include "../include/Helpers.hpp"
 
-//string inputPath  = "../results/basicPlots_default.root";
-//string inputPath  = "../results/basicPlots_default_new.root";
-string inputPath  = "../results/basicPlots_data_default_tracker_branches.root";
-//string inputPath  = "../results/basicPlots_data_50hits.root";
-//string inputPath  = "../results/basicPlots_data_100hits.root";
-//string inputPath  = "../results/basicPlots_data_150hits.root";
-//string inputPath  = "../results/basicPlots_data_200hits.root";
-//string inputPath  = "../results/basicPlots_data_300hits.root";
-
-//string inputPath  = "../results/basicPlots_tracks+nhits3.root";
-//string inputPath  = "../results/basicPlots_tracks+nhits5.root";
-//string inputPath  = "../results/basicPlots_tracks+nhits7.root";
-//string inputPath  = "../results/basicPlots_tracks+nhits11.root";
-
-//string inputPath  = "../results/basicPlots_tracks+pt200.root";
-//string inputPath  = "../results/basicPlots_tracks+pt300.root";
-//string inputPath  = "../results/basicPlots_tracks+pt400.root";
-//string inputPath  = "../results/basicPlots_tracks+pt500.root";
-//string inputPath  = "../results/basicPlots_tracks+pt700.root";
-//string inputPath  = "../results/basicPlots_tracks+pt900.root";
-
-//string inputPath  = "../results/basicPlots_tracks+chi2_2p5.root";
-//string inputPath  = "../results/basicPlots_tracks+dxybs1mm.root";
-//string inputPath  = "../results/basicPlots_tracks+dxybs1mm_new.root";
-//string inputPath  = "../results/basicPlots_tracks+dxy1mm.root";
-
-//string inputPath  = "../results/basicPlots_tracks+no_cuts.root";
-//string inputPath  = "../results/basicPlots_EBnoise_1p0.root";
-//string inputPath  = "../results/basicPlots_EEnoiseEtaDep.root";
-//string inputPath  = "../results/basicPlots_EEnoiseEta_2p4.root";
-
-
-//string inputPath  = "../results/basicPlots_pho+conversions.root";
-//string inputPath  = "../results/basicPlots_diphoton+pt_0p8.root";
-//string inputPath  = "../results/basicPlots_diphoton+pt_0p8_new.root";
+//string inputPath  = "../results/basicPlots_data_default.root";
+//string inputPath  = "../results/basicPlots_data_noPixelTracks.root";
+//string inputPath  = "../results/basicPlots_data_ZDCcut.root";
+//string inputPath  = "../results/basicPlots_data_ZDCcut_200.root";
+//string inputPath  = "../results/basicPlots_data_totalZDCcut.root";
+string inputPath  = "../results/basicPlots_data_newCuts.root";
 
 //string inputPath  = "../results/basicPlots_test.root";
 
@@ -75,7 +46,7 @@ const int baseHistHeight = baseHistWidth/goldenRatio;
 
 vector<tuple<string, int, int>> canvasParams = {
   // title       col row
-  {"Photon"       , 2 , 2 },
+  {"Photon"       , 3 , 3 },
   {"Diphoton"     , 2 , 4 },
   {"Triphoton"    , 2 , 2 },
   {"Electron"     , 2 , 2 },
@@ -86,6 +57,7 @@ vector<tuple<string, int, int>> canvasParams = {
   {"vertex"       , 3 , 3 },
   {"vertex/track" , 2 , 2 },
   {"LbL calo"     , 3 , 2 },
+  {"N objects"    , 2 , 2 },
 };
 
 enum ENorm { kXsec, kEntries, kFirstBin };
@@ -95,7 +67,10 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "lbl_photon_et_all"               , "photon E_{t} (GeV)"      , false, kXsec    ,   0   , 1  , 1 ,   0  , 30  },
   { "lbl_photon_eta_all"              , "photon #eta"             , false, kXsec    ,   0   , 2  , 1 , -3.0 , 3.0 },
   { "lbl_photon_phi_all"              , "photon #phi"             , false, kXsec    ,   0   , 3  , 1 , -3.5 , 3.5 },
-  { "lbl_nee_failing_all"             , ""                        , false, kEntries ,   0   , 4  , 1 ,   0  , 10  },
+  { "lbl_bad_photon_et_all"           , "bad photon E_{t} (GeV)"  , false, kXsec    ,   0   , 4  , 1 ,   0  , 30  },
+  { "lbl_bad_photon_eta_all"          , "bad photon #eta"         , false, kXsec    ,   0   , 5  , 1 , -3.5 , 3.5 },
+  { "lbl_bad_photon_phi_all"          , "bad photon #phi"         , false, kXsec    ,   0   , 6  , 1 , -3.5 , 3.5 },
+  { "lbl_nee_failing_all"             , ""                        , false, kEntries ,   0   , 7  , 1 ,   0  , 10  },
   
   { "lbl_acoplanarity_all"            , "A_{#phi}^{#gamma#gamma}" , false, kXsec    ,   1   , 1  , 1 ,   0  , 0.2 },
   { "lbl_diphoton_mass_all"           , "diphoton m_{inv} (GeV)"  , false, kXsec    ,   1   , 2  , 1 ,   0  , 50  },
@@ -104,7 +79,7 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "lbl_n_all_photons_all"           , "N_{photons}^{all}"       , false, kEntries ,   1   , 5  , 1 ,   0  , 100 },
   { "lbl_n_all_calo_towers_all"       , "N_{towers}^{all}"        , false, kEntries ,   1   , 6  , 1 ,   0  , 100 },
   { "lbl_n_all_L1EG_all"              , "N_{L1EG}^{all}"          , false, kEntries ,   1   , 7  , 1 ,   0  , 100 },
-  { "lbl_cut_flow_all"                , ""                        , false, kFirstBin,   1   , 8  , 1 ,   0  , 10  },
+  { "lbl_cut_flow_all"                , ""                        , true , kFirstBin,   1   , 8  , 1 ,   0  , 12  },
   
   { "lbl_triphoton_mass_all"          , "triphoton m_{inv} (GeV)" , false, kXsec    ,   2   , 1  , 2 ,   0  , 30  },
   { "lbl_triphoton_rapidity_all"      , "triphoton rapidity"      , false, kXsec    ,   2   , 2  , 1 , -3.0 , 3.0 },
@@ -165,6 +140,12 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "lbl_HE_leading_tower_all"        , "HE leading energy (GeV)" , true , kEntries ,   10   , 4  , 1 ,   0  , 5   },
   { "lbl_HFp_leading_tower_all"       , "HF+ leading energy (GeV)", true , kEntries ,   10   , 5  , 1 ,   0  , 10  },
   { "lbl_HFm_leading_tower_all"       , "HF- leading energy (GeV)", true , kEntries ,   10   , 6  , 1 ,   0  , 10  },
+  
+  { "lbl_n_pixel_tracks_all"          , "LbL N_{tracks}^{pixel}"  , false, kEntries ,   11   , 1  , 1 ,   0  , 20  },
+  { "lbl_n_zdc_all"                   , "LbL N_{ZDC}"             , false, kEntries ,   11   , 2  , 1 ,   0  , 20  },
+  { "lbl_zdc_energy_all"              , "LbL E_{ZDC} (A.U.)"      , true , kEntries ,   11   , 3  , 1 ,   0  ,50000},
+  { "lbl_zdc_sum_energy_all"          , "LbL #Sum E_{ZDC} (A.U.)" , true , kEntries ,   11   , 4  , 50,   0 ,100000},
+  
 };
 
 void fillLabels(TH1D *hist, vector<const char*> labels)
@@ -185,7 +166,7 @@ void setCutflowLabels(TH1D *hist, bool lbl)
     "dielectron m_{inv}", "dielectron p_{t}", "dielectron y"
   };
   vector<const char *> labelsLbL = {
-    "Initial", "Trigger", "CHE", "N_{hits}^{pixel}", "NEE", "2 good photons",
+    "Initial", "Trigger", "CHE", "CHE_{pix}", "N_{hits}^{pixel}", "ZDC", "NEE", "2 good photons",
     "diphoton m_{inv}", "diphoton p_{t}", "diphoton y", "acoplanarity"
   };
   fillLabels(hist, lbl ? labelsLbL : labelsQED);

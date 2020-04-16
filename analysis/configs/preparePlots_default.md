@@ -16,7 +16,8 @@ maxDeltaPhiEE:  0.4
 maxEtaEEtower:      2.4
 
 ### Charged exclusivity cuts (GeV)
-trackMinPt:                              0.0 
+maxNtracks:                             0
+trackMinPt:                               0.0 
 trackMaxEta:                            999999
 trackMaxDxy:                           999999
 trackMaxXYdistanceFromBS:  999999
@@ -27,8 +28,19 @@ trackMaxDzOverSigma:           999999
 trackMinNvalidHits:                  0
 trackMaxChi2:                          999999
 
-### Tracker hit cuts
-maxNpixelRecHits:                 999999
+### Pixel cuts
+maxNpixelRecHits:                  999999
+
+### Pixel track cuts
+maxNpixelTracks:                    999999
+pixelTrackMinPt:                      0.0 
+pixelTrackMaxEta:                   999999
+pixelTrackMinNvalidHits:         0
+pixelTrackMaxChi2:                 999999
+
+### ZDC cuts
+maxZDCenergy:                       999999
+maxTotalZDCenergy:                999999
 
 ### Max ΔR for matching for reco+ID efficiency
 maxDeltaR:              0.3

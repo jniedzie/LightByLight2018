@@ -25,13 +25,23 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
 {
   // Read trees from input files
   TFile *inFile = TFile::Open(inputPath.c_str());
-  eventTree = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
-  hltTree   = (TTree*)inFile->Get("hltanalysis/HltTree");
-  l1Tree    = (TTree*)inFile->Get("l1object/L1UpgradeFlatTree");
+  eventTree     = (TTree*)inFile->Get("ggHiNtuplizer/EventTree");
+  hltTree       = (TTree*)inFile->Get("hltanalysis/HltTree");
+  l1Tree        = (TTree*)inFile->Get("l1object/L1UpgradeFlatTree");
+  zdcTree       = (TTree*)inFile->Get("rechitanalyzerpp/zdcrechit");
   
-  if(secondaryInputPath != ""){
+  if(secondaryInputPath == ""){
+    pixelTree = (TTree*)inFile->Get("pixelTracks/EventTree");
+  }
+  else{
     TFile *secondatyInFile = TFile::Open(secondaryInputPath.c_str());
-    pixelTree = (TTree*)secondatyInFile->Get("ggHiNtuplizer/EventTree");
+    if(!secondatyInFile){
+      cout<<"ERROR -- secondary input file not found: "<<secondaryInputPath<<endl;
+    }
+    pixelTree = (TTree*)secondatyInFile->Get("ggHiNtuplizer_pixelOnly/EventTree");
+    if(!pixelTree){
+      cout<<"ERROR -- pixel tree not found in file: "<<secondaryInputPath<<endl;
+    }
   }
   
   for(string outputPath : outputPaths) SetupOutputTree(outputPath);
@@ -82,7 +92,6 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("trkcharge"             , &generalTrackCharge);
   eventTree->SetBranchAddress("trkValidHits"          , &generalTrackValidHits);
   eventTree->SetBranchAddress("trkMissHits"           , &generalTrackMissingHits);
-  
   eventTree->SetBranchAddress("trkPurity"             , &generalTrackPurity);
   eventTree->SetBranchAddress("trknormchi2"           , &generalTrackChi2);
   eventTree->SetBranchAddress("trkdxy"                , &generalTrackDxy);
@@ -125,23 +134,53 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
 //  eventTree->SetBranchAddress("muSCPhi"          , &muonSCPhi);
 //  eventTree->SetBranchAddress("muSCEn"           , &muonSCEn);
   
-  eventTree->SetBranchAddress("muPFChIso"        , &muonChIso);
-  eventTree->SetBranchAddress("muPFPhoIso"       , &muonPhoIso);
-  eventTree->SetBranchAddress("muPFNeuIso"       , &muonNeuIso);
+  eventTree->SetBranchAddress("muPFChIso"       , &muonChIso);
+  eventTree->SetBranchAddress("muPFPhoIso"      , &muonPhoIso);
+  eventTree->SetBranchAddress("muPFNeuIso"      , &muonNeuIso);
   
-  l1Tree->SetBranchAddress("nEGs"                     , &nL1EGs);
-  l1Tree->SetBranchAddress("egEta"                    , &L1EGeta);
-  l1Tree->SetBranchAddress("egPhi"                    , &L1EGphi);
-  l1Tree->SetBranchAddress("egEt"                     , &L1EGet);
+  l1Tree->SetBranchAddress("nEGs"               , &nL1EGs);
+  l1Tree->SetBranchAddress("egEta"              , &L1EGeta);
+  l1Tree->SetBranchAddress("egPhi"              , &L1EGphi);
+  l1Tree->SetBranchAddress("egEt"               , &L1EGet);
   
-  eventTree->SetBranchAddress("run"   ,   &runNumber);
-  eventTree->SetBranchAddress("lumis" ,   &lumiSection);
-  eventTree->SetBranchAddress("event" ,   &eventNumber);
+  eventTree->SetBranchAddress("run"             , &runNumber);
+  eventTree->SetBranchAddress("lumis"           , &lumiSection);
+  eventTree->SetBranchAddress("event"           , &eventNumber);
   
-  eventTree->SetBranchAddress("nDisplacedTracks",   &nDisplacedTracks);
-  eventTree->SetBranchAddress("nPixelClusters"  ,   &nPixelClusters);
-  eventTree->SetBranchAddress("nPixelRecHits"   ,   &nPixelRecHits);
-  eventTree->SetBranchAddress("nDedxHits"       ,   &nDedxHits);
+  eventTree->SetBranchAddress("nDisplacedTracks", &nDisplacedTracks);
+  eventTree->SetBranchAddress("nPixelClusters"  , &nPixelClusters);
+  eventTree->SetBranchAddress("nPixelRecHits"   , &nPixelRecHits);
+  eventTree->SetBranchAddress("nDedxHits"       , &nDedxHits);
+ 
+  zdcTree->SetBranchAddress("n"                 , &nZDCs);
+  zdcTree->SetBranchAddress("e"                 , zdcE);
+  zdcTree->SetBranchAddress("saturation"        , zdcSaturation);
+  zdcTree->SetBranchAddress("zside"             , zdcZside);
+  zdcTree->SetBranchAddress("section"           , zdcSection);
+  zdcTree->SetBranchAddress("channel"           , zdcChannel);
+  
+  if(!pixelTree){
+    Log(0)<<"WARNING -- no pixel tree available. Pixel variables will not be set!\n";
+    return;
+  }
+  
+  pixelTree->SetBranchAddress("nPix"            , &nPhysObjects.at(kPixelTrack));
+  pixelTree->SetBranchAddress("pixPt"           , &pixelTrackPt);
+  pixelTree->SetBranchAddress("pixP"            , &pixelTrackP);
+  pixelTree->SetBranchAddress("pixEta"          , &pixelTrackEta);
+  pixelTree->SetBranchAddress("pixPhi"          , &pixelTrackPhi);
+  pixelTree->SetBranchAddress("pixcharge"       , &pixelTrackCharge);
+  pixelTree->SetBranchAddress("pixValidHits"    , &pixelTrackValidHits);
+  pixelTree->SetBranchAddress("pixMissHits"     , &pixelTrackMissingHits);
+  pixelTree->SetBranchAddress("pixPurity"       , &pixelTrackPurity);
+  pixelTree->SetBranchAddress("pixnormchi2"     , &pixelTrackChi2);
+  pixelTree->SetBranchAddress("pixdxy"          , &pixelTrackDxy);
+  pixelTree->SetBranchAddress("pixdz"           , &pixelTrackDz);
+  pixelTree->SetBranchAddress("pixdxyError"     , &pixelTrackDxyErr);
+  pixelTree->SetBranchAddress("pixdzError"      , &pixelTrackDzErr);
+  pixelTree->SetBranchAddress("pixvx"           , &pixelTrackVertexX);
+  pixelTree->SetBranchAddress("pixvy"           , &pixelTrackVertexY);
+  pixelTree->SetBranchAddress("pixvz"           , &pixelTrackVertexZ);
   
 }
 
@@ -153,17 +192,20 @@ void EventProcessor::SetupOutputTree(string outFileName)
   dirEvent[outFileName]     = outFile[outFileName]->mkdir("ggHiNtuplizer");
   dirHLT[outFileName]       = outFile[outFileName]->mkdir("hltanalysis");
   dirL1[outFileName]        = outFile[outFileName]->mkdir("l1object");
+  dirZdc[outFileName]       = outFile[outFileName]->mkdir("rechitanalyzerpp");
   
   outEventTree[outFileName] = eventTree->CloneTree(0);
   outHltTree[outFileName]   = hltTree->CloneTree(0);
   outL1Tree[outFileName]    = l1Tree->CloneTree(0);
+  outZdcTree[outFileName]   = zdcTree->CloneTree(0);
   
   outEventTree[outFileName]->Reset();
   outHltTree[outFileName]->Reset();
   outL1Tree[outFileName]->Reset();
+  outZdcTree[outFileName]->Reset();
   
   if(pixelTree){
-    dirPixelTree[outFileName] = outFile[outFileName]->mkdir("pixelTracks");
+    dirPixel[outFileName] = outFile[outFileName]->mkdir("pixelTracks");
     outPixelTree[outFileName] = pixelTree->CloneTree(0);
     outPixelTree[outFileName]->Reset();
   }
@@ -174,16 +216,16 @@ void EventProcessor::AddEventToOutputTree(int iEvent, string outFileName, bool s
   eventTree->GetEntry(iEvent);
   hltTree->GetEntry(iEvent);
   l1Tree->GetEntry(iEvent);
+  zdcTree->GetEntry(iEvent);
   
   outEventTree[outFileName]->Fill();
   if(saveHLTtree) outHltTree[outFileName]->Fill();
   outL1Tree[outFileName]->Fill();
+  outZdcTree[outFileName]->Fill();
   
   if(pixelTree){
-    long long secondaryTreeEntry = GetEntryNumber(pixelTree,
-                                            currentEvent->runNumber,
-                                            currentEvent->lumiSection,
-                                            currentEvent->eventNumber);
+    long long secondaryTreeEntry = GetEntryNumber(pixelTree, runNumber, lumiSection, eventNumber);
+    
     if(secondaryTreeEntry < 0){
       Log(0)<<"Couldn't find secondary entry for this event.\n";
       return;
@@ -201,9 +243,11 @@ void EventProcessor::SaveOutputTree(string outFileName)
   outL1Tree[outFileName]->Write();
   dirEvent[outFileName]->cd();
   outEventTree[outFileName]->Write();
+  dirZdc[outFileName]->cd();
+  outZdcTree[outFileName]->Write();
   
   if(pixelTree){
-    dirPixelTree[outFileName]->cd();
+    dirPixel[outFileName]->cd();
     outPixelTree[outFileName]->Write();
   }
   
@@ -216,6 +260,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   hltTree->GetEntry(iEvent);
   eventTree->GetEntry(iEvent);
   l1Tree->GetEntry(iEvent);
+  zdcTree->GetEntry(iEvent);
   
   currentEvent->Reset();
   
@@ -383,23 +428,42 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     currentEvent->physObjects.at(kL1EG).push_back(L1EG);
   }
   
-  if(!pixelTree) return currentEvent;
-  
-  long long secondaryTreeEntry = GetEntryNumber(pixelTree,
-                                          currentEvent->runNumber,
-                                          currentEvent->lumiSection,
-                                          currentEvent->eventNumber);
-  
-  if(secondaryTreeEntry < 0){
-    Log(0)<<"Couldn't find secondary entry for this event.\n";
-    return currentEvent;
+  for(size_t iZDC=0; iZDC<nZDCs; iZDC++){
+    auto zdc = make_shared<PhysObject>();
+    
+    zdc->energy = zdcE[iZDC];
+    zdc->zSide  = zdcZside[iZDC];
+    
+    currentEvent->physObjects.at(kZDC).push_back(zdc);
   }
   
-  pixelTree->GetEntry(secondaryTreeEntry);
-  // end of uberhack
+  if(!pixelTree) return currentEvent;
   
-  // TODO: add pixel info to event using pixelTree
-  // ...
+  pixelTree->GetEntry(iEvent);
+  
+  // Fill in collection of pixel tracks
+   for(size_t iTrack=0; iTrack<nPhysObjects.at(kPixelTrack); iTrack++){
+     auto track = make_shared<PhysObject>();
+     
+     track->charge       = pixelTrackCharge->at(iTrack);
+     track->pt           = pixelTrackPt->at(iTrack);
+     track->p            = pixelTrackP->at(iTrack);
+     track->eta          = pixelTrackEta->at(iTrack);
+     track->phi          = pixelTrackPhi->at(iTrack);
+     track->nValidHits   = pixelTrackValidHits->at(iTrack);
+     track->nMissingHits = pixelTrackMissingHits->at(iTrack);
+     track->purity       = pixelTrackPurity->at(iTrack);
+     track->chi2         = pixelTrackChi2->at(iTrack);
+     track->dxy          = pixelTrackDxy->at(iTrack);
+     track->dz           = pixelTrackDz->at(iTrack);
+     track->dxyErr       = pixelTrackDxyErr->at(iTrack);
+     track->dzErr        = pixelTrackDzErr->at(iTrack);
+     track->vx           = pixelTrackVertexX->at(iTrack);
+     track->vy           = pixelTrackVertexY->at(iTrack);
+     track->vz           = pixelTrackVertexZ->at(iTrack);
+     
+     currentEvent->physObjects.at(kPixelTrack).push_back(track);
+   }
   
   return currentEvent;
 }

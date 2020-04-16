@@ -78,6 +78,7 @@ private:
   PhysObjects GetGoodMuons(TH1D *cutFlowHist=nullptr);
   PhysObjects GetGoodMatchedElectron();
   PhysObjects GetGoodGeneralTracks(TH1D *cutFlowHist=nullptr);
+  PhysObjects GetGoodPixelTracks(TH1D *cutFlowHist=nullptr);
   
   /// Returns noise threshold for given tower in EM calos
   double GetEmThresholdForTower(const PhysObject &tower);

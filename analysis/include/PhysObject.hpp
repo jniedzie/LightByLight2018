@@ -74,7 +74,8 @@ public:
   ECaloType GetTowerSubdetHad() const;
   ECaloType GetTowerSubdetEm()  const;
   
-  bool IsConverted() const;
+  bool IsConverted()  const;
+  int  GetZside()     const;
   
 private:
   double eta;       ///< Pseudorapidity
@@ -122,6 +123,8 @@ private:
   double dEtaSeed;      ///< Seed Δη
   
   bool hasConversionTracks; ///< Is it a converted photon
+  
+  int zSide;          ///< z-side for ZDC
   
   friend class EventProcessor;
   friend class PhysObjectProcessor;

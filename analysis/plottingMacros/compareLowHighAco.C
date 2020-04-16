@@ -1,9 +1,5 @@
 
-//string inputPath  = "../results/basicPlots_default.root";
-string inputPath  = "../results/basicPlots_data_default_tracker_branches.root";
-
-
-
+string inputPath  = "../results/basicPlots_data_default.root";
 
 vector<tuple<string, string, int, double, double>> histParams = {
 
@@ -11,9 +7,19 @@ vector<tuple<string, string, int, double, double>> histParams = {
   { "lbl_photon_eta"        , "photon #eta"             , 1, -4 , 4 },
   { "lbl_photon_phi"        , "photon #phi"             , 1, -4 , 4 },
   
-  { "lbl_n_all_photons"     , "N_{photons}^{all}"       , 1 ,0  , 20 },
-  { "lbl_n_all_calo_towers" , "N_{towers}^{all}"        , 1 ,0  , 20 },
-  { "lbl_n_all_L1EG"        , "N_{L1EG}^{all}"          , 1 ,0  , 20 },
+  { "lbl_n_all_photons"     , "N_{photons}^{all}"       , 1 , 0 , 20 },
+  { "lbl_n_all_calo_towers" , "N_{towers}^{all}"        , 1 , 0 , 20 },
+  { "lbl_n_all_L1EG"        , "N_{L1EG}^{all}"          , 1 , 0 , 20 },
+  
+  { "lbl_n_pixel_tracks"    , "LbL N_{tracks}^{pixel}"  , 1 , 0 , 20 },
+  
+  { "lbl_zdc_energy"        , "E_{ZDC} (A.U.)"          , 1 , 0 , 50000 },
+  { "lbl_zdc_sum_energy"    , "LbL #sum E_{ZDC} (A.U.)" , 50, 0 , 100000},
+  
+  { "lbl_bad_photon_et"     , "bad photon E_{t} (GeV)"  , 1 ,   0  , 30  },
+  { "lbl_bad_photon_eta"    , "bad photon #eta"         , 1 , -3.5 , 3.5 },
+  { "lbl_bad_photon_phi"    , "bad photon #phi"         , 1 , -3.5 , 3.5 },
+  
   
 //  { "lbl_diphoton_mass"     , "diphoton m_{inv} (GeV)"  },
 //  { "lbl_diphoton_rapidity" , "diphoton rapidity"       },

@@ -1,6 +1,10 @@
 #!/bin/bash
-for i in {10..10}
-do
-  python /afs/cern.ch/user/m/mnickel/private/LightByLight2018/analysis/configs/input_files/MakeInputFile.py "$i" "/afs/cern.ch/user/m/mnickel/private/LightByLight2018/analysis/configs/input_files/tmp_runfile_$i.txt"
-  /afs/cern.ch/user/m/mnickel/private/LightByLight2018/analysis/applySelections "TauTau" "/afs/cern.ch/user/m/mnickel/private/LightByLight2018/analysis/configs/input_files/tmp_runfile_$i.txt" "Data"
+index=$(( 1 + ${1}))
+
+inputPathData=`sed "${index}q;d" /afs/cern.ch/user/m/mnickel/private/LightByLight2018/analysis/TauTau_Input_List.txt`
+
+echo "${inputPathData}"
+
+python /afs/cern.ch/user/m/mnickel/private/LightByLight2018/analysis/configs/input_files/MakeInputFile.py "${inputPathData}" "/afs/cern.ch/user/m/mnickel/private/LightByLight2018/analysis/configs/input_files/condor_inputfiles/tmp_runfile_${2}_${1}.txt"
+/afs/cern.ch/user/m/mnickel/private/LightByLight2018/analysis/applySelections "TauTau" "/afs/cern.ch/user/m/mnickel/private/LightByLight2018/analysis/configs/input_files/condor_inputfiles/tmp_runfile_${2}_${1}.txt" "Data"
 done
