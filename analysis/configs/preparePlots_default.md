@@ -30,7 +30,13 @@ trackMaxChi2:                          999999
 
 ### Pixel cuts
 maxNpixelRecHits:                  999999
+
+### Pixel track cuts
 maxNpixelTracks:                    999999
+pixelTrackMinPt:                      0.0 
+pixelTrackMaxEta:                   999999
+pixelTrackMinNvalidHits:         0
+pixelTrackMaxChi2:                 999999
 
 ### ZDC cuts
 maxZDCenergy:                       999999

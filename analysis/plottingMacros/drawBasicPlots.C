@@ -3,8 +3,9 @@
 //string inputPath  = "../results/basicPlots_data_default.root";
 //string inputPath  = "../results/basicPlots_data_noPixelTracks.root";
 //string inputPath  = "../results/basicPlots_data_ZDCcut.root";
-string inputPath  = "../results/basicPlots_data_ZDCcut_200.root";
+//string inputPath  = "../results/basicPlots_data_ZDCcut_200.root";
 //string inputPath  = "../results/basicPlots_data_totalZDCcut.root";
+string inputPath  = "../results/basicPlots_data_newCuts.root";
 
 //string inputPath  = "../results/basicPlots_test.root";
 

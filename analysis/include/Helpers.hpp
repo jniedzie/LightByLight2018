@@ -112,6 +112,7 @@ enum EPhysObjType {
   kGoodMuon,
   kL1EG,
   kPixelTrack,
+  kGoodPixelTrack,
   kZDC,
 };
 
@@ -130,6 +131,7 @@ const vector<EPhysObjType> physObjTypes = {
   kGoodMuon,
   kL1EG,
   kPixelTrack,
+  kGoodPixelTrack,
   kZDC,
 };
 
