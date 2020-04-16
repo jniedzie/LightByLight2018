@@ -81,3 +81,4 @@ echo "Input: ${inputPath}"
 echo "Output: ${output}"
 
 /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/prepareBasicPlots $configPath $inputPath $output $sampleName
+
