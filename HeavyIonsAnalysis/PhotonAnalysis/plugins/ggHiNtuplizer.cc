@@ -637,6 +637,12 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("CaloTower_eta",         &CaloTower_eta_);
     tree_->Branch("CaloTower_phi",         &CaloTower_phi_);
   }
+
+  if(doTrackerHits_){
+     tree_->Branch("nTrackerHits",   &nTrackerHits_);
+     tree_->Branch("nPixelClusters", &nPixelClusters_);
+     tree_->Branch("nPixelRecHits",  &nPixelRecHits_);
+  }
 }
 
 void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
@@ -1099,10 +1105,13 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     trkd0_             .clear(); 
     trkdxy_            .clear();
     trkdz_             .clear();
+    trkdxyBS_          .clear();
+    trkdzBS_           .clear();
     trkdxyError_       .clear();     
     trkdzError_        .clear();
     trkValidHits_      .clear();                     
-    trkMissHits_       .clear();  
+    trkMissHits_       .clear();
+    nDisplacedTracks_ = 0;
   }
 
   if (doPixelTracks_){
