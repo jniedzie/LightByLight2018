@@ -39,8 +39,8 @@ pixelTrackMinNvalidHits:         0
 pixelTrackMaxChi2:                 999999
 
 ### ZDC cuts
-maxZDCenergy:                       200
-maxTotalZDCenergy:                2500
+maxZDCenergy:                       999999
+maxTotalZDCenergy:                999999
 
 ### Max ΔR for matching for reco+ID efficiency
 maxDeltaR:              0.3
@@ -86,12 +86,12 @@ ecalHEMmin:  -1.5
 ecalHEMmax: -1.0
  
 ### Calorimeter noise thresolds (GeV)
-noiseThresholdEB:        2.0
-noiseThresholdEE:        7.6
-noiseThresholdHB:        2.8
-noiseThresholdHE:        2.4
-noiseThresholdHFp:      7.2
-noiseThresholdHFm:     7.5
+noiseThresholdEB:        3.0
+noiseThresholdEE:        11.4
+noiseThresholdHB:        4.2
+noiseThresholdHE:        3.6
+noiseThresholdHFp:      10.8
+noiseThresholdHFm:     11.25
 
 
 ### eta dependant EE noise thresholds (GeV)
