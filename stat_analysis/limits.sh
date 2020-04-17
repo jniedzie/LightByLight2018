@@ -1,6 +1,16 @@
 #!/bin/bash
 
+## uncomment for limits without systematic uncertainties
 statonly="--freezeParameters all"
+## uncomment for limits including systematic uncertainties
+# statonly=""
+
+
+############################################
+## limits in the asymptotic approximation ##
+############################################
+
+# the limits are computed for each mass point separately
 
 echo "##################"
 echo "#  mass = 5 GeV  #"
