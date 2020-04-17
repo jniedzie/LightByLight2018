@@ -33,14 +33,14 @@ maxNpixelRecHits:                  999999
 
 ### Pixel track cuts
 maxNpixelTracks:                    0
-pixelTrackMinPt:                      0.0 
-pixelTrackMaxEta:                   999999
-pixelTrackMinNvalidHits:         0
+pixelTrackMinPt:                      0.05 
+pixelTrackMaxEta:                   2.4
+pixelTrackMinNvalidHits:         3
 pixelTrackMaxChi2:                 999999
 
 ### ZDC cuts
-maxZDCenergy:                       200
-maxTotalZDCenergy:                2500
+maxZDCenergy:                       999999
+maxTotalZDCenergy:                999999
 
 ### Max ΔR for matching for reco+ID efficiency
 maxDeltaR:              0.3

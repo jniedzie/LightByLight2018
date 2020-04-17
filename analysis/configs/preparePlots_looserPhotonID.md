@@ -39,23 +39,23 @@ pixelTrackMinNvalidHits:         0
 pixelTrackMaxChi2:                 999999
 
 ### ZDC cuts
-maxZDCenergy:                       200
-maxTotalZDCenergy:                2500
+maxZDCenergy:                       999999
+maxTotalZDCenergy:                999999
 
 ### Max ΔR for matching for reco+ID efficiency
 maxDeltaR:              0.3
 
 ### Photon ID cuts:
-photonMinEt:                            2.0
+photonMinEt:                            1.5
 photonMaxEta:                         2.4
-photonMaxHoverEbarrel:          0.04596
-photonMaxHoverEendcap:       0.0590
-photonMaxEtaWidthBarrel:       0.0106
-photonMaxEtaWidthEndcap:    0.0272
+photonMaxHoverEbarrel:          0.06
+photonMaxHoverEendcap:       0.10
+photonMaxEtaWidthBarrel:       0.03
+photonMaxEtaWidthEndcap:    0.05
 photonMinSwissCross:             0.005
 diphotonMaxPt:                        1.0
 diphotonMaxRapidity:               9999999
-diphotonMinMass:                    5.0
+diphotonMinMass:                    3.0
 diphotonMaxAco:                     0.01
 photonRejectConverted:           1
 

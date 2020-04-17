@@ -1,6 +1,6 @@
 Universe              = vanilla
 executable            = runPrepareBasicPlots.sh
-arguments             = $(ProcId) 0 4
+arguments             = $(ProcId) 0 14
 GetEnv                = True
 output                = output/$(ClusterId).$(ProcId).out
 error                 = error/$(ClusterId).$(ProcId).err
