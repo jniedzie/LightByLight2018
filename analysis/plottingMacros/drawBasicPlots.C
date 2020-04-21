@@ -1,11 +1,11 @@
 #include "../include/Helpers.hpp"
 
-//string inputPath  = "../results/basicPlots_data_default.root";
+string inputPath  = "../results/basicPlots_data_default.root";
 //string inputPath  = "../results/basicPlots_data_noPixelTracks.root";
 //string inputPath  = "../results/basicPlots_data_ZDCcut.root";
 //string inputPath  = "../results/basicPlots_data_ZDCcut_200.root";
 //string inputPath  = "../results/basicPlots_data_totalZDCcut.root";
-string inputPath  = "../results/basicPlots_data_newCuts.root";
+//string inputPath  = "../results/basicPlots_data_newCuts.root";
 
 //string inputPath  = "../results/basicPlots_test.root";
 
@@ -57,7 +57,7 @@ vector<tuple<string, int, int>> canvasParams = {
   {"vertex"       , 3 , 3 },
   {"vertex/track" , 2 , 2 },
   {"LbL calo"     , 3 , 2 },
-  {"N objects"    , 2 , 2 },
+  {"N objects"    , 2 , 3 },
 };
 
 enum ENorm { kXsec, kEntries, kFirstBin };
@@ -145,6 +145,8 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "lbl_n_zdc_all"                   , "LbL N_{ZDC}"             , false, kEntries ,   11   , 2  , 1 ,   0  , 20  },
   { "lbl_zdc_energy_all"              , "LbL E_{ZDC} (A.U.)"      , true , kEntries ,   11   , 3  , 1 ,   0  ,50000},
   { "lbl_zdc_sum_energy_all"          , "LbL #Sum E_{ZDC} (A.U.)" , true , kEntries ,   11   , 4  , 50,   0 ,100000},
+  { "lbl_zdc_sum_energy_pos_all"      , "LbL #Sum E_{ZDC}^{+} (A.U.)" , true , kEntries ,   11   , 5  , 50,   0 ,100000},
+  { "lbl_zdc_sum_energy_neg_all"      , "LbL #Sum E_{ZDC}^{-} (A.U.)" , true , kEntries ,   11   , 6  , 50,   0 ,100000},
   
 };
 

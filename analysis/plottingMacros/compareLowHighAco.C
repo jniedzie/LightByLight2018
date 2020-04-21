@@ -15,6 +15,8 @@ vector<tuple<string, string, int, double, double>> histParams = {
   
   { "lbl_zdc_energy"        , "E_{ZDC} (A.U.)"          , 1 , 0 , 50000 },
   { "lbl_zdc_sum_energy"    , "LbL #sum E_{ZDC} (A.U.)" , 50, 0 , 100000},
+  { "lbl_zdc_sum_energy_pos", "LbL #sum E_{ZDC}^{+} (A.U.)" , 50, 0 , 100000},
+  { "lbl_zdc_sum_energy_neg", "LbL #sum E_{ZDC}^{-} (A.U.)" , 50, 0 , 100000},
   
   { "lbl_bad_photon_et"     , "bad photon E_{t} (GeV)"  , 1 ,   0  , 30  },
   { "lbl_bad_photon_eta"    , "bad photon #eta"         , 1 , -3.5 , 3.5 },
