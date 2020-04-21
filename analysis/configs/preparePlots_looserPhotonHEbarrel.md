@@ -30,7 +30,13 @@ trackMaxChi2:                          999999
 
 ### Pixel cuts
 maxNpixelRecHits:                  999999
+
+### Pixel track cuts
 maxNpixelTracks:                    0
+pixelTrackMinPt:                      0.05
+pixelTrackMaxEta:                   2.4
+pixelTrackMinNvalidHits:         3
+pixelTrackMaxChi2:                 999999
 
 ### ZDC cuts
 maxZDCenergy:                       999999
@@ -42,7 +48,7 @@ maxDeltaR:              0.3
 ### Photon ID cuts:
 photonMinEt:                            2.0
 photonMaxEta:                         2.4
-photonMaxHoverEbarrel:          0.04596
+photonMaxHoverEbarrel:          0.1
 photonMaxHoverEendcap:       0.0590
 photonMaxEtaWidthBarrel:       0.0106
 photonMaxEtaWidthEndcap:    0.0272
@@ -84,8 +90,8 @@ noiseThresholdEB:        2.0
 noiseThresholdEE:        7.6
 noiseThresholdHB:        2.8
 noiseThresholdHE:        2.4
-noiseThresholdHFp:      7.2
-noiseThresholdHFm:     7.5
+noiseThresholdHFp:      12.0
+noiseThresholdHFm:     12.0
 
 
 ### eta dependant EE noise thresholds (GeV)

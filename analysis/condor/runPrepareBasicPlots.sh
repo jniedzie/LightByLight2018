@@ -11,63 +11,39 @@ if [ $3 -eq 0 ]
 then
 # default
   configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_default.md"
-  suffix="_default_noZDCcuts"
+  suffix="_default"
 elif [ $3 -eq 1 ]
 then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_noPixelTracks.md"
-  suffix="_noPixelTracks"
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserPhotonEt.md"
+  suffix="_looserPhotonEt"
 elif [ $3 -eq 2 ]
 then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_ZDCcut.md"
-  suffix="_ZDCcut_200"
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserPhotonHEbarrel.md"
+  suffix="_looserPhotonHEbarrel"
 elif [ $3 -eq 3 ]
 then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_totalZDCcut.md"
-  suffix="_totalZDCcut"
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserPhotonHEendcap.md"
+  suffix="_looserPhotonHEendcap"
 elif [ $3 -eq 4 ]
 then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_newCuts.md"
-  suffix="_newCuts"
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserPhotonMass.md"
+  suffix="_looserPhotonMass"
 elif [ $3 -eq 5 ]
 then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserCHE.md"
-  suffix="_looserCHE_noZDCcuts"
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserPhotonSigmaBarrel.md"
+  suffix="_looserPhotonSigmaBarrel"
 elif [ $3 -eq 6 ]
 then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_noCHE.md"
-  suffix="_noCHE_noZDCcuts"
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserPhotonSigmaEndcap.md"
+  suffix="_looserPhotonSigmaEndcap"
 elif [ $3 -eq 7 ]
 then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserPixelTracks.md"
-  suffix="_looserPixelTracks_noZDCcuts"
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_muchLooserCHE.md"
+  suffix="_muchLooserCHE"
 elif [ $3 -eq 8 ]
 then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_noPixelTracks.md"
-  suffix="_noPixelTracks_noZDCcuts"
-elif [ $3 -eq 9 ]
-then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserZDC.md"
-  suffix="_looserZDC"
-elif [ $3 -eq 10 ]
-then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_noZDC.md"
-  suffix="_noZDC"
-elif [ $3 -eq 11 ]
-then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserNEE.md"
-  suffix="_looserNEE_noZDCcuts"
-elif [ $3 -eq 12 ]
-then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_noNEE.md"
-  suffix="_noNEE_noZDCcuts"
-elif [ $3 -eq 13 ]
-then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserPhotonID.md"
-  suffix="_looserPhotonID_noZDCcuts"
-elif [ $3 -eq 14 ]
-then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_noPhotonID.md"
-  suffix="_noPhotonID_noZDCcuts"
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_muchLooserPixelTracks.md"
+  suffix="_muchLooserPixelTracks"
 fi
 
 # for the data:

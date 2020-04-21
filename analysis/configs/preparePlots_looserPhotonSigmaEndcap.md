@@ -17,25 +17,25 @@ maxEtaEEtower:      2.4
 
 ### Charged exclusivity cuts (GeV)
 maxNtracks:                             0
-trackMinPt:                               0.0 
-trackMaxEta:                            999999
+trackMinPt:                               0.5 
+trackMaxEta:                            2.4
 trackMaxDxy:                           999999
 trackMaxXYdistanceFromBS:  999999
 trackMaxDxyOverSigma:         999999
 trackMaxDz:                             999999
 trackMaxZdistanceFromBS:    999999
 trackMaxDzOverSigma:           999999
-trackMinNvalidHits:                  0
+trackMinNvalidHits:                  3
 trackMaxChi2:                          999999
 
 ### Pixel cuts
 maxNpixelRecHits:                  999999
 
 ### Pixel track cuts
-maxNpixelTracks:                    999999
-pixelTrackMinPt:                      0.0 
-pixelTrackMaxEta:                   999999
-pixelTrackMinNvalidHits:         0
+maxNpixelTracks:                    0
+pixelTrackMinPt:                      0.05
+pixelTrackMaxEta:                   2.4
+pixelTrackMinNvalidHits:         3
 pixelTrackMaxChi2:                 999999
 
 ### ZDC cuts
@@ -51,7 +51,7 @@ photonMaxEta:                         2.4
 photonMaxHoverEbarrel:          0.04596
 photonMaxHoverEendcap:       0.0590
 photonMaxEtaWidthBarrel:       0.0106
-photonMaxEtaWidthEndcap:    0.0272
+photonMaxEtaWidthEndcap:    0.05
 photonMinSwissCross:             0.005
 diphotonMaxPt:                        1.0
 diphotonMaxRapidity:               9999999
@@ -90,8 +90,8 @@ noiseThresholdEB:        2.0
 noiseThresholdEE:        7.6
 noiseThresholdHB:        2.8
 noiseThresholdHE:        2.4
-noiseThresholdHFp:      7.2
-noiseThresholdHFm:     7.5
+noiseThresholdHFp:      12.0
+noiseThresholdHFm:     12.0
 
 
 ### eta dependant EE noise thresholds (GeV)
