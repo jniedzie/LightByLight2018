@@ -413,13 +413,20 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   if(event.GetNpixelRecHits() > config.params("maxNpixelRecHits")) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 4
   
-  double zdcEnergySum = 0;
+   double zdcEnergySum = 0;
+   double zdcEnergySumPos = 0;
+   double zdcEnergySumNeg = 0;
+   
+   for(auto zdc : event.GetPhysObjects(kZDC)){
+     zdcEnergySum += zdc->GetEnergy();
+     
+     if(zdc->GetZside() > 0) zdcEnergySumPos += zdc->GetEnergy();
+     else                    zdcEnergySumNeg += zdc->GetEnergy();
+   }
   
-  for(auto zdc : event.GetPhysObjects(kZDC)){
-    if(zdc->GetEnergy() > config.params("maxZDCenergy")) return;
-    zdcEnergySum += zdc->GetEnergy();
-  }
   if(zdcEnergySum > config.params("maxTotalZDCenergy")) return;
+  if(zdcEnergySumPos > config.params("maxTotalZDCenergyPerSide") &&
+     zdcEnergySumNeg > config.params("maxTotalZDCenergyPerSide")) return;
   
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 5
   
