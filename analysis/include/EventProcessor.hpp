@@ -64,6 +64,7 @@ private:
   vector<float> *photonSCE              = nullptr;
   vector<float> *photonSCEtaWidth       = nullptr;
   vector<float> *photonSCPhiWidth       = nullptr;
+  vector<float> *photonSigmaEta2012     = nullptr;
   
   vector<float> *photonEmax             = nullptr;
   vector<float> *photonEtop             = nullptr;

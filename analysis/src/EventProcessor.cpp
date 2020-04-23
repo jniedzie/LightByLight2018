@@ -66,7 +66,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("phoSCEt"               , &photonSCEt);
   eventTree->SetBranchAddress("phoSCE"                , &photonSCE);
   eventTree->SetBranchAddress("phoSCEtaWidth"         , &photonSCEtaWidth);
-//  eventTree->SetBranchAddress("phoSigmaIEtaIEta"      , &photonSCEtaWidth);
+  eventTree->SetBranchAddress("phoSigmaIEtaIEta_2012" , &photonSigmaEta2012);
   eventTree->SetBranchAddress("phoSCPhiWidth"         , &photonSCPhiWidth);
   
   eventTree->SetBranchAddress("phoMaxEnergyXtal"      , &photonEmax);
@@ -307,6 +307,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     photon->energy   = photonE->at(iPhoton);
     photon->energySC = photonSCE->at(iPhoton);
     photon->etaWidth = photonSCEtaWidth->at(iPhoton);
+    photon->sigmaEta2012 = photonSigmaEta2012->at(iPhoton);
     photon->phiWidth = photonSCPhiWidth->at(iPhoton);
     
     if(photonEmax)    photon->energyMax    = photonEmax->at(iPhoton);

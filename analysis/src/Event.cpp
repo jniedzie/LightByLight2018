@@ -119,6 +119,10 @@ PhysObjects Event::GetGoodPhotons()
     if((absEta < maxEtaEB) && (photon->GetEtaWidth() > config.params("photonMaxEtaWidthBarrel"))) continue;
     else if((absEta < maxEtaEE) && (photon->GetEtaWidth() > config.params("photonMaxEtaWidthEndcap"))) continue;
     
+    if((absEta < maxEtaEB) && (photon->GetSigmaEta2012() > config.params("photonMaxSigmaEta2012Barrel"))) continue;
+    else if((absEta < maxEtaEE) && (photon->GetSigmaEta2012() > config.params("photonMaxSigmaEta2012Endcap"))) continue;
+    
+    
     // Check H/E
     if((absEta < maxEtaEB) && (photon->GetHoverE() > config.params("photonMaxHoverEbarrel"))) continue;
     else if((absEta < maxEtaEE) && (photon->GetHoverE() > config.params("photonMaxHoverEendcap"))) continue;

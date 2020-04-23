@@ -8,16 +8,18 @@ const double xMax = qed ? 0.1 : 0.2;
 
 vector<tuple<string, string, int, int, double>> inputPaths  = {
 //  {"../results/basicPlots_data_newCuts.root"                      , "default"                               , kBlack  , 25 , 1.2 },
-  {"../results/basicPlots_data_default_noZDCcuts.root"            , "default, no ZDC cuts"                  , kBlack  , 25 , 1.2 },
+//  {"../results/basicPlots_data_default_noZDCcuts.root"            , "default, no ZDC cuts"                  , kBlack  , 25 , 1.2 },
 //  {"../results/basicPlots_data_default.root"            , "current default"                  , kBlack  , 20 , 1.2 },
 
+  {"../results/basicPlots_data_muchLooserCHE.root"                , "default"     , kBlack   , 20 , 1.2 },
+  
   // CHE
 //  {"../results/basicPlots_data_looserCHE.root"                    , "looser CHE cuts"                       , kRed    , 21 , 0.6 },
 //  {"../results/basicPlots_data_noCHE.root"                        , "no CHE cuts"                           , kGreen  , 22 , 0.6 },
 //
 //  {"../results/basicPlots_data_looserCHE_noZDCcuts.root"          , "looser CHE, no ZDC cuts"          , kRed    , 21 , 0.6 },
 //  {"../results/basicPlots_data_noCHE_noZDCcuts.root"              , "no CHE, no ZDC cuts"              , kGreen  , 22 , 0.6 },
-//  {"../results/basicPlots_data_muchLooserCHE.root"                , "much looser CHE, no ZDC cuts"     , kBlue   , 23 , 0.6 },
+  
   
   
   // Pixel tracks
@@ -32,6 +34,7 @@ vector<tuple<string, string, int, int, double>> inputPaths  = {
   // ZDC
 //  {"../results/basicPlots_data_looserZDC.root"                    , "looser ZDC cuts"                       , kRed    , 21 , 0.6 },
 //  {"../results/basicPlots_data_noZDC.root"                        , "no ZDC cuts"                           , kGreen  , 22 , 0.6 },
+  {"../results/basicPlots_data_ZDCcoincidence.root"                 , "ZDC coincidence (>25k)"                , kGreen  , 22 , 0.6 },
   
   
   // NEE
@@ -48,14 +51,14 @@ vector<tuple<string, string, int, int, double>> inputPaths  = {
 //  {"../results/basicPlots_data_looserHE.root"                       , "looser HE cuts, no ZDC cuts"           , kViolet , 24 , 0.6 },
 //  {"../results/basicPlots_data_looserHF.root"                       , "looser HF cuts, no ZDC cuts"           , kOrange+2, 26 , 0.6 },
   
-  {"../results/basicPlots_data_HF_8.root"                       , "threshold 8 GeV"           , kRed        , 21 , 0.6 },
-  {"../results/basicPlots_data_HF_9.root"                       , "threshold 9 GeV"           , kGreen      , 22 , 0.6 },
-  {"../results/basicPlots_data_HF_10.root"                      , "threshold 10 GeV"          , kBlue       , 23 , 0.6 },
-  {"../results/basicPlots_data_HF_11.root"                      , "threshold 11 GeV"          , kViolet     , 24 , 0.6 },
-  {"../results/basicPlots_data_HF_12.root"                      , "threshold 12 GeV"          , kOrange+2   , 26 , 1.0 },
-  {"../results/basicPlots_data_HF_13.root"                      , "threshold 13 GeV"          , kMagenta+2  , 27 , 0.6 },
-  {"../results/basicPlots_data_HF_14.root"                      , "threshold 14 GeV"          , kCyan+2     , 28 , 2.0 },
-  {"../results/basicPlots_data_HF_15.root"                      , "threshold 15 GeV"          , kGreen+3    , 29 , 0.6 },
+//  {"../results/basicPlots_data_HF_8.root"                       , "threshold 8 GeV"           , kRed        , 21 , 0.6 },
+//  {"../results/basicPlots_data_HF_9.root"                       , "threshold 9 GeV"           , kGreen      , 22 , 0.6 },
+//  {"../results/basicPlots_data_HF_10.root"                      , "threshold 10 GeV"          , kBlue       , 23 , 0.6 },
+//  {"../results/basicPlots_data_HF_11.root"                      , "threshold 11 GeV"          , kViolet     , 24 , 0.6 },
+//  {"../results/basicPlots_data_HF_12.root"                      , "threshold 12 GeV"          , kOrange+2   , 26 , 1.0 },
+//  {"../results/basicPlots_data_HF_13.root"                      , "threshold 13 GeV"          , kMagenta+2  , 27 , 0.6 },
+//  {"../results/basicPlots_data_HF_14.root"                      , "threshold 14 GeV"          , kCyan+2     , 28 , 2.0 },
+//  {"../results/basicPlots_data_HF_15.root"                      , "threshold 15 GeV"          , kGreen+3    , 29 , 0.6 },
   
   // Photon ID
 //  {"../results/basicPlots_data_looserPhotonID.root"               , "looser PhotonID cuts"                  , kRed    , 21 , 0.6 },
@@ -114,7 +117,7 @@ void compareCuts()
       acoHist->SetTitle("");
       
       acoHist->GetXaxis()->SetRangeUser(0.0, 0.2);
-      acoHist->GetXaxis()->SetTitle("A_{#phi}^{#gamma#gamma}");
+      acoHist->GetXaxis()->SetTitle(qed ? "A_{#phi}^{e^{+}e^{-}}" : "A_{#phi}^{#gamma#gamma}");
       acoHist->GetXaxis()->SetTitleSize(0.06);
       acoHist->GetXaxis()->SetLabelSize(0.06);
       acoHist->GetXaxis()->SetNdivisions(8, 8, 1);
