@@ -152,12 +152,18 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("nPixelRecHits"   , &nPixelRecHits);
   eventTree->SetBranchAddress("nDedxHits"       , &nDedxHits);
  
-  zdcTree->SetBranchAddress("n"                 , &nZDCs);
-  zdcTree->SetBranchAddress("e"                 , zdcE);
-  zdcTree->SetBranchAddress("saturation"        , zdcSaturation);
-  zdcTree->SetBranchAddress("zside"             , zdcZside);
-  zdcTree->SetBranchAddress("section"           , zdcSection);
-  zdcTree->SetBranchAddress("channel"           , zdcChannel);
+  if(zdcTree){
+    zdcTree->SetBranchAddress("n"                 , &nZDCs);
+    zdcTree->SetBranchAddress("e"                 , zdcE);
+    zdcTree->SetBranchAddress("saturation"        , zdcSaturation);
+    zdcTree->SetBranchAddress("zside"             , zdcZside);
+    zdcTree->SetBranchAddress("section"           , zdcSection);
+    zdcTree->SetBranchAddress("channel"           , zdcChannel);
+  }
+  else{
+    nZDCs = 0;
+    Log(0)<<"WARNING -- no ZDC tree available. ZDC variables will not be set!\n";
+  }
   
   if(!pixelTree){
     Log(0)<<"WARNING -- no pixel tree available. Pixel variables will not be set!\n";
@@ -260,7 +266,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   hltTree->GetEntry(iEvent);
   eventTree->GetEntry(iEvent);
   l1Tree->GetEntry(iEvent);
-  zdcTree->GetEntry(iEvent);
+  if(zdcTree) zdcTree->GetEntry(iEvent);
   
   currentEvent->Reset();
   

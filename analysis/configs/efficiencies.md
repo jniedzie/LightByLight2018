@@ -37,6 +37,8 @@ photonMaxHoverEbarrel:          0.04596
 photonMaxHoverEendcap:       0.0590
 photonMaxEtaWidthBarrel:       0.0106
 photonMaxEtaWidthEndcap:    0.0272
+photonMaxSigmaEta2012Barrel:     999999
+photonMaxSigmaEta2012Endcap:  999999
 photonMinSwissCross:             0.005
 diphotonMaxPt:                        1.0
 diphotonMaxRapidity:               9999999
