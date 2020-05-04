@@ -1,6 +1,7 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/basicPlots_data_default.root";
+//string inputPath  = "../results/basicPlots_data_default.root";
+string inputPath  = "../results/basicPlots_data_muchLooserCHE.root";
 //string inputPath  = "../results/basicPlots_data_noPixelTracks.root";
 //string inputPath  = "../results/basicPlots_data_ZDCcut.root";
 //string inputPath  = "../results/basicPlots_data_ZDCcut_200.root";

@@ -1,17 +1,20 @@
 #include "../include/Helpers.hpp"
 
 
-const bool qed = true;
+const bool qed = false;
 const double yMax = qed ? 1E4 : 25;
 const double xMax = qed ? 0.1 : 0.2;
 
 
 vector<tuple<string, string, int, int, double>> inputPaths  = {
 //  {"../results/basicPlots_data_newCuts.root"                      , "default"                               , kBlack  , 25 , 1.2 },
-//  {"../results/basicPlots_data_default_noZDCcuts.root"            , "default, no ZDC cuts"                  , kBlack  , 25 , 1.2 },
+//  {"../results/basicPlots_data_default_noZDCcuts.root"            , "default, no ZDC cuts"                  , kGreen  , 25 , 1.2 },
 //  {"../results/basicPlots_data_default.root"            , "current default"                  , kBlack  , 20 , 1.2 },
 
-  {"../results/basicPlots_data_muchLooserCHE.root"                , "default"     , kBlack   , 20 , 1.2 },
+  {"../results/basicPlots_data_muchLooserCHE.root"                , "2018"     , kBlack   , 20 , 1.2 },
+  
+//  {"../results/basicPlots_data_looserHINPhotonHESigma.root"       , "HIN loose"     , kRed   , 20 , 1.0 },
+  {"../results/basicPlots_data_ruchi.root"                        , "2015"     , kRed   , 20 , 1.2 },
   
   // CHE
 //  {"../results/basicPlots_data_looserCHE.root"                    , "looser CHE cuts"                       , kRed    , 21 , 0.6 },
@@ -34,7 +37,7 @@ vector<tuple<string, string, int, int, double>> inputPaths  = {
   // ZDC
 //  {"../results/basicPlots_data_looserZDC.root"                    , "looser ZDC cuts"                       , kRed    , 21 , 0.6 },
 //  {"../results/basicPlots_data_noZDC.root"                        , "no ZDC cuts"                           , kGreen  , 22 , 0.6 },
-  {"../results/basicPlots_data_ZDCcoincidence.root"                 , "ZDC coincidence (>25k)"                , kGreen  , 22 , 0.6 },
+//  {"../results/basicPlots_data_ZDCcoincidence.root"                 , "ZDC coincidence (>25k)"                , kGreen  , 22 , 0.6 },
   
   
   // NEE
@@ -102,7 +105,11 @@ void compareCuts()
     
     TFile *inFile = TFile::Open(path.c_str());
     
-    TH1D *acoHist = (TH1D*)inFile->Get((sampleName+"_acoplanarity_all_Data").c_str());
+    TH1D *acoHist = nullptr;
+    
+    if(description=="2015")  acoHist = (TH1D*)inFile->Get("hacoplanarity_data");
+    else                      acoHist = (TH1D*)inFile->Get((sampleName+"_acoplanarity_all_Data").c_str());
+    
     if(!acoHist){
       cout<<"Couldn't find acoplanarity histogram!!"<<endl;
     }
