@@ -1,9 +1,9 @@
-#include "../include/Helpers.hpp"
+#include "../analysis/include/Helpers.hpp"
 
 int canvasWidth = 1000;
 int canvasHeight = 1800;
 
-string basePath = "../results/";
+string basePath = "results/";
 
 map<EDataset, string> inputPaths = {
   { kMCcep    , "raw_plots_cep_sc.root"     },
