@@ -14,36 +14,8 @@ then
   suffix="_default"
 elif [ $3 -eq 1 ]
 then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserPhotonEt.md"
-  suffix="_looserPhotonEt"
-elif [ $3 -eq 2 ]
-then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserPhotonHEbarrel.md"
-  suffix="_looserPhotonHEbarrel"
-elif [ $3 -eq 3 ]
-then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserPhotonHEendcap.md"
-  suffix="_looserPhotonHEendcap"
-elif [ $3 -eq 4 ]
-then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserPhotonMass.md"
-  suffix="_looserPhotonMass"
-elif [ $3 -eq 5 ]
-then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserPhotonSigmaBarrel.md"
-  suffix="_looserPhotonSigmaBarrel"
-elif [ $3 -eq 6 ]
-then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserPhotonSigmaEndcap.md"
-  suffix="_looserPhotonSigmaEndcap"
-elif [ $3 -eq 7 ]
-then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_muchLooserCHE.md"
-  suffix="_muchLooserCHE"
-elif [ $3 -eq 8 ]
-then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_muchLooserPixelTracks.md"
-  suffix="_muchLooserPixelTracks"
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserHINPhotonHESigma.md"
+  suffix="_looserHINPhotonHESigma"
 fi
 
 # for the data:
