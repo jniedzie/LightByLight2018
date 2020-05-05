@@ -93,8 +93,8 @@ noiseThresholdEB:        2.0
 noiseThresholdEE:        7.6
 noiseThresholdHB:        2.8
 noiseThresholdHE:        2.4
-noiseThresholdHFp:      12.0
-noiseThresholdHFm:     12.0
+noiseThresholdHFp:      7.2
+noiseThresholdHFm:     7.5
 
 
 ### eta dependant EE noise thresholds (GeV)
