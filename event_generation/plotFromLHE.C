@@ -6,17 +6,17 @@
 // Set input path and output filename here:
 
 // QED SuperChic
-//string basePath = "/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed/lhe_superchic_with_cuts/";
-//string outFileName = "raw_plots_qed_sc.root";
-//int pid1 = 11;
-//int pid2 = -11;
-
-// QED Starlight
-string basePath = "/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed/lhe_starlight_with_cuts/";
-//string basePath = "./";
-string outFileName = "raw_plots_qed_sl_30M.root";
+string basePath = "/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed/lhe_superchic_with_cuts/";
+string outFileName = "raw_plots_qed_sc.root";
 int pid1 = 11;
 int pid2 = -11;
+
+// QED Starlight
+//string basePath = "/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_qed/lhe_starlight_with_cuts/";
+////string basePath = "./";
+//string outFileName = "raw_plots_qed_sl_30M.root";
+//int pid1 = 11;
+//int pid2 = -11;
 
 // LbL SuperChic
 //string basePath = "/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_lbl/lhe_superchic/";
@@ -31,7 +31,7 @@ int pid2 = -11;
 //int pid2 = 22;
 
 // Say how many files (at most) to process:
-int nFiles = 99999;
+int nFiles = 50;
 
 // Here modify titles, axis labels, number of bins and histogram ranges.
 // If you add a new histogram, you must fill it in loops over particels in the main loop.
@@ -78,6 +78,10 @@ vector<string> GetFilesInPath()
     if (fileName.find(".dat") != std::string::npos ||
         fileName.find(".lhe") != std::string::npos ||
         fileName.find(".out") != std::string::npos){
+      
+      if (fileName.find("merged") != std::string::npos) continue;
+      if (fileName.find(".sys.") != std::string::npos) continue;
+      
       lheFiles.push_back(fileName);
     }
   }
