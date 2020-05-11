@@ -85,3 +85,4 @@ event_generation/configs/slight_mumu.in
 event_generation/configs/input_ALP_hgcal.DAT
 event_generation/configs/input_ALP_nose.DAT
 event_generation/mergeLHE/output/
+event_generation/plots/
