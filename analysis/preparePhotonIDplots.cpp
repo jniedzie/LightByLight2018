@@ -51,6 +51,23 @@ vector<tuple<string, int, double, double, int, double, double>> histParams2D = {
   {"HoverEmapDen" , 314 , -3.14 , 3.14 , 460 , -2.3 , 2.3 },
 };
 
+double getSwisscross(shared_ptr<PhysObject> photon)
+{
+  double E4 = photon->GetEnergyCrystalTop() +
+  photon->GetEnergyCrystalBottom() +
+  photon->GetEnergyCrystalLeft() +
+  photon->GetEnergyCrystalRight();
+  
+  double swissCross = E4/photon->GetEnergyCrystalMax();
+  
+  if(E4 < 0){
+    Log(1)<<"WARNING -- swiss cross cannot be calculated. The event will pass this selection automatically!!\n";
+    swissCross = 999999;
+  }
+  
+  return swissCross;
+}
+
 void fillHistograms(const unique_ptr<EventProcessor> &events,
                     const map<string, TH1D*> &hists,
                     const map<string, TH2D*> &hists2D,
@@ -83,129 +100,120 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
          photon->GetPhi() > config.params("ecalHEMmin") &&
          photon->GetPhi() < config.params("ecalHEMmax")) continue;
       
-      double E4 = photon->GetEnergyCrystalTop() +
-      photon->GetEnergyCrystalBottom() +
-      photon->GetEnergyCrystalLeft() +
-      photon->GetEnergyCrystalRight();
+      double swissCross = getSwisscross(photon);
+      double hOverE     = photon->GetHoverE();
+      double etaWidth   = photon->GetEtaWidth();
       
-      double swissCross = E4/photon->GetEnergyCrystalMax();
+      bool passesSwissCross   = swissCross > config.params("photonMinSwissCross");
       
-      if(E4 < 0){
-        Log(1)<<"WARNING -- swiss cross cannot be calculated. The event will pass this selection automatically!!\n";
-        swissCross = 999999;
-      }
+      string suffixUpper, suffixLower;
       
-      
-      // Fill in shower shape histograms
       if(eta < maxEtaEB){
-        bool passesSwissCross   = swissCross            > config.params("photonMinSwissCross");
-        bool passesHoverE       = photon->GetHoverE()   < config.params("photonMaxHoverEbarrel");
-        bool passesSigmaEtaEta  = photon->GetEtaWidth() > config.params("photonMaxEtaWidthBarrel");
-        
-        
-        if(passesSwissCross && passesHoverE){
-          hists.at("showerShapeBarrel"+datasetName)->Fill(photon->GetEtaWidth());
-        }
-        if(passesSwissCross && passesSigmaEtaEta){
-          hists.at("HoverEbarrel"+datasetName)->Fill(photon->GetHoverE());
-          hists2D.at("HoverEmapNum"+datasetName)->Fill(photon->GetPhi(), photon->GetEta(), photon->GetHoverE());
-          hists2D.at("HoverEmapDen"+datasetName)->Fill(photon->GetPhi(), photon->GetEta());
-        }
-        if(passesHoverE && passesSigmaEtaEta){
-          hists.at("swissCrossBarrel"+datasetName)->Fill(swissCross);
-        }
-        
-        if(passesSwissCross && passesHoverE && passesSigmaEtaEta){
-          hists.at("etaBarrel"+datasetName)->Fill(eta);
-          
-          if(photon->GetEtaWidth() < 0.001){
-            hists.at("etaLowWidthBarrel"+datasetName)->Fill(eta);
-            hists.at("etLowWidthBarrel"+datasetName)->Fill(photon->GetEt());
-          }
-        }
+        suffixUpper = "Barrel";
+        suffixLower = "barrel";
       }
       else if(eta < maxEtaEE){
-        bool passesSwissCross   = swissCross            > config.params("photonMinSwissCross");
-        bool passesHoverE       = photon->GetHoverE()   < config.params("photonMaxHoverEendcap");
-        bool passesSigmaEtaEta  = photon->GetEtaWidth() > config.params("photonMaxEtaWidthEndcap");
+        suffixUpper = "Endcap";
+        suffixLower = "endcap";
+      }
+      
+      bool passesHoverE       = hOverE     < config.params("photonMaxHoverE"+suffixLower);
+      bool passesSigmaEtaEta  = etaWidth   > config.params("photonMaxEtaWidth"+suffixUpper);
+      
+      if(passesSwissCross && passesHoverE){
+        hists.at("showerShape"+suffixUpper+datasetName)->Fill(etaWidth);
+      }
+      if(passesSwissCross && passesSigmaEtaEta){
+        hists.at("HoverE"+suffixLower+datasetName)->Fill(hOverE);
+        hists2D.at("HoverEmapNum"+datasetName)->Fill(photon->GetPhi(), photon->GetEta(), hOverE);
+        hists2D.at("HoverEmapDen"+datasetName)->Fill(photon->GetPhi(), photon->GetEta());
+      }
+      
+      if(passesHoverE && passesSigmaEtaEta){
+        hists.at("swissCross"+suffixUpper+datasetName)->Fill(swissCross);
+      }
+      
+      if(passesSwissCross && passesHoverE && passesSigmaEtaEta){
+        hists.at("eta"+suffixUpper+datasetName)->Fill(eta);
         
-        if(passesSwissCross && passesHoverE){
-          hists.at("showerShapeEndcap"+datasetName)->Fill(photon->GetEtaWidth());
-        }
-        if(passesSigmaEtaEta && passesSigmaEtaEta){
-          hists.at("HoverEendcap"+datasetName)->Fill(photon->GetHoverE());
-          hists2D.at("HoverEmapNum"+datasetName)->Fill(photon->GetPhi(), photon->GetEta(), photon->GetHoverE());
-          hists2D.at("HoverEmapDen"+datasetName)->Fill(photon->GetPhi(), photon->GetEta());
-        }
-        if(passesHoverE && passesSigmaEtaEta){
-          hists.at("swissCrossEndcap"+datasetName)->Fill(swissCross);
-        }
-        
-        
-        if(passesSwissCross && passesHoverE && passesSigmaEtaEta){
-          hists.at("etaEndcap"+datasetName)->Fill(eta);
-          
-          
-          
-          if(photon->GetEtaWidth() < 0.001){
-            hists.at("etaLowWidthEndcap"+datasetName)->Fill(eta);
-            hists.at("etLowWidthEndcap"+datasetName)->Fill(photon->GetEt());
-          }
-          if(eta < 2.3) hists.at("showerShapeEndcap2p3"+datasetName)->Fill(photon->GetEtaWidth());
+        if(etaWidth < 0.001){
+          hists.at("etaLowWidth"+suffixUpper+datasetName)->Fill(eta);
+          hists.at("etLowWidth"+suffixUpper+datasetName)->Fill(photon->GetEt());
         }
       }
     }
   }
 }
 
+map<string, TH1D*> init1Dhists(string name)
+{
+  map<string, TH1D*> hists;
+  for(auto params : histParams){
+    string title = get<0>(params)+name;
+    hists[title] = new TH1D(title.c_str(), title.c_str(), get<1>(params), get<2>(params), get<3>(params));
+  }
+  return hists;
+}
+
+map<string, TH2D*> init2Dhists(string name)
+{
+  map<string, TH2D*> hists;
+  
+  for(auto params : histParams2D){
+    string title = get<0>(params)+name;
+    hists[title] = new TH2D(title.c_str(), title.c_str(),
+                            get<1>(params), get<2>(params), get<3>(params),
+                            get<4>(params), get<5>(params), get<6>(params));
+  }
+  return hists;
+}
+
 int main(int argc, char* argv[])
 {
-  if(argc != 1 && argc != 8){
-    Log(0)<<"This app requires 0 or 7 parameters.\n";
-    Log(0)<<"./getEfficienciesData configPath inputPathData inputPathLbL inputPathQED_SC inputPathQED_SL inputPathCEP outputPath\n";
+  if(argc != 5){
+    Log(0)<<"This app requires 4 parameters.\n";
+    Log(0)<<"./getEfficienciesData configPath sampleName inputPath outputPath\n";
+    exit(0);
+  }
+ 
+  // read input arguments
+  string inputPath = "";
+  string sampleName = "";
+  string outputPath = "";
+  
+  if(argc == 5){
+    configPath  = argv[1];
+    sampleName  = argv[2];
+    inputPath   = argv[3];
+    outputPath  = argv[4];
+  }
+  
+  // create config manager
+  config = ConfigManager(configPath);
+  EDataset dataset;
+  
+  // load events from input file
+  if(sampleName == "Data")          dataset = kData;
+  else if(sampleName == "QED_SC")   dataset = kMCqedSC;
+  else if(sampleName == "QED_SL")   dataset = kMCqedSL;
+  else if(sampleName == "LbL")      dataset = kMClbl;
+  else if(sampleName == "CEP")      dataset = kMCcep;
+  else{
+    Log(0)<<"Unrecognised sample name: "<<sampleName<<"!!\n";
     exit(0);
   }
   
-  map<EDataset, string> inputPaths;
+  auto events = make_unique<EventProcessor>(inputPath, dataset);
   
-  if(argc == 8){
-    configPath           = argv[1];
-    inputPaths[kData]    = argv[2];
-    inputPaths[kMClbl]   = argv[3];
-    inputPaths[kMCqedSC] = argv[4];
-    inputPaths[kMCqedSL] = argv[5];
-    inputPaths[kMCcep]   = argv[6];
-    outputPath           = argv[7];
-  }
-  config = ConfigManager(configPath);
+  // fill histograms
+  map<string, TH1D*> hists = init1Dhists(sampleName);
+  map<string, TH2D*> hists2D = init2Dhists(sampleName);
+  fillHistograms(events, hists, hists2D, sampleName);
   
-  map<string, TH1D*> hists;
-  map<string, TH2D*> hists2D;
-  
+  // save output files
   TFile *outFile = new TFile(outputPath.c_str(), "recreate");
-  
-  for(EDataset dataset : datasetsToAnalyze){
-    string name = datasetName.at(dataset);
-    
-    for(auto params : histParams){
-      string title = get<0>(params)+name;
-      hists[title] = new TH1D(title.c_str(), title.c_str(), get<1>(params), get<2>(params), get<3>(params));
-    }
-    for(auto params : histParams2D){
-      string title = get<0>(params)+name;
-      hists2D[title] = new TH2D(title.c_str(), title.c_str(),
-                                get<1>(params), get<2>(params), get<3>(params),
-                                get<4>(params), get<5>(params), get<6>(params));
-    }
-    
-    Log(0)<<"Creating "<<name<<" plots\n";
-    auto events = make_unique<EventProcessor>(argc == 8 ? inputPaths[dataset] : inFileNames.at(dataset), dataset);
-    fillHistograms(events, hists, hists2D, name);
-    
-    outFile->cd();
-    for(auto hist : hists)    hist.second->Write();
-    for(auto hist : hists2D)  hist.second->Write();
-  }
-  
+  outFile->cd();
+  for(auto hist : hists)    hist.second->Write();
+  for(auto hist : hists2D)  hist.second->Write();
   outFile->Close();
 }
