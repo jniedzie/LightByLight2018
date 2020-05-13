@@ -25,6 +25,9 @@ void prepareGenLevelALPplots()
       cout<<"Could not open file: "<<basePath+to_string(mass)+fileSuffix<<endl;
     }
     
+    int nEventsGenerated = 0;
+    int nEventsPassing = 0;
+    
     while(lheFile.good()){
       string line;
       getline(lheFile,line);
@@ -33,6 +36,7 @@ void prepareGenLevelALPplots()
       curstring.str(line);
       
       if(line.find("<event>")!=string::npos){
+        nEventsGenerated++;
         
         TLorentzVector particle1(0.,0.,0.,0.);
         TLorentzVector particle2(0.,0.,0.,0.);
@@ -66,11 +70,13 @@ void prepareGenLevelALPplots()
           TLorentzVector particleSum(0.,0.,0.,0.);
           particleSum = particle1 + particle2;
           massHist->Fill(particleSum.M());
+          nEventsPassing++;
         }
       }
     }
     massHist->Write();
     lheFile.close();
+    cout<<"N events generated: "<<nEventsGenerated<<"\tpassing: "<<nEventsPassing<<endl;
   }
   
   outFile->Close();
