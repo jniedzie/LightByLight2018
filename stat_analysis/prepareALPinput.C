@@ -1,45 +1,58 @@
-
+string alpsFilePath = "../event_generation/results/raw_plots_alp_2p4.root";
 string backgroundFilePath = "../analysis/results/basicPlots_default.root";
-
 string outputFilePath = "input_hinvmass.root";
+
+string backgroundBaseName = "lbl_diphoton_mass_all_";
+
+double luminosity = 1609.910015010; // from brilcalc, 1/μb
+
+double referenceAlpXsec = 1e-6; // (μb)
+
+vector<tuple<int, int>> alpParams = {
+// mass nGenEvents
+  {5  , 754000  },
+  {6  , 729000  },
+  {9  , 722000  },
+  {11 , 692000  },
+  {14 , 712000  },
+  {16 , 682000  },
+  {22 , 694000  },
+  {30 , 719000  },
+  {50 , 511000  },
+  {90 , 449000  },
+};
+
+vector<tuple<string, string, int, double>> backgroundParams = {
+// input_name   output_name nGenEvents  xSec (μb)
+  {"Data"     , "data_obs"  , -1      , -1      },
+  {"LbL"      , "lbyl"      , 371000  , 2.59    },
+  {"CEP"      , "cep"       , 738000  , 0.0058  },
+  {"QED_SC"   , "qed"       , 950000  , 8830    },
+};
 
 void prepareALPinput()
 {
   TFile *backgroundFile = TFile::Open(backgroundFilePath.c_str());
-  
-  TH1D *observedMassHist  = (TH1D*)backgroundFile->Get("lbl_diphoton_mass_all_Data");
-  TH1D *lblMassHist       = (TH1D*)backgroundFile->Get("lbl_diphoton_mass_all_LbL");
-  TH1D *cepMassHist       = (TH1D*)backgroundFile->Get("lbl_diphoton_mass_all_CEP");
-  TH1D *qedMassHist       = (TH1D*)backgroundFile->Get("lbl_diphoton_mass_all_QED_SC");
-  
-  observedMassHist->SetLineColor(kBlack);
-  lblMassHist->SetLineColor(kRed);
-  cepMassHist->SetLineColor(kGreen);
-  qedMassHist->SetLineColor(kBlue);
-  
-  
-  observedMassHist->Draw();
-  lblMassHist->Draw("same");
-  cepMassHist->Draw("same");
-  qedMassHist->Draw("same");
- 
-  
-  
+  TFile *alpsFile = TFile::Open(alpsFilePath.c_str());
   TFile *outputFile = new TFile(outputFilePath.c_str(), "recreate");
   outputFile->cd();
   
-  observedMassHist->SetName("data_obs");
-  observedMassHist->Write();
+  for(auto &[mass, nEvents] : alpParams){
+    TH1D *hist = (TH1D*)alpsFile->Get(("axion"+to_string(mass)).c_str());
+    hist->Scale(luminosity*referenceAlpXsec/nEvents);
+    hist->Write();
+  }
   
-  lblMassHist->SetName("lbyl");
-  lblMassHist->Write();
-  
-  cepMassHist->SetName("cep");
-  cepMassHist->Write();
-  
-  qedMassHist->SetName("qed");
-  qedMassHist->Write();
+  for(auto &[inputName, outputName, nEvents, xSec] : backgroundParams){
+    TH1D *hist = (TH1D*)backgroundFile->Get((backgroundBaseName+inputName).c_str());
+    
+    if(nEvents > 0){
+      hist->Scale(luminosity*xSec/nEvents);
+    }
+    
+    hist->SetName(outputName.c_str());
+    hist->Write();
+  }
   
   outputFile->Close();
-  
 }

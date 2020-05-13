@@ -8,9 +8,9 @@
 #include <iostream>
 #include <string>
 
-string inputPath = "limits.txt";
-string plotOutputPath = "xsecLimits.pdf";
-string textOutputPath = "couplingMassLimits.txt";
+string inputPath        = "combineOutput.txt";
+string couplingOutPath  = "results/couplingMassLimits.txt";
+string xsecOutPath      = "results/xsecMassLimits.txt";
 
 double rScale = 10; // scale by 10 nb that was used as a reference cross section when generating limits
 double xsecPrecision = 1; // (nb) precision on the cross section for ALP coupling search
@@ -78,7 +78,7 @@ double getCoupling(double mass, double xsec)
   return coupling;
 }
 
-void drawLimits()
+void getLimits()
 {
   ifstream inFile(inputPath);
   string line;
@@ -102,29 +102,14 @@ void drawLimits()
     }
   }
   
+  ofstream outFileCoupling(couplingOutPath);
+  ofstream outFileXsec(xsecOutPath);
   
-  TGraph *expectedGraph = new TGraph();
-  int iPoint=0;
-  
-  ofstream outFile(textOutputPath);
   for(auto &[mass, r, coupling] : massRcoupling){
-    expectedGraph->SetPoint(iPoint++, mass, r);
     cout<<"mass: "<<mass<<"\txsec: "<<r<<" nb"<<"\tcoupling: "<<coupling<<endl;
-    outFile<<mass<<"\t"<<coupling<<endl;
+    outFileCoupling<<mass<<"\t"<<coupling<<endl;
+    outFileXsec<<mass<<"\t"<<r<<endl;
   }
-  outFile.close();
-  
-  TCanvas *canvas = new TCanvas("canvas", "canvas", 800, 600);
-  canvas->cd();
-  
-  expectedGraph->SetLineColor(kBlack);
-  expectedGraph->SetLineStyle(2);
-  expectedGraph->Draw("AL");
-  
-  gPad->SetLogy(true);
-  gPad->SetLogx(true);
-  
-  expectedGraph->GetYaxis()->SetRangeUser(6, 2000);
-  
-  canvas->SaveAs(plotOutputPath.c_str());
+  outFileCoupling.close();
+  outFileXsec.close();
 }
