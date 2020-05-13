@@ -1,4 +1,4 @@
-#include "CMS_lumi.C"
+//#include "CMS_lumi.C"
 
 void plotLimits_20180605() {
     double mass[9] = {5, 6, 9, 11, 14, 16, 22, 30, 90};
@@ -141,5 +141,5 @@ void plotLimits_20180605() {
     tleg->AddEntry(g95,"95\% expected","F");
     tleg->Draw();
     
-    CMS_lumi( c1, 104, 33,lumi_PbPb2015 );
+//    CMS_lumi( c1, 104, 33,lumi_PbPb2015 );
 }
