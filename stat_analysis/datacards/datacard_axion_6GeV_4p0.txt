@@ -4,7 +4,7 @@ imax 1  number of channels
 jmax 3  number of backgrounds
 kmax 5  number of nuisance parameters (sources of systematical uncertainties)
 ------------
-shapes * * input_hinvmass.root  $PROCESS $PROCESS_$SYSTEMATIC
+shapes * * input_hinvmass_4p0.root  $PROCESS $PROCESS_$SYSTEMATIC
 ------------
 # we have just one channel, in which we observe X events
 bin bin1
@@ -15,9 +15,9 @@ observation 212
 # then we list the independent sources of uncertainties, and give their effect (syst. error)
 # on each process and bin
 bin            bin1   bin1  bin1 bin1
-process        axion14  lbyl  cep  qed
+process        axion6  lbyl  cep  qed
 process        0      1     2    3
-rate           12.4482 21.1405 0.00364389 29.9274
+rate           15.3441 21.1405 0.00364389 29.9274
 ------------
 sig_syst     lnN  1.03    -   -   -    axion eff syst
 eff_syst     lnN  1.28  1.28  -   -    exp systs: efficiency, purity...

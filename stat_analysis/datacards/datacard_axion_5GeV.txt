@@ -8,7 +8,7 @@ shapes * * input_hinvmass.root  $PROCESS $PROCESS_$SYSTEMATIC
 ------------
 # we have just one channel, in which we observe X events
 bin bin1
-observation 20
+observation 212
 ------------
 # now we list the expected events for signal and all backgrounds in that bin
 # the second 'process' line must have a positive number for backgrounds, and 0 for signal
@@ -17,7 +17,7 @@ observation 20
 bin            bin1   bin1  bin1 bin1
 process        axion5  lbyl  cep  qed
 process        0      1     2    3
-rate           0.00102196 21.1405 0.00364389 29.9274
+rate           10.2196 21.1405 0.00364389 29.9274
 ------------
 sig_syst     lnN  1.03    -   -   -    axion eff syst
 eff_syst     lnN  1.28  1.28  -   -    exp systs: efficiency, purity...

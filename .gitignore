@@ -87,3 +87,6 @@ event_generation/configs/input_ALP_hgcal.DAT
 event_generation/configs/input_ALP_nose.DAT
 event_generation/mergeLHE/output/
 event_generation/plots/
+
+stat_analysis/higgsCombineTest.AsymptoticLimits.mH120.root
+stat_analysis/roostats-a1x4VY.root
