@@ -7,10 +7,18 @@ statonly="--freezeParameters all"
 ## uncomment for limits including systematic uncertainties
 # statonly=""
 
-alpMasses=( 5 6 9 11 14 16 22 30 50 90 )
+#suffix=""
+#suffix="_3p0"
+#suffix="_4p0"
+#suffix="_4p5"
+suffix="_old"
+
+#alpMasses=( 5 6 9 11 14 16 22 30 50 90 )
+alpMasses=( 0 1 2 3 4 5 6 7 8 9 )
 
 for i in "${alpMasses[@]}"
 do
   echo "processing mass: ${i} GeV"
-  combine -M AsymptoticLimits datacard_ged_hinvmass_axion${i}.txt ${statonly}
+  echo "combine -M AsymptoticLimits datacards/datacard_axion_${i}GeV${suffix}.txt ${statonly}"
+  combine -M AsymptoticLimits datacards/datacard_axion_${i}GeV${suffix}.txt ${statonly}
 done

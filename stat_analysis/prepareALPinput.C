@@ -1,12 +1,12 @@
-string alpsFilePath = "../event_generation/results/raw_plots_alp_2p4.root";
+string alpsFilePath = "../event_generation/results/raw_plots_alp_4p5.root";
 string backgroundFilePath = "../analysis/results/basicPlots_default.root";
-string outputFilePath = "input_hinvmass.root";
+string outputFilePath = "input_hinvmass_4p5.root";
 
 string backgroundBaseName = "lbl_diphoton_mass_all_";
 
 double luminosity = 1609.910015010; // from brilcalc, 1/μb
 
-double referenceAlpXsec = 1e-6; // (μb)
+double referenceAlpXsec = 10e-3; // (μb)
 
 vector<tuple<int, int>> alpParams = {
 // mass nGenEvents

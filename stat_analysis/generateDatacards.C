@@ -1,10 +1,11 @@
-string inputFileName = "input_hinvmass.root";
+string inputFileName = "old_analysis/input_hinvmass.root";
+string outputBasePath = "datacards/datacard_axion_";
+string outputSuffix = "GeV_old.txt";
 
-int nObservedEvents = 20;
+//vector<int> alpMasses = { 5, 6, 9, 11, 14, 16, 22, 30, 50, 90 };
+vector<int> alpMasses = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
 
-vector<int> alpMasses = { 5, 6, 9, 11, 14, 16, 22, 30, 50, 90 };
-
-void addHeaderToFile(ofstream &file, int mass)
+void addHeaderToFile(ofstream &file, int mass, int observedRate)
 {
   file<<"# Simple counting experiment, with one signal and a few background processes"<<endl;
   file<<"# Simplified version of LHC lbyl counts"<<endl;
@@ -12,11 +13,11 @@ void addHeaderToFile(ofstream &file, int mass)
   file<<"jmax 3  number of backgrounds"<<endl;
   file<<"kmax 5  number of nuisance parameters (sources of systematical uncertainties)"<<endl;
   file<<"------------"<<endl;
-  file<<"shapes * * input_hinvmass.root  $PROCESS $PROCESS_$SYSTEMATIC"<<endl;
+  file<<"shapes * * "<<inputFileName<<"  $PROCESS $PROCESS_$SYSTEMATIC"<<endl;
   file<<"------------"<<endl;
   file<<"# we have just one channel, in which we observe X events"<<endl;
   file<<"bin bin1"<<endl;
-  file<<"observation "<<nObservedEvents<<endl;
+  file<<"observation "<<observedRate<<endl;
   file<<"------------"<<endl;
   file<<"# now we list the expected events for signal and all backgrounds in that bin"<<endl;
   file<<"# the second 'process' line must have a positive number for backgrounds, and 0 for signal"<<endl;
@@ -47,26 +48,34 @@ void addNuisancesToFile(ofstream &file)
 
 void generateDatacards()
 {
-  TFile *inFile = TFile::Open(inputFileName.c_str());
-  TH1D *lblHist   = (TH1D*)inFile->Get("lbyl");
-  TH1D *cepHist   = (TH1D*)inFile->Get("cep");
-  TH1D *qedHist   = (TH1D*)inFile->Get("qed");
+  TFile *inFile       = TFile::Open(inputFileName.c_str());
+  TH1D *observedHist  = (TH1D*)inFile->Get("data_obs");
+  TH1D *lblHist       = (TH1D*)inFile->Get("lbyl");
+  TH1D *cepHist       = (TH1D*)inFile->Get("cep");
+  TH1D *qedHist       = (TH1D*)inFile->Get("qed");
   
-  double lblRate=0, cepRate=0, qedRate=0;
+  double observedRate=0, lblRate=0, cepRate=0, qedRate=0;
   
-  for(int i=1; i<=lblHist->GetNbinsX(); i++)    lblRate += lblHist->GetBinContent(i);
-  for(int i=1; i<=cepHist->GetNbinsX(); i++)    cepRate += cepHist->GetBinContent(i);
-  for(int i=1; i<=qedHist->GetNbinsX(); i++)    qedRate += qedHist->GetBinContent(i);
+  for(int i=1; i<=observedHist->GetNbinsX(); i++) observedRate += observedHist->GetBinContent(i);
+  for(int i=1; i<=lblHist->GetNbinsX(); i++)      lblRate += lblHist->GetBinContent(i);
+  for(int i=1; i<=cepHist->GetNbinsX(); i++)      cepRate += cepHist->GetBinContent(i);
+  for(int i=1; i<=qedHist->GetNbinsX(); i++)      qedRate += qedHist->GetBinContent(i);
   
   
   for(int mass : alpMasses){
     TH1D *axionHist = (TH1D*)inFile->Get(("axion"+to_string(mass)).c_str());
+    
+    if(!axionHist){
+      cout<<"\nWARNING -- no hits fuond in file: axion"<<mass<<"\n"<<endl;
+      continue;
+    }
+    
     double axionRate=0;
     for(int i=1; i<=axionHist->GetNbinsX(); i++)  axionRate += axionHist->GetBinContent(i);
     
-    ofstream outfile("datacards/datacard_axion_"+to_string(mass)+"GeV.txt");
+    ofstream outfile(outputBasePath+to_string(mass)+outputSuffix);
     
-    addHeaderToFile(outfile, mass);
+    addHeaderToFile(outfile, mass, observedRate);
     addRatesToFile(outfile, axionRate, lblRate, cepRate, qedRate);
     addNuisancesToFile(outfile);
     

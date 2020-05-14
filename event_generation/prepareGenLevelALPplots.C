@@ -2,9 +2,9 @@
 string basePath = "/eos/cms/store/group/phys_diffraction/lbyl_2018/mc_alps/lhe_superchic/merged_alps_";
 string fileSuffix = "GeV.lhe";
 vector<int> alpMasses = { 5, 6, 9, 11, 14, 16, 22, 30, 50, 90 };
-string outFileName = "results/raw_plots_alp_2p4.root";
+string outFileName = "results/raw_plots_alp_4p5.root";
 
-double maxEta = 2.4;
+double maxEta = 4.5;
 
 void prepareGenLevelALPplots()
 {
