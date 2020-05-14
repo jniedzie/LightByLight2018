@@ -8,14 +8,17 @@
 #include <iostream>
 #include <string>
 
-string inputPath        = "combineOutput.txt";
-string couplingOutPath  = "results/couplingMassLimits.txt";
-string xsecOutPath      = "results/xsecMassLimits.txt";
+string suffix = "";
+vector<int> alpMasses = { 5, 6, 9, 11, 14, 16, 22, 30, 90 };
 
-double rScale = 10; // scale by 10 nb that was used as a reference cross section when generating limits
-double xsecPrecision = 1; // (nb) precision on the cross section for ALP coupling search
-double minLambda = 100;   // (GeV) min lambda scale
-double maxLambda = 10000; // (GeV) max lambda scale
+string inputPath        = "combineOutput"+suffix+".txt";
+string couplingOutPath  = "results/couplingMassLimits"+suffix+".txt";
+string xsecOutPath      = "results/xsecMassLimits"+suffix+".txt";
+
+double rScale = 10;         // scale by X nb that was used as a reference cross section when generating limits
+double xsecPrecision = 0.05; // (nb) precision on the cross section for ALP coupling search
+double minLambda = 1000;    // (GeV) min lambda scale
+double maxLambda = 100000;  // (GeV) max lambda scale
 
 double findValue(string text, string searchString = "Expected 50.0%: r <")
 {
@@ -44,7 +47,7 @@ vector<string> tokenize(istream &str, string &line, char token)
 
 double getCoupling(double mass, double xsec)
 {
-  string command = "./findCoupling ";
+  string command = "cd combineToLimits;./findCoupling ";
   command += (to_string(xsecPrecision) + " ");
   command += (to_string(minLambda) + " ");
   command += (to_string(maxLambda) + " ");
@@ -55,7 +58,7 @@ double getCoupling(double mass, double xsec)
   
   system((command+" > "+outPath).c_str());
   
-  ifstream inFile(outPath);
+  ifstream inFile("combineToLimits/"+outPath);
   vector<string> line;
   string fullLine;
   
@@ -88,8 +91,9 @@ void getLimits()
   double mass, r, coupling;
   
   while(getline(inFile, line)){
-    if(line.find("mass =") != string::npos){
-      mass = findValue(line, "mass = ");
+    if(line.find("processing mass:") != string::npos){
+      mass = findValue(line, "processing mass:");
+      if(suffix=="_old") mass = alpMasses[mass];
     }
     
     if(line.find("Expected 50.0%:") != string::npos){

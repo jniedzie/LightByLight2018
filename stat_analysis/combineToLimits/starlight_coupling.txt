@@ -1,0 +1,12 @@
+ALP mass: 9 GeV
+Desired cross section: 3.213 nb
+Cross section precision: 0.05 nb
+Allowed coupling range: 1000 -- 100000 GeV
+Total	cross	section:	3.177	microbarn.	
+Total	cross	section:	1.246	nanobarn.	
+Total	cross	section:	4.791	nanobarn.	
+Lambda: 25750 coupling: 3.8835e-05 cross-section: 4.791
+Total	cross	section:	4.791	nanobarn.	
+Total	cross	section:	2.186	nanobarn.	
+Lambda: 38125 coupling: 2.62295e-05 cross-section: 2.186
+Total	cross	section:	4.791	nanobarn.	
