@@ -90,3 +90,5 @@ event_generation/plots/
 
 stat_analysis/higgsCombineTest.AsymptoticLimits.mH120.root
 stat_analysis/roostats-a1x4VY.root
+stat_analysis/combineToLimits/slight.txt
+stat_analysis/combineToLimits/starlight_coupling.txt
