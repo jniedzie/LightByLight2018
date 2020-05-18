@@ -38,7 +38,7 @@ pixelTrackMaxChi2:                 999999
 ### ZDC cuts
 maxZDCenergy:                       999999
 maxTotalZDCenergy:                999999
-maxTotalZDCenergyPerSide:    999999
+maxTotalZDCenergyPerSide:    10000
 
 ### Max ΔR for matching for reco+ID efficiency
 maxDeltaR:              0.3
