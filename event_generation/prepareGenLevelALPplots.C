@@ -24,6 +24,29 @@ map<string, tuple<string, int, double, double>> histParams = {
   {"single_phi" , make_tuple("Single dN/d#phi"        , 100 , -4    , 4     )},
 };
 
+double getAcoplanarity(const TLorentzVector &particle1, const TLorentzVector &particle2)
+{
+  double phi1 = particle1.Phi();
+  double phi2 = particle2.Phi();
+  
+  // Make sure that angles are in range [0, 2π)
+  while(phi1 < 0)               phi1 += 2*TMath::Pi();
+  while(phi1 >= 2*TMath::Pi())  phi1 -= 2*TMath::Pi();
+  
+  while(phi2 < 0)               phi2 += 2*TMath::Pi();
+  while(phi2 >= 2*TMath::Pi())  phi2 -= 2*TMath::Pi();
+  
+  double deltaPhi = fabs(phi2-phi1);
+  
+  // Make sure that Δφ is in range [0, π]
+  if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi() - deltaPhi;
+  
+  // Calcualte acoplanarity
+  double aco = 1 - deltaPhi/TMath::Pi();
+  
+  return aco;
+}
+
 void prepareGenLevelALPplots()
 {
   istringstream curstring;
@@ -114,6 +137,7 @@ void prepareGenLevelALPplots()
         hists["pair_pt"+axionName]->Fill(particleSum.Pt());
         hists["pair_pz"+axionName]->Fill(particleSum.Pz());
         hists["pair_y"+axionName]->Fill(particleSum.Rapidity());
+        hists["pair_aco"+axionName]->Fill(getAcoplanarity(particle1, particle2));
         
         if(eta1 < 2.4 && eta2 < 2.4) hists["pair_m_2p4"+axionName]->Fill(particleSum.M());
         if(eta1 < 3.0 && eta2 < 3.0) hists["pair_m_3p0"+axionName]->Fill(particleSum.M());
