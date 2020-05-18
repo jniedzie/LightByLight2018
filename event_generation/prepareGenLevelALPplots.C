@@ -42,7 +42,7 @@ void prepareGenLevelALPplots()
       auto &[title, nBins, min, max] = paramsTuple;
     
       string histName = name+axionName;
-      hists[name] = new TH1D(histName.c_str(), title.c_str(), nBins, min, max);
+      hists[histName] = new TH1D(histName.c_str(), title.c_str(), nBins, min, max);
     }
     
     int nHighAco=0;
@@ -91,17 +91,17 @@ void prepareGenLevelALPplots()
           }
         }
         
-        hists["single_y"+axionName]->Fill(particles1[i].Rapidity());
-        hists["single_eta"+axionName]->Fill(particles1[i].Eta());
-        hists["single_pt"+axionName]->Fill(particles1[i].Pt());
-        hists["single_pz"+axionName]->Fill(particles1[i].Pz());
-        hists["single_phi"+axionName]->Fill(particles1[i].Phi());
+        hists["single_y"+axionName]->Fill(particle1.Rapidity());
+        hists["single_eta"+axionName]->Fill(particle1.Eta());
+        hists["single_pt"+axionName]->Fill(particle1.Pt());
+        hists["single_pz"+axionName]->Fill(particle1.Pz());
+        hists["single_phi"+axionName]->Fill(particle1.Phi());
         
-        hists["single_y"+axionName]->Fill(particles2[i].Rapidity());
-        hists["single_eta"+axionName]->Fill(particles2[i].Eta());
-        hists["single_pt"+axionName]->Fill(particles2[i].Pt());
-        hists["single_pz"+axionName]->Fill(particles2[i].Pz());
-        hists["single_phi"+axionName]->Fill(particles2[i].Phi());
+        hists["single_y"+axionName]->Fill(particle2.Rapidity());
+        hists["single_eta"+axionName]->Fill(particle2.Eta());
+        hists["single_pt"+axionName]->Fill(particle2.Pt());
+        hists["single_pz"+axionName]->Fill(particle2.Pz());
+        hists["single_phi"+axionName]->Fill(particle2.Phi());
         
         
         TLorentzVector particleSum(0.,0.,0.,0.);
@@ -110,15 +110,15 @@ void prepareGenLevelALPplots()
         double eta1 = fabs(particle1.Eta());
         double eta2 = fabs(particle2.Eta());
         
-        hists["pair_m"+axionName]->Fill(p.M());
-        hists["pair_pt"+axionName]->Fill(p.Pt());
-        hists["pair_pz"+axionName]->Fill(p.Pz());
-        hists["pair_y"+axionName]->Fill(p.Rapidity());
+        hists["pair_m"+axionName]->Fill(particleSum.M());
+        hists["pair_pt"+axionName]->Fill(particleSum.Pt());
+        hists["pair_pz"+axionName]->Fill(particleSum.Pz());
+        hists["pair_y"+axionName]->Fill(particleSum.Rapidity());
         
-        if(eta1 < 2.4 && eta2 < 2.4) hists["pair_m_2p4"+axionName]->Fill(p.M());
-        if(eta1 < 3.0 && eta2 < 3.0) hists["pair_m_3p0"+axionName]->Fill(p.M());
-        if(eta1 < 4.0 && eta2 < 4.0) hists["pair_m_4p0"+axionName]->Fill(p.M());
-        if(eta1 < 4.5 && eta2 < 4.5) hists["pair_m_4p5"+axionName]->Fill(p.M());
+        if(eta1 < 2.4 && eta2 < 2.4) hists["pair_m_2p4"+axionName]->Fill(particleSum.M());
+        if(eta1 < 3.0 && eta2 < 3.0) hists["pair_m_3p0"+axionName]->Fill(particleSum.M());
+        if(eta1 < 4.0 && eta2 < 4.0) hists["pair_m_4p0"+axionName]->Fill(particleSum.M());
+        if(eta1 < 4.5 && eta2 < 4.5) hists["pair_m_4p5"+axionName]->Fill(particleSum.M());
       }
     }
     
