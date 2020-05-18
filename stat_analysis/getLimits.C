@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string>
 
-string suffix = "";
+string suffix = "_4p5";
 vector<int> alpMasses = { 5, 6, 9, 11, 14, 16, 22, 30, 90 };
 
 string inputPath        = "combineOutput"+suffix+".txt";
@@ -16,9 +16,9 @@ string couplingOutPath  = "results/couplingMassLimits"+suffix+".txt";
 string xsecOutPath      = "results/xsecMassLimits"+suffix+".txt";
 
 double rScale = 10;         // scale by X nb that was used as a reference cross section when generating limits
-double xsecPrecision = 0.05; // (nb) precision on the cross section for ALP coupling search
+double xsecPrecision = 0.01; // relative precision on the cross section for ALP coupling search
 double minLambda = 1000;    // (GeV) min lambda scale
-double maxLambda = 100000;  // (GeV) max lambda scale
+double maxLambda = 1000000;  // (GeV) max lambda scale
 
 double findValue(string text, string searchString = "Expected 50.0%: r <")
 {
@@ -48,7 +48,7 @@ vector<string> tokenize(istream &str, string &line, char token)
 double getCoupling(double mass, double xsec)
 {
   string command = "cd combineToLimits;./findCoupling ";
-  command += (to_string(xsecPrecision) + " ");
+  command += (to_string(xsecPrecision*xsec) + " ");
   command += (to_string(minLambda) + " ");
   command += (to_string(maxLambda) + " ");
   command += (to_string(mass) + " ");
@@ -75,7 +75,7 @@ double getCoupling(double mass, double xsec)
     }
   }
   
-  cout<<"Desired cross section: "<<xsec<<" +/- "<<xsecPrecision<<" nb"<<endl;
+  cout<<"Desired cross section: "<<xsec<<" +/- "<<xsecPrecision*xsec<<" nb"<<endl;
   cout<<"Found cross section: "<<foundCrossSection<<" nb at coupling: "<<coupling<<" GeV"<<endl;
   
   return coupling;
