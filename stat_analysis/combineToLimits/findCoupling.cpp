@@ -79,8 +79,9 @@ double getCrossSection(double coupling)
         
         readFile.close();
         double multiplier = 1;
-        if(line[4].find("microbarn") != string::npos) multiplier = 1000;
-        if(line[4].find("picobarn") != string::npos) multiplier = 0.001;
+        if(line[4].find("microbarn")  != string::npos) multiplier = 1e3;
+        if(line[4].find("picobarn")   != string::npos) multiplier = 1e-3;
+        if(line[4].find("femtobarn")  != string::npos) multiplier = 1e-6;
         
         return multiplier*stod(line[3]);
       }
@@ -147,6 +148,7 @@ int main(int argc, char* argv[])
       minCoupling = splitCoupling;
       recomputeMin = true;
     }
+     
     currentCrossSection = getCrossSection(meanCoupling);
     
     cout<<"Lambda: "<<meanCoupling<<" coupling: "<<1./meanCoupling<<" cross-section: "<<currentCrossSection<<endl;
