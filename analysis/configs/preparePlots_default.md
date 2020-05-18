@@ -12,9 +12,6 @@ maxDeltaPhiEB:  0.7
 maxDeltaEtaEE:  0.15
 maxDeltaPhiEE:  0.4
 
-### Don't look at towers that are in very noisy region of EE
-maxEtaEEtower:      2.4
-
 ### Charged exclusivity cuts (GeV)
 maxNtracks:                             0
 trackMinPt:                               0.8 
@@ -88,9 +85,12 @@ ecalCrackMax: 1.566
 ecalHEMmin:  -1.5
 ecalHEMmax: -1.0
  
+ ### Don't look at towers that are in very noisy region of EE
+ maxEtaEEtower:      2.4
+ 
 ### Calorimeter noise thresolds (GeV)
-noiseThresholdEB:        2.0
-noiseThresholdEE:        7.6
+noiseThresholdEB:        0.7
+noiseThresholdEE:        7.5
 noiseThresholdHB:        2.8
 noiseThresholdHE:        2.4
 noiseThresholdHFp:      7.2
