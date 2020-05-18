@@ -37,11 +37,11 @@ vector<tuple<string, int, int, int, double, bool, bool, string, bool, bool>> gra
 //  {"jer_observed_data"      , kOrange+1 , 3     , 1     , 0.2     , true  , false , "L"   , false  , false },
   {"jer_expected_data"      , kGreen    , 5     , 2     , 0.2     , true  , false , "L"   , false  , false },
 //  {"prediction_20nb_data"   , kRed      , 3     , 1     , 0.2     , true  , false , "L"   , false  , false },
-  {"cms_2015_reproduced"    , kRed      , 5     , 3     , 0.2     , true  , false , "L"   , false  , false },
-  {"cms_2018_gen_level"     , kOrange   , 5     , 1     , 0.2     , true  , false , "L"   , false  , false },
-  {"cms_2018_gen_level_3p0" , kRed      , 5     , 1     , 0.2     , true  , false , "L"   , false  , false },
-  {"cms_2018_gen_level_4p0" , kViolet   , 5     , 1     , 0.2     , true  , false , "L"   , false  , false },
-  {"cms_2018_gen_level_4p5" , kBlue     , 5     , 1     , 0.2     , true  , false , "L"   , false  , false },
+//  {"cms_2015_reproduced"    , kRed      , 5     , 3     , 0.2     , true  , false , "L"   , false  , false },
+  {"cms_2018_gen_level"     , kOrange+1 , 2     , 1     , 0.2     , true  , false , "L"   , false  , false },
+  {"cms_2018_gen_level_3p0" , kRed      , 2     , 1     , 0.2     , true  , false , "L"   , false  , false },
+  {"cms_2018_gen_level_4p0" , kViolet   , 2     , 1     , 0.2     , true  , false , "L"   , false  , false },
+//  {"cms_2018_gen_level_4p5" , kBlue     , 5     , 1     , 0.2     , true  , false , "L"   , false  , false },
 };
 
 map<string, tuple<double, double, double, double, string>> legendParams = {
@@ -178,11 +178,11 @@ void plotALPlimits(bool drawBB=false)
   
   leg->AddEntry(graphs["jer_expected_data"]     , "original 2015 (expected)"    , "l");
 //  leg->AddEntry(graphs["prediction_20nb_data"]  , "20 nb^{-1} projection"       , "l");
-  leg->AddEntry(graphs["cms_2015_reproduced"]   , "reproduced 2015 (expected)"  , "l");
+//  leg->AddEntry(graphs["cms_2015_reproduced"]   , "reproduced 2015 (expected)"  , "l");
   leg->AddEntry(graphs["cms_2018_gen_level"]    , "new expected (|#eta| < 2.4)" , "l");
   leg->AddEntry(graphs["cms_2018_gen_level_3p0"], "new expected (|#eta| < 3.0)" , "l");
   leg->AddEntry(graphs["cms_2018_gen_level_4p0"], "new expected (|#eta| < 4.0)" , "l");
-  leg->AddEntry(graphs["cms_2018_gen_level_4p5"], "new expected (|#eta| < 4.5)" , "l");
+//  leg->AddEntry(graphs["cms_2018_gen_level_4p5"], "new expected (|#eta| < 4.5)" , "l");
   
   
   
