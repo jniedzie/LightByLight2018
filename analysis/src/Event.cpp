@@ -47,6 +47,7 @@ PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
      || type == kCaloTower
      || type == kGeneralTrack
      || type == kL1EG
+     || type == kZDC
      || type == kPixelTrack){
     return physObjects.at(type);
   }
@@ -54,8 +55,9 @@ PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
   else if(type == kGoodPhoton)          return GetGoodPhotons();
   else if(type == kGoodElectron)        return GetGoodElectrons(cutFlowHist);
   else if(type == kGoodMatchedElectron) return GetGoodMatchedElectron();
-  else if(type == kGoodMuon)        return GetGoodMuons(cutFlowHist);
+  else if(type == kGoodMuon)            return GetGoodMuons(cutFlowHist);
   else if(type == kGoodGeneralTrack)    return GetGoodGeneralTracks(cutFlowHist);
+  else if(type == kGoodPixelTrack)      return GetGoodPixelTracks(cutFlowHist);
   
   Log(0)<<"ERROR -- unrecognized phys object type: "<<type<<"!!!\n";
   return PhysObjects();
@@ -116,6 +118,10 @@ PhysObjects Event::GetGoodPhotons()
     // Check η shower shape
     if((absEta < maxEtaEB) && (photon->GetEtaWidth() > config.params("photonMaxEtaWidthBarrel"))) continue;
     else if((absEta < maxEtaEE) && (photon->GetEtaWidth() > config.params("photonMaxEtaWidthEndcap"))) continue;
+    
+    if((absEta < maxEtaEB) && (photon->GetSigmaEta2012() > config.params("photonMaxSigmaEta2012Barrel"))) continue;
+    else if((absEta < maxEtaEE) && (photon->GetSigmaEta2012() > config.params("photonMaxSigmaEta2012Endcap"))) continue;
+    
     
     // Check H/E
     if((absEta < maxEtaEB) && (photon->GetHoverE() > config.params("photonMaxHoverEbarrel"))) continue;
@@ -320,6 +326,38 @@ PhysObjects Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
   }
   physObjectsReady.at(kGoodGeneralTrack) = true;
   return physObjects.at(kGoodGeneralTrack);
+}
+
+PhysObjects Event::GetGoodPixelTracks(TH1D *cutFlowHist)
+{
+  if(physObjectsReady.at(kGoodPixelTrack)) return physObjects.at(kGoodPixelTrack);
+  
+  physObjects.at(kGoodPixelTrack).clear();
+  
+  for(auto track : physObjects.at(kPixelTrack)){
+    int cutFlowIndex=0;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 0
+    
+    // Check pt
+    if(track->GetPt() < config.params("pixelTrackMinPt")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 1
+    
+    // Check eta
+    if(fabs(track->GetEta()) > config.params("pixelTrackMaxEta")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 2
+    
+    // Check n hits
+    if(track->GetNvalidHits() < config.params("pixelTrackMinNvalidHits")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 9
+    
+    // Check chi2
+    if(track->GetChi2() > config.params("pixelTrackMaxChi2")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
+    
+    physObjects.at(kGoodPixelTrack).push_back(track);
+  }
+  physObjectsReady.at(kGoodPixelTrack) = true;
+  return physObjects.at(kGoodPixelTrack);
 }
 
 bool Event::HasAdditionalTowers()

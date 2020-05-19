@@ -17,6 +17,8 @@ add_executable(preparePhotonIDplots preparePhotonIDplots.cpp)
 add_executable(prepareElectronIDplots prepareElectronIDplots.cpp)
 add_executable(prepareBasicPlots prepareBasicPlots.cpp)
 add_executable(applySelections applySelections.cpp)
+add_executable(runDumpEvent runDumpEvent.cpp)
+add_executable(runEventList runEventList.cpp)
 add_executable(addPixelTrackInfo addPixelTrackInfo.cpp)
 
 set_property(TARGET getEfficienciesLbL PROPERTY CXX_STANDARD 17)
@@ -25,6 +27,8 @@ set_property(TARGET preparePhotonIDplots PROPERTY CXX_STANDARD 17)
 set_property(TARGET prepareElectronIDplots PROPERTY CXX_STANDARD 17)
 set_property(TARGET prepareBasicPlots PROPERTY CXX_STANDARD 17)
 set_property(TARGET applySelections PROPERTY CXX_STANDARD 17)
+set_property(TARGET runDumpEvent PROPERTY CXX_STANDARD 17)
+set_property(TARGET runEventList PROPERTY CXX_STANDARD 17)
 set_property(TARGET addPixelTrackInfo PROPERTY CXX_STANDARD 17)
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
@@ -34,6 +38,7 @@ add_library(Analysis  src/Event.cpp
                       src/PhysObject.cpp
                       src/PhysObjectProcessor.cpp
                       src/ConfigManager.cpp
+                      src/DumpEvent.cpp
 )
 
 set_property(TARGET Analysis PROPERTY CXX_STANDARD 17)
@@ -44,4 +49,6 @@ target_link_libraries(preparePhotonIDplots Analysis ${ROOT_LIBRARIES})
 target_link_libraries(prepareElectronIDplots Analysis ${ROOT_LIBRARIES})
 target_link_libraries(prepareBasicPlots Analysis ${ROOT_LIBRARIES})
 target_link_libraries(applySelections Analysis ${ROOT_LIBRARIES})
+target_link_libraries(runDumpEvent Analysis ${ROOT_LIBRARIES})
+target_link_libraries(runEventList Analysis ${ROOT_LIBRARIES})
 target_link_libraries(addPixelTrackInfo Analysis ${ROOT_LIBRARIES})

@@ -1,8 +1,27 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/photonID_test.root";
-string outputPathShower = "../plots/photonShowerShape_test.pdf";
-string outputPathHoverE = "../plots/photonHoverE_test.pdf";
+string inputPath        = "../results/photonIDplots.root";
+string outputPathShower = "../plots/photonShowerShape.pdf";
+string outputPathHoverE = "../plots/photonHoverE.pdf";
+
+vector<TCanvas*> canvas;
+
+vector<tuple<string, int, int, int, int>> canvasParams = {
+// title           width  height nCol nRow
+  {"Shower shape" , 1000, 1000  , 2 , 2 },
+  {"H/E"          , 1000, 1000  , 2 , 2 },
+};
+
+vector<tuple<string, string, string, int, int, int, double, double, double, double, double>> histParams = {
+  // name                  title                   xTitle          rebin  iCanvas iPad  cut     xMin xMax   yMin   yMax
+  {"showerShapeBarrel"    , "Shower shape barrel" , "#eta width"  , 1    , 0    , 1   , 0.0106 , 0 , 1     , 1E-4 , 1 },
+  {"showerShapeEndcap"    , "Shower shape endcap" , "#eta width"  , 1    , 0    , 2   , 0.0272 , 0 , 1     , 1E-4 , 1 },
+  {"swissCrossBarrel"     , "Swiss cross barrel"  , "E4/E"        , 1    , 0    , 3   , 0.005  , 0 , 0.05  , 1E-5 , 1 },
+  {"swissCrossEndcap"     , "Swiss cross endcap"  , "E4/E"        , 1    , 0    , 4   , 0.005  , 0 , 0.05  , 1E-5 , 1 },
+  
+  {"HoverEbarrel"         , "H/E barrel"          , "H/E"         , 5    , 1    , 1   , 0.04596, 0 , 1     , 1E-4 , 1 },
+  {"HoverEendcap"         , "H/E endcap"          , "H/E"         , 5    , 1    , 2   , 0.0590 , 0 , 1     , 1E-4 , 1 },
+};
 
 vector<EDataset> datasetsToAnalyze = {
   kData,
@@ -11,7 +30,7 @@ vector<EDataset> datasetsToAnalyze = {
   kMCcep
 };
 
-void prepareHist(TH1D *hist, int color)
+void prepareHist(TH1D *hist, int color, int rebin)
 {
   hist->SetLineColor(color);
   hist->SetTitle("");
@@ -21,6 +40,10 @@ void prepareHist(TH1D *hist, int color)
   hist->GetXaxis()->SetTitleSize(0.06);
   hist->Scale(1./hist->GetEntries());
   hist->GetYaxis()->SetRangeUser(1e-4, 1.0);
+  
+  hist->Rebin(rebin);
+  hist->Scale(1./rebin);
+  
   hist->Sumw2(false);
 }
 
@@ -53,165 +76,77 @@ void drawThreshold(double threshold, string label="")
 void drawPhotonIDplots()
 {
   TFile *inFile = TFile::Open(inputPath.c_str());
-  
-  TCanvas *canvasShower = new TCanvas("Shower shape", "Shower shape", 1000, 1000);
-  TCanvas *canvasHoverE = new TCanvas("H/E", "H/E", 1000, 1000);
-  canvasShower->Divide(2,2);
-  canvasHoverE->Divide(2,2);
-  
-  gStyle->SetOptStat(0);
   TLegend *legend = new TLegend(0.5, 0.7, 0.9, 0.9 );
+  gStyle->SetOptStat(0);
   
   
-  bool first = true;
-  for(EDataset dataset : datasetsToAnalyze){
-    string name = datasetName.at(dataset);
-
-    auto shapeBarrel     = (TH1D*)inFile->Get(("showerShapeBarrel"+name).c_str());
-    if(!shapeBarrel) cout<<"Could not open showerShapeBarrel hist"<<endl;
-    
-    auto shapeEndcap     = (TH1D*)inFile->Get(("showerShapeEndcap"+name).c_str());
-    if(!shapeEndcap) cout<<"Could not open shapeEndcap hist"<<endl;
-    
-    auto shapeEndcap2p3  = (TH1D*)inFile->Get(("showerShapeEndcap2p3"+name).c_str());
-    if(!shapeEndcap2p3) cout<<"Could not open shapeEndcap2p3 hist"<<endl;
-    
-    auto etaEndcap       = (TH1D*)inFile->Get(("etaEndcap"+name).c_str());
-    if(!etaEndcap) cout<<"Could not open etaEndcap hist"<<endl;
-    
-    auto etaNarrowEndcap = (TH1D*)inFile->Get(("etaLowWidthEndcap"+name).c_str());
-    if(!etaNarrowEndcap) cout<<"Could not open etaNarrowEndcap hist"<<endl;
-    
-    auto hOverEbarrel    = (TH1D*)inFile->Get(("HoverEbarrel"+name).c_str());
-    if(!hOverEbarrel) cout<<"Could not open hOverEbarrel hist"<<endl;
-    
-    auto hOverEendcap    = (TH1D*)inFile->Get(("HoverEendcap"+name).c_str());
-    if(!hOverEendcap) cout<<"Could not open hOverEendcap hist"<<endl;
-    
-    auto hOverEmapNum    = (TH2D*)inFile->Get(("HoverEmapNum"+name).c_str());
-    if(!hOverEmapNum) cout<<"Could not open hOverEmapNum hist"<<endl;
-    
-    auto hOverEmapDen    = (TH2D*)inFile->Get(("HoverEmapDen"+name).c_str());
-    if(!hOverEmapDen) cout<<"Could not open hOverEmapDen hist"<<endl;
-    
-    auto hSwissCrossBarrel = (TH1D*)inFile->Get(("swissCrossBarrel"+name).c_str());
-    if(!hSwissCrossBarrel) cout<<"Could not open hSwissCrossBarrel hist"<<endl;
-    
-    auto hSwissCrossEndcap = (TH1D*)inFile->Get(("swissCrossEndcap"+name).c_str());
-    if(!hSwissCrossEndcap) cout<<"Could not open hSwissCrossEndcap hist"<<endl;
-    
-    int color = datasetColor.at(dataset);
-    
-    prepareHist(shapeBarrel, color);
-    prepareHist(shapeEndcap, color);
-    prepareHist(shapeEndcap2p3, color);
-    prepareHist(hOverEbarrel, color);
-    prepareHist(hOverEendcap, color);
-    prepareHist(hOverEmapNum, color);
-    prepareHist(hSwissCrossBarrel, color);
-    prepareHist(hSwissCrossEndcap, color);
-    
-    canvasShower->cd(1); preparePad();
-    shapeBarrel->SetTitle("#sigma_{i#etai#eta} Barrel");
-    shapeBarrel->Draw(first ? "" : "same");
-    if(first) drawThreshold(0.0106, "0.0106");
-    
-    canvasShower->cd(2); preparePad();
-    shapeEndcap->SetTitle("#sigma_{i#etai#eta} Endcap");
-    shapeEndcap->Draw(first ? "" : "same");
-    if(first) drawThreshold(0.0272, "0.0272");
-    
-    canvasShower->cd(3); preparePad();
-    hSwissCrossBarrel->SetTitle("Swiss cross Barrel");
-//    hSwissCrossBarrel->GetXaxis()->SetRangeUser(0.0, 0.07);
-    hSwissCrossBarrel->GetYaxis()->SetRangeUser(1E-8, 1.0);
-    hSwissCrossBarrel->GetXaxis()->SetTitle("E4/E");
-    hSwissCrossBarrel->Draw(first ? "" : "same");
-    if(first) drawThreshold(0.005, "0.005");
-    
-    canvasShower->cd(4); preparePad();
-    hSwissCrossEndcap->SetTitle("Swiss cross Endcap");
-//    hSwissCrossEndcap->GetXaxis()->SetRangeUser(0.0, 0.07);
-    hSwissCrossEndcap->GetXaxis()->SetTitle("E4/E");
-    hSwissCrossEndcap->Draw(first ? "" : "same");
-    if(first) drawThreshold(0.005, "0.005");
-    
-    /*
-    if(dataset == kData){
-      etaNarrowEndcap->Rebin(2);
-      etaEndcap->Rebin(2);
-      TH1D *notNarrow = new TH1D(*etaEndcap);
-      notNarrow->Add(etaNarrowEndcap, -1);
-      
-      canvasShower->cd(3); preparePad();
-      etaNarrowEndcap->SetLineColor(kRed);
-      etaNarrowEndcap->SetTitle("");
-      etaNarrowEndcap->GetXaxis()->SetTitle("#eta");
-      etaNarrowEndcap->GetXaxis()->SetRangeUser(1, 3.2);
-      etaNarrowEndcap->Scale(1./etaNarrowEndcap->GetEntries());
-      etaNarrowEndcap->Sumw2(false);
-      etaNarrowEndcap->Draw(first ? "" : "same");
-      etaNarrowEndcap->GetXaxis()->SetRangeUser(1.5, 3.2);
-      
-      notNarrow->SetLineColor(kGreen+2);
-      notNarrow->Scale(1./notNarrow->GetEntries());
-      notNarrow->Sumw2(false);
-      notNarrow->Draw("same");
-      
-      TLegend *legendEta = new TLegend(0.15, 0.75, 0.5, 0.9 );
-      legendEta->AddEntry(etaNarrowEndcap, "#sigma_{i#etai#eta} < 0.001", "l");
-      legendEta->AddEntry(notNarrow, "#sigma_{i#etai#eta} >= 0.001", "l");
-      legendEta->Draw("same");
-    }*/
-    /*
-    canvasShower->cd(4); preparePad();
-    shapeEndcap2p3->SetTitle("Endcap, |#eta| < 2.3");
-    shapeEndcap2p3->Draw(first ? "" : "same");
-    if(first) drawThreshold(0.0272, "0.0272");
-    */
-    canvasHoverE->cd(1); preparePad();
-    hOverEbarrel->GetXaxis()->SetTitle("H/E");
-    hOverEbarrel->SetTitle("Barrel");
-    hOverEbarrel->Rebin(5);
-    hOverEbarrel->Draw(first ? "" : "same");
-    if(first) drawThreshold(0.04596, "0.04596");
-    
-    canvasHoverE->cd(2); preparePad();
-    hOverEendcap->GetXaxis()->SetTitle("H/E");
-    hOverEendcap->SetTitle("Endcap");
-    hOverEendcap->Rebin(5);
-    hOverEendcap->Draw(first ? "" : "same");
-    if(first) drawThreshold(0.0590, "0.0590");
-    
-    if(dataset == kData || dataset == kData_LbLsignal){
-      canvasHoverE->cd(3); preparePad();
-      gPad->SetLogy(false);
-      gPad->SetRightMargin(0.15);
-      
-      int rebin = 2;
-      hOverEmapNum->Rebin2D(rebin,rebin);
-      hOverEmapDen->Rebin2D(rebin,rebin);
-      hOverEmapNum->Divide(hOverEmapDen);
-      
-      hOverEmapNum->GetXaxis()->SetTitle("#phi");
-      hOverEmapNum->GetYaxis()->SetTitle("#eta");
-      hOverEmapNum->GetZaxis()->SetTitle("< H/E >");
-      hOverEmapNum->GetZaxis()->SetTitleOffset(1.5);
-      hOverEmapNum->GetZaxis()->SetRangeUser(0, 0.5);
-      hOverEmapNum->Draw("colz");
-    }
-    
-    legend->AddEntry(shapeBarrel, datasetDescription.at(dataset).c_str(), "l");
-    
-    first = false;
+  // Prepare canvases
+  for(auto &[title, width, height, nCol, nRow] : canvasParams){
+    canvas.push_back(new TCanvas(title.c_str(), title.c_str(), width, height));
+    canvas.back()->Divide(nCol, nRow);
   }
   
-  canvasShower->cd(1); legend->Draw("same");
-  canvasShower->cd(2); legend->Draw("same");
-  canvasShower->cd(4); legend->Draw("same");
-  canvasHoverE->cd(1); legend->Draw("same");
-  canvasHoverE->cd(2); legend->Draw("same");
+  // Plot 1D plots
+  bool firstDataset = true;
+  bool firstHist = true;
   
-  canvasShower->SaveAs(outputPathShower.c_str());
-  canvasHoverE->SaveAs(outputPathHoverE.c_str());
+  for(EDataset dataset : datasetsToAnalyze){
+    firstHist = true;
+    
+    for(auto &[name, title, xTitle, rebin, iCanvas, iPad, threshold, xMin, xMax, yMin, yMax] : histParams){
+      
+      TH1D *hist = (TH1D*)inFile->Get((name+datasetName.at(dataset)).c_str());
+      if(!hist) cout<<"Could not open "<<name<<" hist"<<endl;
+      
+      int color = datasetColor.at(dataset);
+      prepareHist(hist, color, rebin);
+      
+      canvas[iCanvas]->cd(iPad);
+      preparePad();
+      hist->SetTitle(title.c_str());
+      hist->GetXaxis()->SetTitle(xTitle.c_str());
+      hist->Draw(firstDataset ? "" : "same");
+      hist->GetXaxis()->SetRangeUser(xMin, xMax);
+      hist->GetYaxis()->SetRangeUser(yMin, yMax);
+      if(firstDataset) drawThreshold(threshold, to_string(threshold));
+      
+      if(firstHist) legend->AddEntry(hist, datasetDescription.at(dataset).c_str(), "l");
+      
+      firstHist = false;
+    }
+    
+    
+    firstDataset = false;
+  }
+  
+  // Draw 2D H/E map
+  canvas[1]->cd(3); preparePad();
+  gPad->SetLogy(false);
+  gPad->SetRightMargin(0.15);
+  
+  TH2D *num = (TH2D*)inFile->Get("HoverEmapNumData");
+  TH2D *den = (TH2D*)inFile->Get("HoverEmapDenData");
+  
+  num->Rebin2D(2, 2);
+  den->Rebin2D(2, 2);
+  num->Divide(den);
+  
+  num->SetTitle("Average H/E map");
+  num->GetXaxis()->SetTitle("#phi");
+  num->GetYaxis()->SetTitle("#eta");
+  num->GetZaxis()->SetTitle("< H/E >");
+  num->GetZaxis()->SetTitleOffset(1.5);
+  num->GetZaxis()->SetRangeUser(0, 0.5);
+  num->Draw("colz");
+       
+  // Add legends
+  canvas[0]->cd(1); legend->Draw("same");
+  canvas[0]->cd(2); legend->Draw("same");
+  canvas[0]->cd(4); legend->Draw("same");
+  canvas[1]->cd(1); legend->Draw("same");
+  canvas[1]->cd(2); legend->Draw("same");
+  
+  // Save results
+  canvas[0]->SaveAs(outputPathShower.c_str());
+  canvas[1]->SaveAs(outputPathHoverE.c_str());
 }

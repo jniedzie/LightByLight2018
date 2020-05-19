@@ -91,23 +91,23 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
 
   //**addition for LbyL analysis
   doGeneralTracks_          = ps.getParameter<bool>("doGeneralTracks");
+  doPixelTracks_          = ps.getParameter<bool>("doPixelTracks");
   doCaloTower_              = ps.getParameter<bool>("doCaloTower");
   doTrackerHits_            = ps.getParameter<bool>("doTrackerHits");
   
-  if(doGeneralTracks_){
+  if (doGeneralTracks_) {
     generalTracks_ = consumes<reco::TrackCollection>(ps.getParameter<edm::InputTag>("generalTrk"));
     DisplacedTracksCollection_ = consumes<std::vector<reco::Track>>(edm::InputTag("displacedTracks"));
   }
-  if(doCaloTower_){
-    CaloTowerCollection_ = consumes<edm::SortedCollection<CaloTower>>(ps.getParameter<edm::InputTag>("recoCaloTower"));
-  }
-  
+  if (doPixelTracks_) pixelTracks_       = consumes<reco::TrackCollection>        (ps.getParameter<edm::InputTag>("pixelTrk"));
+  if (doCaloTower_) CaloTowerCollection_     = consumes<edm::SortedCollection<CaloTower>>(ps.getParameter<edm::InputTag>("recoCaloTower"));
   if (doTrackerHits_){
     DeDxHitInfoCollection_    = consumes<std::vector<reco::DeDxHitInfo>>(edm::InputTag("dedxHitInfo"));
     PixelClustersCollection_  = consumes<edmNew::DetSetVector<SiPixelCluster>>(edm::InputTag("siPixelClusters"));
     PixelRecHitsCollection_   = consumes<edmNew::DetSetVector<SiPixelRecHit>>(edm::InputTag("siPixelRecHits"));
   }
   
+
   // initialize output TTree
   edm::Service<TFileService> fs;
   tree_ = fs->make<TTree>("EventTree", "Event data");
@@ -606,6 +606,27 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("trkPurity",       &trkPurity_);
     tree_->Branch("nDisplacedTracks",&nDisplacedTracks_);
   }
+  if (doPixelTracks_){
+    tree_->Branch("nPix",            &nPix_);
+    tree_->Branch("pixPt",           &pixPt_);
+    tree_->Branch("pixP",            &pixP_);
+    tree_->Branch("pixEta",          &pixEta_);
+    tree_->Branch("pixPhi",          &pixPhi_);
+    tree_->Branch("pixcharge",       &pixcharge_);
+    tree_->Branch("pixvx",           &pixvx_);
+    tree_->Branch("pixvy",           &pixvy_);
+    tree_->Branch("pixvz",           &pixvz_);
+    tree_->Branch("pixnormchi2",     &pixnormchi2_);
+    tree_->Branch("pixchi2",         &pixchi2_);
+    tree_->Branch("pixd0",           &pixd0_);
+    tree_->Branch("pixdxy",          &pixdxy_);
+    tree_->Branch("pixdz",           &pixdz_);
+    tree_->Branch("pixdxyError",     &pixdxyError_);
+    tree_->Branch("pixdzError",      &pixdzError_);
+    tree_->Branch("pixValidHits",    &pixValidHits_);
+    tree_->Branch("pixMissHits",     &pixMissHits_);
+    tree_->Branch("pixPurity",       &pixPurity_);
+  }
 
   if (doCaloTower_){
     tree_->Branch("nTower",                &nTower_);
@@ -616,11 +637,11 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("CaloTower_eta",         &CaloTower_eta_);
     tree_->Branch("CaloTower_phi",         &CaloTower_phi_);
   }
-  
+
   if(doTrackerHits_){
-    tree_->Branch("nTrackerHits",   &nTrackerHits_);
-    tree_->Branch("nPixelClusters", &nPixelClusters_);
-    tree_->Branch("nPixelRecHits",  &nPixelRecHits_);
+     tree_->Branch("nTrackerHits",   &nTrackerHits_);
+     tree_->Branch("nPixelClusters", &nPixelClusters_);
+     tree_->Branch("nPixelRecHits",  &nPixelRecHits_);
   }
 }
 
@@ -1093,6 +1114,27 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     nDisplacedTracks_ = 0;
   }
 
+  if (doPixelTracks_){
+    nPix_ = 0;
+    pixPt_             .clear();
+    pixP_              .clear();
+    pixEta_            .clear();
+    pixPhi_            .clear();
+    pixcharge_         .clear();
+    pixvx_	          .clear();
+    pixvy_	          .clear(); 
+    pixvz_		  .clear();
+    pixnormchi2_       .clear();                 
+    pixchi2_           .clear();
+    pixd0_             .clear(); 
+    pixdxy_            .clear();
+    pixdz_             .clear();
+    pixdxyError_       .clear();     
+    pixdzError_        .clear();
+    pixValidHits_      .clear();                     
+    pixMissHits_       .clear();  
+  }
+
   if (doCaloTower_){
     nTower_= 0;
     CaloTower_hadE_       .clear();
@@ -1159,6 +1201,7 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   if (doPhotons_) fillPhotons(e, es, pv);
   if (doMuons_) fillMuons(e, es, pv);
   if (doGeneralTracks_) fillGeneralTracks(e, es, pv);
+  if (doPixelTracks_) fillPixelTracks(e, es, pv);
   if (doCaloTower_) fillCaloTower(e, es, pv);
   if (doTrackerHits_) fillTrackerHits(e);
 
@@ -2167,6 +2210,38 @@ void ggHiNtuplizer::fillGeneralTracks(const edm::Event& e, const edm::EventSetup
   
 } //fill General tracks
 
+void ggHiNtuplizer::fillPixelTracks(const edm::Event& e, const edm::EventSetup& es, reco::Vertex& pv)
+{
+  // Fills tree branches for all tracks in the event.
+
+  edm::Handle<reco::TrackCollection >  pixelTracksHandle;
+  e.getByToken(pixelTracks_, pixelTracksHandle);
+
+
+ for (reco::TrackCollection::const_iterator pix = pixelTracksHandle->begin(); pix != pixelTracksHandle->end(); ++pix) {
+    pixPt_             .push_back(pix->pt());            
+    pixP_              .push_back(pix->p());            
+    pixEta_            .push_back(pix->eta());           
+    pixPhi_            .push_back(pix->phi());     
+    pixcharge_         .push_back(pix->charge()); 
+    pixvx_	       .push_back(pix->vx());       
+    pixvy_	       .push_back(pix->vy());             
+    pixvz_	       .push_back(pix->vz());  
+    pixnormchi2_       .push_back(pix->normalizedChi2());                   
+    pixchi2_           .push_back(pix->chi2());    
+    pixd0_             .push_back(pix->d0());               
+    pixdxy_            .push_back(pix->dxy());             
+    pixdz_             .push_back(pix->dz());     
+    pixdxyError_       .push_back(pix->dxyError());             
+    pixdzError_        .push_back(pix->dzError());   
+    pixValidHits_      .push_back(pix->numberOfValidHits());                     
+    pixMissHits_       .push_back(pix->numberOfLostHits());  
+    pixPurity_         .push_back(pix->reco::TrackBase::qualityByName("highPurity"));              
+    nPix_++;
+  }  
+
+} //fill Pixel tracks
+
 void ggHiNtuplizer::fillCaloTower(const edm::Event& e, const edm::EventSetup& es, reco::Vertex& pv)
 {
   // Fills tree branches for calo tower 
@@ -2216,20 +2291,3 @@ void ggHiNtuplizer::fillTrackerHits(const edm::Event& event)
 }
 
 DEFINE_FWK_MODULE(ggHiNtuplizer);
-
-
-//
-//// Conversions and secondary vertices
-//vector<reco::Conversion>                        "allConversions"                              ""                "reRECO"
-//vector<reco::Conversion>                        "conversions"                                 ""                "reRECO"
-//vector<reco::Conversion>                        "uncleanedOnlyAllConversions"                 ""                "reRECO"
-//
-//vector<reco::Track>                             "ckfInOutTracksFromConversions"               ""                "reRECO"
-//vector<reco::Track>                             "ckfOutInTracksFromConversions"               ""                "reRECO"
-//vector<reco::Track>                             "conversionStepTracks"                        ""                "reRECO"
-//vector<reco::Track>                             "uncleanedOnlyCkfInOutTracksFromConversions"  ""                "reRECO"
-//vector<reco::Track>                             "uncleanedOnlyCkfOutInTracksFromConversions"  ""                "reRECO"
-//
-//vector<reco::Vertex>                            "inclusiveSecondaryVertices"                  ""                "reRECO"
-//vector<reco::VertexCompositePtrCandidate>       "inclusiveCandidateSecondaryVertices"         ""                "reRECO"
-//vector<reco::VertexCompositePtrCandidate>       "inclusiveCandidateSecondaryVerticesCvsL"     ""                "reRECO"

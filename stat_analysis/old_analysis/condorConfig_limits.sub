@@ -1,0 +1,10 @@
+executable            = batch_limits_toys.sh
+transfer_input_files = $(filename), input_hinvmass.root
+arguments             = $(Step) $(filename)
+output                = output/$(ClusterId).$(ProcId)_$(filename)_$(Step).out
+error                 = error/$(ClusterId).$(ProcId).err
+log                   = log/$(ClusterId).log
++JobFlavour           = "tomorrow"
++AccountingGroup = "group_u_CMST3.all"
+# RequestCpus           = 8
+queue 6 filename matching datacard_ged_hinvmass_axion*.txt
