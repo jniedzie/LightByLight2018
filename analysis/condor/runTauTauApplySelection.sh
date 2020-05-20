@@ -1,7 +1,7 @@
 #!/bin/bash
 index=$(( 1 + ${1}))
 
-inputPathData=`sed "${index}q;d" /afs/cern.ch/user/m/mnickel/private/LightByLight2018/analysis/TauTau_Input_List.txt`
+inputPathData=`sed "${index}q;d" /afs/cern.ch/user/m/mnickel/private/LightByLight2018/analysis/input_list.txt`
 
 echo "${inputPathData}"
 
