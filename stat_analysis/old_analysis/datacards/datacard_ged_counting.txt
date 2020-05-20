@@ -1,0 +1,24 @@
+# Simple counting experiment, with one signal and a few background processes
+# Simplified version of LHC LbyL counts
+imax 1  number of channels
+jmax 2  number of backgrounds
+kmax 5  number of nuisance parameters (sources of systematical uncertainties)
+------------
+# we have just one channel, in which we observe X events
+bin bin1
+observation 14
+------------
+# now we list the expected events for signal and all backgrounds in that bin
+# the second 'process' line must have a positive number for backgrounds, and 0 for signal
+# then we list the independent sources of uncertainties, and give their effect (syst. error)
+# on each process and bin
+bin             bin1     bin1   bin1
+process         LbyL     CEP    QED
+process           0      1      2
+rate             9.46   2.56   1.03
+------------
+sig_syst     lnN    1.23  -   -    exp systs: efficiency, purity...
+TH_signal    lnN    1.10  -   -    TH xsec
+TH_qed_mc    lnN     -    -  1.21  QED MC stats: 21%
+TH_cep_mc    lnN     -   1.08  -   CEP MC stats: 8%
+TH_cep_norm  lnN     -   1.38  -   factor X% uncertainty

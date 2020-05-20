@@ -1,10 +1,10 @@
 Universe              = vanilla
 executable            = runPhotonIDplots.sh
-arguments             = $(ProcId)
+arguments             = $(ProcId) 4
 GetEnv                = True
 output                = output/$(ClusterId).$(ProcId).out
 error                 = error/$(ClusterId).$(ProcId).err
 log                   = log/$(ClusterId).log
 requirements         = (OpSysAndVer =?= "CentOS7")
 +JobFlavour           = "espresso"
-queue 1000
+queue 96

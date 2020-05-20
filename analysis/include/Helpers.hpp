@@ -112,6 +112,7 @@ enum EPhysObjType {
   kGoodMuon,
   kL1EG,
   kPixelTrack,
+  kGoodPixelTrack,
   kZDC,
 };
 
@@ -130,13 +131,12 @@ const vector<EPhysObjType> physObjTypes = {
   kGoodMuon,
   kL1EG,
   kPixelTrack,
+  kGoodPixelTrack,
   kZDC,
 };
 
 const map<EDataset, string> inFileNames = {
-//  {kData                , "ntuples/ntuples_data_small_sample_tracker_branches.root"     },
-//  {kData                , "ntuples/ntuples_data_doubleEG2_complete.root"     },
-  {kData                , "ntuples/ntuples_data_small_sample_zdc.root"     },
+  {kData                , "ntuples/ntuples_data_doubleEG2_complete.root"     },
 //  {kData                , "ntuples/ntuples_data_small_sample.root"                    },
   {kData_SingleEG3      , "ntuples/ntuples_data_withSingleEG3.root"                   },
   {kData_recoEff        , "ntuples/ntuples_data_forRecoEff.root"                      },

@@ -1,0 +1,86 @@
+# Simple counting experiment, with one signal and a few background processes
+# Simplified version of LHC lbyl counts
+imax 1  number of channels
+jmax 2  number of backgrounds
+kmax 64  number of nuisance parameters (sources of systematical uncertainties)
+------------
+shapes * * input.root  $PROCESS $PROCESS_$SYSTEMATIC
+------------
+# we have just one channel, in which we observe X events
+bin 1
+observation 37
+------------
+# now we list the expected events for signal and all backgrounds in that bin
+# the second 'process' line must have a positive number for backgrounds, and 0 for signal
+# then we list the independent sources of uncertainties, and give their effect (syst. error)
+# on each process and bin
+bin              1     1   1
+process         lbyl  cep  qed
+process           0    1   2
+rate             10.75578   17.915925 7.678844
+# rate             10.75578   18.581238 7.964000
+------------
+TH_signal    lnN    1.27    -     -     efficiency: 27%
+TH_qed_mc    lnN     -      -     1.21  QED MC stats: 21%
+TH_cep_mc    lnN     -    1.08   -      CEP MC stats: 8%
+TH_cep_norm  lnN     -    1.34   -      CEP data-driven norm: 34%
+lbylbin1      shapeN2 1     -     -
+lbylbin2      shapeN2 1     -     -
+lbylbin3      shapeN2 1     -     -
+lbylbin4      shapeN2 1     -     -
+lbylbin5      shapeN2 1     -     -
+lbylbin6      shapeN2 1     -     -
+lbylbin7      shapeN2 1     -     -
+lbylbin8      shapeN2 1     -     -
+lbylbin9      shapeN2 1     -     -
+lbylbin10     shapeN2 1     -     -
+lbylbin11     shapeN2 1     -     -
+lbylbin12     shapeN2 1     -     -
+lbylbin13     shapeN2 1     -     -
+lbylbin14     shapeN2 1     -     -
+lbylbin15     shapeN2 1     -     -
+lbylbin16     shapeN2 1     -     -
+lbylbin17     shapeN2 1     -     -
+lbylbin18     shapeN2 1     -     -
+lbylbin19     shapeN2 1     -     -
+lbylbin20     shapeN2 1     -     -
+cepbin1      shapeN2 -     1     -
+cepbin2      shapeN2 -     1     -
+cepbin3      shapeN2 -     1     -
+cepbin4      shapeN2 -     1     -
+cepbin5      shapeN2 -     1     -
+cepbin6      shapeN2 -     1     -
+cepbin7      shapeN2 -     1     -
+cepbin8      shapeN2 -     1     -
+cepbin9      shapeN2 -     1     -
+cepbin10     shapeN2 -     1     -
+cepbin11     shapeN2 -     1     -
+cepbin12     shapeN2 -     1     -
+cepbin13     shapeN2 -     1     -
+cepbin14     shapeN2 -     1     -
+cepbin15     shapeN2 -     1     -
+cepbin16     shapeN2 -     1     -
+cepbin17     shapeN2 -     1     -
+cepbin18     shapeN2 -     1     -
+cepbin19     shapeN2 -     1     -
+cepbin20     shapeN2 -     1     -
+qedbin1      shapeN2 -     -     1
+qedbin2      shapeN2 -     -     1
+qedbin3      shapeN2 -     -     1
+qedbin4      shapeN2 -     -     1
+qedbin5      shapeN2 -     -     1
+qedbin6      shapeN2 -     -     1
+qedbin7      shapeN2 -     -     1
+qedbin8      shapeN2 -     -     1
+qedbin9      shapeN2 -     -     1
+qedbin10     shapeN2 -     -     1
+qedbin11     shapeN2 -     -     1
+qedbin12     shapeN2 -     -     1
+qedbin13     shapeN2 -     -     1
+qedbin14     shapeN2 -     -     1
+qedbin15     shapeN2 -     -     1
+qedbin16     shapeN2 -     -     1
+qedbin17     shapeN2 -     -     1
+qedbin18     shapeN2 -     -     1
+qedbin19     shapeN2 -     -     1
+qedbin20     shapeN2 -     -     1

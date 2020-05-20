@@ -33,9 +33,10 @@ public:
   double GetPhiSC()     const;
   double GetEnergySC()  const;
   
-  double GetEtaWidth()  const;
-  double GetPhiWidth()  const;
-  double GetHoverE()    const;
+  double GetEtaWidth()      const;
+  double GetSigmaEta2012()  const;
+  double GetPhiWidth()      const;
+  double GetHoverE()        const;
   
   int    GetPID()           const;
   int    GetCharge()        const;
@@ -74,7 +75,8 @@ public:
   ECaloType GetTowerSubdetHad() const;
   ECaloType GetTowerSubdetEm()  const;
   
-  bool IsConverted() const;
+  bool IsConverted()  const;
+  int  GetZside()     const;
   
 private:
   double eta;       ///< Pseudorapidity
@@ -99,8 +101,9 @@ private:
   double energyLeft;  ///< Energy in the crytal on the left of the photon seed
   double energyRight; ///< Energy in the crytal on the right of the photon seed
   
-  double etaWidth;  ///< Width in eta direction
-  double phiWidth;  ///< Width in phi direction
+  double etaWidth;      ///< Width in eta direction
+  double phiWidth;      ///< Width in phi direction
+  double sigmaEta2012;  ///< Shower width in eta as in 2012
   
   double hOverE;    ///< Hadronic/EM energy
   
@@ -122,6 +125,8 @@ private:
   double dEtaSeed;      ///< Seed Δη
   
   bool hasConversionTracks; ///< Is it a converted photon
+  
+  int zSide;          ///< z-side for ZDC
   
   friend class EventProcessor;
   friend class PhysObjectProcessor;

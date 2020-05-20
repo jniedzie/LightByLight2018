@@ -66,7 +66,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("phoSCEt"               , &photonSCEt);
   eventTree->SetBranchAddress("phoSCE"                , &photonSCE);
   eventTree->SetBranchAddress("phoSCEtaWidth"         , &photonSCEtaWidth);
-//  eventTree->SetBranchAddress("phoSigmaIEtaIEta"      , &photonSCEtaWidth);
+  eventTree->SetBranchAddress("phoSigmaIEtaIEta_2012" , &photonSigmaEta2012);
   eventTree->SetBranchAddress("phoSCPhiWidth"         , &photonSCPhiWidth);
   
   eventTree->SetBranchAddress("phoMaxEnergyXtal"      , &photonEmax);
@@ -152,12 +152,18 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("nPixelRecHits"   , &nPixelRecHits);
   eventTree->SetBranchAddress("nDedxHits"       , &nDedxHits);
  
-  zdcTree->SetBranchAddress("n"                 , &nZDCs);
-  zdcTree->SetBranchAddress("e"                 , zdcE);
-  zdcTree->SetBranchAddress("saturation"        , zdcSaturation);
-  zdcTree->SetBranchAddress("zside"             , zdcZside);
-  zdcTree->SetBranchAddress("section"           , zdcSection);
-  zdcTree->SetBranchAddress("channel"           , zdcChannel);
+  if(zdcTree){
+    zdcTree->SetBranchAddress("n"                 , &nZDCs);
+    zdcTree->SetBranchAddress("e"                 , zdcE);
+    zdcTree->SetBranchAddress("saturation"        , zdcSaturation);
+    zdcTree->SetBranchAddress("zside"             , zdcZside);
+    zdcTree->SetBranchAddress("section"           , zdcSection);
+    zdcTree->SetBranchAddress("channel"           , zdcChannel);
+  }
+  else{
+    nZDCs = 0;
+    Log(0)<<"WARNING -- no ZDC tree available. ZDC variables will not be set!\n";
+  }
   
   if(!pixelTree){
     Log(0)<<"WARNING -- no pixel tree available. Pixel variables will not be set!\n";
@@ -260,7 +266,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   hltTree->GetEntry(iEvent);
   eventTree->GetEntry(iEvent);
   l1Tree->GetEntry(iEvent);
-  zdcTree->GetEntry(iEvent);
+  if(zdcTree) zdcTree->GetEntry(iEvent);
   
   currentEvent->Reset();
   
@@ -307,6 +313,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     photon->energy   = photonE->at(iPhoton);
     photon->energySC = photonSCE->at(iPhoton);
     photon->etaWidth = photonSCEtaWidth->at(iPhoton);
+    photon->sigmaEta2012 = photonSigmaEta2012->at(iPhoton);
     photon->phiWidth = photonSCPhiWidth->at(iPhoton);
     
     if(photonEmax)    photon->energyMax    = photonEmax->at(iPhoton);
@@ -428,15 +435,18 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     currentEvent->physObjects.at(kL1EG).push_back(L1EG);
   }
   
-  for(size_t iZDC=0; iZDC<nPhysObjects.at(kZDC); iZDC++){
+  for(size_t iZDC=0; iZDC<nZDCs; iZDC++){
     auto zdc = make_shared<PhysObject>();
     
     zdc->energy = zdcE[iZDC];
+    zdc->zSide  = zdcZside[iZDC];
     
     currentEvent->physObjects.at(kZDC).push_back(zdc);
   }
   
   if(!pixelTree) return currentEvent;
+  
+  pixelTree->GetEntry(iEvent);
   
   // Fill in collection of pixel tracks
    for(size_t iTrack=0; iTrack<nPhysObjects.at(kPixelTrack); iTrack++){

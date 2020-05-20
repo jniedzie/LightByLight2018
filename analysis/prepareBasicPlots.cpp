@@ -76,6 +76,10 @@ vector<tuple<string, int, double, double>> histParams = {
   {"lbl_bad_photon_et"      , 100 , 0   , 100.0 },
   {"lbl_bad_photon_eta"     , 6   ,-2.4 , 2.4   },
   {"lbl_bad_photon_phi"     , 8   ,-4.0 , 4.0   },
+  {"lbl_n_pixel_tracks"     , 100 , 0   , 100   },
+  {"lbl_zdc_sum_energy"     , 20000, 0   , 1000000 },
+  {"lbl_zdc_sum_energy_pos" , 20000, 0   , 1000000 },
+  {"lbl_zdc_sum_energy_neg" , 20000, 0   , 1000000 },
   
   {"qed_acoplanarity"       , 500 , 0   , 1.0   },
   {"qed_electron_pt"        , 400 , 0   , 200.0 },
@@ -137,6 +141,9 @@ vector<tuple<string, int, double, double>> histParams = {
   {"nPixelClusters"         , 2000, 0   , 2000  },
   {"nPixelRecHits"          , 2000, 0   , 2000  },
   
+  {"zdc_sum_energy_pos"     , 20000, 0   , 1000000 },
+  {"zdc_sum_energy_neg"     , 20000, 0   , 1000000 },
+  
 };
 
 void fillTriphotonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, bool saveEventDisplays=false)
@@ -177,6 +184,17 @@ void fillTriphotonHists(Event &event, const map<string, TH1D*> &hists, string da
   }
 }
 
+void fillNobjectsHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
+{
+  if(suffix != "") suffix += "_";
+  
+  hists.at("lbl_n_all_photons_"+suffix+datasetName)->Fill(event.GetPhysObjects(kPhoton).size());
+  hists.at("lbl_n_all_calo_towers_"+suffix+datasetName)->Fill(event.GetPhysObjects(kCaloTower).size());
+  hists.at("lbl_n_all_L1EG_"+suffix+datasetName)->Fill(event.GetPhysObjects(kL1EG).size());
+  hists.at("lbl_n_pixel_tracks_"+suffix+datasetName)->Fill(event.GetPhysObjects(kPixelTrack).size());
+  hists.at("lbl_n_zdc_"+suffix+datasetName)->Fill(event.GetPhysObjects(kZDC).size());
+}
+
 void fillPhotonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
 {
   if(suffix != "") suffix += "_";
@@ -185,24 +203,47 @@ void fillPhotonHists(Event &event, const map<string, TH1D*> &hists, string datas
     hists.at("lbl_photon_eta_"+suffix+datasetName)->Fill(photon->GetEta());
     hists.at("lbl_photon_phi_"+suffix+datasetName)->Fill(photon->GetPhi());
   }
-  hists.at("lbl_n_all_photons_"+suffix+datasetName)->Fill(event.GetPhysObjects(kPhoton).size());
-  hists.at("lbl_n_all_calo_towers_"+suffix+datasetName)->Fill(event.GetPhysObjects(kCaloTower).size());
-  hists.at("lbl_n_all_L1EG_"+suffix+datasetName)->Fill(event.GetPhysObjects(kL1EG).size());
+  double zdcEnergySum = 0;
+  double zdcEnergySumPos = 0;
+  double zdcEnergySumNeg = 0;
   
   for(auto zdc : event.GetPhysObjects(kZDC)){
     hists.at("lbl_zdc_energy_"+suffix+datasetName)->Fill(zdc->GetEnergy());
+    zdcEnergySum += zdc->GetEnergy();
+    
+    if(zdc->GetZside() > 0) zdcEnergySumPos += zdc->GetEnergy();
+    else                    zdcEnergySumNeg += zdc->GetEnergy();
   }
-  hists.at("lbl_n_zdc_"+suffix+datasetName)->Fill(event.GetPhysObjects(kZDC).size());
+  hists.at("lbl_zdc_sum_energy_"+suffix+datasetName)->Fill(zdcEnergySum);
+  hists.at("lbl_zdc_sum_energy_pos_"+suffix+datasetName)->Fill(zdcEnergySumPos);
+  hists.at("lbl_zdc_sum_energy_neg_"+suffix+datasetName)->Fill(zdcEnergySumNeg);
+  
+  auto goodPhotons = event.GetPhysObjects(kGoodPhoton);
   
   for(auto photon : event.GetPhysObjects(kPhoton)){
-    if(find(event.GetPhysObjects(kGoodPhoton).begin(),
-            event.GetPhysObjects(kGoodPhoton).end(),
-            photon) != event.GetPhysObjects(kGoodPhoton).end()) continue;
+    if(find(goodPhotons.begin(), goodPhotons.end(), photon) != goodPhotons.end()) continue;
     
     hists.at("lbl_bad_photon_et_" +suffix+datasetName)->Fill(photon->GetEt());
     hists.at("lbl_bad_photon_eta_"+suffix+datasetName)->Fill(photon->GetEta());
     hists.at("lbl_bad_photon_phi_"+suffix+datasetName)->Fill(photon->GetPhi());
   }
+}
+
+void fillZDCHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
+{
+  if(suffix != "") suffix += "_";
+  
+  double zdcEnergySumPos = 0;
+  double zdcEnergySumNeg = 0;
+  
+  for(auto zdc : event.GetPhysObjects(kZDC)){
+    if(zdc->GetZside() > 0) zdcEnergySumPos += zdc->GetEnergy();
+    else                    zdcEnergySumNeg += zdc->GetEnergy();
+  }
+  
+  hists.at("zdc_sum_energy_pos_"+suffix+datasetName)->Fill(zdcEnergySumPos);
+  hists.at("zdc_sum_energy_neg_"+suffix+datasetName)->Fill(zdcEnergySumNeg);
+  
 }
 
 void fillDiphotonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
@@ -376,20 +417,38 @@ void fillTracksHists(Event &event, const map<string, TH1D*> &hists, EDataset dat
 void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset dataset)
 {
   string name = datasetName.at(dataset);
+  
   int cutThrough=0;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 0
   
   if(checkTriggers && !event.HasTrigger(kDoubleEG2noHF)) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 1
   
-  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 0) return;
+  if(event.GetPhysObjects(kGoodGeneralTrack).size() > config.params("maxNtracks")) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 2
   
-  if(event.GetPhysObjects(kPixelTrack).size() != 0) return;
+  if(event.GetPhysObjects(kPixelTrack).size() > config.params("maxNpixelTracks")) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 3
   
   if(event.GetNpixelRecHits() > config.params("maxNpixelRecHits")) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 4
+  
+   double zdcEnergySum = 0;
+   double zdcEnergySumPos = 0;
+   double zdcEnergySumNeg = 0;
+   
+   for(auto zdc : event.GetPhysObjects(kZDC)){
+     zdcEnergySum += zdc->GetEnergy();
+     
+     if(zdc->GetZside() > 0) zdcEnergySumPos += zdc->GetEnergy();
+     else                    zdcEnergySumNeg += zdc->GetEnergy();
+   }
+  
+  if(zdcEnergySum > config.params("maxTotalZDCenergy")) return;
+  if(zdcEnergySumPos > config.params("maxTotalZDCenergyPerSide") &&
+     zdcEnergySumNeg > config.params("maxTotalZDCenergyPerSide")) return;
+  
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 5
   
   if(saveCalosFailingNEE){
     map<ECaloType, bool> failingCalo;
@@ -402,24 +461,24 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   else{
     if(event.HasAdditionalTowers()) return;
   }
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 5
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 6
   
   if(saveTriphotonHists) fillTriphotonHists(event, hists, name);
   
   if(event.GetPhysObjects(kGoodPhoton).size() != 2) return;
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 6
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 7
   
   TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*event.GetPhysObjects(kGoodPhoton)[0],
                                                             *event.GetPhysObjects(kGoodPhoton)[1]);
   
   if(diphoton.M() < config.params("diphotonMinMass")) return;
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 7
-  
-  if(diphoton.Pt() > config.params("diphotonMaxPt")) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 8
   
-  if(fabs(diphoton.Rapidity()) > config.params("diphotonMaxRapidity")) return;
+  if(diphoton.Pt() > config.params("diphotonMaxPt")) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 9
+  
+  if(fabs(diphoton.Rapidity()) > config.params("diphotonMaxRapidity")) return;
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 10
   
   double aco = physObjectProcessor.GetAcoplanarity(*event.GetPhysObjects(kGoodPhoton)[0],
                                                    *event.GetPhysObjects(kGoodPhoton)[1]);
@@ -431,9 +490,11 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   }
   else{
     suffix = "low_aco";
-    hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 10
+    hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 11
   }
   
+  fillNobjectsHists(  event, hists, name, suffix);
+  fillNobjectsHists(  event, hists, name, "all");
   fillPhotonHists(  event, hists, name, suffix);
   fillPhotonHists(  event, hists, name, "all");
   fillDiphotonHists(event, hists, name, suffix);
@@ -441,6 +502,9 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   fillNoiseHists(   event, hists, name, "lbl", suffix);
   fillNoiseHists(   event, hists, name, "lbl", "all");
   fillTracksHists(  event, hists, dataset, "pass_lbl");
+
+  // we found a good event!! cool, dump it to the log
+  Log(2) << "PASSING! Run=" << event.GetRunNumber() << " LS=" << event.GetLumiSection() << " Evt=" << event.GetEventNumber() << " aco=" << aco << "\n";
 }
 
 void fillCHEhistograms(Event &event, const map<string, TH1D*> &hists, EDataset dataset)
@@ -576,6 +640,7 @@ int main(int argc, char* argv[])
         fillLbLHistograms(*event, hists, dataset);
         fillCHEhistograms(*event, hists, dataset);
         fillQEDHistograms(*event, hists, dataset);
+        fillZDCHists(*event, hists, datasetName.at(dataset), "all");
       }
       
       outFile->cd();
@@ -620,6 +685,7 @@ int main(int argc, char* argv[])
       fillLbLHistograms(*event, hists, dataset);
       fillCHEhistograms(*event, hists, dataset);
       fillQEDHistograms(*event, hists, dataset);
+      fillZDCHists(*event, hists, sampleName, "all");
     }
     
     outFile->cd();

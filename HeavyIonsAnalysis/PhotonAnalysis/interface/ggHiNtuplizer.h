@@ -27,6 +27,7 @@
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
+
 #include "DataFormats/TrackReco/interface/DeDxHitInfo.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
@@ -52,8 +53,8 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    void fillPhotons      (const edm::Event&, const edm::EventSetup&, reco::Vertex& pv);
    void fillMuons        (const edm::Event&, const edm::EventSetup&, reco::Vertex& pv);
    void fillGeneralTracks(const edm::Event&, const edm::EventSetup&, reco::Vertex& pv);
+   void fillPixelTracks  (const edm::Event&, const edm::EventSetup&, reco::Vertex& pv);
    void fillCaloTower    (const edm::Event&, const edm::EventSetup&, reco::Vertex& pv);
-   
 
    // Et and pT sums
    float getGenCalIso(edm::Handle<std::vector<reco::GenParticle> >&, reco::GenParticleCollection::const_iterator, float dRMax, bool removeMu, bool removeNu);
@@ -76,6 +77,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    bool doRecHitsEE_;
    bool doSuperClusters_;
    bool doGeneralTracks_;
+   bool doPixelTracks_;
    bool doCaloTower_;
    bool doTrackerHits_;
 
@@ -104,6 +106,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    edm::EDGetTokenT<EcalRecHitCollection> recHitsEB_;
    edm::EDGetTokenT<EcalRecHitCollection> recHitsEE_;
    edm::EDGetTokenT<reco::TrackCollection>    generalTracks_;
+   edm::EDGetTokenT<reco::TrackCollection>    pixelTracks_;
    edm::EDGetTokenT<edm::SortedCollection<CaloTower>>        CaloTowerCollection_;
    edm::EDGetTokenT<std::vector<reco::DeDxHitInfo>>          DeDxHitInfoCollection_;
    edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>>    PixelClustersCollection_;
@@ -578,7 +581,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
     std::vector<float> trkchi2_;  
     std::vector<float> trkd0_;                         
     std::vector<float> trkdxy_;                      
-    std::vector<float> trkdz_;
+    std::vector<float> trkdz_;  
     std::vector<float> trkdxyBS_;
     std::vector<float> trkdzBS_;
     std::vector<float> trkdxyError_;  
@@ -588,7 +591,28 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
     std::vector<int>   trkPurity_;     
 
    Int_t nDisplacedTracks_;
-  
+
+    // reco::pixel track     
+    Int_t         nPix_;
+    std::vector<float> pixPt_;            
+    std::vector<float> pixP_;            
+    std::vector<float> pixEta_;           
+    std::vector<float> pixPhi_;     
+    std::vector<int>   pixcharge_; 
+    std::vector<float> pixvx_;            
+    std::vector<float> pixvy_;           
+    std::vector<float> pixvz_;     
+    std::vector<float> pixnormchi2_;     
+    std::vector<float> pixchi2_;  
+    std::vector<float> pixd0_;                         
+    std::vector<float> pixdxy_;                      
+    std::vector<float> pixdz_;  
+    std::vector<float> pixdxyError_;  
+    std::vector<float> pixdzError_;   
+    std::vector<int>   pixValidHits_;           
+    std::vector<int>   pixMissHits_;   
+    std::vector<int>   pixPurity_;     
+
    // reco::calotower
    Int_t          nTower_;
    Int_t          nTower_barrel_;

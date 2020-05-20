@@ -1,0 +1,73 @@
+>>> printCompilerInfo(): Info: this executable was compiled in '/Users/Jeremi/Documents/Physics/Fellow/lightByLight2018/STARlight_ALP/trunk' on May 12 2020 15:13:24 by compiler 4.2.1 Compatible Apple LLVM 11.0.0 (clang-1100.0.33.17)
+>>> printSvnVersion(): Info: subversion repository revision is 'Unversioned directory'
+>>> inputParameters::configureFromFile(): Info: successfully read input parameters from 'slight.in'
+>>> bool inputParameters::configureFromFile(const std::string &) [/Users/Jeremi/Documents/Physics/Fellow/lightByLight2018/STARlight_ALP/trunk/src/inputParameters.cpp:332]: 
+Warning: starlight parameters:
+    base file name  ...................... 'slight'
+    beam 1 atomic number ................... 82
+    beam 1 atomic mass number .............. 208
+    beam 2 atomic number ................... 82
+    beam 2 atomic mass number .............. 208
+    Lorentz gamma of beams in CM frame ..... 0
+    mass W of produced hadronic system ..... 5 < W < 205 GeV/c^2
+    # of W bins ............................ 200
+    maximum absolute value for rapidity .... 8
+    # of rapidity bins ..................... 80
+    cut in pT............................... yes
+        minumum pT.......................... 2 GeV/c
+        maximum pT.......................... 9999 GeV/c
+    cut in eta.............................. yes
+        minumum eta......................... -3
+        maximum eta......................... 3
+    production mode ........................ 1
+    number of events to generate ........... 0
+    PDG ID of produced particle ............ 88
+    seed for random generator .............. 5574533
+    breakup mode for beam particles ........ 5
+    interference enabled ................... no
+    Quantum Glauber parameter...............  0
+    Impulse VM parameter....................  0
+
+Rapidity beam 1: 8.58523, rapidity beam 2: -8.58523, rapidity CMS system: 0, beam gamma in CMS: 2676
+>>> inputParameters::init(): Info: using the following starlight parameters:
+    base file name  ...................... 'slight'
+    beam 1 atomic number ................... 82
+    beam 1 atomic mass number .............. 208
+    beam 2 atomic number ................... 82
+    beam 2 atomic mass number .............. 208
+    Lorentz gamma of beams in CM frame ..... 2676
+    mass W of produced hadronic system ..... 5 < W < 205 GeV/c^2
+    # of W bins ............................ 200
+    maximum absolute value for rapidity .... 8
+    # of rapidity bins ..................... 80
+    cut in pT............................... yes
+        minumum pT.......................... 2 GeV/c
+        maximum pT.......................... 9999 GeV/c
+    cut in eta.............................. yes
+        minumum eta......................... -3
+        maximum eta......................... 3
+    production mode ........................ 1
+    number of events to generate ........... 0
+    PDG ID of produced particle ............ 88
+    seed for random generator .............. 5574533
+    breakup mode for beam particles ........ 5
+    interference enabled ................... no
+    Quantum Glauber parameter...............  0
+    Impulse VM parameter....................  0
+
+#########################################
+ Initialising Starlight version: trunk...
+#########################################
+
+>>> beamBeamSystem::generateBreakupProbabilities(): Info: Requiring no hadronic interactions. 
+>>> starlight::luminosityTableIsValid(): Info: using random seed = 5574533
+>>> starlight::init(): Info: creating luminosity table for photon-photon channel
+>>> beamBeamSystem::generateBreakupProbabilities(): Info: Requiring no hadronic interactions. 
+ This is f2, f2prim, rho^0 rho^0, or axion 
+SINGLE MESON pid test: 88
+MASS  90.000
+WIDTH  0.000
+
+Total cross section: 231.029 picobarn.
+
+>>> starlightStandalone::run(): Info: generating events:

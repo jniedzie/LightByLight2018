@@ -28,6 +28,7 @@ energyLeft(-9999),
 energyRight(-9999),
 
 etaWidth(-9999),
+sigmaEta2012(-9999),
 phiWidth(-9999),
 hOverE(-9999),
 
@@ -52,7 +53,8 @@ neutralIso(-9999),
 relIsoWithEA(-9999),
 dEtaSeed(-9999),
 
-hasConversionTracks(false)
+hasConversionTracks(false),
+zSide(-9999)
 {
   
 }
@@ -120,9 +122,14 @@ double PhysObject::GetMomentum()  const
 
 double PhysObject::GetEtaWidth()  const
 {
-  if(etaWidth < 0)
-    Log(1)<<"WARNING - carefull, etaWidth probably not set\n";
+  if(etaWidth < 0) Log(1)<<"WARNING - carefull, etaWidth probably not set\n";
   return etaWidth;
+}
+
+double PhysObject::GetSigmaEta2012()  const
+{
+  if(sigmaEta2012 < 0) Log(1)<<"WARNING - carefull, sigmaEta2012 probably not set\n";
+  return sigmaEta2012;
 }
 
 double PhysObject::GetPhiWidth()  const
@@ -345,4 +352,10 @@ double PhysObject::GetNeutralIso() const
 bool PhysObject::IsConverted() const
 {
   return hasConversionTracks;
+}
+
+int PhysObject::GetZside() const
+{
+  if(zSide < -999) Log(1)<<"WARNING - carefull, zSide probably not set\n";
+  return zSide;
 }

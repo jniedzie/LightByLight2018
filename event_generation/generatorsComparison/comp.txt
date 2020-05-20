@@ -1,0 +1,191 @@
+================================================
+
+LbL: 		
+
+|y|<8, 
+|eta|<5,  
+2.5<m<102.5, 	
+no pT cut
+
+	total sc: 2.59 μb
+	total madgraph: 1.85 μb
+	ratio madgraph/sc: 0.71
+
+================================================
+
+CEP: 		
+
+|y|<8, 
+|eta|<5,  
+2.5<m<102.5, 	
+no pT cut
+
+	total sc: 5.8 nb
+	total superchic 2.0: 15 μb
+	ratio sc2/sc: 
+
+================================================
+
+QED_q1: (final number from paper, my config reproducing results from the paper)		
+
+5<m<105, 
+|y|<9,
+no pt cut (>0 for sc)
+no eta cut (|eta|<10 for sc, checked also |eta|<20 for sc and got the same result)
+
+
+	total sc: 5.866 mb ± 0.003 mb
+	total sl: 4.819 mb (4.819 mb)
+	ratio sl/sc: 0.82
+
+================================================
+
+QED_q2: (identical to gen-level plots from AN)		
+
+3<m<103, 
+|y|<8,
+pt>1.0
+|eta|<10
+
+
+	total sc: 2.517 mb ± 0.001 mb
+	total sl: 20.602 mb (2.256 mb)
+	ratio sl/sc: 0.90
+
+================================================
+
+set1: 		
+
+|y|<5, 
+|eta|<5,  
+2.5<m<102.5, 	
+no pT cut
+
+	total sc: 8.91 ± 0.04 mb
+	total sl: 34.29 mb (13.18 mb)
+	ratio sl/sc: 1.48
+
+================================================
+
+set2
+
+|y|<5, 
+|eta|<10, 
+3<m<103, 	
+pT>1
+
+	total sc:	2.53 ± 0.01 mb
+	total sl:	20.63 mb (2.19 mb)
+	ratio sl/sc: 0.86
+
+================================================
+
+set3 (as set2, but with 10K events): 
+
+|y|<5, 
+|eta|<10, 
+3<m<103, 	
+pT>1
+
+	total sc:	2.53 ± 0.01 mb
+	total sl:	20.63 mb (2.26 mb)
+	ratio sl/sc: 0.89
+
+
+================================================
+
+set4
+
+|y|<5,
+|eta|<2.4,
+5<m<155,
+pT>2
+
+	total sc:	0.325 ± 0.001 mb
+	total sl:	4.733 mb (0.276 mb)
+	ratio sl/sc: 0.85
+
+	integrals ratio sl/sc: 0.88
+
+================================================
+
+set5: 		
+
+|y|<5, 
+|eta|<5,  
+2.5<m<102.5, 	
+pT>0.1
+
+	total sc: 8.55 ± 0.04 mb
+	total sl: 34.286 mb (10.846 mb)
+	ratio sl/sc: 1.27
+
+================================================
+
+set6: 		
+
+|y|<5, 
+|eta|<5,  
+2.5<m<102.5, 	
+pT>0.3
+
+	total sc: 7.18 ± 0.04 mb
+	total sl: 34.29 mb (7.66 mb)
+	ratio sl/sc: 1.07
+
+================================================
+
+set7: 		
+
+|y|<5, 
+|eta|<5,  
+2.5<m<102.5, 	
+pT>0.5
+
+	total sc: 5.83 ± 0.03 mb
+	total sl: 34.29 mb (5.78 mb)
+	ratio sl/sc: 0.99
+
+================================================
+
+set8: 		
+
+|y|<5, 
+|eta|<5,  
+2.5<m<102.5, 	
+pT>1.0
+
+	total sc: 3.38 ± 0.02 mb
+	total sl: 34.29 mb (3.01 mb)
+	ratio sl/sc:0.89
+
+================================================
+
+set9: (close to cuts from paper, but with loose eta cut)		
+
+|y|<8, 
+|eta|<5,  
+5<m<105, 	
+pT>0.0
+
+	total sc: 
+	total sl: 4.819 mb (4.819 mb)
+	ratio sl/sc:
+
+
+
+
+pT cut: 	0.0,	0.1,	0.3,	0.5,	1.0
+xsec SC:	8.91,	8.55,	7.18,	5.83,	3.38
+xsec SL:	13.18,	10.85,	7.66,	5.78,	3.01
+
+ratio SL/SC: 	1.48,	1.27,	1.07,	0.99,	0.89
+
+
+================================================
+
+
+
+
+
+
