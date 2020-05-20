@@ -15,8 +15,8 @@ ConfigManager::ConfigManager(string path)
   
   string line;
   while (getline(infile, line)){
-    if(line.find("#") == 0) continue;
-    if(line.find("*") == 0) continue;
+    if(line.find("#") != string::npos) continue;
+    if(line.find("*") != string::npos) continue;
     
     if(line.find_first_not_of(' ') == string::npos) continue;
     
