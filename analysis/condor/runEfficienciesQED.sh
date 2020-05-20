@@ -30,4 +30,4 @@ fi
 mkdir -p $outputPath
 output="${outputPath}/efficienciesQED_${1}.root"
 
-/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/getEfficienciesQED $configPath $inputPathData $inputPathQED_SC $inputPathQED_SL $output
+/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/getEfficienciesQED $configPath $inputPath $output $sampleName
