@@ -18,19 +18,28 @@ bool checkTriggers = false;
 
 int nThreePhotonEvents = 0;
 
+bool endsWith(const std::string &mainStr, const std::string &toMatch)
+{
+if(mainStr.size() >= toMatch.size() &&
+mainStr.compare(mainStr.size() - toMatch.size(), toMatch.size(), toMatch) == 0)
+return true;
+else
+return false;
+}
+
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
   kData,
 };
 
 vector<string> suffixes = {
-  "TT"
+  "all"
 };
 
 vector<tuple<string, int, double, double>> histParams = {
   // title                   nBins min   max
   {"dilepton_acoplanarity"       , 200 , 0   , 1.0   },
-  {"lepton_et"          , 100 , 0   , 100.0 },
+  {"lepton_pt"          , 100 , 0   , 100.0 },
   {"lepton_eta"         , 200   ,-2.4 , 2.4   },
   {"lepton_phi"         , 200   ,-4.0 , 4.0   },
   {"dilepton_mass"      , 2000  , 0   , 200.0 },
@@ -74,7 +83,6 @@ vector<tuple<string, int, double, double>> histParams = {
 
 void fillMuonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
 {
-  if(suffix != "") suffix += "_";
   for(auto muon : event.GetPhysObjects(kMuon)){
     hists.at("lepton_pt_" +suffix+datasetName)->Fill(muon->GetPt());
     hists.at("lepton_eta_"+suffix+datasetName)->Fill(muon->GetEta());
@@ -84,7 +92,6 @@ void fillMuonHists(Event &event, const map<string, TH1D*> &hists, string dataset
 
 void fillDimuonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
 {
-  if(suffix != "") suffix += "_";
   
   TLorentzVector dimuon = physObjectProcessor.GetDimuon(*event.GetPhysObjects(kMuon)[0],
                                                                 *event.GetPhysObjects(kMuon)[1]);
@@ -99,16 +106,11 @@ void fillDimuonHists(Event &event, const map<string, TH1D*> &hists, string datas
 void fillTracksHists(Event &event, const map<string, TH1D*> &hists, EDataset dataset, string suffix="")
 {
   string name = datasetName.at(dataset);
-  if(suffix != "") suffix += "_";
   
   int nTracks = (int)event.GetPhysObjects(kGeneralTrack).size();
   
   hists.at("nTracks_"+suffix+name)->Fill(nTracks);
   
-  hists.at("nDisplacedTracks_"+suffix+name)->Fill(event.GetNdisplacedTracks());
-  hists.at("nDedxHits_"+suffix+name)->Fill(event.GetNdedxHits());
-  hists.at("nPixelClusters_"+suffix+name)->Fill(event.GetNpixelClusters());
-  hists.at("nPixelRecHits_"+suffix+name)->Fill(event.GetNpixelRecHits());
   
   for(auto track : event.GetPhysObjects(kGeneralTrack)){
     double trackPt = track->GetPt();
@@ -153,20 +155,20 @@ void fillTracksHists(Event &event, const map<string, TH1D*> &hists, EDataset dat
   
 }
 
-void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, EDataset dataset)
+void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, EDataset dataset, vector<string> suffix_list)
 {
   string name = datasetName.at(dataset);
-  
   int cutThrough=0;
   
   double aco = physObjectProcessor.GetAcoplanarity(*event.GetPhysObjects(kMuon)[0],
                                                    *event.GetPhysObjects(kMuon)[1]);
-  
-  hists.at("dilepton_acoplanarity"+name)->Fill(aco);
-  
-  fillMuonHists(  event, hists, name, "all");
-  fillDimuonHists(event, hists, name, "all");
-  fillTracksHists(    event, hists, dataset, "all");
+  for(string suffix : suffix_list){
+  if(suffix != "") suffix += "_";  
+  hists.at("dilepton_acoplanarity_"+suffix+name)->Fill(aco);
+  fillMuonHists(  event, hists, name, suffix);
+  fillDimuonHists(event, hists, name, suffix);
+  fillTracksHists(    event, hists, dataset, suffix);
+  }
 }
 
 /// Creates histograms, cut through and event counters for given dataset name, for each
@@ -177,6 +179,7 @@ void InitializeHistograms(map<string, TH1D*> &hists, string datasetType, string 
   
   for(auto &[histName, nBins, min, max] : histParams){
     string title = histName + suffix + "_" + datasetType;
+
     if(hists.find(title) != hists.end()) continue;
     hists[title] = new TH1D(title.c_str(), title.c_str(), nBins, min, max);
   }
@@ -185,26 +188,25 @@ void InitializeHistograms(map<string, TH1D*> &hists, string datasetType, string 
 int main(int argc, char* argv[])
 {
   if(argc != 1 && argc != 5){
-    Log(0)<<"This app requires 0 or 4 parameters.\n";
-    Log(0)<<"./prepareBasicPlots configPath inputPath outputPath datasetName[Data|QED_SC|QED_SL|LbL|CEP]\n";
+    cout<<"This app requires 0 or 4 parameters.\n";
+    cout<<"./prepareBasicPlots configPath inputPath outputPath datasetName[Data|QED_SC|QED_SL|LbL|CEP]\n";
     exit(0);
   }
+
   string inputPath = "";
   string sampleName = "";
-  
+ 
   if(argc == 5){
     configPath = argv[1];
     inputPath  = argv[2];
     outputPath = argv[3];
     sampleName = argv[4];
   }
+
   config = ConfigManager(configPath);
-  
+
   map<string, TH1D*> hists;
-  cout << "TEST 1" << endl;  
-  TFile *outFile = new TFile(outputPath.c_str(), "update");
-  
- cout << "TEST 2" << endl;
+  TFile *outFile = new TFile(outputPath.c_str(), "recreate");
   
   
   if(inputPath==""){
@@ -214,17 +216,14 @@ int main(int argc, char* argv[])
       }
     }
     
- cout << "TEST 3" << endl;
 
     for(auto dataset : datasetsToAnalyze){
       string name = datasetName.at(dataset);
       
       Log(0)<<"Creating "<<name<<" plots\n";
 
- cout << "TEST 4" << endl;
 
       auto events = make_unique<EventProcessor>(inFileNames.at(dataset), dataset);
- cout << "TEST 5" << endl;
 
       for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
         if(iEvent%1000 == 0)  Log(1)<<"Processing event "<<iEvent<<"\n";
@@ -236,7 +235,7 @@ int main(int argc, char* argv[])
 
         
  
-        fillQEDHistograms(*event, hists, dataset);
+        fillQEDHistograms(*event, hists, dataset, suffixes);
       }
       
       outFile->cd();
@@ -247,48 +246,86 @@ int main(int argc, char* argv[])
   }
 
   else{
- cout << "TEST 6" << endl;
+    if (endsWith(inputPath, "root")){
+		cout << "root file" << endl;
+		EDataset dataset = nDatasets;
+		   
+		if(sampleName == "Data")    dataset = kData;
+		if(sampleName == "QED_SC")  dataset = kMCqedSC;
+		if(sampleName == "QED_SL")  dataset = kMCqedSL;
+		if(sampleName == "LbL")     dataset = kMClbl;
+		if(sampleName == "CEP")     dataset = kMCcep;
+		   
+		auto events = make_unique<EventProcessor>(inputPath, dataset);
 
-    EDataset dataset = nDatasets;
-       
-    if(sampleName == "Data")    dataset = kData;
-    if(sampleName == "QED_SC")  dataset = kMCqedSC;
-    if(sampleName == "QED_SL")  dataset = kMCqedSL;
-    if(sampleName == "LbL")     dataset = kMClbl;
-    if(sampleName == "CEP")     dataset = kMCcep;
-       
- cout << "TEST 8" << endl;
+		for(string suffix : suffixes){
+		  InitializeHistograms(hists, sampleName, suffix);
+		}
+		
 
-    auto events = make_unique<EventProcessor>(inputPath, dataset);
- cout << "TEST 9" << endl;
+		if(dataset == nDatasets){
+		  Log(0)<<"ERROR -- unknown dataset name provided: "<<sampleName<<"\n";
+		  exit(0);
+		}
+		
+		for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
+		  if(iEvent%1000 == 0)  Log(1)<<"Processing event "<<iEvent<<"\n";
+		  if(iEvent%10000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
+		  if(iEvent >= config.params("maxEvents")) break;
+		  
+		  auto event = events->GetEvent(iEvent);
+		  
+		  // run this here just to save electron cut flow hist
+		  fillQEDHistograms(*event, hists, dataset, suffixes);
+		}
+	}
+    if (endsWith(inputPath, "txt")){
+		cout << "txt file" << endl;
+		EDataset dataset = nDatasets;
+		   
+		if(sampleName == "Data")    dataset = kData;
+		if(sampleName == "QED_SC")  dataset = kMCqedSC;
+		if(sampleName == "QED_SL")  dataset = kMCqedSL;
+		if(sampleName == "LbL")     dataset = kMClbl;
+		if(sampleName == "CEP")     dataset = kMCcep;
+		ifstream file(inputPath);
+		string inputFile;
+		while(getline(file, inputFile)){
+			auto events = make_unique<EventProcessor>(inputFile, dataset);
 
-    for(string suffix : suffixes){
-      InitializeHistograms(hists, sampleName, suffix);
-    }
-    
- cout << "TEST 10" << endl;
+			for(string suffix : suffixes){
+			  InitializeHistograms(hists, sampleName, suffix);
+			}
+			
 
-    if(dataset == nDatasets){
-      Log(0)<<"ERROR -- unknown dataset name provided: "<<sampleName<<"\n";
-      exit(0);
-    }
-    
-    for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
-      if(iEvent%1000 == 0)  Log(1)<<"Processing event "<<iEvent<<"\n";
-      if(iEvent%10000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
-      if(iEvent >= config.params("maxEvents")) break;
-      
-      auto event = events->GetEvent(iEvent);
-      
-      // run this here just to save electron cut flow hist
-      fillQEDHistograms(*event, hists, dataset);
-    }
-    
+			if(dataset == nDatasets){
+			  Log(0)<<"ERROR -- unknown dataset name provided: "<<sampleName<<"\n";
+			  exit(0);
+			}
+			
+			for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
+			  if(iEvent%1000 == 0)  Log(1)<<"Processing event "<<iEvent<<"\n";
+			  if(iEvent%10000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
+			  if(iEvent >= config.params("maxEvents")) break;
+			  
+			  auto event = events->GetEvent(iEvent);
+			  
+			  // run this here just to save electron cut flow hist
+			  fillQEDHistograms(*event, hists, dataset, suffixes);
+			}
+		}
+	}
+	if (!(endsWith(inputPath, "txt")) && !(endsWith(inputPath, "root"))){
+		cout << "not value input file" << endl;
+		exit(0);
+		}
+	
+    cout << "Writing Histograms" <<endl;
     outFile->cd();
     for(auto &[histName, hist] : hists) hist->Write();
   }
 
   outFile->Close();
-  
+  cout << "Finished" << endl;
 }
 
