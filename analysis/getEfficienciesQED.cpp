@@ -11,39 +11,6 @@
 #include "EventDisplay.hpp"
 #include "Logger.hpp"
 
-string configPath = "configs/efficiencies.md";
-//string configPath = "/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/efficiencies.md";
-//string outputPath = "results/efficienciesQED_test.root";
-string outputPath = "results/efficienciesQED_trigger_EG3_or_EG5.root";
-
-
-
-// Only those datasets will be analyzed
-const vector<EDataset> datasetsToAnalyze = {
-//  kData,
-//  kData_SingleEG3,
-//  kData_recoEff,
-  kData_triggerEff,
-//  kData_HFveto,
-//  kData_exclusivity,
-//  kData_LbLsignal,
-//  kData_QEDsignal,
-//  kMCqedSC,
-//  kMCqedSC_SingleEG3,
-//  kMCqedSC_recoEff,
-  kMCqedSC_triggerEff,
-//  kMCqedSC_HFveto,
-//  kMCqedSC_exclusivity,
-//  kMCqedSC_signal,
-//  kMCqedSL
-};
-
-// Select which efficiencies to calculate
-bool doRecoEfficiency    = false;
-bool doTriggerEfficiency = true;
-bool doHFvetoEfficiency  = false;
-bool doCHEefficiency     = false;
-bool doNEEefficiency     = false;
 
 // Names of efficiency histograms to create and save
 vector<string> histParams = {
@@ -82,7 +49,6 @@ vector<string> histParams = {
   "neutral_exclusivity_eff_num",
   "neutral_exclusivity_eff_den",
 };
-
 
 map<string, int> matched;
 map<string, float> acoplanarity;
@@ -523,10 +489,10 @@ void PrintAndSaveResults(TFile *outFile, map<string, TH1D*> &hists,
   outFile->cd();
   
   for(auto histName : histParams){
-    if(!doRecoEfficiency    && histName.find("reco_id_eff") != string::npos)              continue;
-    if(!doTriggerEfficiency && histName.find("trigger") != string::npos)                  continue;
-    if(!doCHEefficiency     && histName.find("charged_exclusivity_eff") != string::npos)  continue;
-    if(!doNEEefficiency     && histName.find("neutral_exclusivity_eff") != string::npos)  continue;
+    if(!config.params("doRecoEfficiency")    && histName.find("reco_id_eff") != string::npos)              continue;
+    if(!config.params("doTriggerEfficiency") && histName.find("trigger") != string::npos)                  continue;
+    if(!config.params("doCHEefficiency")     && histName.find("charged_exclusivity_eff") != string::npos)  continue;
+    if(!config.params("doNEEefficiency")     && histName.find("neutral_exclusivity_eff") != string::npos)  continue;
     
     string title = histName + "_" + datasetType;
     hists[title]->Write();
@@ -534,25 +500,25 @@ void PrintAndSaveResults(TFile *outFile, map<string, TH1D*> &hists,
   
   int nTag=0, nProbe=0;
   
-  if(doRecoEfficiency){
+  if(config.params("doRecoEfficiency")){
     nTag    = hists["reco_id_eff_den_"+datasetType]->GetBinContent(1);
     nProbe  = hists["reco_id_eff_num_"+datasetType]->GetBinContent(1);
     Log(0)<<"Reco N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<"\n";
     Log(0)<<" efficiency: "; PrintEfficiency(nProbe, nTag);
   }
-  if(doHFvetoEfficiency){
+  if(config.params("doHFvetoEfficiency")){
     nTag    = hists["trigger_HFveto_eff_den_"+datasetType]->GetBinContent(1);
     nProbe  = hists["trigger_HFveto_eff_num_"+datasetType]->GetBinContent(1);
     Log(0)<<"HF veto N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<"\n";
     Log(0)<<" efficiency: "; PrintEfficiency(nProbe, nTag);
   }
-  if(doCHEefficiency){
+  if(config.params("doCHEefficiency")){
     nTag    = hists["charged_exclusivity_eff_den_"+datasetType]->GetBinContent(1);
     nProbe  = hists["charged_exclusivity_eff_num_"+datasetType]->GetBinContent(1);
     Log(0)<<"Charged exclusivity N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<"\n";
     Log(0)<<" efficiency: "; PrintEfficiency(nProbe, nTag);
   }
-  if(doNEEefficiency){
+  if(config.params("doNEEefficiency")){
     nTag    = hists["neutral_exclusivity_eff_den_"+datasetType]->GetBinContent(1);
     nProbe  = hists["neutral_exclusivity_eff_num_"+datasetType]->GetBinContent(1);
     Log(0)<<"Neutral N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<"\n";
@@ -567,62 +533,58 @@ void PrintAndSaveResults(TFile *outFile, map<string, TH1D*> &hists,
 }
 
 /// Checks that number of arguments provided is correct and sets corresponding variables
-void ReadInputArguments(int argc, char* argv[], map<EDataset, string> &inputPaths)
+void ReadInputArguments(int argc, char* argv[],
+                        string &configPath, string &inputPath, string &outputPath, string &sampleName)
 {
-  if(argc != 1 && argc != 6){
-    Log(0)<<"This app requires 0 or 5 parameters.\n";
-    Log(0)<<"./getEfficienciesData configPath inputPathData inputPathQED_SC inputPathQED_SL outputPath\n";
+  if(argc != 5){
+    Log(0)<<"This app requires 4 parameters:\n";
+    Log(0)<<"./getEfficienciesQED configPath inputPath outputPath datasetName[Data|QED_SC|QED_SL|LbL|CEP]\n";
     exit(0);
   }
-  if(argc == 6){
-    configPath           = argv[1];
-    inputPaths[kData]    = argv[2];
-    inputPaths[kMCqedSC] = argv[3];
-    inputPaths[kMCqedSL] = argv[4];
-    outputPath           = argv[5];
-  }
+
+  configPath = argv[1];
+  inputPath  = argv[2];
+  outputPath = argv[3];
+  sampleName = argv[4];
 }
 
 /// Application starting point
 int main(int argc, char* argv[])
 {
-  map<EDataset, string> inputPaths;
-  ReadInputArguments(argc, argv, inputPaths);
+  string configPath, inputPath, outputPath, sampleName;
+  ReadInputArguments(argc, argv, configPath, inputPath, outputPath, sampleName);
+
   config = ConfigManager(configPath);
+  EDataset dataset = datasetForName.at(sampleName);
   
   map<string, TH1D*> hists;
+  InitializeHistograms(hists, sampleName);
+  
   map<string, TTree*> triggerTrees;
+  InitializeTriggerTrees(triggerTrees, sampleName);
   
   TFile *outFile = new TFile(outputPath.c_str(), "recreate");
+  outFile->mkdir(("triggerTree_"+sampleName).c_str());
   
-  // Loop over all required datasets
-  for(EDataset dataset : datasetsToAnalyze){
-    string name = datasetName.at(dataset);
-    outFile->mkdir(("triggerTree_"+name).c_str());
+  auto events = make_unique<EventProcessor>(inputPath, dataset);
+  
+  // Loop over events
+  for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
+    if(iEvent%1000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
+    if(iEvent >= config.params("maxEvents")) break;
     
-    InitializeTriggerTrees(triggerTrees, name);
-    InitializeHistograms(hists, name);
+    auto event = events->GetEvent(iEvent);
     
-    auto events = make_unique<EventProcessor>(argc == 6 ? inputPaths[dataset] : inFileNames.at(dataset), dataset);
-    
-    // Loop over events
-    for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
-      if(iEvent%1000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
-      if(iEvent >= config.params("maxEvents")) break;
-      
-      auto event = events->GetEvent(iEvent);
-      
-      if(doRecoEfficiency)    CheckRecoEfficiency(*event, hists, name);
-      if(doTriggerEfficiency) CheckTriggerEfficiency(*event, triggerTrees, hists, name);
-      if(doHFvetoEfficiency)  CheckTriggerHFvetoEfficiency(*event, hists, name);
-      if(doCHEefficiency)     CheckCHEefficiency(*event, hists, name);
-      if(doNEEefficiency)     CheckNEEefficiency(*event, hists, name);
-    }
-    
-    PrintAndSaveResults(outFile, hists, triggerTrees, name);
+    if(config.params("doRecoEfficiency"))    CheckRecoEfficiency(*event, hists, sampleName);
+    if(config.params("doTriggerEfficiency")) CheckTriggerEfficiency(*event, triggerTrees, hists, sampleName);
+    if(config.params("doHFvetoEfficiency"))  CheckTriggerHFvetoEfficiency(*event, hists, sampleName);
+    if(config.params("doCHEefficiency"))     CheckCHEefficiency(*event, hists, sampleName);
+    if(config.params("doNEEefficiency"))     CheckNEEefficiency(*event, hists, sampleName);
   }
+  
+  PrintAndSaveResults(outFile, hists, triggerTrees, sampleName);
+
   outFile->Close();
   
   return 0;
 }
-

@@ -3,6 +3,13 @@
 ### Verbosity level (0: critical errors only, 1: errors and warnings, 2: full debug log):
 verbosityLevel: 0
 
+### Select which efficiencies should be calculated:
+doRecoEfficiency:       1
+doTriggerEfficiency:    1
+doHFvetoEfficiency:   1
+doCHEefficiency:        1
+doNEEefficiency:        1
+
 ### Max number of events to analyze
 maxEvents: 9999999
 
@@ -11,9 +18,6 @@ maxDeltaEtaEB:  0.15
 maxDeltaPhiEB:  0.7
 maxDeltaEtaEE:  0.15
 maxDeltaPhiEE:  0.4
-
-### Don't look at towers that are in very noisy region of EE
-maxEtaEEtower:      2.4
 
 ### Charged exclusivity cuts (GeV)
 maxNtracks:                             0
@@ -41,7 +45,7 @@ pixelTrackMaxChi2:                 999999
 ### ZDC cuts
 maxZDCenergy:                       999999
 maxTotalZDCenergy:                999999
-maxTotalZDCenergyPerSide:    999999
+maxTotalZDCenergyPerSide:    10000
 
 ### Max ΔR for matching for reco+ID efficiency
 maxDeltaR:              0.3
@@ -87,10 +91,13 @@ ecalCrackMax: 1.566
 ### Exclude hole in ECal (HEM issue, only in negative part of EE)
 ecalHEMmin:  -1.5
 ecalHEMmax: -1.0
- 
+
+### Don't look at towers that are in very noisy region of EE
+maxEtaEEtower:      2.4
+
 ### Calorimeter noise thresolds (GeV)
-noiseThresholdEB:        2.0
-noiseThresholdEE:        7.6
+noiseThresholdEB:        0.7
+noiseThresholdEE:        7.5
 noiseThresholdHB:        2.8
 noiseThresholdHE:        2.4
 noiseThresholdHFp:      7.2

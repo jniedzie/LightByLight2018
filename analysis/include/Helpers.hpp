@@ -229,6 +229,14 @@ const map<EDataset, string> datasetDescription = {
   {kMCcep               , "CEP MC"        },
 };
 
+const map<string, EDataset> datasetForName = {
+  {"Data"   , kData     },
+  {"QED_SC" , kMCqedSC  },
+  {"QED_SL" , kMCqedSL  },
+  {"LbL"    , kMClbl    },
+  {"CEP"    , kMCcep    },
+};
+
 inline tuple<double, double, double> GetBeamSpot(EDataset dataset)
 {
   bool isMC = datasetName.at(dataset) != "Data";
