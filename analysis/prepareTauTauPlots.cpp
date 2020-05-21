@@ -1,6 +1,6 @@
-//  prepareAcoplanarityPlots.cpp
-//
-//  Created by Jeremi Niedziela on 31/07/2019.
+//  prepareTauTauPlots.cpp
+//  Created by Matthew Nickel on 21/05/2020.
+// Based off of prepareBasicPlots.cpp created by Jeremi Niedziel
 
 #include "Helpers.hpp"
 #include "EventProcessor.hpp"
@@ -18,14 +18,6 @@ bool checkTriggers = false;
 
 int nThreePhotonEvents = 0;
 
-bool endsWith(const std::string &mainStr, const std::string &toMatch)
-{
-if(mainStr.size() >= toMatch.size() &&
-mainStr.compare(mainStr.size() - toMatch.size(), toMatch.size(), toMatch) == 0)
-return true;
-else
-return false;
-}
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
@@ -80,6 +72,14 @@ vector<tuple<string, int, double, double>> histParams = {
   
 };
 
+bool endsWith(const std::string &mainStr, const std::string &toMatch)
+{
+   if(mainStr.size() >= toMatch.size() &&
+   mainStr.compare(mainStr.size() - toMatch.size(), toMatch.size(), toMatch) == 0)
+   return true;
+   else
+   return false;
+}
 
 void fillMuonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
 {
@@ -155,7 +155,7 @@ void fillTracksHists(Event &event, const map<string, TH1D*> &hists, EDataset dat
   
 }
 
-void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, EDataset dataset, vector<string> suffix_list)
+void fillTauTauHistograms(Event &event, const map<string, TH1D*> &hists, EDataset dataset, vector<string> suffix_list)
 {
   string name = datasetName.at(dataset);
   int cutThrough=0;
@@ -235,7 +235,7 @@ int main(int argc, char* argv[])
 
         
  
-        fillQEDHistograms(*event, hists, dataset, suffixes);
+        fillTauTauHistograms(*event, hists, dataset, suffixes);
       }
       
       outFile->cd();
@@ -275,8 +275,7 @@ int main(int argc, char* argv[])
 		  
 		  auto event = events->GetEvent(iEvent);
 		  
-		  // run this here just to save electron cut flow hist
-		  fillQEDHistograms(*event, hists, dataset, suffixes);
+		  fillTauTauHistograms(*event, hists, dataset, suffixes);
 		}
 	}
     if (endsWith(inputPath, "txt")){
@@ -311,12 +310,12 @@ int main(int argc, char* argv[])
 			  auto event = events->GetEvent(iEvent);
 			  
 			  // run this here just to save electron cut flow hist
-			  fillQEDHistograms(*event, hists, dataset, suffixes);
+			  fillTauTauHistograms(*event, hists, dataset, suffixes);
 			}
 		}
 	}
 	if (!(endsWith(inputPath, "txt")) && !(endsWith(inputPath, "root"))){
-		cout << "not value input file" << endl;
+		cout << "not valid input file" << endl;
 		exit(0);
 		}
 	
