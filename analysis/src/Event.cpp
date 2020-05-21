@@ -52,6 +52,7 @@ PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
     return physObjects.at(type);
   }
   else if(type == kGoodGenPhoton)       return GetGoodGenPhotons();
+  else if(type == kPhotonInAcceptance)  return GetPhotonsInAcceptance();
   else if(type == kGoodPhoton)          return GetGoodPhotons();
   else if(type == kGoodElectron)        return GetGoodElectrons(cutFlowHist);
   else if(type == kGoodMatchedElectron) return GetGoodMatchedElectron();
@@ -70,13 +71,40 @@ PhysObjects Event::GetGoodGenPhotons() const
   for(auto genPhoton : physObjects.at(kGenParticle)){
     
     if(genPhoton->GetPID() != 22) continue;
-    if(fabs(genPhoton->GetEta()) > config.params("maxEta")) continue;
-    if(genPhoton->GetEt() < config.params("minEt")) continue;
+    if(fabs(genPhoton->GetEta()) > config.params("photonMaxEta")) continue;
+    if(genPhoton->GetEt() < config.params("photonMinEt")) continue;
     
     goodGenPhotons.push_back(genPhoton);
   }
   
   return goodGenPhotons;
+}
+
+PhysObjects Event::GetPhotonsInAcceptance()
+{
+  if(physObjectsReady.at(kPhotonInAcceptance)) return physObjects.at(kPhotonInAcceptance);
+  
+  physObjects.at(kPhotonInAcceptance).clear();
+  
+  for(auto photon : physObjects.at(kPhoton)){
+    
+   
+    // Check Et
+    if(photon->GetEt() < config.params("photonMinEt")) continue;
+    
+    // Check eta & phi (remove noisy region >2.3, remove cracks between EB and EE, remove HEM issue region)
+    double absEta = fabs(photon->GetEta());
+    if(absEta > config.params("photonMaxEta")) continue;
+    if(absEta > config.params("ecalCrackMin") && absEta < config.params("ecalCrackMax")) continue;
+    if(photon->GetEta() < -minEtaEE &&
+       photon->GetPhi() > config.params("ecalHEMmin") &&
+       photon->GetPhi() < config.params("ecalHEMmax")) continue;
+    
+    
+    physObjects.at(kPhotonInAcceptance).push_back(photon);
+  }
+  physObjectsReady.at(kPhotonInAcceptance) = true;
+  return physObjects.at(kPhotonInAcceptance);
 }
 
 PhysObjects Event::GetGoodPhotons()
@@ -94,7 +122,7 @@ PhysObjects Event::GetGoodPhotons()
     if(photon->GetEt() < config.params("photonMinEt")) continue;
     
     // Check swiss cross
-    double E4 = photon->GetEnergyCrystalTop() +
+    /*double E4 = photon->GetEnergyCrystalTop() +
     photon->GetEnergyCrystalBottom() +
     photon->GetEnergyCrystalLeft() +
     photon->GetEnergyCrystalRight();
@@ -105,7 +133,7 @@ PhysObjects Event::GetGoodPhotons()
     else{
       double swissCross = E4/photon->GetEnergyCrystalMax();
       if(swissCross < config.params("photonMinSwissCross")) continue;
-    }
+    }*/
     
     // Check eta & phi (remove noisy region >2.3, remove cracks between EB and EE, remove HEM issue region)
     double absEta = fabs(photon->GetEta());
