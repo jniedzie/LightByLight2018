@@ -25,7 +25,7 @@ ConfigManager::ConfigManager(string path)
     
     getline(lineStream, key, ':');
     getline(lineStream, value);
-    
+
     key.erase(std::remove_if(key.begin(), key.end(), ::isspace), key.end());
     value.erase(std::remove_if(value.begin(), value.end(), ::isspace), value.end());
     

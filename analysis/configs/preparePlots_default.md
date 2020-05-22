@@ -85,8 +85,8 @@ ecalCrackMax: 1.566
 ecalHEMmin:  -1.5
 ecalHEMmax: -1.0
  
- ### Don't look at towers that are in very noisy region of EE
- maxEtaEEtower:      2.4
+### Don't look at towers that are in very noisy region of EE
+maxEtaEEtower:      2.4
  
 ### Calorimeter noise thresolds (GeV)
 noiseThresholdEB:        0.7

@@ -20,6 +20,7 @@ add_executable(applySelections applySelections.cpp)
 add_executable(runDumpEvent runDumpEvent.cpp)
 add_executable(runEventList runEventList.cpp)
 add_executable(addPixelTrackInfo addPixelTrackInfo.cpp)
+add_executable(prepareTauTauPlots prepareTauTauPlots.cpp)
 
 set_property(TARGET getEfficienciesLbL PROPERTY CXX_STANDARD 17)
 set_property(TARGET getEfficienciesQED PROPERTY CXX_STANDARD 17)
@@ -30,6 +31,7 @@ set_property(TARGET applySelections PROPERTY CXX_STANDARD 17)
 set_property(TARGET runDumpEvent PROPERTY CXX_STANDARD 17)
 set_property(TARGET runEventList PROPERTY CXX_STANDARD 17)
 set_property(TARGET addPixelTrackInfo PROPERTY CXX_STANDARD 17)
+set_property(TARGET prepareTauTauPlots  PROPERTY CXX_STANDARD 17)
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
@@ -52,3 +54,5 @@ target_link_libraries(applySelections Analysis ${ROOT_LIBRARIES})
 target_link_libraries(runDumpEvent Analysis ${ROOT_LIBRARIES})
 target_link_libraries(runEventList Analysis ${ROOT_LIBRARIES})
 target_link_libraries(addPixelTrackInfo Analysis ${ROOT_LIBRARIES})
+target_link_libraries(prepareTauTauPlots Analysis ${ROOT_LIBRARIES})
+
