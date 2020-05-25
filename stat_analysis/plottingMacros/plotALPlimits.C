@@ -39,8 +39,8 @@ vector<tuple<string, int, int, int, double, bool, bool, string, bool, bool>> gra
 //  {"prediction_20nb_data"   , kRed      , 3     , 1     , 0.2     , true  , false , "L"   , false  , false },
 //  {"cms_2015_reproduced"    , kRed      , 5     , 3     , 0.2     , true  , false , "L"   , false  , false },
   {"cms_2018_gen_level"     , kOrange+1 , 2     , 1     , 0.2     , true  , false , "L"   , false  , false },
-  {"cms_2018_gen_level_3p0" , kRed      , 2     , 1     , 0.2     , true  , false , "L"   , false  , false },
-  {"cms_2018_gen_level_4p0" , kViolet   , 2     , 1     , 0.2     , true  , false , "L"   , false  , false },
+//  {"cms_2018_gen_level_3p0" , kRed      , 2     , 1     , 0.2     , true  , false , "L"   , false  , false },
+//  {"cms_2018_gen_level_4p0" , kViolet   , 2     , 1     , 0.2     , true  , false , "L"   , false  , false },
 //  {"cms_2018_gen_level_4p5" , kBlue     , 5     , 1     , 0.2     , true  , false , "L"   , false  , false },
 };
 
@@ -219,4 +219,7 @@ void plotALPlimits(bool drawBB=false)
   leg_linlog2->SetBorderSize(0);
   leg_linlog2->AddEntry(new TGraph(),"#leftarrow log |","");
   leg_linlog2->Draw();
+  
+  
+  c1->SaveAs(drawBB ? "limits_coupling_BB.pdf" : "limits_coupling_FF.pdf");
 }

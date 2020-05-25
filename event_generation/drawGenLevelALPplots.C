@@ -35,7 +35,7 @@ vector<histParams> pairHistParams = {
 
 vector<histParams> singleHistParams = {
 // name          x label           y label    logX    logY     xMin    xMax    yMax   rebin
-  {"single_pt"  , "p_{T} (GeV/c)" , "Entries", false, true   , 0.1   , 50    , 0.5   , 5 },
+  {"single_pt"  , "p_{T} (GeV/c)" , "Entries", false, false  , 0.1   , 50    , 0.5   , 5 },
   {"single_pz"  , "p_{z} (GeV/c)" , "Entries", false, true   , 0.0   , 1000  , 1.0   , 5 },
   {"single_y"   , "y"             , "Entries", false, false  , -6.0  , 6.0   , 0.08  , 1 },
   {"single_eta" , "#eta"          , "Entries", false, false  , -6.0  , 6.0   , 0.08  , 1 },

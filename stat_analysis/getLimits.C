@@ -8,7 +8,9 @@
 #include <iostream>
 #include <string>
 
-string suffix = "_4p5";
+bool findCoupling = false;
+
+string suffix = "";
 vector<int> alpMasses = { 5, 6, 9, 11, 14, 16, 22, 30, 90 };
 
 string inputPath        = "combineOutput"+suffix+".txt";
@@ -22,6 +24,8 @@ double maxLambda = 1000000;  // (GeV) max lambda scale
 
 double findValue(string text, string searchString = "Expected 50.0%: r <")
 {
+  if(text.find(searchString) == string::npos) return -1;
+  
   istringstream iss(text);
 
   for (string line; std::getline(iss, line); ){
@@ -32,7 +36,7 @@ double findValue(string text, string searchString = "Expected 50.0%: r <")
       return stod(number);
     }
   }
-  return 0.0;
+  return -1;
 }
 
 vector<string> tokenize(istream &str, string &line, char token)
@@ -86,34 +90,63 @@ void getLimits()
   ifstream inFile(inputPath);
   string line;
   
-  vector<tuple<double, double, double>> massRcoupling;
+  vector<tuple<double, double, double, double, double, double, double, double>> massRcoupling;
   
-  double mass, r, coupling;
+  double mass, couplingExpected;
+  double rObserved, r2p5, r16, r50, r84, r97p5;
+  bool first = true;
+  double value = -1;
   
   while(getline(inFile, line)){
     if(line.find("processing mass:") != string::npos){
       mass = findValue(line, "processing mass:");
       if(suffix=="_old") mass = alpMasses[mass];
+    
+      if(first){
+        first = false;
+        continue;
+      }
+      
+      // fill in values for previous mass
+      if(findCoupling){
+        cout<<"Searching coupling for mass: "<<mass<<"\txsec: "<<r50<<endl;
+        couplingExpected = getCoupling(mass, r50);
+      }
+      massRcoupling.push_back(make_tuple(mass, rObserved, r2p5, r16, r50, r84, r97p5, couplingExpected));
     }
     
-    if(line.find("Expected 50.0%:") != string::npos){
-      r = rScale*findValue(line, "Expected 50.0%: r < ");
-      
-      cout<<"Searching coupling for mass: "<<mass<<"\txsec: "<<r<<endl;
-      coupling = getCoupling(mass, r);
-      
-      massRcoupling.push_back(make_tuple(mass, r, coupling));
-    }
+    value = findValue(line, "Observed Limit: r < "); if(value >= 0) rObserved = rScale * value;
+    value = findValue(line, "Expected  2.5%: r < "); if(value >= 0) r2p5      = rScale * value;
+    value = findValue(line, "Expected 16.0%: r < "); if(value >= 0) r16       = rScale * value;
+    value = findValue(line, "Expected 50.0%: r < "); if(value >= 0) r50       = rScale * value;
+    value = findValue(line, "Expected 84.0%: r < "); if(value >= 0) r84       = rScale * value;
+    value = findValue(line, "Expected 97.5%: r < "); if(value >= 0) r97p5     = rScale * value;
   }
   
-  ofstream outFileCoupling(couplingOutPath);
+  // fill in values for the last mass point
+  if(findCoupling){
+    cout<<"Searching coupling for mass: "<<mass<<"\txsec: "<<r50<<endl;
+    couplingExpected = getCoupling(mass, r50);
+  }
+  massRcoupling.push_back(make_tuple(mass, rObserved, r2p5, r16, r50, r84, r97p5, couplingExpected));
+  
+  
+  // save results to files
   ofstream outFileXsec(xsecOutPath);
   
-  for(auto &[mass, r, coupling] : massRcoupling){
-    cout<<"mass: "<<mass<<"\txsec: "<<r<<" nb"<<"\tcoupling: "<<coupling<<endl;
-    outFileCoupling<<mass<<"\t"<<coupling<<endl;
-    outFileXsec<<mass<<"\t"<<r<<endl;
+  for(auto &[mass, rObserved, r2p5, r16, r50, r84, r97p5, couplingExpected] : massRcoupling){
+    cout<<"mass: "<<mass<<"\txsec expected 50%: "<<r50<<" nb"<<endl;
+    outFileXsec<<mass<<"\t"<<"\t"<<rObserved<<"\t"<<r2p5<<"\t"<<r16<<"\t"<<r50<<"\t"<<r84<<"\t"<<r97p5<<endl;
   }
-  outFileCoupling.close();
   outFileXsec.close();
+  
+  if(findCoupling){
+    ofstream outFileCoupling(couplingOutPath);
+    
+    for(auto &[mass, rObserved, r2p5, r16, r50, r84, r97p5, couplingExpected] : massRcoupling){
+      cout<<"mass: "<<"\texpected coupling: "<<couplingExpected<<endl;
+      outFileCoupling<<mass<<"\t"<<couplingExpected<<endl;
+    }
+    outFileCoupling.close();
+  }
 }

@@ -69,7 +69,7 @@ int main()
     auto event = eventProcessor->GetEvent(iEvent);
     
     // Here we get gen and reco photons that pass acceptance (c_ACC) criteria
-    auto goodGenPhotons  = event->GetPhysObjects(kGoodGenPhoton);
+    auto goodGenPhotons = event->GetPhysObjects(kGoodGenPhoton);
     auto photonsPassing = event->GetPhysObjects(kGoodPhoton);
     
     if(goodGenPhotons.size() != 2) continue;
