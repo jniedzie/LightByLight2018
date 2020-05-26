@@ -20,6 +20,7 @@ analysis/getEfficienciesQED
 analysis/prepareShowerShapePlots
 analysis/preparePhotonIDplots
 analysis/prepareBasicPlots
+analysis/prepareTauTauPlots
 analysis/prepareElectronIDplots
 analysis/getEfficienciesData
 analysis/getEfficienciesMC
