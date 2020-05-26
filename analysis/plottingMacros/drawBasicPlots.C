@@ -1,6 +1,6 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/basicPlots_data_default.root";
+string inputPath  = "../results/basicPlots_default.root";
 //string inputPath  = "../results/basicPlots_data_muchLooserCHE.root";
 //string inputPath  = "../results/basicPlots_data_noPixelTracks.root";
 //string inputPath  = "../results/basicPlots_data_ZDCcut.root";
@@ -30,15 +30,15 @@ map<EDataset, double> crossSection = { // μb
 double luminosity = 1609.910015010; // from brilcalc, 1/μb
 
 const double markerSize = 0.5;
-const bool drawLegends = false;
+const bool drawLegends = true;
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
   kData,
-//  kMCcep,
-//  kMCqedSC,
+  kMCcep,
+  kMCqedSC,
 //  kMCqedSL,
-//  kMClbl,
+  kMClbl,
 };
 
 const double goldenRatio = 1.61803398875;
@@ -47,21 +47,23 @@ const int baseHistHeight = baseHistWidth/goldenRatio;
 
 vector<tuple<string, int, int>> canvasParams = {
   // title       col row
-  {"Photon"       , 3 , 3 },
-  {"Diphoton"     , 2 , 4 },
-  {"Triphoton"    , 2 , 2 },
-  {"Electron"     , 2 , 2 },
-  {"Dielectron"   , 2 , 3 },
-  {"Same sign ee" , 2 , 2 },
-  {"QED calo"     , 3 , 3 },
-  {"tracks"       , 3 , 3 },
-  {"vertex"       , 3 , 3 },
-  {"vertex/track" , 2 , 2 },
-  {"LbL calo"     , 3 , 2 },
-  {"N objects"    , 3 , 3 },
+  {"Photon"       , 3 , 3 }, // 0
+  {"Diphoton"     , 2 , 4 }, // 1
+  {"Triphoton"    , 2 , 2 }, // 2
+  {"Electron"     , 2 , 2 }, // 3
+  {"Dielectron"   , 2 , 3 }, // 4
+  {"Same sign ee" , 2 , 2 }, // 5
+  {"QED calo"     , 3 , 3 }, // 6
+  {"tracks"       , 3 , 3 }, // 7
+  {"vertex"       , 3 , 3 }, // 8
+  {"vertex/track" , 2 , 2 }, // 9
+  {"LbL calo"     , 3 , 2 }, // 10
+  {"N objects"    , 3 , 3 }, // 11
+  {"Photons"      , 2 , 3 }, // 12
+  {"Acoplanarity" , 1 , 1 }, // 13
 };
 
-enum ENorm { kXsec, kEntries, kFirstBin };
+enum ENorm { kXsec, kEntries, kFirstBin, kNoScaling };
 
 vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histParams = {
   // title                            x axis title                  log Y  norm      iCanvas iPad rebin xMin xMax
@@ -80,7 +82,7 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "lbl_n_all_photons_all"           , "N_{photons}^{all}"       , false, kEntries ,   1   , 5  , 1 ,   0  , 100 },
   { "lbl_n_all_calo_towers_all"       , "N_{towers}^{all}"        , false, kEntries ,   1   , 6  , 1 ,   0  , 100 },
   { "lbl_n_all_L1EG_all"              , "N_{L1EG}^{all}"          , false, kEntries ,   1   , 7  , 1 ,   0  , 100 },
-  { "lbl_cut_flow_all"                , ""                        , true , kFirstBin,   1   , 8  , 1 ,   0  , 12  },
+  { "lbl_cut_flow_all"                , ""                        , true , kXsec    ,   1   , 8  , 1 ,   0  , 12  },
   
   { "lbl_triphoton_mass_all"          , "triphoton m_{inv} (GeV)" , false, kXsec    ,   2   , 1  , 2 ,   0  , 30  },
   { "lbl_triphoton_rapidity_all"      , "triphoton rapidity"      , false, kXsec    ,   2   , 2  , 1 , -3.0 , 3.0 },
@@ -146,11 +148,21 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "lbl_n_zdc_all"                   , "LbL N_{ZDC}"             , false, kEntries ,   11   , 2  , 1 ,   0  , 20  },
   { "lbl_zdc_energy_all"              , "LbL E_{ZDC} (A.U.)"      , true , kEntries ,   11   , 3  , 1 ,   0  ,50000},
   { "lbl_zdc_sum_energy_all"          , "LbL #sum E_{ZDC} (A.U.)" , true , kEntries ,   11   , 4  , 50,   0 ,100000},
-  { "lbl_zdc_sum_energy_pos_all"      , "LbL #sum E_{ZDC}^{+} (A.U.)" , true , kEntries ,   11   , 5  , 50,   0 ,100000},
-  { "lbl_zdc_sum_energy_neg_all"      , "LbL #sum E_{ZDC}^{-} (A.U.)" , true , kEntries ,   11   , 6  , 50,   0 ,100000},
+  { "lbl_zdc_sum_energy_pos_all"      , "LbL #sum E_{ZDC}^{+} (A.U.)",true,kEntries ,   11   , 5  , 50,   0 ,100000},
+  { "lbl_zdc_sum_energy_neg_all"      , "LbL #sum E_{ZDC}^{-} (A.U.)",true,kEntries ,   11   , 6  , 50,   0 ,100000},
   { "zdc_sum_energy_pos_all"          , "#sum E_{ZDC}^{+} (A.U.)" , true , kEntries ,   11   , 7  , 1,   0 ,100000},
   { "zdc_sum_energy_neg_all"          , "#sum E_{ZDC}^{-} (A.U.)" , true , kEntries ,   11   , 8  , 1,   0 ,100000},
   
+  
+  // Here nice plots for AN. Don't apply scaling again: kNoScaling
+  { "lbl_photon_et_all"               , "photon E_{t} (GeV)"      , false, kNoScaling    ,   12  , 1  , 1 ,   0  , 30  },
+  { "lbl_diphoton_mass_all"           , "diphoton m_{inv} (GeV)"  , false, kNoScaling    ,   12  , 2  , 1 ,   0  , 50  },
+  { "lbl_photon_eta_all"              , "photon #eta"             , false, kNoScaling    ,   12  , 3  , 1 , -3.0 , 3.0 },
+  { "lbl_diphoton_rapidity_all"       , "diphoton rapidity"       , false, kNoScaling    ,   12  , 4  , 1 , -3.0 , 3.0 },
+  { "lbl_photon_phi_all"              , "photon #phi"             , false, kNoScaling    ,   12  , 5  , 1 , -3.5 , 3.5 },
+  { "lbl_diphoton_pt_all"             , "diphoton p_{t}"          , false, kNoScaling    ,   12  , 6  , 1 ,   0  , 2.0 },
+  
+  { "lbl_acoplanarity_all"            , "A_{#phi}^{#gamma#gamma}" , false, kNoScaling    ,   13  , 1  , 1 ,   0  , 0.2 },
 };
 
 void fillLabels(TH1D *hist, vector<const char*> labels)
@@ -164,16 +176,18 @@ void fillLabels(TH1D *hist, vector<const char*> labels)
   hist->LabelsOption("u", "X");
 }
 
+vector<const char *> labelsLbL = {
+  "Initial", "Trigger", "CHE", "CHE_{pix}", "N_{hits}^{pixel}", "ZDC", "NEE", "2 good photons",
+  "diphoton m_{inv}", "diphoton p_{t}", "diphoton y", "acoplanarity"
+};
+
+vector<const char *> labelsQED = {
+  "Initial", "Trigger", "NEE", "CHE", "2 good electrons", "opposite q",
+  "dielectron m_{inv}", "dielectron p_{t}", "dielectron y"
+};
+
 void setCutflowLabels(TH1D *hist, bool lbl)
 {
-  vector<const char *> labelsQED = {
-    "Initial", "Trigger", "NEE", "CHE", "2 good electrons", "opposite q",
-    "dielectron m_{inv}", "dielectron p_{t}", "dielectron y"
-  };
-  vector<const char *> labelsLbL = {
-    "Initial", "Trigger", "CHE", "CHE_{pix}", "N_{hits}^{pixel}", "ZDC", "NEE", "2 good photons",
-    "diphoton m_{inv}", "diphoton p_{t}", "diphoton y", "acoplanarity"
-  };
   fillLabels(hist, lbl ? labelsLbL : labelsQED);
 }
 
@@ -217,8 +231,7 @@ void prepareHist(TH1D *hist, EDataset dataset)
   hist->SetMarkerStyle(20);
   hist->SetMarkerSize(markerSize);
   
-//  hist->Scale(1./hist->GetEntries());
-//  hist->Sumw2(false);
+  hist->Sumw2(false);
 }
 
 
@@ -327,7 +340,11 @@ void normalizeHists(map<EDataset, TH1D*> hists, ENorm normStrategy)
     else if(normStrategy == kXsec){
       if(dataset == kData) continue;
       hists[dataset]->Scale(luminosity*crossSection[dataset]/initialNevents[dataset]);
-      //      hists[dataset]->Sumw2(false);
+      hists[dataset]->Sumw2(false);
+    }
+    else if(normStrategy == kNoScaling){
+      if(dataset == kData) continue;
+      hists[dataset]->Sumw2(false);
     }
   }
 }
@@ -406,6 +423,20 @@ void drawBasicPlots()
       cout<<"Significance: "<<(signal-background)/sqrt(signal)<<endl;
     }
     
+    if(histName == "lbl_cut_flow_all"){
+      for(EDataset dataset : datasetsToAnalyze){
+        if(!hists[dataset]) continue;
+        
+        cout<<"\n----------------------------"<<endl;
+        cout<<"Dataset: "<<datasetName.at(dataset)<<endl;
+        
+        for(int i=0; i<labelsLbL.size(); i++){
+          cout<<labelsLbL[i]<<": "<<to_string_with_precision(hists[dataset]->GetBinContent(i+1), 2);
+          cout<<"\t+/- "<<to_string_with_precision(hists[dataset]->GetBinError(i+1), 2)<<endl;
+        }
+      }
+    }
+    
     dataHist->SetTitle("");
     
     dataHist->GetXaxis()->SetRangeUser(xMin, xMax);
@@ -439,9 +470,10 @@ void drawBasicPlots()
       dataHist->Draw("PE");
       backgroundsStack->Draw("sameNostack");
     }
-    else if(normStrategy == kXsec){
+    else if(normStrategy == kXsec || normStrategy == kNoScaling){
       dataHist->Draw("PE");
       backgroundsStack->Draw("same");
+      dataHist->Draw("PEsame");
     }
     
     
@@ -539,4 +571,7 @@ void drawBasicPlots()
   canvas[1]->SaveAs((outputPath+"_QED.pdf").c_str());
   canvas[2]->SaveAs((outputPath+"_Calo.pdf").c_str());
   canvas[3]->SaveAs((outputPath+"_QED_no_cuts.pdf").c_str());
+  
+  canvas[12]->SaveAs((outputPath+"_photons.pdf").c_str());
+  canvas[13]->SaveAs((outputPath+"_acoplanarity.pdf").c_str());
 }
