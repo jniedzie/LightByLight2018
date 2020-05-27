@@ -122,7 +122,7 @@ PhysObjects Event::GetGoodPhotons()
     if(photon->GetEt() < config.params("photonMinEt")) continue;
     
     // Check swiss cross
-    /*double E4 = photon->GetEnergyCrystalTop() +
+    double E4 = photon->GetEnergyCrystalTop() +
     photon->GetEnergyCrystalBottom() +
     photon->GetEnergyCrystalLeft() +
     photon->GetEnergyCrystalRight();
@@ -133,7 +133,7 @@ PhysObjects Event::GetGoodPhotons()
     else{
       double swissCross = E4/photon->GetEnergyCrystalMax();
       if(swissCross < config.params("photonMinSwissCross")) continue;
-    }*/
+    }
     
     // Check eta & phi (remove noisy region >2.3, remove cracks between EB and EE, remove HEM issue region)
     double absEta = fabs(photon->GetEta());

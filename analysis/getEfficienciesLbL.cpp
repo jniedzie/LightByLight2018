@@ -14,12 +14,12 @@ string configPath = "configs/efficiencies.md";
 string outputPath = "results/efficienciesLbL.root";
 
 vector<string> histParams = {
-  "reco_eff", "id_eff", "trigger_eff", "trigger_single_eff", "trigger_double_eff", "charged_excl_eff", "neutral_excl_eff"
+  "reco_eff", "id_eff", "trigger_eff", "trigger_single_eff", "trigger_double_eff", "charged_excl_eff", "neutral_excl_eff", "reco_eff_eta","id_eff_eta"
 };
 
-vector<string> histParams_eta = {
-  "reco_eff_eta", "id_eff_eta"
-};
+//vector<string> histParams_eta = {
+//  "reco_eff_eta", "id_eff_eta"
+//};
 
 /// Checks if exactly two photon superclusters in the provided collections are matched
 /// with generated photons within ΔR specified in the config.
@@ -57,23 +57,31 @@ int main()
   float bins[] = { 0, 2, 3, 4, 5, 6, 8, 10, 13, 20 };
   map<string, TH1D*> hists;
   for(auto name : histParams){
-    hists[name]         = new TH1D( name.c_str()        ,  name.c_str()        , 9, bins);
-    hists[name+"_num"]  = new TH1D((name+"_num").c_str(), (name+"_num").c_str(), 9, bins);
-    hists[name+"_den"]  = new TH1D((name+"_den").c_str(), (name+"_den").c_str(), 9, bins);
-    hists[name+"_num"]->Sumw2();
-    hists[name+"_den"]->Sumw2();
-  }
- 
- 
-  map<string, TH1D*> hists_eta;
-  for(auto name : histParams_eta){
-    hists_eta[name]         = new TH1D( name.c_str()        ,  name.c_str()        , 24, -2.4, 2.4);
-    hists_eta[name+"_num"]  = new TH1D((name+"_num").c_str(), (name+"_num").c_str(), 24, -2.4, 2.4);
-    hists_eta[name+"_den"]  = new TH1D((name+"_den").c_str(), (name+"_den").c_str(), 24, -2.4, 2.4);
-    hists_eta[name+"_num"]->Sumw2();
-    hists_eta[name+"_den"]->Sumw2();
-  }
 
+   if(name.find("vs_eta") != string::npos){
+     hists[name]         = new TH1D( name.c_str()        ,  name.c_str()        , 24, -2.4, 2.4);
+     hists[name+"_num"]  = new TH1D((name+"_num").c_str(), (name+"_num").c_str(), 24, -2.4, 2.4);
+     hists[name+"_den"]  = new TH1D((name+"_den").c_str(), (name+"_den").c_str(), 24, -2.4, 2.4);
+   }
+   else{
+     hists[name]         = new TH1D( name.c_str()        ,  name.c_str()        , 9, bins);
+     hists[name+"_num"]  = new TH1D((name+"_num").c_str(), (name+"_num").c_str(), 9, bins);
+     hists[name+"_den"]  = new TH1D((name+"_den").c_str(), (name+"_den").c_str(), 9, bins);
+   }
+   hists[name+"_num"]->Sumw2();
+   hists[name+"_den"]->Sumw2();
+  }
+  
+  
+  /* map<string, TH1D*> hists_eta;
+     for(auto name : histParams_eta){
+     hists_eta[name]         = new TH1D( name.c_str()        ,  name.c_str()        , 24, -2.4, 2.4);
+     hists_eta[name+"_num"]  = new TH1D((name+"_num").c_str(), (name+"_num").c_str(), 24, -2.4, 2.4);
+     hists_eta[name+"_den"]  = new TH1D((name+"_den").c_str(), (name+"_den").c_str(), 24, -2.4, 2.4);
+     hists_eta[name+"_num"]->Sumw2();
+     hists_eta[name+"_den"]->Sumw2();
+     }*/
+  
   // Loop over events
   int iEvent;
   for(iEvent=0; iEvent<eventProcessor->GetNevents(); iEvent++){
@@ -89,7 +97,7 @@ int main()
     if(goodGenPhotons.size() != 2) continue;
     nGenEvents++;  
     hists["reco_eff_den"]->Fill(goodGenPhotons.front()->GetEt());
-    hists_eta["reco_eff_eta_den"]->Fill(goodGenPhotons.front()->GetEta());
+    hists["reco_eff_eta_den"]->Fill(goodGenPhotons.front()->GetEta());
  
     TLorentzVector diphoton;    
     //TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*goodGenPhotons[0], *goodGenPhotons[1]);
@@ -134,7 +142,7 @@ int main()
        hasTwoPhotonsPassingID){
       nEventsPassingID++;
       hists["id_eff_num"]->Fill(goodGenPhotons.front()->GetEt());
-      hists_eta["id_eff_eta_num"]->Fill(goodGenPhotons.front()->GetEta());
+      hists["id_eff_eta_num"]->Fill(goodGenPhotons.front()->GetEta());
       hists["trigger_eff_den"]->Fill(diphoton.M());
       hists["trigger_single_eff_den"]->Fill(diphoton.M());
       hists["trigger_double_eff_den"]->Fill(diphoton.M());
@@ -161,8 +169,8 @@ int main()
       nEventsRecoMatched++;
       hists["reco_eff_num"]->Fill(goodGenPhotons.front()->GetEt());
       hists["id_eff_den"]->Fill(goodGenPhotons.front()->GetEt());
-      hists_eta["reco_eff_eta_num"]->Fill(goodGenPhotons.front()->GetEta());
-      hists_eta["id_eff_eta_den"]->Fill(goodGenPhotons.front()->GetEta());
+      hists["reco_eff_eta_num"]->Fill(goodGenPhotons.front()->GetEta());
+      hists["id_eff_eta_den"]->Fill(goodGenPhotons.front()->GetEta());
     }
   }
   
@@ -197,12 +205,12 @@ int main()
     hists[name+"_den"]->Write();
   }
   
-  for(auto name : histParams_eta){
+/*  for(auto name : histParams_eta){
     hists_eta[name]->Divide(hists_eta[name+"_num"], hists_eta[name+"_den"], 1, 1, "B");
     hists_eta[name]->Write();
     hists_eta[name+"_num"]->Write();
     hists_eta[name+"_den"]->Write();
-  }
+  }*/
   outFile->Close();
   
   return 0;
