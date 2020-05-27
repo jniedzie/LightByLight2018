@@ -73,6 +73,7 @@ private:
   
   /// Updates and returns vector of objects passing selections
   PhysObjects GetGoodGenPhotons() const;
+  PhysObjects GetPhotonsInAcceptance();
   PhysObjects GetGoodPhotons();
   PhysObjects GetGoodElectrons(TH1D *cutFlowHist=nullptr);
   PhysObjects GetGoodMuons(TH1D *cutFlowHist=nullptr);
