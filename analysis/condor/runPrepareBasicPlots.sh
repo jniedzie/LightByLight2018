@@ -12,6 +12,21 @@ sampleName=""
 basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
 
 ##
+# Select config file
+##
+
+if [ $3 -eq 0 ]
+then
+# default
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_default.md"
+  suffix="_default_inverted"
+elif [ $3 -eq 1 ]
+then
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserHINPhotonHESigma.md"
+  suffix="_looserHINPhotonHESigma"
+fi
+
+##
 # Select sample type
 ##
 
@@ -50,20 +65,7 @@ then
   outputPath="${basePath}/analysis/basicPlots/basicPlots_mc_qed_sl${suffix}"
 fi
 
-##
-# Select config file
-##
 
-if [ $3 -eq 0 ]
-then
-# default
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_default.md"
-  suffix="_default"
-elif [ $3 -eq 1 ]
-then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserHINPhotonHESigma.md"
-  suffix="_looserHINPhotonHESigma"
-fi
 
 mkdir -p $outputPath
 
