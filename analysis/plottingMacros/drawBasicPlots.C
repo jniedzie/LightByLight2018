@@ -1,6 +1,7 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/basicPlots_default.root";
+//string inputPath  = "../results/basicPlots_default.root";
+string inputPath  = "../results/basicPlots_default_inverted.root";
 //string inputPath  = "../results/basicPlots_data_muchLooserCHE.root";
 //string inputPath  = "../results/basicPlots_data_noPixelTracks.root";
 //string inputPath  = "../results/basicPlots_data_ZDCcut.root";
@@ -176,9 +177,14 @@ void fillLabels(TH1D *hist, vector<const char*> labels)
   hist->LabelsOption("u", "X");
 }
 
+//vector<const char *> labelsLbL = {
+//  "Initial", "Trigger", "CHE", "CHE_{pix}", "N_{hits}^{pixel}", "ZDC", "NEE", "2 good photons",
+//  "diphoton m_{inv}", "diphoton p_{t}", "diphoton y", "acoplanarity"
+//};
+
 vector<const char *> labelsLbL = {
-  "Initial", "Trigger", "CHE", "CHE_{pix}", "N_{hits}^{pixel}", "ZDC", "NEE", "2 good photons",
-  "diphoton m_{inv}", "diphoton p_{t}", "diphoton y", "acoplanarity"
+  "Initial", "Trigger", "2 good photons",
+  "diphoton m_{inv}", "CHE", "CHE_{pix}", "N_{hits}^{pixel}", "ZDC", "NEE", "diphoton p_{t}", "diphoton y", "acoplanarity"
 };
 
 vector<const char *> labelsQED = {
