@@ -94,3 +94,9 @@ stat_analysis/roostats-a1x4VY.root
 stat_analysis/combineToLimits/slight.txt
 stat_analysis/combineToLimits/starlight_coupling.txt
 stat_analysis/combineToLimits/findCoupling
+stat_analysis/combine_logger.out
+stat_analysis/datacards/datacard_acoplanarity.root
+stat_analysis/higgsCombineExp.MultiDimFit.mH120.root
+stat_analysis/higgsCombineObs.FitDiagnostics.mH120.root
+stat_analysis/higgsCombineObs.MultiDimFit.mH120.root
+stat_analysis/higgsCombineTest.Significance.mH120.root
