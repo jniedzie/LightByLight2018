@@ -1,7 +1,7 @@
 #include "../include/Helpers.hpp"
 
-//string inputPath  = "../results/basicPlots_default.root";
-string inputPath  = "../results/basicPlots_default_inverted.root";
+string inputPath  = "../results/basicPlots_default.root";
+//string inputPath  = "../results/basicPlots_default_inverted.root";
 //string inputPath  = "../results/basicPlots_data_muchLooserCHE.root";
 //string inputPath  = "../results/basicPlots_data_noPixelTracks.root";
 //string inputPath  = "../results/basicPlots_data_ZDCcut.root";
@@ -48,20 +48,22 @@ const int baseHistHeight = baseHistWidth/goldenRatio;
 
 vector<tuple<string, int, int>> canvasParams = {
   // title       col row
-  {"Photon"       , 3 , 3 }, // 0
-  {"Diphoton"     , 2 , 4 }, // 1
-  {"Triphoton"    , 2 , 2 }, // 2
-  {"Electron"     , 2 , 2 }, // 3
-  {"Dielectron"   , 2 , 3 }, // 4
-  {"Same sign ee" , 2 , 2 }, // 5
-  {"QED calo"     , 3 , 3 }, // 6
-  {"tracks"       , 3 , 3 }, // 7
-  {"vertex"       , 3 , 3 }, // 8
-  {"vertex/track" , 2 , 2 }, // 9
-  {"LbL calo"     , 3 , 2 }, // 10
-  {"N objects"    , 3 , 3 }, // 11
-  {"Photons"      , 2 , 3 }, // 12
-  {"Acoplanarity" , 1 , 1 }, // 13
+  {"Photon"             , 3 , 3 }, // 0
+  {"Diphoton"           , 2 , 4 }, // 1
+  {"Triphoton"          , 2 , 2 }, // 2
+  {"Electron"           , 2 , 2 }, // 3
+  {"Dielectron"         , 2 , 3 }, // 4
+  {"Same sign ee"       , 2 , 2 }, // 5
+  {"QED calo"           , 3 , 3 }, // 6
+  {"tracks"             , 3 , 3 }, // 7
+  {"vertex"             , 3 , 3 }, // 8
+  {"vertex/track"       , 2 , 2 }, // 9
+  {"LbL calo"           , 3 , 2 }, // 10
+  {"N objects"          , 3 , 3 }, // 11
+  {"Photons"            , 2 , 3 }, // 12
+  {"Acoplanarity (LbL)" , 1 , 1 }, // 13
+  {"Electrons"          , 2 , 3 }, // 14
+  {"Acoplanarity (QED)" , 1 , 1 }, // 15
 };
 
 enum ENorm { kXsec, kEntries, kFirstBin, kNoScaling };
@@ -92,13 +94,13 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "qed_electron_pt_all"             , "electron p_{t} (GeV)"    , false, kXsec    ,   3   , 1  , 1 ,   0  , 40  },
   { "qed_electron_eta_all"            , "electron #eta"           , false, kXsec    ,   3   , 2  , 1 , -2.5 , 2.5 },
   { "qed_electron_phi_all"            , "electron #phi"           , false, kXsec    ,   3   , 3  , 1 , -3.5 , 3.5 },
-  { "qed_electron_cutflow_all"        , ""                        , false, kXsec    ,   3   , 4  , 1 ,   0  , 12  },
+  { "qed_electron_cutflow_all"        , ""                        , true , kXsec    ,   3   , 4  , 1 ,   0  , 12  },
   
   { "qed_acoplanarity_all"            , "A_{#phi}^{e^{+}e^{-}}"   , true , kXsec    ,   4   , 1  , 1 ,   0  , 0.1 },
   { "qed_dielectron_mass_all"         , "dielectron m_{inv} (GeV)", false, kXsec    ,   4   , 2  , 1 ,   0  , 100 },
   { "qed_dielectron_pt_all"           , "dielectron p_{t}"        , false, kXsec    ,   4   , 3  , 1 ,   0  , 2.0 },
   { "qed_dielectron_rapidity_all"     , "dielectron rapidity"     , false, kXsec    ,   4   , 4  , 1 ,  -3.0, 3.0 },
-  { "qed_cut_flow_all"                , ""                        , false, kFirstBin,   4   , 5  , 1 ,   0  , 10  },
+  { "qed_cut_flow_all"                , ""                        , false, kXsec    ,   4   , 5  , 1 ,   0  , 10  },
   
   { "samesign_dielectron_mass_all"    , "dielectron m_{inv} (GeV)", false, kXsec    ,   5   , 1  , 1 ,   0  , 100 },
   { "samesign_dielectron_pt_all"      , "dielectron p_{t}"        , false, kXsec    ,   5   , 2  , 1 ,   0  , 2.0 },
@@ -151,8 +153,8 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "lbl_zdc_sum_energy_all"          , "LbL #sum E_{ZDC} (A.U.)" , true , kEntries ,   11   , 4  , 50,   0 ,100000},
   { "lbl_zdc_sum_energy_pos_all"      , "LbL #sum E_{ZDC}^{+} (A.U.)",true,kEntries ,   11   , 5  , 50,   0 ,100000},
   { "lbl_zdc_sum_energy_neg_all"      , "LbL #sum E_{ZDC}^{-} (A.U.)",true,kEntries ,   11   , 6  , 50,   0 ,100000},
-  { "zdc_sum_energy_pos_all"          , "#sum E_{ZDC}^{+} (A.U.)" , true , kEntries ,   11   , 7  , 1,   0 ,100000},
-  { "zdc_sum_energy_neg_all"          , "#sum E_{ZDC}^{-} (A.U.)" , true , kEntries ,   11   , 8  , 1,   0 ,100000},
+  { "zdc_sum_energy_pos_all"          , "#sum E_{ZDC}^{+} (A.U.)" , true , kEntries ,   11   , 7  , 1 ,   0 ,100000},
+  { "zdc_sum_energy_neg_all"          , "#sum E_{ZDC}^{-} (A.U.)" , true , kEntries ,   11   , 8  , 1 ,   0 ,100000},
   
   
   // Here nice plots for AN. Don't apply scaling again: kNoScaling
@@ -164,6 +166,16 @@ vector<tuple<string, string, bool, ENorm, int, int, int, double, double>> histPa
   { "lbl_diphoton_pt_all"             , "diphoton p_{t}"          , false, kNoScaling    ,   12  , 6  , 1 ,   0  , 2.0 },
   
   { "lbl_acoplanarity_all"            , "A_{#phi}^{#gamma#gamma}" , false, kNoScaling    ,   13  , 1  , 1 ,   0  , 0.2 },
+  
+  
+  { "qed_electron_pt_all"             , "electron p_{t} (GeV)"    , false, kNoScaling    ,   14  , 1  , 1 ,   0  , 40  },
+  { "qed_dielectron_mass_all"         , "dielectron m_{inv} (GeV)", false, kNoScaling    ,   14  , 2  , 1 ,   0  , 100 },
+  { "qed_electron_eta_all"            , "electron #eta"           , false, kNoScaling    ,   14  , 3  , 1 , -2.5 , 2.5 },
+  { "qed_dielectron_rapidity_all"     , "dielectron rapidity"     , false, kNoScaling    ,   14  , 4  , 1 ,  -3.0, 3.0 },
+  { "qed_electron_phi_all"            , "electron #phi"           , false, kNoScaling    ,   14  , 5  , 1 , -3.5 , 3.5 },
+  { "qed_dielectron_pt_all"           , "dielectron p_{t}"        , false, kNoScaling    ,   14  , 6  , 1 ,   0  , 2.0 },
+  
+  { "qed_acoplanarity_all"            , "A_{#phi}^{e^{+}e^{-}}"   , true , kNoScaling    ,   15  , 1  , 1 ,   0  , 0.1 },
 };
 
 void fillLabels(TH1D *hist, vector<const char*> labels)
@@ -177,15 +189,16 @@ void fillLabels(TH1D *hist, vector<const char*> labels)
   hist->LabelsOption("u", "X");
 }
 
-//vector<const char *> labelsLbL = {
-//  "Initial", "Trigger", "CHE", "CHE_{pix}", "N_{hits}^{pixel}", "ZDC", "NEE", "2 good photons",
-//  "diphoton m_{inv}", "diphoton p_{t}", "diphoton y", "acoplanarity"
-//};
-
 vector<const char *> labelsLbL = {
-  "Initial", "Trigger", "2 good photons",
-  "diphoton m_{inv}", "CHE", "CHE_{pix}", "N_{hits}^{pixel}", "ZDC", "NEE", "diphoton p_{t}", "diphoton y", "acoplanarity"
+  "Initial", "Trigger", "CHE", "CHE_{pix}", "N_{hits}^{pixel}", "ZDC", "NEE", "2 good photons",
+  "diphoton m_{inv}", "diphoton p_{t}", "diphoton y", "acoplanarity"
 };
+
+// inverted cuts order:
+//vector<const char *> labelsLbL = {
+//  "Initial", "Trigger", "2 good photons",
+//  "diphoton m_{inv}", "CHE", "CHE_{pix}", "N_{hits}^{pixel}", "ZDC", "NEE", "diphoton p_{t}", "diphoton y", "acoplanarity"
+//};
 
 vector<const char *> labelsQED = {
   "Initial", "Trigger", "NEE", "CHE", "2 good electrons", "opposite q",
@@ -237,7 +250,7 @@ void prepareHist(TH1D *hist, EDataset dataset)
   hist->SetMarkerStyle(20);
   hist->SetMarkerSize(markerSize);
   
-  hist->Sumw2(false);
+//  hist->Sumw2(false);
 }
 
 
@@ -390,12 +403,12 @@ void drawBasicPlots()
     
     map<EDataset, TH1D*> hists = getHistsFromFile(inFile, histName);
     
-    
     THStack *backgroundsStack = new THStack();
     TH1D *dataHist;
     
     for(EDataset dataset : datasetsToAnalyze){
       if(!hists[dataset]) continue;
+      if(hists[dataset]->GetEntries() == 0) continue;
       
       hists[dataset]->Rebin(rebin);
       hists[dataset]->Scale(1./rebin);
@@ -579,5 +592,7 @@ void drawBasicPlots()
   canvas[3]->SaveAs((outputPath+"_QED_no_cuts.pdf").c_str());
   
   canvas[12]->SaveAs((outputPath+"_photons.pdf").c_str());
-  canvas[13]->SaveAs((outputPath+"_acoplanarity.pdf").c_str());
+  canvas[13]->SaveAs((outputPath+"_acoplanarity_lbl.pdf").c_str());
+  canvas[14]->SaveAs((outputPath+"_electrons.pdf").c_str());
+  canvas[15]->SaveAs((outputPath+"_acoplanarity_qed.pdf").c_str());
 }
