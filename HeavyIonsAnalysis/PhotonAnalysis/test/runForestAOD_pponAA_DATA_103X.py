@@ -30,8 +30,11 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
     fileNames = cms.untracked.vstring(
+
         #"file:/afs/cern.ch/work/r/rbi/public/forest/HIHardProbes_HIRun2018A-PromptReco-v2_AOD.root"
-        "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/B3B60266-96AA-A146-8658-4FE0F40F9D00.root"
+        # "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/B3B60266-96AA-A146-8658-4FE0F40F9D00.root"
+        "/store/hidata/HIRun2018A/HIEmptyBX/AOD/27Feb2019-v1/110000/63642B26-DA82-934B-A025-2520A60462B4.root"
+        # "file:/eos/cms/store/hidata/HIRun2018A/HIEmptyBX/AOD/27Feb2019-v1/110000/450F2ABE-73C8-DC41-A53E-A2AFB5993430.root"
         # 'file:B3B60266-96AA-A146-8658-4FE0F40F9D00.root'
         #"file:/afs/cern.ch/work/r/rchudasa/private/hiforest_1034/CMSSW_10_3_4/src/from_old_1034_repo/step3_RAW2DIGI_L1Reco_RECO.root"
         #"file:/afs/cern.ch/work/r/rchudasa/private/hiforest_1034/CMSSW_10_3_4/src/from_old_1034_repo/wo_lbyl_mod/step3_RAW2DIGI_L1Reco_RECO.root"
@@ -79,7 +82,7 @@ process.centralityBin.centralityVariable = cms.string("HFtowers")
 
 process.TFileService = cms.Service("TFileService",
     #fileName = cms.string("data_HiForestAOD_wohlt_eta2p3_norechit.root"))
-    fileName = cms.string("data_HiForestAOD.root"))
+    fileName = cms.string("data_EmptyBxAOD.root"))
 
 ###############################################################################
 # Additional Reconstruction and Analysis: Main Body

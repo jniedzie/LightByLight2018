@@ -2,7 +2,7 @@ from CRABClient.UserUtilities import config, getUsernameFromSiteDB
 config = config()
 
 #config.section_('General')
-config.General.requestName = 'ntuples_emptyBx_tracker_branches_new'
+config.General.requestName = 'ntuples_emptyBx_tracker_branches'
 config.General.workArea = 'crab_projects'
 config.General.transferOutputs = True
 config.General.transferLogs = True
@@ -25,8 +25,8 @@ config.Data.runRange = '326381-327564'
 # config.Data.splitting = 'FileBased'
 # config.Data.unitsPerJob = 1
 
-config.Data.outLFNDirBase = '/store/group/phys_diffraction/lbyl_2018/HIEmptyBX/ntuples/ntuples_tracker_branches_new/'
+config.Data.outLFNDirBase = '/store/group/phys_diffraction/lbyl_2018/HIEmptyBX/ntuples/ntuples_tracker_branches/'
 config.Data.allowNonValidInputDataset = True
 config.Data.publication = False
-config.Data.outputDatasetTag = 'ntuples_emptyBx_tracker_branches_new'
+config.Data.outputDatasetTag = 'ntuples_emptyBx_tracker_branches'
 config.Site.storageSite = 'T2_CH_CERN'
