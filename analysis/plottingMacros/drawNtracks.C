@@ -2,16 +2,17 @@
 
 const int maxNevents = 10000;
 
-string inputPath  = "../results/basicPlots_data_CHE.root";
+string inputPath  = "../results/basicPlots_default.root";
+//string inputPath  = "../results/basicPlots_data_CHE.root";
 string outputPath = "../plots/nTracks.pdf";
 
 // Only those datasets will be analyzed
 const vector<EDataset> datasetsToAnalyze = {
   kData,
-//  kMCcep,
-//  kMCqedSC,
+  kMCcep,
+  kMCqedSC,
 //  kMCqedSL,
-//  kMClbl,
+  kMClbl,
 };
 
 void prepareHist(TH1D *hist, int color)
@@ -49,8 +50,8 @@ void drawNtracks()
 {
   TFile *inFile = TFile::Open(inputPath.c_str());
   
-  TCanvas *canvas = new TCanvas("N tracks", "n Tracks", 1000, 1000);
-  canvas->Divide(2,2);
+  TCanvas *canvas = new TCanvas("N tracks", "n Tracks", 1000, 500);
+  canvas->Divide(2, 1);
   
   gStyle->SetOptStat(0);
   TLegend *legend = new TLegend(0.5, 0.7, 0.9, 0.9 );
@@ -62,16 +63,16 @@ void drawNtracks()
     
     cout<<"Processing "<<description<<" events"<<endl;
     
-    TH1D *nTrackHist = getHistogramFromFile(inFile, "nTracks_"+name);
-    TH1D *nTrackHighPtHist = getHistogramFromFile(inFile, "nTracks_pt_geq_100_MeV_"+name);
-    TH1D *nTrackLowPtHist  = getHistogramFromFile(inFile, "nTracks_pt_lt_100_MeV_"+name);
-    TH1D *trackPtHist      = getHistogramFromFile(inFile, "track_pt_"+name);
+    TH1D *nTrackHist = getHistogramFromFile(inFile, "nTracks_all_"+name);
+//    TH1D *nTrackHighPtHist = getHistogramFromFile(inFile, "nTracks_pt_geq_100_MeV_"+name);
+//    TH1D *nTrackLowPtHist  = getHistogramFromFile(inFile, "nTracks_pt_lt_100_MeV_"+name);
+    TH1D *trackPtHist      = getHistogramFromFile(inFile, "track_pt_all_"+name);
     
     int color = datasetColor.at(dataset);
     
     prepareHist(nTrackHist, color);
-    prepareHist(nTrackLowPtHist, color);
-    prepareHist(nTrackHighPtHist, color);
+//    prepareHist(nTrackLowPtHist, color);
+//    prepareHist(nTrackHighPtHist, color);
     prepareHist(trackPtHist, color);
     
     canvas->cd(1); preparePad();
@@ -86,13 +87,13 @@ void drawNtracks()
     trackPtHist->GetYaxis()->SetRangeUser(1e-6, 1);
     trackPtHist->Draw(first ? "" : "same");
    
-    canvas->cd(3); preparePad();
-    nTrackLowPtHist->SetTitle("# tracks, p_{T} < 100 MeV");
-    nTrackLowPtHist->Draw(first ? "" : "same");
-   
-    canvas->cd(4); preparePad();
-    nTrackHighPtHist->SetTitle("# tracks, p_{T} #geq 100 MeV");
-    nTrackHighPtHist->Draw(first ? "" : "same");
+//    canvas->cd(3); preparePad();
+//    nTrackLowPtHist->SetTitle("# tracks, p_{T} < 100 MeV");
+//    nTrackLowPtHist->Draw(first ? "" : "same");
+//
+//    canvas->cd(4); preparePad();
+//    nTrackHighPtHist->SetTitle("# tracks, p_{T} #geq 100 MeV");
+//    nTrackHighPtHist->Draw(first ? "" : "same");
    
     legend->AddEntry(nTrackHist, datasetDescription.at(dataset).c_str(), "l");
    

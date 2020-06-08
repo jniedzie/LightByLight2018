@@ -1,7 +1,9 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/basicPlots_default.root";
+//string inputPath  = "../results/basicPlots_default.root";
 //string inputPath  = "../results/basicPlots_default_inverted.root";
+//string inputPath  = "../results/basicPlots_default_inverted_qed.root";
+string inputPath  = "../results/basicPlots_default_full.root";
 //string inputPath  = "../results/basicPlots_data_muchLooserCHE.root";
 //string inputPath  = "../results/basicPlots_data_noPixelTracks.root";
 //string inputPath  = "../results/basicPlots_data_ZDCcut.root";
@@ -204,6 +206,12 @@ vector<const char *> labelsQED = {
   "Initial", "Trigger", "NEE", "CHE", "2 good electrons", "opposite q",
   "dielectron m_{inv}", "dielectron p_{t}", "dielectron y"
 };
+
+// inverted cuts order:
+//vector<const char *> labelsQED = {
+//  "Initial", "Trigger", "2 good electrons", "opposite q",
+//  "dielectron m_{inv}", "CHE", "NEE", "dielectron p_{t}", "dielectron y"
+//};
 
 void setCutflowLabels(TH1D *hist, bool lbl)
 {
@@ -443,6 +451,7 @@ void drawBasicPlots()
     }
     
     if(histName == "lbl_cut_flow_all"){
+      cout<<"\n\n LbL yields:"<<endl;
       for(EDataset dataset : datasetsToAnalyze){
         if(!hists[dataset]) continue;
         
@@ -455,6 +464,23 @@ void drawBasicPlots()
         }
       }
     }
+    
+    
+    if(histName == "qed_cut_flow_all"){
+      cout<<"\n\n QED yields:"<<endl;
+      for(EDataset dataset : datasetsToAnalyze){
+        if(!hists[dataset]) continue;
+        
+        cout<<"\n----------------------------"<<endl;
+        cout<<"Dataset: "<<datasetName.at(dataset)<<endl;
+        
+        for(int i=0; i<labelsQED.size(); i++){
+          cout<<labelsQED[i]<<": "<<to_string_with_precision(hists[dataset]->GetBinContent(i+1), 2);
+          cout<<"\t+/- "<<to_string_with_precision(hists[dataset]->GetBinError(i+1), 2)<<endl;
+        }
+      }
+    }
+    
     
     dataHist->SetTitle("");
     

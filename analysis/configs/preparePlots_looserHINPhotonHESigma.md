@@ -85,8 +85,9 @@ ecalCrackMin: 1.4442
 ecalCrackMax: 1.566
 
 ### Exclude hole in ECal (HEM issue, only in negative part of EE)
-ecalHEMmin:  -1.5
-ecalHEMmax: -1.0
+ecalHEMmaxEta:  -1.39
+ecalHEMminPhi:  -1.6
+ecalHEMmaxPhi: -0.9
  
 ### Calorimeter noise thresolds (GeV)
 noiseThresholdEB:        2.0

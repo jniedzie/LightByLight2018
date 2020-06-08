@@ -65,14 +65,9 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
       
       // Check basic cuts:
       if(electron->GetPt() < config.params("electronMinPt")) continue;
-      if(eta > config.params("ecalCrackMin") &&
-         eta < config.params("ecalCrackMax"))   continue;
       if(eta > config.params("electronMaxEta")) continue;
-      
-      // Check for HEM issue
-      if(electron->GetEtaSC() < -minEtaEE &&
-         electron->GetPhiSC() > config.params("ecalHEMmin") &&
-         electron->GetPhiSC() < config.params("ecalHEMmax")) continue;
+      if(physObjectProcessor.IsInCrack(*electron)) continue;
+      if(physObjectProcessor.IsInHEM(*electron)) continue;
       
       hists.at("nMissingHits"+datasetName)->Fill(electron->GetNmissingHits());
       

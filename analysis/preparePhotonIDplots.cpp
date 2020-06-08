@@ -92,14 +92,10 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
       
       // Check basic cuts:
       if(photon->GetEt() < config.params("photonMinEt")) continue;
-      if(eta > config.params("ecalCrackMin") &&
-         eta < config.params("ecalCrackMax"))   continue;
+      if(physObjectProcessor.IsInCrack(*photon)) continue;
+      if(physObjectProcessor.IsInHEM(*photon)) continue;
       
-      // Check for HEM issue
-      if(photon->GetEta() < -minEtaEE &&
-         photon->GetPhi() > config.params("ecalHEMmin") &&
-         photon->GetPhi() < config.params("ecalHEMmax")) continue;
-      
+      // Check swiss-cross:
       double swissCross = getSwisscross(photon);
       double hOverE     = photon->GetHoverE();
       double etaWidth   = photon->GetEtaWidth();

@@ -110,10 +110,10 @@ bool PhysObjectProcessor::IsInCrack(const PhysObject &a)
 
 bool PhysObjectProcessor::IsInHEM(const PhysObject &a)
 {
-  if(a.GetEtaSC() < -minEtaEE &&
+  if(a.GetEtaSC() < config.params("ecalHEMmaxEta") &&
      a.GetEtaSC() > -maxEtaEE &&
-     a.GetPhiSC() > config.params("ecalHEMmin") &&
-     a.GetPhiSC() < config.params("ecalHEMmax")) return true;
+     a.GetPhiSC() > config.params("ecalHEMminPhi") &&
+     a.GetPhiSC() < config.params("ecalHEMmaxPhi")) return true;
   
   return false;
 }

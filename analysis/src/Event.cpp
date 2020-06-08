@@ -95,10 +95,8 @@ PhysObjects Event::GetPhotonsInAcceptance()
     // Check eta & phi (remove noisy region >2.3, remove cracks between EB and EE, remove HEM issue region)
     double absEta = fabs(photon->GetEta());
     if(absEta > config.params("photonMaxEta")) continue;
-    if(absEta > config.params("ecalCrackMin") && absEta < config.params("ecalCrackMax")) continue;
-    if(photon->GetEta() < -minEtaEE &&
-       photon->GetPhi() > config.params("ecalHEMmin") &&
-       photon->GetPhi() < config.params("ecalHEMmax")) continue;
+    if(physObjectProcessor.IsInCrack(*photon)) continue;
+    if(physObjectProcessor.IsInHEM(*photon)) continue;
     
     
     physObjects.at(kPhotonInAcceptance).push_back(photon);
@@ -138,10 +136,8 @@ PhysObjects Event::GetGoodPhotons()
     // Check eta & phi (remove noisy region >2.3, remove cracks between EB and EE, remove HEM issue region)
     double absEta = fabs(photon->GetEta());
     if(absEta > config.params("photonMaxEta")) continue;
-    if(absEta > config.params("ecalCrackMin") && absEta < config.params("ecalCrackMax")) continue;
-    if(photon->GetEta() < -minEtaEE &&
-       photon->GetPhi() > config.params("ecalHEMmin") &&
-       photon->GetPhi() < config.params("ecalHEMmax")) continue;
+    if(physObjectProcessor.IsInCrack(*photon)) continue;
+    if(physObjectProcessor.IsInHEM(*photon)) continue;
     
     // Check η shower shape
     if((absEta < maxEtaEB) && (photon->GetEtaWidth() > config.params("photonMaxEtaWidthBarrel"))) continue;
@@ -177,17 +173,14 @@ PhysObjects Event::GetGoodElectrons(TH1D *cutFlowHist)
     
     // Check eta
     double eta = fabs(electron->GetEtaSC());
-    if(eta > config.params("ecalCrackMin") &&
-       eta < config.params("ecalCrackMax"))   continue;
+    if(physObjectProcessor.IsInCrack(*electron)) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 2
     
     if(eta >= config.params("electronMaxEta")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
     
     // Check for HEM issue
-    if(electron->GetEtaSC() < -minEtaEE &&
-       electron->GetPhiSC() > config.params("ecalHEMmin") &&
-       electron->GetPhiSC() < config.params("ecalHEMmax")) continue;
+    if(physObjectProcessor.IsInHEM(*electron)) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 4
     
     // Check n missing hits
@@ -238,17 +231,14 @@ PhysObjects Event::GetGoodMuons(TH1D *cutFlowHist)
     
     // Check eta
 //    double eta = fabs(muon->GetEtaSC());
-//    if(eta > config.params("ecalCrackMin") &&
-//       eta < config.params("ecalCrackMax"))   continue;
+//    if(physObjectProcessor.IsInCrack(*muon))   continue;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 2
     
 //    if(eta >= config.params("muonMaxEta")) continue;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
     
     // Check for HEM issue
-//    if(muon->GetEtaSC() < -minEtaEE &&
-//       muon->GetPhiSC() > config.params("ecalHEMmin") &&
-//       muon->GetPhiSC() < config.params("ecalHEMmax")) continue;
+//    if(physObjectProcessor.IsInHEM(*muon)) continue;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 4
     
     // Check n missing hits
