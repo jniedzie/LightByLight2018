@@ -586,3 +586,28 @@ map<ECaloType, PhysObjects> Event::GetCaloTowersAboveThresholdByDet()
   }
   return caloTowersByDet;
 }
+
+double Event::GetTotalZDCenergy() const
+{
+  double zdcEnergySum = 0;
+  for(auto zdc : physObjects.at(kZDC)) zdcEnergySum += zdc->GetEnergy();
+  return zdcEnergySum;
+}
+
+double Event::GetTotalZDCenergyPos() const
+{
+  double zdcEnergySum = 0;
+  for(auto zdc : physObjects.at(kZDC)){
+    if(zdc->GetZside() > 0) zdcEnergySum += zdc->GetEnergy();
+  }
+  return zdcEnergySum;
+}
+
+double Event::GetTotalZDCenergyNeg() const
+{
+  double zdcEnergySum = 0;
+  for(auto zdc : physObjects.at(kZDC)){
+    if(zdc->GetZside() < 0) zdcEnergySum += zdc->GetEnergy();
+  }
+  return zdcEnergySum;
+}

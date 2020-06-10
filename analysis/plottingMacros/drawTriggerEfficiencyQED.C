@@ -7,14 +7,14 @@ vector<string> triggerCombinations = {
   "EG3",
   "EG5",
   "EG3_only",
-//  "EG5_only",
+  //  "EG5_only",
   "EG3_or_EG5"
 };
 
 vector<EDataset> datasetsToDraw = {
   kData,
   kMCqedSC,
-//  kMCqedSL
+  //  kMCqedSL
 };
 
 vector<tuple<string, string, string, string>> variables = {
@@ -60,20 +60,37 @@ void drawTriggerEfficiencyQED()
   TCanvas *canvas = new TCanvas("Trigger efficiency", "Trigger efficiency", 1000, 1000);
   canvas->Divide(2,2);
   
+  TCanvas *canvasScaleFactors = new TCanvas("Scale factors", "Scale factors", 1000, 1000);
+  canvasScaleFactors->Divide(2,2);
+  
   TLegend *mainLegend = new TLegend(0.2, 0.3, 0.8, 0.6);
   
   bool first = true;
-  for(EDataset dataset : datasetsToDraw){
-    int iTriggerCombination = 0;
+  int iTriggerCombination = 0;
+  
+  for(string triggerCombination : triggerCombinations){
     
-    for(string triggerCombination : triggerCombinations){
+    cout<<"Trigger: "<<triggerCombination<<endl;
+    
+    bool firstVar = true;
+    
+    int iPad = 1;
+    for(auto &[dirName, varName, axisName, legendText] : variables){
+      cout<<"\tVariable: "<<dirName<<endl;
       
-      string filePath = basePath + "_" + triggerCombination + "_" + datasetName.at(dataset)+".root";
-      TFile *inFile = TFile::Open(filePath.c_str());
       
-      int iPad = 1;
-      bool firstVar = true;
-      for(auto &[dirName, varName, axisName, legendText] : variables){
+      TH1F *graphData;
+      TH1F *graphMC;
+      
+      for(EDataset dataset : datasetsToDraw){
+        
+        cout<<"\t\tDataset: "<<datasetName.at(dataset)<<endl;
+        cout<<"\t\tiPad: "<<iPad<<endl;
+        
+        
+        string filePath = basePath + "_" + triggerCombination + "_" + datasetName.at(dataset)+".root";
+        TFile *inFile = TFile::Open(filePath.c_str());
+        
         
         string resultsPath = "triggerTree_"+datasetName.at(dataset)+"/"+dirName+"/fit_eff";
         RooDataSet *fitResults = (RooDataSet*)inFile->Get(resultsPath.c_str());
@@ -84,6 +101,7 @@ void drawTriggerEfficiencyQED()
         }
         
         auto graph = getEfficiencyPlot(fitResults, varName);
+        
         
         graph->SetMaximum(1.1);
         graph->SetMinimum(0.0);
@@ -100,7 +118,7 @@ void drawTriggerEfficiencyQED()
         graph->GetYaxis()->SetTitle("Efficiency");
         graph->GetXaxis()->CenterTitle();
         
-        canvas->cd(iPad++);
+        canvas->cd(iPad);
         graph->Draw(first ? "APZ" : "PZsame");
         
         if(firstVar){
@@ -112,10 +130,22 @@ void drawTriggerEfficiencyQED()
                                     0.1, legendText.c_str());
           text->Draw("same");
         }
+        
+        if(dataset == kData)    graphData = new TH1F(*(graph->GetHistogram()));
+        if(dataset == kMCqedSC) graphMC   = new TH1F(*(graph->GetHistogram()));
       }
-      first = false;
-      iTriggerCombination++;
+      
+//      graphData->Divide(graphMC);
+      
+      canvasScaleFactors->cd(iPad);
+//      graphData->SetMarkerStyle(20);
+      graphData->Draw();
+      
+      iPad++;
+      
     }
+    first = false;
+    iTriggerCombination++;
   }
   canvas->cd(4);
   mainLegend->Draw();

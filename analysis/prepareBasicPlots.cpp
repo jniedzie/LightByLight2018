@@ -419,36 +419,34 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   string name = datasetName.at(dataset);
   
   int cutThrough=0;
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 0
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 0 - Initial
   
   if(checkTriggers && !event.HasTrigger(kDoubleEG2noHF)) return;
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 1
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 1 - Trigger
+  
+  if(event.GetPhysObjects(kGoodPhoton).size() != 2) return;
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 2 - Two good photons
+  
+  TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*event.GetPhysObjects(kGoodPhoton)[0],
+                                                            *event.GetPhysObjects(kGoodPhoton)[1]);
+  
+  if(diphoton.M() < config.params("diphotonMinMass")) return;
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 3 - Diphoton mass
   
   if(event.GetPhysObjects(kGoodGeneralTrack).size() > config.params("maxNtracks")) return;
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 2
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 4 - CHE (general tracks)
   
   if(event.GetPhysObjects(kPixelTrack).size() > config.params("maxNpixelTracks")) return;
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 3
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 5 - CHE (pixel tracks)
   
   if(event.GetNpixelRecHits() > config.params("maxNpixelRecHits")) return;
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 4
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 6 - CHE (pixel hits)
   
-   double zdcEnergySum = 0;
-   double zdcEnergySumPos = 0;
-   double zdcEnergySumNeg = 0;
-   
-   for(auto zdc : event.GetPhysObjects(kZDC)){
-     zdcEnergySum += zdc->GetEnergy();
-     
-     if(zdc->GetZside() > 0) zdcEnergySumPos += zdc->GetEnergy();
-     else                    zdcEnergySumNeg += zdc->GetEnergy();
-   }
+  if(event.GetTotalZDCenergy()    > config.params("maxTotalZDCenergy")) return;
+  if(event.GetTotalZDCenergyPos() > config.params("maxTotalZDCenergyPerSide") &&
+     event.GetTotalZDCenergyNeg() > config.params("maxTotalZDCenergyPerSide")) return;
   
-  if(zdcEnergySum > config.params("maxTotalZDCenergy")) return;
-  if(zdcEnergySumPos > config.params("maxTotalZDCenergyPerSide") &&
-     zdcEnergySumNeg > config.params("maxTotalZDCenergyPerSide")) return;
-  
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 5
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 7 - NEE (ZDC)
   
   if(saveCalosFailingNEE){
     map<ECaloType, bool> failingCalo;
@@ -461,24 +459,16 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   else{
     if(event.HasAdditionalTowers()) return;
   }
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 6
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 8 - NEE (Calos)
   
   if(saveTriphotonHists) fillTriphotonHists(event, hists, name);
   
-  if(event.GetPhysObjects(kGoodPhoton).size() != 2) return;
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 7
-  
-  TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*event.GetPhysObjects(kGoodPhoton)[0],
-                                                            *event.GetPhysObjects(kGoodPhoton)[1]);
-  
-  if(diphoton.M() < config.params("diphotonMinMass")) return;
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 8
-  
+
   if(diphoton.Pt() > config.params("diphotonMaxPt")) return;
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 9
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 9 - Diphoton pt
   
   if(fabs(diphoton.Rapidity()) > config.params("diphotonMaxRapidity")) return;
-  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 10
+  hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 10 - Diphoton rapidity
   
   double aco = physObjectProcessor.GetAcoplanarity(*event.GetPhysObjects(kGoodPhoton)[0],
                                                    *event.GetPhysObjects(kGoodPhoton)[1]);
@@ -490,11 +480,11 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   }
   else{
     suffix = "low_aco";
-    hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 11
+    hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 11 - Acoplanarity
   }
   
-  fillNobjectsHists(  event, hists, name, suffix);
-  fillNobjectsHists(  event, hists, name, "all");
+  fillNobjectsHists(event, hists, name, suffix);
+  fillNobjectsHists(event, hists, name, "all");
   fillPhotonHists(  event, hists, name, suffix);
   fillPhotonHists(  event, hists, name, "all");
   fillDiphotonHists(event, hists, name, suffix);
@@ -532,38 +522,44 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   string name = datasetName.at(dataset);
   
   int cutThrough=0;
-  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 0
+  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 0 - Initial
     
   if(checkTriggers && !event.HasTrigger(kDoubleEG2noHF)) return;
-  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 1
-  
-  if(event.HasAdditionalTowers()) return;
-  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 2
-  
-  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 2) return;
-  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 3
+  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 1 - Trigger
   
   if(event.GetPhysObjects(kGoodMatchedElectron).size() != 2) return;
-  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 4
+  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 2 - Two good electrons
   
   if(event.GetPhysObjects(kGoodMatchedElectron)[0]->GetCharge() ==
      event.GetPhysObjects(kGoodMatchedElectron)[1]->GetCharge()){
     fillDielectronHists(event, hists, name, "samesign", "all");
     return;
   }
-  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 5
+  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 3 - Opposite charge
   
   TLorentzVector dielectron = physObjectProcessor.GetDielectron(*event.GetPhysObjects(kGoodMatchedElectron)[0],
                                                                 *event.GetPhysObjects(kGoodMatchedElectron)[1]);
   
   if(dielectron.M() < config.params("dielectronMinMass")) return;
-  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 6
+  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 4 - Dielectron mass
+  
+  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 2) return;
+  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 5 - CHE
+  
+  if(event.GetTotalZDCenergy()    > config.params("maxTotalZDCenergy")) return;
+  if(event.GetTotalZDCenergyPos() > config.params("maxTotalZDCenergyPerSide") &&
+     event.GetTotalZDCenergyNeg() > config.params("maxTotalZDCenergyPerSide")) return;
+  
+  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 6 - ZDC
+  
+  if(event.HasAdditionalTowers()) return;
+  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 7 - NEE
   
   if(dielectron.Pt() > config.params("dielectronMaxPt")) return;
-  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 7
+  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 8 - Dielectron pt
   
   if(fabs(dielectron.Rapidity()) > config.params("dielectronMaxRapidity")) return;
-  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 8
+  hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 9 - Dielectron rapidity
   
   double aco = physObjectProcessor.GetAcoplanarity(*event.GetPhysObjects(kGoodMatchedElectron)[0],
                                                    *event.GetPhysObjects(kGoodMatchedElectron)[1]);

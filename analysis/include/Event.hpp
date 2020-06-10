@@ -65,6 +65,15 @@ public:
   inline int GetNpixelRecHits()     const { return nPixelRecHits;   }
   inline int GetNdedxHits()         const { return nDedxHits;       }
   
+  /// Returns total ZDC energy deposit on both z-sides
+  double GetTotalZDCenergy() const;
+  
+  /// Returns total ZDC energy deposit on positive z-side
+  double GetTotalZDCenergyPos() const;
+  
+  /// Returns total ZDC energy deposit on negative z-side
+  double GetTotalZDCenergyNeg() const;
+  
 private:
   map<ETrigger, bool> triggerValues; ///< Vactor of booleans corresponding to LbL triggers
   
