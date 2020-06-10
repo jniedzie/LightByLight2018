@@ -23,7 +23,9 @@ alias cmake='/cvmfs/sft.cern.ch/lcg/contrib/CMake/3.13.4/Linux-x86_64/bin/cmake'
 . /cvmfs/sft.cern.ch/lcg/releases/Davix/0.7.3-d94fa/x86_64-centos7-gcc8-opt/Davix-env.sh
 
 # setup png
-. /cvmfs/sft.cern.ch/lcg/releases/png/1.6.37-9c2fe/x86_64-centos7-gcc8-opt/png-env.sh
+#. /cvmfs/sft.cern.ch/lcg/releases/png/1.6.37-9c2fe/x86_64-centos7-gcc8-opt/png-env.sh
+export LD_LIBRARY_PATH=/eos/cms/store/group/phys_diffraction/lbyl_2018/libPNG/libpng-1.6.37/install/lib/:$LD_LIBRARY_PATH
+
 
 #setup GSL
 . /cvmfs/sft.cern.ch/lcg/releases/GSL/2.5-32fc5/x86_64-centos7-gcc8-opt/GSL-env.sh

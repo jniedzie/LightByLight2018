@@ -4,7 +4,7 @@
 //
 // Draws a canvas with MC efficiencies dependance on kinematic variables.
 
-#include "../include/Helpers.hpp";
+#include "../include/Helpers.hpp"
 
 const string  inputPath    = "../results/efficienciesLbL.root";
 const string  outputPath   = "../plots/efficienciesLbL.pdf";
