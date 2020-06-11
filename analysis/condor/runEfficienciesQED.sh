@@ -8,9 +8,11 @@ sampleName=""
 
 basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
 
+suffix=""
+
 if [ $2 -eq 0 ]
 then
-  sampleName="Data" # 5646 files
+  sampleName="Data" # 8500 files
   inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
   outputPath="${basePath}/analysis/efficienciesQED/efficienciesQED_data${suffix}"
 elif [ $2 -eq 1 ]

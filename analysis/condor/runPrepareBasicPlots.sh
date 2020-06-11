@@ -19,7 +19,7 @@ if [ $3 -eq 0 ]
 then
 # default
   configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_default.md"
-  suffix="_default_full"
+  suffix="_default"
 elif [ $3 -eq 1 ]
 then
   configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserHINPhotonHESigma.md"
@@ -32,7 +32,7 @@ fi
 
 if [ $2 -eq 0 ]
 then
-  sampleName="Data" # last chunk number: 7440, merged into 60 files
+  sampleName="Data" # last chunk number: 7440, merged into 85 files
 #  inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
 #  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_complete/merged/merged_ntuples_${1}.root"
   inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_complete_full/merged/merged_ntuples_${1}.root"
