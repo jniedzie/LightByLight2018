@@ -44,10 +44,23 @@ vector<string> histParams = {
   "charged_exclusivity_eff_num",
   "charged_exclusivity_eff_den",
   "dielectron_mass",
+  "charged_exclusivity_eff_vs_dielectron_mass_num",
+  "charged_exclusivity_eff_vs_dielectron_mass_den",
+  "charged_exclusivity_eff_vs_dielectron_eta_num",
+  "charged_exclusivity_eff_vs_dielectron_eta_den",
+  "charged_exclusivity_eff_vs_dielectron_pt_num",
+  "charged_exclusivity_eff_vs_dielectron_pt_den",
+  
   
   "neutral_exclusivity_eff_cut_through",
   "neutral_exclusivity_eff_num",
   "neutral_exclusivity_eff_den",
+  "neutral_exclusivity_eff_vs_dielectron_mass_num",
+  "neutral_exclusivity_eff_vs_dielectron_mass_den",
+  "neutral_exclusivity_eff_vs_dielectron_eta_num",
+  "neutral_exclusivity_eff_vs_dielectron_eta_den",
+  "neutral_exclusivity_eff_vs_dielectron_pt_num",
+  "neutral_exclusivity_eff_vs_dielectron_pt_den",
 };
 
 map<string, int> matched;
@@ -362,11 +375,17 @@ void CheckCHEefficiency(Event &event, map<string, TH1D*> &hists, string datasetN
   
   
   hists["charged_exclusivity_eff_den_"+datasetName]->Fill(1);
+  hists["charged_exclusivity_eff_vs_dielectron_mass_den_"+datasetName]->Fill(dielectron.M());
+  hists["charged_exclusivity_eff_vs_dielectron_eta_den_"+datasetName]->Fill(dielectron.Eta());
+  hists["charged_exclusivity_eff_vs_dielectron_pt_den_"+datasetName]->Fill(dielectron.Pt());
   
   // Charged exclusivity
   if(event.GetPhysObjects(kGoodGeneralTrack).size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 5
   hists["charged_exclusivity_eff_num_"+datasetName]->Fill(1);
+  hists["charged_exclusivity_eff_vs_dielectron_mass_num_"+datasetName]->Fill(dielectron.M());
+  hists["charged_exclusivity_eff_vs_dielectron_eta_num_"+datasetName]->Fill(dielectron.Eta());
+  hists["charged_exclusivity_eff_vs_dielectron_pt_num_"+datasetName]->Fill(dielectron.Pt());
 }
 
 /// Counts number of events passing tag and probe criteria for neutral exclusivity efficiency
@@ -400,11 +419,18 @@ void CheckNEEefficiency(Event &event, map<string, TH1D*> &hists, string datasetN
   if(event.GetPhysObjects(kGoodGeneralTrack).size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 5
   hists["neutral_exclusivity_eff_den_"+datasetName]->Fill(1);
+  hists["neutral_exclusivity_eff_vs_dielectron_mass_den_"+datasetName]->Fill(dielectron.M());
+  hists["neutral_exclusivity_eff_vs_dielectron_eta_den_"+datasetName]->Fill(dielectron.Eta());
+  hists["neutral_exclusivity_eff_vs_dielectron_pt_den_"+datasetName]->Fill(dielectron.Pt());
+  
 
   // Neutral exclusivity
   if(event.HasAdditionalTowers()) return;
   hists[cutThouthName]->Fill(cutLevel++); // 6
   hists["neutral_exclusivity_eff_num_"+datasetName]->Fill(1);
+  hists["neutral_exclusivity_eff_vs_dielectron_mass_num_"+datasetName]->Fill(dielectron.M());
+  hists["neutral_exclusivity_eff_vs_dielectron_eta_num_"+datasetName]->Fill(dielectron.Eta());
+  hists["neutral_exclusivity_eff_vs_dielectron_pt_num_"+datasetName]->Fill(dielectron.Pt());
 }
 
 /// Creates output trigger tree that will store information about matching, acoplanarity etc.
@@ -429,12 +455,17 @@ void InitializeHistograms(map<string, TH1D*> &hists, const string &datasetType)
     string title = histName + "_" + datasetType;
     vector<float> bins;
     
-    if(histName.find("vs_pt") != string::npos){
+    if(histName.find("vs_pt") != string::npos ||
+       histName.find("vs_dielectron_pt") != string::npos){
       bins  = { 0, 2, 4, 6, 8, 20 };
       hists[title] = new TH1D(title.c_str(), title.c_str(), (int)bins.size()-1, (float*)&bins[0]);
     }
-    else if(histName.find("vs_eta") != string::npos){
+    else if(histName.find("vs_eta") != string::npos ||
+            histName.find("vs_dielectron_eta") != string::npos){
       hists[title] = new TH1D(title.c_str(), title.c_str(), 5, 0.0, 2.5);
+    }
+    else if(histName.find("vs_dielectron_mass") != string::npos){
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 40, 0, 20);
     }
     else if(histName == "failingPhotonEt"){
       hists[title] = new TH1D(title.c_str(), title.c_str(), 20, 0, 20);
@@ -469,7 +500,7 @@ void InitializeHistograms(map<string, TH1D*> &hists, const string &datasetType)
     else if(histName.find("cut_through") != string::npos){
       hists[title] = new TH1D(title.c_str(), title.c_str(), 20, 0, 20);
     }
-    else if(histName.find("dielectron_mass") != string::npos){
+    else if(histName == "dielectron_mass"){
       hists[title] = new TH1D(title.c_str(), title.c_str(), 50, 0, 20);
     }
     else{

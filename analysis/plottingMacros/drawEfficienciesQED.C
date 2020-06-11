@@ -6,8 +6,8 @@
 
 #include "../include/Helpers.hpp"
 
-const string  inputPath    = "../results/efficienciesQED_test.root";
-const string  outputPath   = "../plots/efficienciesQED_test.pdf";
+const string  inputPath    = "../results/efficienciesQED.root";
+const string  outputPath   = "../plots/efficienciesQED.pdf";
 
 const double  canvasWidth  = 2880;
 const double  canvasHeight = 1800;
@@ -16,116 +16,134 @@ const int     nColumns     = 4;
 
 TFile *inFile;
 
-void printEfficiencies(string dataType)
+vector<tuple<string>> efficienciesParams = {
+  { "reco_id" },
+  { "charged_exclusivity" },
+  { "neutral_exclusivity" },
+};
+
+vector<EDataset> datasetsToAnalyze = {
+  kData,
+  kMCqedSC
+};
+
+void printEfficiencies()
 {
-  TH1D *reco_id_eff_num = (TH1D*)inFile->Get(("reco_id_eff_num_"+dataType).c_str());
-  TH1D *reco_id_eff_den = (TH1D*)inFile->Get(("reco_id_eff_den_"+dataType).c_str());
-  double nTagsRecoId    = reco_id_eff_num->GetBinContent(1);
-  double nProbesRecoId  = reco_id_eff_den->GetBinContent(1);
+  for(auto &[efficiencyType] : efficienciesParams){
+ 
+    
+    cout<<"\n------------------------------------------------"<<endl;
+    double effData, effDataErr, effMC, effMCerr;
+    
+    for(EDataset dataset : datasetsToAnalyze){
+      
+      TH1D *histNum = (TH1D*)inFile->Get((efficiencyType+"_eff_num_"+datasetName.at(dataset)).c_str());
+      TH1D *histDen = (TH1D*)inFile->Get((efficiencyType+"_eff_den_"+datasetName.at(dataset)).c_str());
+      double nTags    = histNum->GetBinContent(1);
+      double nProbes  = histDen->GetBinContent(1);
+    
+      cout<<"\n"<<efficiencyType<<" efficiency in "<<datasetName.at(dataset)<<":"<<endl;
+      cout<<"N probes: "<<nProbes<<endl;
+      cout<<"N tags: "<<nTags<<endl;
+      cout<<"Eff : "<<(nTags/nProbes);
+      cout<<" +/- "<<(nTags/nProbes*sqrt(1/nTags+1/nProbes))<<endl;
+      
+      if(dataset == kData){
+        effData     = nTags/nProbes;
+        effDataErr  = (nTags/nProbes*sqrt(1/nTags+1/nProbes));
+      }
+      else{
+        effMC     = nTags/nProbes;
+        effMCerr  = (nTags/nProbes*sqrt(1/nTags+1/nProbes));
+      }
+    }
+    
+    double scaleFactor = effData/effMC;
+    double scaleFactorErr = scaleFactor * sqrt(pow(effDataErr/effData, 2) + pow(effMCerr/effMC, 2));
+                                           
+    cout<<"\nScale factor: "<<scaleFactor<<" +/- "<<scaleFactorErr<<endl;
+    cout<<"------------------------------------------------\n"<<endl;
+  }
   
-  cout<<"\n\nReco and ID efficiency in "<<dataType<<":"<<endl;
-  cout<<"N probes: "<<nProbesRecoId<<endl;
-  cout<<"N tags: "<<nTagsRecoId<<endl;
-  cout<<"Eff : "<<(nTagsRecoId/nProbesRecoId);
-  cout<<" +/- "<<(nTagsRecoId/nProbesRecoId*sqrt(1/nTagsRecoId+1/nProbesRecoId))<<endl;
 }
 
-void plotDoubleHistogram(string histName, string dataType, bool first)
+void plotDoubleHistogram(string histName, EDataset dataset, bool first, TLegend *leg=nullptr)
 {
-  TH1D *reco_id_eff_vs     = (TH1D*)inFile->Get((histName+"_num_"+dataType).c_str());
-  if(!reco_id_eff_vs) cout<<"ERROR -- could not find histogram: "<<histName<<dataType<<"_num"<<endl;
+  TH1D *histNum = (TH1D*)inFile->Get((histName+"_num_"+datasetName.at(dataset)).c_str());
+  if(!histNum) cout<<"ERROR -- could not find histogram: "<<histName<<"_num_"<<datasetName.at(dataset)<<endl;
   
-  TH1D *reco_id_eff_vs_den = (TH1D*)inFile->Get((histName+"_den_"+dataType).c_str());
-  if(!reco_id_eff_vs_den) cout<<"ERROR -- could not find histogram: "<<histName<<dataType<<"_den"<<endl;
+  TH1D *histDen = (TH1D*)inFile->Get((histName+"_den_"+datasetName.at(dataset)).c_str());
+  if(!histDen) cout<<"ERROR -- could not find histogram: "<<histName<<"_den_"<<datasetName.at(dataset)<<endl;
   
-  reco_id_eff_vs->Divide(reco_id_eff_vs_den);
-  reco_id_eff_vs->Draw(first ? "" : "same");
-  if(first) reco_id_eff_vs->GetYaxis()->SetRangeUser(0, 1.5);
-  else reco_id_eff_vs->SetLineColor(kGreen+2);
+  histNum->Divide(histDen);
+  histNum->Draw(first ? "" : "same");
+  histNum->GetYaxis()->SetRangeUser(0, 1.5);
+  histNum->SetLineColor(datasetColor.at(dataset));
+  
+  if(leg) leg->AddEntry(histNum, datasetName.at(dataset).c_str(), "elp");
 }
 
-void plotSingleHistogram(string histName, bool first, int color, TLegend *leg=nullptr)
+void plotSingleHistogram(string histName, EDataset dataset, bool first, TLegend *leg=nullptr)
 {
-  TH1D *hist = (TH1D*)inFile->Get(histName.c_str());
+  TH1D *hist = (TH1D*)inFile->Get((histName+"_"+datasetName.at(dataset)).c_str());
   if(!hist) cout<<"ERROR -- could not find histogram: "<<histName<<endl;
-  hist->Scale(1./hist->GetEntries());
-  hist->SetLineColor(color);
-  hist->Draw(first ? "" : "same");
-//  if(first) hist->GetYaxis()->SetRangeUser(0, 1.0);
   
-  if(leg) leg->AddEntry(hist, histName.c_str(), "elp");
+  hist->Scale(1./hist->GetEntries());
+  hist->SetLineColor(datasetColor.at(dataset));
+  hist->Draw(first ? "" : "same");
+  //  if(first) hist->GetYaxis()->SetRangeUser(0, 1.0);
+  
+  if(leg) leg->AddEntry(hist, datasetName.at(dataset).c_str(), "elp");
 }
 
+vector<tuple<string, bool, bool>> histParams = {
+  // hist name              doubleRatio logY
+  {"reco_id_eff_vs_pt"        , true  , false },
+  {"reco_id_eff_vs_eta"       , true  , false },
+  
+  {"reco_id_eff_cut_through"  , false , true  },
+  {"ele_acoplanarity"         , false , false },
+  {"brem_track_pt"            , false , false },
+  {"failingPhotonEt"          , false , false },
+  {"failingPhotonEta"         , false , false },
+  {"failingPhotonSigmaBarrel" , false , false },
+  {"failingPhotonSigmaEndcap" , false , false },
+  {"failingPhotonHEbarrel"    , false , false },
+  {"failingPhotonHEendcap"    , false , false },
+  {"delta_pt_tracks"          , false , false },
+  {"delta_phi_electron_photon", false , false },
+};
 
 void drawEfficienciesQED()
 {
   inFile = TFile::Open(inputPath.c_str());
-
+  
   TCanvas *canvas = new TCanvas("Efficiencies", "Efficiencies", canvasWidth, canvasHeight);
   canvas->Divide(nColumns, nRaws);
-  
   gStyle->SetOptStat(0);
   
-  canvas->cd(1);
-  plotDoubleHistogram("reco_id_eff_vs_pt", "Data", true);
-  plotDoubleHistogram("reco_id_eff_vs_pt", "QED_SC", false);
+  int iPad=1;
   
-  canvas->cd(2);
-  plotSingleHistogram("reco_id_eff_cut_through_Data"   , true  , kBlue);
-  plotSingleHistogram("reco_id_eff_cut_through_QED_SC" , false , kGreen+2);
-  gPad->SetLogy(true);
+  for(auto &[histName, doubleRatio, logY] : histParams){
+    
+    canvas->cd(iPad++);
+    gPad->SetLogy(logY);
+    
+    bool first = true;
+    TLegend *leg = new TLegend(0.6, 0.7, 0.9, 0.9);
+    
+    for(EDataset dataset : datasetsToAnalyze){
+      if(doubleRatio) plotDoubleHistogram(histName, dataset, first, leg);
+      else            plotSingleHistogram(histName, dataset, first, leg);
+      
+      first = false;
+    }
+    
+    leg->Draw();
+    
+  }
   
-  canvas->cd(3);
-  plotDoubleHistogram("reco_id_eff_vs_eta", "Data", true);
-  plotDoubleHistogram("reco_id_eff_vs_eta", "QED_SC", false);
-  
-  canvas->cd(4);
-  TLegend *leg = new TLegend(0.8, 1.0, 0.8, 1.0);
-  
-  plotSingleHistogram("ele_acoplanarity_QED_SC"  , true  , kGreen+2, leg);
-  plotSingleHistogram("ele_acoplanarity_Data"    , false ,  kBlue  , leg);
-  leg->Draw();
-  
-  canvas->cd(5);
-  plotSingleHistogram("brem_track_pt_Data"   , true  , kBlue);
-  plotSingleHistogram("brem_track_pt_QED_SC" , false , kGreen+2);
-  
-  canvas->cd(6);
-  plotSingleHistogram("failingPhotonEt_Data"   , true  , kBlue);
-  plotSingleHistogram("failingPhotonEt_QED_SC" , false , kGreen+2);
-  
-  canvas->cd(7);
-  plotSingleHistogram("failingPhotonEta_Data"   , true  , kBlue);
-  plotSingleHistogram("failingPhotonEta_QED_SC" , false , kGreen+2);
-  
-  canvas->cd(8);
-  plotSingleHistogram("failingPhotonSigmaBarrel_Data"   , true  , kBlue);
-  plotSingleHistogram("failingPhotonSigmaBarrel_QED_SC" , false , kGreen+2);
-  
-  canvas->cd(9);
-  plotSingleHistogram("failingPhotonSigmaEndcap_Data"   , true  , kBlue);
-  plotSingleHistogram("failingPhotonSigmaEndcap_QED_SC" , false , kGreen+2);
-  
-  canvas->cd(10);
-  plotSingleHistogram("failingPhotonHEbarrel_Data"   , true  , kBlue);
-  plotSingleHistogram("failingPhotonHEbarrel_QED_SC" , false , kGreen+2);
-  
-  canvas->cd(11);
-  plotSingleHistogram("failingPhotonHEendcap_Data"   , true  , kBlue);
-  plotSingleHistogram("failingPhotonHEendcap_QED_SC" , false , kGreen+2);
-  
-  canvas->cd(12);
-  plotSingleHistogram("delta_pt_tracks_Data"   , true  , kBlue);
-  plotSingleHistogram("delta_pt_tracks_QED_SC" , false , kGreen+2);
-  
-  canvas->cd(13);
-  plotSingleHistogram("delta_phi_electron_photon_Data"   , true  , kBlue);
-  plotSingleHistogram("delta_phi_electron_photon_QED_SC" , false , kGreen+2);
-  
-  
-  
-  printEfficiencies("Data");
-  printEfficiencies("QED_SC");
+  printEfficiencies();
   
   canvas->SaveAs(outputPath.c_str());
   

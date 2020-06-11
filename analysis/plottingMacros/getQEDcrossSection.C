@@ -8,7 +8,10 @@ const double exclusivityEfficiencyErrStat = 1.3e-2;
 const double exclusivityEfficiencyErrSyst = 5.03e-2;
 const double exclusivityEfficiencyErr     = sqrt(pow(exclusivityEfficiencyErrStat, 2) + pow(exclusivityEfficiencyErrSyst, 2));
 
-const double xsecGenerated    = 8830;// = 1.086453e-01*20.6e3*4.82/4.73; // in mub
+const double generatorCutsEfficiency = 0.7184;
+const double dataAvailableFraction = 0.8514227642; // we are missing 15% of the data
+
+const double xsecGenerated    = dataAvailableFraction * generatorCutsEfficiency * 8830;// in mub
 const double xsecGeneratedErr = (0.15/4.82) * xsecGenerated; // FIXME what is the uncertainty?
 
 const double luminosity     = 1609.910015010; // 391; // in mub-1
@@ -16,7 +19,7 @@ const double luminosityErr  = 0.12 * luminosity;
 
 const double scaleFactor          = 0.98 * 0.98;//*0.931*0.928;//*1.09;
 const double scaleFactorErr       = sqrt(pow(0.03, 2) + pow( 2 * 0.02, 2));//+pow(0.003/0.931,2)+pow(0.020/0.928,2))*sf_ged;
-const int    nEventsGenerated     = 960000;
+const int    nEventsGenerated     = 980000;
 //(int) (2399759.*(290214.+98326.)/98326.);// scale old number of events by the new+old number of reco events // was 7929199;
 
 const double acoplanarityCut = 0.06;

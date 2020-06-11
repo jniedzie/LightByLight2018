@@ -1,10 +1,10 @@
 #include "../include/Helpers.hpp"
 
-//string inputPath  = "../results/basicPlots_default.root";
+string inputPath  = "../results/basicPlots_default.root";
 //string inputPath  = "../results/basicPlots_default_inverted.root";
 //string inputPath  = "../results/basicPlots_default_inverted_qed.root";
 //string inputPath  = "../results/basicPlots_default_full.root";
-string inputPath  = "../results/basicPlots_default_HEMupdate.root";
+//string inputPath  = "../results/basicPlots_default_HEMupdate.root";
 //string inputPath  = "../results/basicPlots_data_muchLooserCHE.root";
 //string inputPath  = "../results/basicPlots_data_noPixelTracks.root";
 //string inputPath  = "../results/basicPlots_data_ZDCcut.root";
@@ -18,16 +18,25 @@ string outputPath = "../plots/distributions";
 
 map<EDataset, double> initialNevents = {
 //  { kMCqedSC, 67820000  }, // total
-  { kMCqedSC, 960000    }, // currently available
+  { kMCqedSC, 980000    }, // currently available
   { kMClbl  , 362000    }, // currently available
   { kMCcep  , 144900    }, // currently available
 };
 
+double purity = 0.963988; // from fit
+//double purity = 0.957672; // from counting
+
+double cutEfficiencyQED = 0.7184;
+double cutEfficiencyLbL = 1.0;
+
+double dataAvailableFraction = 0.8514227642; // we are missing 15% of the data
+
 map<EDataset, double> crossSection = { // μb
-  { kMCqedSC, 8830    },
-  { kMClbl  , 2.59    },
+  { kMCqedSC, 8830    * cutEfficiencyQED * dataAvailableFraction * purity }, // scaling MC's to account for missing 15% of the data
+  { kMCqedSL, 7920    * dataAvailableFraction * purity }, // scaling MC's to account for missing 15% of the data
+  { kMClbl  , 2.59    * cutEfficiencyLbL * dataAvailableFraction },
 //  { kMCcep  , 5.8  },
-  { kMCcep  , 0.0058  },
+  { kMCcep  , 0.0058  * dataAvailableFraction * purity },
 };
 
 //double luminosity = 1847.99; // from CMS pages, 1/μb
@@ -368,11 +377,11 @@ void normalizeHists(map<EDataset, TH1D*> hists, ENorm normStrategy)
     else if(normStrategy == kXsec){
       if(dataset == kData) continue;
       hists[dataset]->Scale(luminosity*crossSection[dataset]/initialNevents[dataset]);
-      hists[dataset]->Sumw2(false);
+//      hists[dataset]->Sumw2(false);
     }
     else if(normStrategy == kNoScaling){
       if(dataset == kData) continue;
-      hists[dataset]->Sumw2(false);
+//      hists[dataset]->Sumw2(false);
     }
   }
 }
