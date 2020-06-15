@@ -1,6 +1,7 @@
 
 
-string inputPath  = "../results/basicPlots_default_HEMupdate.root";
+//string inputPath  = "../results/basicPlots_default_HEMupdate.root";
+string inputPath  = "../results/basicPlots_test.root";
 
 // efficiency for exclusivity, with stat and syst errors.
 const double exclusivityEfficiency        = 89.5e-2;
@@ -25,62 +26,71 @@ const int    nEventsGenerated     = 980000;
 const double acoplanarityCut = 0.06;
 
 
-const double glob_syst         = 2.*(0.02/0.98); // reco+ID
+const double globalSystErr = 2.*(0.02/0.98); // reco+ID
 
 
 void getQEDcrossSection()
 {
   TFile *inFile = TFile::Open(inputPath.c_str());
+  
+  if(!inFile){
+    cout<<"ERROR -- could not open input file: "<<inputPath<<endl;
+    exit(0);
+  }
+  
   TH1D *acoplanarityHistData  = (TH1D*)inFile->Get("qed_acoplanarity_all_Data");
+  if(!acoplanarityHistData){
+    cout<<"ERROR -- could not find Data acoplanarity histogram in the input file!"<<endl;
+    exit(0);
+  }
+  
   TH1D *acoplanarityHistMC    = (TH1D*)inFile->Get("qed_acoplanarity_all_QED_SC");
-  
-  
-  
-  /*
-  TFile *fdata = TFile::Open("outputDataAll_noexcl.root");
-  TTree *trdata = (TTree*)fdata->Get("tree");
-  
-  TFile *fmc = TFile::Open("outputMCAll_noexcl_OldAndNew.root");
-  TTree *trmc = (TTree*) fmc->Get("tree");
-  
-  
-  // estimate the purity in data
-  TH1F *acoplanarityHistData = new TH1F("acoplanarityHistData",";Dielectron A_{#phi};Entries / (0.002)", 30, 0, acoplanarityCut);
-  trdata->Project(acoplanarityHistData->GetName(),"acop",Form("doubleEG2&&acop<%f&&mass>=%f&&pt<=1",acoplanarityCut,mass_cut));
-  
-  
-  //
-  TH1D *hvari[14];
-  
-  string name = "acoplanarityHistMC";
-  const char* var = "acop";
-  
-  const char* cut = Form("doubleEG2&&acop<%f&&mass>=%f&&pt<=1",acoplanarityCut,mass_cut);
-  
-  for(int ivar=0; ivar<14; ivar++){
-    TString namei = Form("%s_%d", name, ivar);
-    // namei = acoplanarityHistMC_0, acoplanarityHistMC_1...
-    
-    
-    hvari[ivar] = new TH1D(namei, "", 30, 0, acoplanarityCut);
-    
-    // selection = SFweight[0]*()
-    tr->Project(namei, var, Form("SFweight[%d]*(%s)", ivar, cut));
+  if(!acoplanarityHistMC){
+    cout<<"ERROR -- could not find MC acoplanarity histogram in the input file!"<<endl;
+    exit(0);
   }
   
-  TH1D *acoplanarityHistMC = new TH1D(name,"", 30, 0 ,acoplanarityCut);
   
-  else trmc->Project(name,var,cut);
+  TTree *triggerSFtree = (TTree*)inFile->Get("triggerScaleFactorsTree");
+  if(!triggerSFtree){
+    cout<<"ERROR -- could not find trigger scale factors tree in the input file!"<<endl;
+    exit(0);
+  }
   
-  for (int i=1; i<=acoplanarityHistMC->GetNbinsX(); i++){
+  
+  vector<float> *triggerScaleFactors = nullptr;
+  
+  triggerSFtree->SetBranchAddress("SFweights", &triggerScaleFactors);
+  triggerSFtree->GetEntry(0);
+  
+  const int nVariations = triggerScaleFactors->size();
+  
+  
+  TH1D *errorVariationHists[nVariations];
+  for(int iVariation=0; iVariation<nVariations; iVariation++){
+    string name = "variationHist" + to_string(iVariation);
+    errorVariationHists[iVariation] = new TH1D(name.c_str(), name.c_str(), 30, 0, acoplanarityCut);
+  }
+  
+  
+  for(int iEntry=0; iEntry<triggerSFtree->GetEntries(); iEntry++){
+    triggerSFtree->GetEntry(iEntry);
+    
+    for(int iVariation=0; iVariation<nVariations; iVariation++){
+      errorVariationHists[iVariation]->Fill(triggerScaleFactors->at(iVariation));
+    }
+  }
+
+  for(int iBin=1; iBin<=acoplanarityHistMC->GetNbinsX(); iBin++){
     double err=0;
-    for(int ivar=1; ivar<14; ivar++) err += pow(hvari[ivar]->GetBinContent(i)-hvari[0]->GetBinContent(i),2);
-    acoplanarityHistMC->SetBinError(i,sqrt(err+pow(acoplanarityHistMC->GetBinError(i),2)+pow(glob_syst,2)));
+    for(int iVariation=1; iVariation<nVariations; iVariation++){
+      err += pow(errorVariationHists[iVariation]->GetBinContent(iBin) - errorVariationHists[0]->GetBinContent(iBin), 2);
+    }
+    
+    double totalErr = sqrt(err + pow(acoplanarityHistMC->GetBinError(iBin), 2) + pow(globalSystErr, 2));
+    
+    acoplanarityHistMC->SetBinError(iBin, totalErr);
   }
-  */
-  //
-  
-  
 
   
   

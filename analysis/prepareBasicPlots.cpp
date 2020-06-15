@@ -9,37 +9,15 @@
 #include "EventDisplay.hpp"
 #include "Logger.hpp"
 
-string configPath = "configs/preparePlots_default.md";
-string outputPath = "results/basicPlots_test.root";
-
 bool saveCalosFailingNEE = true;
 bool saveTriphotonHists = true;
 bool checkTriggers = false;
 
 int nThreePhotonEvents = 0;
 
-// Only those datasets will be analyzed
-const vector<EDataset> datasetsToAnalyze = {
-  kData,
-  //  kData_SingleEG3,
-  //  kData_recoEff,
-  //  kData_triggerEff,
-  //  kData_HFveto,
-  //  kData_exclusivity,
-//  kData_LbLsignal,
-//  kData_QEDsignal,
-//    kMCqedSC,
-  //  kMCqedSC_SingleEG3,
-  //  kMCqedSC_recoEff,
-  //  kMCqedSC_triggerEff,
-  //  kMCqedSC_HFveto,
-  //  kMCqedSC_exclusivity,
-//  kMCqedSC_LbLsignal,
-//  kMCqedSC_QEDsignal,
-  //  kMCqedSL,
-//    kMClbl,
-//    kMCcep
-};
+TGraphAsymmErrors *triggerScaleFactorsLowEta, *triggerScaleFactorsHighEta;
+TTree *triggerScaleFactorsTree;
+vector<float> SFweights;
 
 vector<string> suffixes = {
   "all", "low_aco", "high_aco", "pass_qed", "pass_lbl",  "good_pass_qed", "good_pass_lbl",
@@ -517,6 +495,54 @@ void fillCHEhistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   fillTracksHists(event, hists, dataset, aco > config.params("diphotonMaxAco") ? "high_aco" : "low_aco");
 }
 
+tuple<double, double, double> getScaleFactor(const shared_ptr<PhysObject> &electron)
+{
+  double et   = electron->GetPt();
+  double eta  = fabs(electron->GetEta());
+  
+  TGraphAsymmErrors *graph = eta < 1.2 ? triggerScaleFactorsLowEta : triggerScaleFactorsHighEta;
+  
+  for(int i=0; i<graph->GetN(); i++){
+    double x, y;
+    double xErrLow  = graph->GetErrorXlow(i);
+    double xErrHigh = graph->GetErrorXhigh(i);
+    double yErrLow  = graph->GetErrorYlow(i);
+    double yErrHigh = graph->GetErrorYhigh(i);
+    
+    graph->GetPoint(i, x, y);
+    
+    if(et > x-xErrLow && et < x+xErrHigh) return {y, yErrLow, yErrHigh};
+  }
+  
+  cout<<"WARNING -- could not find trigger scale factor for eta: "<<eta<<"\tet: "<<et<<endl;
+  return {1, 0, 0};
+}
+
+int getScaleFactorBin(const shared_ptr<PhysObject> &electron)
+{
+  double et   = electron->GetEt();
+  double eta  = fabs(electron->GetEta());
+  
+  TGraphAsymmErrors *graph = triggerScaleFactorsLowEta;
+  
+  int bin = 1;
+  
+  for(int i=0; i<graph->GetN(); i++){
+    double x, y;
+    double xErrLow  = graph->GetErrorXlow(i);
+    double xErrHigh = graph->GetErrorXhigh(i);
+    graph->GetPoint(i, x, y);
+    
+    if(et > x-xErrLow && et < x+xErrHigh) break;
+    
+    bin++;
+  }
+  
+  if(eta > 1.2) bin += graph->GetN();
+  
+  return bin;
+}
+
 void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, EDataset dataset)
 {
   string name = datasetName.at(dataset);
@@ -530,12 +556,40 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   if(event.GetPhysObjects(kGoodMatchedElectron).size() != 2) return;
   hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 2 - Two good electrons
   
-  if(event.GetPhysObjects(kGoodMatchedElectron)[0]->GetCharge() ==
-     event.GetPhysObjects(kGoodMatchedElectron)[1]->GetCharge()){
+  auto electron1 = event.GetPhysObjects(kGoodMatchedElectron)[0];
+  auto electron2 = event.GetPhysObjects(kGoodMatchedElectron)[1];
+    
+  if(electron1->GetCharge() == electron2->GetCharge()){
     fillDielectronHists(event, hists, name, "samesign", "all");
     return;
   }
   hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 3 - Opposite charge
+  
+  if(triggerScaleFactorsLowEta && triggerScaleFactorsHighEta){
+    
+    auto [sf1, sf1ErrLow, sf1ErrHigh] = getScaleFactor(electron1);
+    auto [sf2, sf2ErrLow, sf2ErrHigh] = getScaleFactor(electron2);
+    
+    if(sf1!=1 && sf1ErrLow!=0 && sf1ErrHigh!=0 &&
+       sf2!=1 && sf2ErrLow!=0 && sf2ErrHigh!=0){
+      
+      const int nWeights = 2 * triggerScaleFactorsLowEta->GetN();
+      
+      SFweights.clear();
+      
+      SFweights.push_back(sf1*sf2);
+      
+      for (int ivar=1; ivar<nWeights; ivar++){
+        double sf1p=sf1, sf2p=sf2;
+        if(getScaleFactorBin(electron1)==ivar) sf1p += (sf1ErrLow + sf1ErrHigh)/2.;
+        if(getScaleFactorBin(electron2)==ivar) sf2p += (sf2ErrLow + sf2ErrHigh)/2.;
+        SFweights.push_back(sf1p*sf2p);
+      }
+      
+      triggerScaleFactorsTree->Fill();
+    }
+  }
+    
   
   TLorentzVector dielectron = physObjectProcessor.GetDielectron(*event.GetPhysObjects(kGoodMatchedElectron)[0],
                                                                 *event.GetPhysObjects(kGoodMatchedElectron)[1]);
@@ -587,109 +641,102 @@ void InitializeHistograms(map<string, TH1D*> &hists, string datasetType, string 
 
 int main(int argc, char* argv[])
 {
-  if(argc != 1 && argc != 5){
-    Log(0)<<"This app requires 0 or 4 parameters.\n";
-    Log(0)<<"./prepareBasicPlots configPath inputPath outputPath datasetName[Data|QED_SC|QED_SL|LbL|CEP]\n";
+  if(argc != 1 && argc != 6){
+    Log(0)<<"This app requires 0 or 5 parameters.\n";
+    Log(0)<<"./prepareBasicPlots configPath inputPath outputPath datasetName[Data|QED_SC|QED_SL|LbL|CEP] triggerScaleFactorsPath\n";
     exit(0);
   }
+  string configPath = "";
   string inputPath = "";
+  string outputPath = "";
   string sampleName = "";
+  string triggerScaleFactorsPath = "";
   
-  if(argc == 5){
-    configPath = argv[1];
-    inputPath  = argv[2];
-    outputPath = argv[3];
-    sampleName = argv[4];
+  if(argc == 6){
+    configPath              = argv[1];
+    inputPath               = argv[2];
+    outputPath              = argv[3];
+    sampleName              = argv[4];
+    triggerScaleFactorsPath = argv[5];
   }
+  
+  cout<<"Config: "<<configPath<<endl;
+  cout<<"Input: "<<inputPath<<endl;
+  cout<<"Output: "<<outputPath<<endl;
+  cout<<"Sample name: "<<sampleName<<endl;
+  cout<<"Trigger scale factors path: "<<triggerScaleFactorsPath<<endl;
+  
   config = ConfigManager(configPath);
+  
+  TFile *triggerScaleFactorsFile = nullptr;
+  if(sampleName == "Data"){
+    triggerScaleFactorsFile = TFile::Open(triggerScaleFactorsPath.c_str());
+    
+    if(!triggerScaleFactorsFile){
+      cout<<"ERROR -- could not open file with trigger scale factors: "<<triggerScaleFactorsPath<<endl;
+    }
+    else{
+      triggerScaleFactorsLowEta   = (TGraphAsymmErrors*)triggerScaleFactorsFile->Get("triggerScaleFactors_vsEt_etaBelow1p2");
+      triggerScaleFactorsHighEta  = (TGraphAsymmErrors*)triggerScaleFactorsFile->Get("triggerScaleFactors_vsEt_etaAbove1p2");
+    }
+  }
+  
+  
   
   map<string, TH1D*> hists;
   
   TFile *outFile = new TFile(outputPath.c_str(), "recreate");
   
+  triggerScaleFactorsTree = new TTree("triggerScaleFactorsTree", "triggerScaleFactorsTree");
+  triggerScaleFactorsTree->Branch("SFweights", &SFweights);
   
   
-  if(inputPath==""){
-    for(auto dataset : datasetsToAnalyze){
-      for(string suffix : suffixes){
-        InitializeHistograms(hists, datasetName.at(dataset), suffix);
-      }
-    }
-    
-    for(auto dataset : datasetsToAnalyze){
-      string name = datasetName.at(dataset);
-      
-      Log(0)<<"Creating "<<name<<" plots\n";
-      
-      auto events = make_unique<EventProcessor>(inFileNames.at(dataset), dataset);
-      
-      for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
-        if(iEvent%1000 == 0)  Log(1)<<"Processing event "<<iEvent<<"\n";
-        if(iEvent%10000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
-        if(iEvent >= config.params("maxEvents")) break;
-        
-        auto event = events->GetEvent(iEvent);
-
-        event->GetPhysObjects(kGoodElectron, hists.at("qed_electron_cutflow_all_"+name));
-        event->GetPhysObjects(kGoodGeneralTrack, hists.at("tracks_cut_flow_all_"+name));
-        
-        fillLbLHistograms(*event, hists, dataset);
-        fillCHEhistograms(*event, hists, dataset);
-        fillQEDHistograms(*event, hists, dataset);
-        fillZDCHists(*event, hists, datasetName.at(dataset), "all");
-      }
-      
-      outFile->cd();
-      for(auto &[histName, hist] : hists){
-        if(histName.find(name) != string::npos) hist->Write();
-      }
-    }
+  EDataset dataset = nDatasets;
+  
+  if(sampleName == "Data")    dataset = kData;
+  if(sampleName == "QED_SC")  dataset = kMCqedSC;
+  if(sampleName == "QED_SL")  dataset = kMCqedSL;
+  if(sampleName == "LbL")     dataset = kMClbl;
+  if(sampleName == "CEP")     dataset = kMCcep;
+  
+  
+  auto events = make_unique<EventProcessor>(inputPath, dataset);
+  
+  for(string suffix : suffixes){
+    InitializeHistograms(hists, sampleName, suffix);
   }
-  else{
-    EDataset dataset = nDatasets;
-       
-    if(sampleName == "Data")    dataset = kData;
-    if(sampleName == "QED_SC")  dataset = kMCqedSC;
-    if(sampleName == "QED_SL")  dataset = kMCqedSL;
-    if(sampleName == "LbL")     dataset = kMClbl;
-    if(sampleName == "CEP")     dataset = kMCcep;
-       
-    
-    auto events = make_unique<EventProcessor>(inputPath, dataset);
-    
-    for(string suffix : suffixes){
-      InitializeHistograms(hists, sampleName, suffix);
-    }
-    
-   
-    if(dataset == nDatasets){
-      Log(0)<<"ERROR -- unknown dataset name provided: "<<sampleName<<"\n";
-      exit(0);
-    }
-    
-    for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
-      if(iEvent%1000 == 0)  Log(1)<<"Processing event "<<iEvent<<"\n";
-      if(iEvent%10000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
-      if(iEvent >= config.params("maxEvents")) break;
-      
-      auto event = events->GetEvent(iEvent);
-      
-      // run this here just to save electron cut flow hist
-      event->GetPhysObjects(kGoodElectron, hists.at("qed_electron_cutflow_all_"+sampleName));
-      event->GetPhysObjects(kGoodGeneralTrack, hists.at("tracks_cut_flow_all_"+sampleName));
-      
-      fillLbLHistograms(*event, hists, dataset);
-      fillCHEhistograms(*event, hists, dataset);
-      fillQEDHistograms(*event, hists, dataset);
-      fillZDCHists(*event, hists, sampleName, "all");
-    }
-    
-    outFile->cd();
-    for(auto &[histName, hist] : hists) hist->Write();
+  
+  
+  if(dataset == nDatasets){
+    Log(0)<<"ERROR -- unknown dataset name provided: "<<sampleName<<"\n";
+    exit(0);
   }
+  
+  for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
+    if(iEvent%1000 == 0)  Log(1)<<"Processing event "<<iEvent<<"\n";
+    if(iEvent%10000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
+    if(iEvent >= config.params("maxEvents")) break;
+    
+    auto event = events->GetEvent(iEvent);
+    
+    // run this here just to save electron cut flow hist
+    event->GetPhysObjects(kGoodElectron, hists.at("qed_electron_cutflow_all_"+sampleName));
+    event->GetPhysObjects(kGoodGeneralTrack, hists.at("tracks_cut_flow_all_"+sampleName));
+    
+    fillLbLHistograms(*event, hists, dataset);
+    fillCHEhistograms(*event, hists, dataset);
+    fillQEDHistograms(*event, hists, dataset);
+    fillZDCHists(*event, hists, sampleName, "all");
+  }
+  
+  outFile->cd();
+  for(auto &[histName, hist] : hists) hist->Write();
+  
 
   Log(0)<<"N events with 3 photons: "<<nThreePhotonEvents<<"\n";
   
+  outFile->cd();
+  triggerScaleFactorsTree->Write();
   outFile->Close();
   
 }
