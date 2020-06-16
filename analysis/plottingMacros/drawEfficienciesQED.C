@@ -17,7 +17,8 @@ const int     nColumns     = 4;
 TFile *inFile;
 
 vector<tuple<string>> efficienciesParams = {
-  { "reco_id" },
+  { "reco_id"             },
+  { "trigger_HFveto"      },
   { "charged_exclusivity" },
   { "neutral_exclusivity" },
 };

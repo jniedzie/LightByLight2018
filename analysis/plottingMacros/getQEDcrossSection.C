@@ -1,33 +1,46 @@
 
 
 //string inputPath  = "../results/basicPlots_default_HEMupdate.root";
-string inputPath  = "../results/basicPlots_test.root";
+string inputPath  = "../results/basicPlots_default.root";
 
 // efficiency for exclusivity, with stat and syst errors.
-const double exclusivityEfficiency        = 89.5e-2;
-const double exclusivityEfficiencyErrStat = 1.3e-2;
-const double exclusivityEfficiencyErrSyst = 5.03e-2;
-const double exclusivityEfficiencyErr     = sqrt(pow(exclusivityEfficiencyErrStat, 2) + pow(exclusivityEfficiencyErrSyst, 2));
+const double neutralExclusivityEfficiency        = 0.71; // 0.895;
+const double neutralExclusivityEfficiencyErrStat = 0.03; // 0.013;
+const double neutralExclusivityEfficiencyErrSyst = 0.0;  // 0.0503; TODO: what's the syst error?
+const double neutralExclusivityEfficiencyErr     = sqrt(pow(neutralExclusivityEfficiencyErrStat, 2) +
+                                                        pow(neutralExclusivityEfficiencyErrSyst, 2));
 
-const double generatorCutsEfficiency = 0.7184;
-const double dataAvailableFraction = 0.8514227642; // we are missing 15% of the data
+const double chargedExclusivityEfficiency        = 0.88;
+const double chargedExclusivityEfficiencyErrStat = 0.04;
+const double chargedExclusivityEfficiencyErrSyst = 0; // ??
+const double chargedExclusivityEfficiencyErr     = sqrt(pow(chargedExclusivityEfficiencyErrStat, 2) +
+                                                        pow(chargedExclusivityEfficiencyErrSyst, 2));
 
-const double xsecGenerated    = dataAvailableFraction * generatorCutsEfficiency * 8830;// in mub
-const double xsecGeneratedErr = (0.15/4.82) * xsecGenerated; // FIXME what is the uncertainty?
+const double generatorCutsEfficiency  = 0.7184;
+const double dataAvailableFraction    = 0.8514227642; // we are missing 15% of the data
+
+// From SuperChic
+const double xsecGenerated    = dataAvailableFraction * generatorCutsEfficiency * 8827.220; // μb
+const double xsecGeneratedErr = 79.73715; // μb
+
 
 const double luminosity     = 1609.910015010; // 391; // in mub-1
-const double luminosityErr  = 0.12 * luminosity;
+const double luminosityErr  = 0.12 * luminosity; // TODO: what's the luminosity error?
 
-const double scaleFactor          = 0.98 * 0.98;//*0.931*0.928;//*1.09;
-const double scaleFactorErr       = sqrt(pow(0.03, 2) + pow( 2 * 0.02, 2));//+pow(0.003/0.931,2)+pow(0.020/0.928,2))*sf_ged;
-const int    nEventsGenerated     = 980000;
-//(int) (2399759.*(290214.+98326.)/98326.);// scale old number of events by the new+old number of reco events // was 7929199;
+const double scaleFactor          = 0.98 * 0.98; // TODO: what's this scale factor?
+const double scaleFactorErrStat   = 0.03; // TODO: what's the stat and syst err on SF?
+const double scaleFactorErrSyst   = 0.02;
+const double scaleFactorErr       = sqrt(pow(scaleFactorErrStat, 2) +
+                                         pow(scaleFactorErrSyst, 2));
+
+// const double scaleFactorErr       = sqrt(pow(scale, 2) + pow( 2 * 0.02, 2)); // TODO: why second term is multiplied by 2?
+
+const double nEventsGenerated     = 980000; // TODO: update number of events when full stat available
 
 const double acoplanarityCut = 0.06;
+const double maxAcolpanarity = 0.01; // TODO: what's the difference between those two numbers?
 
-
-const double globalSystErr = 2.*(0.02/0.98); // reco+ID
-
+const double globalSystErr = 2.*(0.02/0.98); // reco+ID // TODO: what is that?
 
 void getQEDcrossSection()
 {
@@ -96,7 +109,7 @@ void getQEDcrossSection()
   
   // normalize MC: force the data and MC integrals to be the same within acop<0.01
   
-  double maxAcolpanarity = 0.01;
+  
   
   int maxBin = acoplanarityHistData->FindFixBin(maxAcolpanarity);
   
@@ -170,28 +183,31 @@ void getQEDcrossSection()
   
   // compute the cross section
   
+  // TODO: why do we calculate it this way?
   double xsec = normalizationData * purityCounting * (nEventsGenerated/(normalizationMC*scaleFactor))/luminosity;
   
   
+  double xsecErrStat                = xsec * (normalizationDataErr/normalizationData);
   
-  double xsecErrStat        = xsec * (normalizationDataErr/normalizationData);
-  
-  double xsecErrLumi        = xsec * (luminosityErr/luminosity);
-  double xsecErrPurity      = xsec * (purityErrSyst/purityCounting);
-  double xsecErrExclusivity = xsec * (exclusivityEfficiencyErr/exclusivityEfficiency);
-  double xsecErrScaleFactor = xsec * scaleFactorErr;
-  double xsecErrMCstat      = xsec * (normalizationMCerr/normalizationMC);
+  double xsecErrLumi                = xsec * (luminosityErr/luminosity);
+  double xsecErrPurity              = xsec * (purityErrSyst/purityCounting);
+  double xsecErrNeutralExclusivity  = xsec * (neutralExclusivityEfficiencyErr/neutralExclusivityEfficiency);
+  double xsecErrChargedExclusivity  = xsec * (chargedExclusivityEfficiencyErr/chargedExclusivityEfficiency);
+  double xsecErrScaleFactor         = xsec * scaleFactorErr;
+  double xsecErrMCstat              = xsec * (normalizationMCerr/normalizationMC);
   
   
   double xsecErrSyst        = sqrt(pow(xsecErrLumi, 2) +
                                    pow(xsecErrPurity, 2) +
                                    pow(xsecErrScaleFactor, 2) +
-                                   pow(xsecErrExclusivity, 2) +
+                                   pow(xsecErrNeutralExclusivity, 2) +
+                                   pow(xsecErrChargedExclusivity, 2) +
                                    pow(xsecErrMCstat, 2));
   
   double xsecErrSystNoLumi  = sqrt(pow(xsecErrPurity, 2) +
                                    pow(xsecErrScaleFactor, 2) +
-                                   pow(xsecErrExclusivity, 2) +
+                                   pow(xsecErrNeutralExclusivity, 2) +
+                                   pow(xsecErrChargedExclusivity, 2) +
                                    pow(xsecErrMCstat, 2));
   
   double xsecErr = sqrt(pow(xsecErrStat, 2) + pow(xsecErrSyst, 2));
@@ -204,17 +220,16 @@ void getQEDcrossSection()
   cout<<"Data: "      <<xsec         <<" +/- "<<xsecErr<<" (mub)"<<endl;
   
   cout<<"Breakdown of uncertainties: "<<endl;
-  cout<<"\t- stat: "            << xsecErrStat        << "\t\t("<< 100.*xsecErrStat/xsec        <<"%)"<<endl;
-  cout<<"\t- syst+lumi: "       << xsecErrSyst        << "\t\t("<< 100.*xsecErrSyst/xsec        <<"%)"<<endl;
-  cout<<"\t- syst: "            << xsecErrSystNoLumi  << "\t\t("<< 100.*xsecErrSystNoLumi/xsec  <<"%)"<<endl;
-  cout<<"\t- lumi: "            << xsecErrLumi        << "\t\t("<< 100.*xsecErrLumi/xsec        <<"%)"<<endl;
-  cout<<"\t- exclutivity: "     << xsecErrExclusivity << "\t\t("<< 100.*xsecErrExclusivity/xsec <<"%)"<<endl;
-  cout<<"\t- purity: "          << xsecErrPurity      << "\t\t("<< 100.*xsecErrPurity/xsec      <<"%)"<<endl;
-  cout<<"\t- MC stat: "         << xsecErrMCstat      << "\t\t("<< 100.*xsecErrMCstat/xsec      <<"%)"<<endl;
-  cout<<"\t- data-driven eff: " << xsecErrScaleFactor << "\t\t("<< 100.*xsecErrScaleFactor/xsec <<"%)"<<endl;
+  cout<<"\t- stat: "                << xsecErrStat                << "\t\t("<< 100.*xsecErrStat/xsec               <<"%)"<<endl;
+  cout<<"\t- syst+lumi: "           << xsecErrSyst                << "\t\t("<< 100.*xsecErrSyst/xsec               <<"%)"<<endl;
+  cout<<"\t- syst: "                << xsecErrSystNoLumi          << "\t\t("<< 100.*xsecErrSystNoLumi/xsec         <<"%)"<<endl;
+  cout<<"\t- lumi: "                << xsecErrLumi                << "\t\t("<< 100.*xsecErrLumi/xsec               <<"%)"<<endl;
+  cout<<"\t- neutral exclutivity: " << xsecErrNeutralExclusivity  << "\t\t("<< 100.*xsecErrNeutralExclusivity/xsec <<"%)"<<endl;
+  cout<<"\t- charged exclutivity: " << xsecErrChargedExclusivity  << "\t\t("<< 100.*xsecErrChargedExclusivity/xsec <<"%)"<<endl;
+  cout<<"\t- purity: "              << xsecErrPurity              << "\t\t("<< 100.*xsecErrPurity/xsec             <<"%)"<<endl;
+  cout<<"\t- MC stat: "             << xsecErrMCstat              << "\t\t("<< 100.*xsecErrMCstat/xsec             <<"%)"<<endl;
+  cout<<"\t- data-driven eff: "     << xsecErrScaleFactor         << "\t\t("<< 100.*xsecErrScaleFactor/xsec        <<"%)"<<endl;
   cout<<"----------------------------------------\n\n"<<endl;
-  
-  
   
   
   // compute the lumi
@@ -226,19 +241,22 @@ void getQEDcrossSection()
   
   double measuredLumiErrXsec        = measuredLumi * (xsecGeneratedErr/xsecGenerated);
   double measuredLumiErrPurity      = measuredLumi * (purityErrSyst/purityCounting);
-  double measuredLumiErrExclusivity = measuredLumi * (exclusivityEfficiencyErr/exclusivityEfficiency);
+  double measuredLumiErrNeutralExclusivity = measuredLumi * (neutralExclusivityEfficiencyErr/neutralExclusivityEfficiency);
+  double measuredLumiErrChargedExclusivity = measuredLumi * (chargedExclusivityEfficiencyErr/chargedExclusivityEfficiency);
   double measuredLumiErrScaleFactor = measuredLumi * scaleFactorErr;
   double measuredLumiErrMCstat      = measuredLumi * (normalizationMCerr/normalizationMC);
   
   
   double measuredLumiErrSyst        = sqrt(pow(measuredLumiErrXsec, 2) +
                                            pow(measuredLumiErrPurity, 2) +
-                                           pow(measuredLumiErrExclusivity, 2) +
+                                           pow(measuredLumiErrNeutralExclusivity, 2) +
+                                           pow(measuredLumiErrChargedExclusivity, 2) +
                                            pow(measuredLumiErrScaleFactor,2) +
                                            pow(measuredLumiErrMCstat,2));
   
   double measuredLumiErrSystNoXsec  = sqrt(pow(measuredLumiErrPurity, 2) +
-                                           pow(measuredLumiErrExclusivity, 2) +
+                                           pow(measuredLumiErrNeutralExclusivity, 2) +
+                                           pow(measuredLumiErrChargedExclusivity, 2) +
                                            pow(measuredLumiErrScaleFactor,2) +
                                            pow(measuredLumiErrMCstat, 2));
   
@@ -257,7 +275,8 @@ void getQEDcrossSection()
   cout<<"\t- syst+xsec: "       << measuredLumiErrSyst        << "\t("<<100.*measuredLumiErrSyst/measuredLumi         <<"%)"<<endl;
   cout<<"\t- syst: "            << measuredLumiErrSystNoXsec  << "\t("<<100.*measuredLumiErrSystNoXsec/measuredLumi   <<"%)"<<endl;
   cout<<"\t- xsec: "            << measuredLumiErrXsec        << "\t("<<100.*measuredLumiErrXsec/measuredLumi         <<"%)"<<endl;
-  cout<<"\t- exclusivity: "     << measuredLumiErrExclusivity << "\t("<<100.*measuredLumiErrExclusivity/measuredLumi  <<"%)"<<endl;
+  cout<<"\t- neutral exclusivity: " << measuredLumiErrNeutralExclusivity << "\t("<<100.*measuredLumiErrNeutralExclusivity/measuredLumi  <<"%)"<<endl;
+  cout<<"\t- charged exclusivity: " << measuredLumiErrChargedExclusivity << "\t("<<100.*measuredLumiErrChargedExclusivity/measuredLumi  <<"%)"<<endl;
   cout<<"\t- purity: "          << measuredLumiErrPurity      << "\t("<<100.*measuredLumiErrPurity/measuredLumi       <<"%)"<<endl;
   cout<<"\t- MC stat: "         << measuredLumiErrMCstat      << "\t("<<100.*measuredLumiErrMCstat/measuredLumi       <<"%)"<<endl;
   cout<<"\t- data-driven eff: " << measuredLumiErrMCstat      << "\t("<<100.*measuredLumiErrScaleFactor/measuredLumi  <<"%)"<<endl;
