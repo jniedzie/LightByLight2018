@@ -172,9 +172,9 @@ void drawLinesAndCrossingPoint(TF1 *doubleExp, int color)
 void findBestCutOnIntegrals(TH1D *acoHist, TF1 *peakFun, TF1 *tailFun)
 {
   double bestSignificance = -1;
-  double bestCut;
-  double bestPeakIntegral;
-  double bestTailIntegral;
+  double bestCut = -1;
+  double bestPeakIntegral = -1;
+  double bestTailIntegral = -1;
   
   for(double cut=0; cut<1; cut+=0.0001){
     double peakIntegral = peakFun->Integral(0, cut);
@@ -203,12 +203,10 @@ void findBestCutOnIntegrals(TH1D *acoHist, TF1 *peakFun, TF1 *tailFun)
 
 pair<double, double> findBestCutOnEntries(TH1D *acoHist, TF1 *peakFun, TF1 *tailFun)
 {
-  double bestSignalEntries;
-  double bestBackgroundEntries;
+  double bestSignalEntries = -1;
+  double bestBackgroundEntries = -1;
   double bestSignificance = -1;
-  double bestCut;
-  double bestPeakIntegral;
-  double bestTailIntegral;
+  double bestCut = -1;
   
   for(double cut=0; cut<1; cut+=0.0001){
   

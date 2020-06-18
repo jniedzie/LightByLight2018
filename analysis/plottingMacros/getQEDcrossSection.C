@@ -6,13 +6,13 @@ string inputPath  = "../results/basicPlots_default.root";
 // efficiency for exclusivity, with stat and syst errors.
 const double neutralExclusivityEfficiency        = 0.71; // 0.895;
 const double neutralExclusivityEfficiencyErrStat = 0.03; // 0.013;
-const double neutralExclusivityEfficiencyErrSyst = 0.0;  // 0.0503; TODO: what's the syst error?
+const double neutralExclusivityEfficiencyErrSyst = 0.0;
 const double neutralExclusivityEfficiencyErr     = sqrt(pow(neutralExclusivityEfficiencyErrStat, 2) +
                                                         pow(neutralExclusivityEfficiencyErrSyst, 2));
 
 const double chargedExclusivityEfficiency        = 0.88;
 const double chargedExclusivityEfficiencyErrStat = 0.04;
-const double chargedExclusivityEfficiencyErrSyst = 0; // ??
+const double chargedExclusivityEfficiencyErrSyst = 0.0;
 const double chargedExclusivityEfficiencyErr     = sqrt(pow(chargedExclusivityEfficiencyErrStat, 2) +
                                                         pow(chargedExclusivityEfficiencyErrSyst, 2));
 
@@ -23,15 +23,18 @@ const double dataAvailableFraction    = 0.8514227642; // we are missing 15% of t
 const double xsecGenerated    = dataAvailableFraction * generatorCutsEfficiency * 8827.220; // μb
 const double xsecGeneratedErr = 79.73715; // μb
 
+// TODO: replace luminosity by the one calculated for our ntuples
 
-const double luminosity     = 1609.910015010; // 391; // in mub-1
-const double luminosityErr  = 0.12 * luminosity; // TODO: what's the luminosity error?
+const double luminosity       = 1642.797392287; // μb^-1
+// luminosity from brilcalc obtained with this command:
+// brilcalc lumi --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_BRIL.json  -i /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/HI/PromptReco/Cert_326381-327564_HI_PromptReco_Collisions18_JSON.txt --hltpath HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1
 
-const double scaleFactor          = 0.98 * 0.98; // TODO: what's this scale factor?
-const double scaleFactorErrStat   = 0.03; // TODO: what's the stat and syst err on SF?
-const double scaleFactorErrSyst   = 0.02;
-const double scaleFactorErr       = sqrt(pow(scaleFactorErrStat, 2) +
-                                         pow(scaleFactorErrSyst, 2));
+const double luminosityErr    = 0.015 * luminosity;
+// Relative uncertainty on luminosity as recommended by: http://cms.cern.ch/iCMS/analysisadmin/cadilines?line=LUM-18-001
+
+const double scaleFactor          = pow(0.71, 2); // This is Reco+ID only.
+const double scaleFactorErrStat   = 0.03;
+const double scaleFactorErr       = 2 * scaleFactorErrStat;
 
 // const double scaleFactorErr       = sqrt(pow(scale, 2) + pow( 2 * 0.02, 2)); // TODO: why second term is multiplied by 2?
 
@@ -40,7 +43,7 @@ const double nEventsGenerated     = 980000; // TODO: update number of events whe
 const double acoplanarityCut = 0.06;
 const double maxAcolpanarity = 0.01; // TODO: what's the difference between those two numbers?
 
-const double globalSystErr = 2.*(0.02/0.98); // reco+ID // TODO: what is that?
+const double globalSystErr = 2 * scaleFactorErrSyst/sqrt(scaleFactor); // relative uncertainty on Reco+ID scale factor
 
 void getQEDcrossSection()
 {
@@ -51,13 +54,13 @@ void getQEDcrossSection()
     exit(0);
   }
   
-  TH1D *acoplanarityHistData  = (TH1D*)inFile->Get("qed_acoplanarity_all_Data");
+  TH1D *acoplanarityHistData = (TH1D*)inFile->Get("qed_acoplanarity_all_Data");
   if(!acoplanarityHistData){
     cout<<"ERROR -- could not find Data acoplanarity histogram in the input file!"<<endl;
     exit(0);
   }
   
-  TH1D *acoplanarityHistMC    = (TH1D*)inFile->Get("qed_acoplanarity_all_QED_SC");
+  TH1D *acoplanarityHistMC = (TH1D*)inFile->Get("qed_acoplanarity_all_QED_SC");
   if(!acoplanarityHistMC){
     cout<<"ERROR -- could not find MC acoplanarity histogram in the input file!"<<endl;
     exit(0);
@@ -78,13 +81,11 @@ void getQEDcrossSection()
   
   const int nVariations = triggerScaleFactors->size();
   
-  
   TH1D *errorVariationHists[nVariations];
   for(int iVariation=0; iVariation<nVariations; iVariation++){
     string name = "variationHist" + to_string(iVariation);
     errorVariationHists[iVariation] = new TH1D(name.c_str(), name.c_str(), 30, 0, acoplanarityCut);
   }
-  
   
   for(int iEntry=0; iEntry<triggerSFtree->GetEntries(); iEntry++){
     triggerSFtree->GetEntry(iEntry);
@@ -108,8 +109,6 @@ void getQEDcrossSection()
   
   
   // normalize MC: force the data and MC integrals to be the same within acop<0.01
-  
-  
   
   int maxBin = acoplanarityHistData->FindFixBin(maxAcolpanarity);
   

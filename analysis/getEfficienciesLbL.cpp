@@ -10,16 +10,9 @@
 #include "PhysObjectProcessor.hpp"
 #include "Logger.hpp"
 
-string configPath = "configs/efficiencies.md";
-string outputPath = "results/efficienciesLbL.root";
-
 vector<string> histParams = {
   "reco_eff", "id_eff", "trigger_eff", "trigger_single_eff", "trigger_double_eff", "charged_excl_eff", "neutral_excl_eff", "reco_eff_eta","id_eff_eta"
 };
-
-//vector<string> histParams_eta = {
-//  "reco_eff_eta", "id_eff_eta"
-//};
 
 /// Checks if exactly two photon superclusters in the provided collections are matched
 /// with generated photons within ΔR specified in the config.
@@ -39,11 +32,29 @@ bool HasTwoMatchingPhotons(const PhysObjects &genPhotons,
   return nMatched >= 2;
 }
 
-/// Application starting point
-int main()
+/// Checks that number of arguments provided is correct and sets corresponding variables
+void ReadInputArguments(int argc, char* argv[],
+                        string &configPath, string &inputPath, string &outputPath)
 {
+  if(argc != 4){
+    Log(0)<<"This app requires 3 parameters:\n";
+    Log(0)<<"./getEfficienciesLbL configPath inputPath outputPath\n";
+    exit(0);
+  }
+
+  configPath = argv[1];
+  inputPath  = argv[2];
+  outputPath = argv[3];
+}
+
+/// Application starting point
+int main(int argc, char* argv[])
+{
+  string configPath, inputPath, outputPath;
+  ReadInputArguments(argc, argv, configPath, inputPath, outputPath);
+  
   config = ConfigManager(configPath);
-  unique_ptr<EventProcessor> eventProcessor(new EventProcessor(inFileNames.at(kMClbl), kMClbl));
+  auto eventProcessor = make_unique<EventProcessor>(inputPath, kMClbl);
   
   // Prepare counters and histograms
   int nGenEvents                               = 0;
@@ -107,7 +118,7 @@ int main()
     bool hasTwoPhotonsPassingID   = photonsPassing.size() == 2;
     bool passesNeutralExclusivity = ! event->HasAdditionalTowers();
     bool passesChargedExclusivity = event->GetPhysObjects(kGoodGeneralTrack).size() == 0;
-    bool passesDiphotonCuts;
+    bool passesDiphotonCuts = false;
     if(hasTwoPhotonsPassingID){
        diphoton                   = physObjectProcessor.GetDiphoton(*photonsPassing[0], *photonsPassing[1]);    
        passesDiphotonCuts         = diphoton.Pt() < config.params("diphotonMaxPt");

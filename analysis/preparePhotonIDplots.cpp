@@ -8,22 +8,6 @@
 #include "ConfigManager.hpp"
 #include "Logger.hpp"
 
-string configPath = "configs/efficiencies.md";
-string outputPath = "results/photonID_test.root";
-
-vector<EDataset> datasetsToAnalyze = {
-  kData_LbLsignal,
-  kMCqedSC,
-  kMClbl,
-  kMCcep
-  
-//  kData,
-//  kMClbl,
-//  kMCqedSC,
-//  kMCqedSL,
-//  kMCcep,
-};
-
 vector<tuple<string, int, double, double>> histParams = {
   // title                     nBins min   max
   {"showerShapeBarrel"      , 100 , 0   , 0.1 },
@@ -173,16 +157,10 @@ int main(int argc, char* argv[])
   }
  
   // read input arguments
-  string inputPath = "";
-  string sampleName = "";
-  string outputPath = "";
-  
-  if(argc == 5){
-    configPath  = argv[1];
-    sampleName  = argv[2];
-    inputPath   = argv[3];
-    outputPath  = argv[4];
-  }
+  string configPath  = argv[1];
+  string sampleName  = argv[2];
+  string inputPath   = argv[3];
+  string outputPath  = argv[4];
   
   // create config manager
   config = ConfigManager(configPath);

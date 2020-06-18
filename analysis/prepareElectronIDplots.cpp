@@ -8,9 +8,6 @@
 #include "ConfigManager.hpp"
 #include "Logger.hpp"
 
-string configPath = "configs/efficiencies.md";
-string outputPath = "results/electronID_test.root";
-
 bool requirePassingOtherCuts = false;
 
 vector<EDataset> datasetsToSkip = {
@@ -110,29 +107,27 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
 
 int main(int argc, char* argv[])
 {
-  if(argc != 1 && argc != 8){
-    Log(0)<<"This app requires 0 or 7 parameters.\n";
+  if(argc != 8){
+    Log(0)<<"This app requires 7 parameters.\n";
     Log(0)<<"./getEfficienciesData configPath inputPathData inputPathLbL inputPathQED_SC inputPathQED_SL inputPathCEP outputPath\n";
     exit(0);
   }
   
-  map<EDataset, string> inputPaths;
-  
-  if(argc == 8){
-    configPath           = argv[1];
-    inputPaths[kData]    = argv[2];
-    inputPaths[kMClbl]   = argv[3];
-    inputPaths[kMCqedSC] = argv[4];
-    inputPaths[kMCqedSL] = argv[5];
-    inputPaths[kMCcep]   = argv[6];
-    outputPath           = argv[7];
-  }
+  string configPath = argv[1];
   config = ConfigManager(configPath);
+  
+  map<EDataset, string> inputPaths;
+  inputPaths[kData]    = argv[2];
+  inputPaths[kMClbl]   = argv[3];
+  inputPaths[kMCqedSC] = argv[4];
+  inputPaths[kMCqedSL] = argv[5];
+  inputPaths[kMCcep]   = argv[6];
+  
+  string outputPath = argv[7];
+  TFile *outFile = new TFile(outputPath.c_str(), "recreate");
   
   map<string, TH1D*> hists;
   map<string, TH2D*> hists2D;
-  
-  TFile *outFile = new TFile(outputPath.c_str(), "recreate");
   
   for(EDataset dataset : datasets){
     if(find(datasetsToSkip.begin(), datasetsToSkip.end(), dataset) != datasetsToSkip.end()) continue;
@@ -153,7 +148,7 @@ int main(int argc, char* argv[])
     }
     
     Log(0)<<"Creating "<<name<<" plots\n";
-    auto events = make_unique<EventProcessor>(argc == 8 ? inputPaths[dataset] : inFileNames.at(dataset), dataset);
+    auto events = make_unique<EventProcessor>(inputPaths[dataset], dataset);
     fillHistograms(events, hists, hists2D, name);
     
     outFile->cd();
