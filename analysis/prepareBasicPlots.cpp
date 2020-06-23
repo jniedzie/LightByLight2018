@@ -641,24 +641,22 @@ void InitializeHistograms(map<string, TH1D*> &hists, string datasetType, string 
 
 int main(int argc, char* argv[])
 {
-  if(argc != 1 && argc != 6){
-    Log(0)<<"This app requires 0 or 5 parameters.\n";
-    Log(0)<<"./prepareBasicPlots configPath inputPath outputPath datasetName[Data|QED_SC|QED_SL|LbL|CEP] triggerScaleFactorsPath\n";
+  cout<<"Starting prepareBasicPlots\n";
+  
+  if(argc != 6){
+    cout<<"This app requires 5 parameters:\n";
+    cout<<"./prepareBasicPlots configPath inputPath outputPath datasetName[Data|QED_SC|QED_SL|LbL|CEP] triggerScaleFactorsPath\n";
     exit(0);
   }
-  string configPath = "";
-  string inputPath = "";
-  string outputPath = "";
-  string sampleName = "";
-  string triggerScaleFactorsPath = "";
   
-  if(argc == 6){
-    configPath              = argv[1];
-    inputPath               = argv[2];
-    outputPath              = argv[3];
-    sampleName              = argv[4];
-    triggerScaleFactorsPath = argv[5];
-  }
+  cout<<"Reading input arguments"<<endl;
+  
+  string configPath              = argv[1];
+  string inputPath               = argv[2];
+  string outputPath              = argv[3];
+  string sampleName              = argv[4];
+  string triggerScaleFactorsPath = argv[5];
+  
   
   cout<<"Config: "<<configPath<<endl;
   cout<<"Input: "<<inputPath<<endl;
@@ -708,13 +706,13 @@ int main(int argc, char* argv[])
   
   
   if(dataset == nDatasets){
-    Log(0)<<"ERROR -- unknown dataset name provided: "<<sampleName<<"\n";
+    cout<<"ERROR -- unknown dataset name provided: "<<sampleName<<"\n";
     exit(0);
   }
   
   for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
     if(iEvent%1000 == 0)  Log(1)<<"Processing event "<<iEvent<<"\n";
-    if(iEvent%10000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
+    if(iEvent%10000 == 0) cout<<"Processing event "<<iEvent<<"\n";
     if(iEvent >= config.params("maxEvents")) break;
     
     auto event = events->GetEvent(iEvent);
@@ -733,7 +731,7 @@ int main(int argc, char* argv[])
   for(auto &[histName, hist] : hists) hist->Write();
   
 
-  Log(0)<<"N events with 3 photons: "<<nThreePhotonEvents<<"\n";
+  cout<<"N events with 3 photons: "<<nThreePhotonEvents<<"\n";
   
   outFile->cd();
   triggerScaleFactorsTree->Write();

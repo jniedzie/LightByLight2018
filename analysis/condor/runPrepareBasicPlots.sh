@@ -11,6 +11,8 @@ outputPath=""
 sampleName=""
 basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
 
+triggerScaleFactorsPath="${basePath}/triggerScaleFactors.root"
+
 ##
 # Select config file
 ##
@@ -76,5 +78,5 @@ echo "Config: ${configPath}"
 echo "Input: ${inputPath}"
 echo "Output: ${output}"
 
-/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/prepareBasicPlots $configPath $inputPath $output $sampleName
+/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/prepareBasicPlots $configPath $inputPath $output $sampleName $triggerScaleFactorsPath
 
