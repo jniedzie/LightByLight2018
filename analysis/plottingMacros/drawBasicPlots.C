@@ -1,6 +1,7 @@
 #include "../include/Helpers.hpp"
 
-string inputPath  = "../results/basicPlots_default.root";
+// string inputPath  = "../results/basicPlots_default.root";
+string inputPath  = "../results/basicPlots_default_full_lumi.root";
 //string inputPath  = "../results/basicPlots_default_inverted.root";
 //string inputPath  = "../results/basicPlots_default_inverted_qed.root";
 //string inputPath  = "../results/basicPlots_default_full.root";
@@ -23,13 +24,16 @@ map<EDataset, double> initialNevents = {
   { kMCcep  , 144900    }, // currently available
 };
 
-double purity = 0.963988; // from fit
+//double purity = 0.963988; // from fit
 //double purity = 0.957672; // from counting
+double purity = 1.0;
+
 
 double cutEfficiencyQED = 0.7184;
 double cutEfficiencyLbL = 1.0;
 
-double dataAvailableFraction = 0.8514227642; // we are missing 15% of the data
+//double dataAvailableFraction = 0.8514227642; // we are missing 15% of the data
+double dataAvailableFraction = 1.0;
 
 map<EDataset, double> crossSection = { // μb
   { kMCqedSC, 8830    * cutEfficiencyQED * dataAvailableFraction * purity }, // scaling MC's to account for missing 15% of the data
@@ -377,11 +381,11 @@ void normalizeHists(map<EDataset, TH1D*> hists, ENorm normStrategy)
     else if(normStrategy == kXsec){
       if(dataset == kData) continue;
       hists[dataset]->Scale(luminosity*crossSection[dataset]/initialNevents[dataset]);
-//      hists[dataset]->Sumw2(false);
+      hists[dataset]->Sumw2(false);
     }
     else if(normStrategy == kNoScaling){
       if(dataset == kData) continue;
-//      hists[dataset]->Sumw2(false);
+      hists[dataset]->Sumw2(false);
     }
   }
 }
