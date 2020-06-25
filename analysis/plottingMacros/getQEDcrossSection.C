@@ -29,6 +29,20 @@ const double luminosity       = 1642.797392287; // μb^-1
 // luminosity from brilcalc obtained with this command:
 // brilcalc lumi --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_BRIL.json  -i /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/HI/PromptReco/Cert_326381-327564_HI_PromptReco_Collisions18_JSON.txt --hltpath HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1
 
+
+// luminosity in our ntuples:
+// brilcalc lumi --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_BRIL.json  -i /afs/cern.ch/work/j/jniedzie/private/lbl_ntuplizer/CMSSW_10_3_4/src/HeavyIonsAnalysis/PhotonAnalysis/test/crab_projects/crab_ntuples_data_lbl/results/processedLumis.json --hltpath HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1
+
+// 1247.958558851
+
+// +
+
+// brilcalc lumi --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_BRIL.json  -i /afs/cern.ch/work/j/jniedzie/private/lbl_ntuplizer/CMSSW_10_3_4/src/HeavyIonsAnalysis/PhotonAnalysis/test/crab_projects/crab_ntuples_data_lbl/results/processedLumis.json --hltpath HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1
+
+// 387.164580972
+
+// = 1635.123139823
+
 const double luminosityErr    = 0.015 * luminosity;
 // Relative uncertainty on luminosity as recommended by: http://cms.cern.ch/iCMS/analysisadmin/cadilines?line=LUM-18-001
 
