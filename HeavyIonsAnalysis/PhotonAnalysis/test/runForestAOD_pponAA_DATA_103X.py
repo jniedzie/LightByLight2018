@@ -82,7 +82,7 @@ process.centralityBin.centralityVariable = cms.string("HFtowers")
 
 process.TFileService = cms.Service("TFileService",
     #fileName = cms.string("data_HiForestAOD_wohlt_eta2p3_norechit.root"))
-    fileName = cms.string("data_EmptyBxAOD.root"))
+    fileName = cms.string("data_HiForwardAOD.root"))
 
 ###############################################################################
 # Additional Reconstruction and Analysis: Main Body

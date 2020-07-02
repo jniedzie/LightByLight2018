@@ -13,8 +13,9 @@ process = cms.Process('HiForest')
 process.load("HeavyIonsAnalysis.JetAnalysis.HiForest_cff")
 process.HiForest.inputLines = cms.vstring("HiForest 103X")
 import subprocess, os
-version = subprocess.check_output(['git',
-    '-C', os.path.expandvars('$CMSSW_BASE/src'), 'describe', '--tags'])
+version = ''
+# version = subprocess.check_output(['git',
+#     '-C', os.path.expandvars('$CMSSW_BASE/src'), 'describe', '--tags'])
 if version == '':
     version = 'no git info'
 process.HiForest.HiForestVersion = cms.string(version)
@@ -33,7 +34,8 @@ process.source = cms.Source("PoolSource",
         #"file:/afs/cern.ch/work/r/rchudasa/private/hiforest_1034/CMSSW_10_3_4/src/mc_reco/wo_lbyl_reco/step3_RAW2DIGI_L1Reco_RECO_lbyl.root","file:/afs/cern.ch/work/r/rchudasa/private/hiforest_1034/CMSSW_10_3_4/src/mc_reco/wo_lbyl_reco/step3_RAW2DIGI_L1Reco_RECO_lbyl_v2.root"
         #"file:/afs/cern.ch/work/r/rchudasa/private/hiforest_1034/CMSSW_10_3_4/src/mc_reco/step3_RAW2DIGI_L1Reco_RECO_lbyl.root","file:/afs/cern.ch/work/r/rchudasa/private/hiforest_1034/CMSSW_10_3_4/src/mc_reco/step3_RAW2DIGI_L1Reco_RECO_lbyl_v2.root"
         #"file:/afs/cern.ch/work/r/rchudasa/private/hiforest_1034/CMSSW_10_3_4/src/mc_reco/lbyl_sample/step3_RAW2DIGI_L1Reco_RECO_lbyl.root"
-        "/store/group/phys_diffraction/lbyl_2018/mc_lbl/reco_1034/reco_1034_lbyl/reco_1034_lbyl/191110_150040/0000/step3_RAW2DIGI_L1Reco_RECO_lbyl_90.root"
+        # "/store/group/phys_diffraction/lbyl_2018/mc_lbl/reco_1034/reco_1034_lbyl/reco_1034_lbyl/191110_150040/0000/step3_RAW2DIGI_L1Reco_RECO_lbyl_90.root"
+        "/eos/cms/store/himc/HINPbPbAutumn18DR/QEDGammaGamma_5p02TeV_STARlight/AODSIM/NoPUlowPtPhotonReg_LbyL_103X_upgrade2018_realistic_HI_LowPtPhotonReg_v2-v2/230000/FF0F2669-7BED-F845-8508-FE6582191483.root"
         ),
     )
 
@@ -79,7 +81,7 @@ process.centralityBin.centralityVariable = cms.string("HFtowers")
 process.TFileService = cms.Service("TFileService",
     #fileName = cms.string("HiForestAOD_flat_electron_lbyl_reco.root"))
     #fileName = cms.string("HiForestAOD_flat_gamma_def_reco.root"))
-    fileName = cms.string("HiForestAOD_LbyL.root"))
+    fileName = cms.string("mc_HiForestAOD.root"))
 
 ###############################################################################
 # Additional Reconstruction and Analysis: Main Body
@@ -89,7 +91,7 @@ process.TFileService = cms.Service("TFileService",
 # Jets
 #############################
 # jet reco sequence
-process.load('HeavyIonsAnalysis.JetAnalysis.fullJetSequence_pponAA_MB_cff')
+# process.load('HeavyIonsAnalysis.JetAnalysis.fullJetSequence_pponAA_MB_cff')
 
 process.load('HeavyIonsAnalysis.JetAnalysis.hiFJRhoAnalyzer_cff')
 process.load("HeavyIonsAnalysis.JetAnalysis.pfcandAnalyzer_cfi")
@@ -178,12 +180,18 @@ process.CSVscikitTags.weightFile = cms.FileInPath(
 #########################
 # RecHits & pfTowers (HF, Castor & ZDC)
 #########################
+process.load('RecoHI.ZDCRecHit.QWZDC2018Producer_cfi')
+process.load('RecoHI.ZDCRecHit.QWZDC2018RecHit_cfi')
+
 process.load('HeavyIonsAnalysis.JetAnalysis.rechitanalyzer_cfi')
+process.rechitanalyzerpp.doZDCRecHit = True
+process.rechitanalyzerpp.zdcRecHitSrc = cms.InputTag("QWzdcreco")
 
 ###############################################################################
 #Recover peripheral primary vertices
 #https://twiki.cern.ch/twiki/bin/view/CMS/HITracking2018PbPb#Peripheral%20Vertex%20Recovery
 process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesRecovery_cfi")
+process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 
 #########################
 # Main analysis list
@@ -203,14 +211,16 @@ process.ana_step = cms.Path(
     #process.hiPuRhoR3Analyzer + 
     #process.HiGenParticleAna +
     #process.correctedElectrons +
-    process.ggHiNtuplizer #+
+    process.ggHiNtuplizer +
     #process.ggHiNtuplizerGED +
     #process.hiFJRhoAnalyzer +
     #process.hiFJRhoAnalyzerFinerBins +
     #process.pfcandAnalyzer +
     #process.pfcandAnalyzerCS +
     #process.trackSequencesPP #+
-    #process.rechitanalyzerpp
+    process.zdcdigi +
+    process.QWzdcreco +
+    process.rechitanalyzerpp
     )
 
 # # edm output for debugging purposes
