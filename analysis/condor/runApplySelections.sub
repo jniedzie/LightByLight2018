@@ -1,10 +1,10 @@
 Universe              = vanilla
 executable            = runApplySelections.sh
-arguments             = $(ProcId) 3 0
+arguments             = $(ProcId) 3 4
 GetEnv                = True
 output                = output/$(ClusterId).$(ProcId).out
 error                 = error/$(ClusterId).$(ProcId).err
 log                   = log/$(ClusterId).log
 requirements 	      = (OpSysAndVer =?= "CentOS7")
 +JobFlavour           = "espresso"
-queue 8500
+queue 255

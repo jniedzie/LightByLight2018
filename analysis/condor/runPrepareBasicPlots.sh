@@ -37,7 +37,8 @@ then
   sampleName="Data" # last chunk number: 7440, merged into 85 files
 #  inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
 #  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_complete/merged/merged_ntuples_${1}.root"
-  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_complete_full/merged/merged_ntuples_${1}.root"
+#  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_complete_full/merged/merged_ntuples_${1}.root"
+  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_full_lumi_complete/merged/merged_ntuples_${1}.root"
   outputPath="${basePath}/analysis/basicPlots/basicPlots_data${suffix}"
   
 elif [ $2 -eq 1 ]

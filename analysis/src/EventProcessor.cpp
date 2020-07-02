@@ -194,26 +194,35 @@ void EventProcessor::SetupOutputTree(string outFileName)
 {
   outFile[outFileName] = new TFile(outFileName.c_str(), "recreate");
   outFile[outFileName]->cd();
-  
+
   dirEvent[outFileName]     = outFile[outFileName]->mkdir("ggHiNtuplizer");
   dirHLT[outFileName]       = outFile[outFileName]->mkdir("hltanalysis");
   dirL1[outFileName]        = outFile[outFileName]->mkdir("l1object");
-  dirZdc[outFileName]       = outFile[outFileName]->mkdir("rechitanalyzerpp");
   
   outEventTree[outFileName] = eventTree->CloneTree(0);
   outHltTree[outFileName]   = hltTree->CloneTree(0);
   outL1Tree[outFileName]    = l1Tree->CloneTree(0);
-  outZdcTree[outFileName]   = zdcTree->CloneTree(0);
   
   outEventTree[outFileName]->Reset();
   outHltTree[outFileName]->Reset();
   outL1Tree[outFileName]->Reset();
-  outZdcTree[outFileName]->Reset();
+  
+  if(zdcTree){
+    dirZdc[outFileName]       = outFile[outFileName]->mkdir("rechitanalyzerpp");
+    outZdcTree[outFileName]   = zdcTree->CloneTree(0);
+    outZdcTree[outFileName]->Reset();
+  }
+  else{
+    cout<<"\n\nWARNING -- no ZDC tree found in the input file!\n\n"<<endl;
+  }
   
   if(pixelTree){
     dirPixel[outFileName] = outFile[outFileName]->mkdir("pixelTracks");
     outPixelTree[outFileName] = pixelTree->CloneTree(0);
     outPixelTree[outFileName]->Reset();
+  }
+  else{
+    cout<<"\n\nWARNING -- no Pixel Tracks tree found in the input file!\n\n"<<endl;
   }
 }
 
