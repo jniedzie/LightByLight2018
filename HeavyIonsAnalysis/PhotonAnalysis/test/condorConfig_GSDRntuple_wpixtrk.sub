@@ -1,0 +1,18 @@
+executable            = batch_GSDRntuple_wpixtrk.sh
+
+# IMPORTANT: edit paths below
+arguments             = /path/to/config/config_GSDRntuple_wpixtrk.py /store/himc/HINPbPbAutumn18pLHE/QEDGammaGamma_5p02TeV_STARlight/LHE/LbyL_103X_upgrade2018_realistic_HI_v11-v3/260000/C25B8C11-0BF8-7946-9397-C6D1EB831827.root,/store/himc/HINPbPbAutumn18pLHE/QEDGammaGamma_5p02TeV_STARlight/LHE/LbyL_103X_upgrade2018_realistic_HI_v11-v3/260000/C5F65C6F-D1B6-164B-86B6-EC184E639950.root,/store/himc/HINPbPbAutumn18pLHE/QEDGammaGamma_5p02TeV_STARlight/LHE/LbyL_103X_upgrade2018_realistic_HI_v11-v3/260000/B047075D-D188-9C4B-AF9A-FAE148625E8B.root,/store/himc/HINPbPbAutumn18pLHE/QEDGammaGamma_5p02TeV_STARlight/LHE/LbyL_103X_upgrade2018_realistic_HI_v11-v3/260000/6E5182E5-6A9B-BA4C-9ED1-B79ADE5D7F4F.root 4000 $(ProcId) /eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/mc_qed_sl_doubleEG2_full_lumi/eventList.txt
+
+output                = condor/$(ClusterId).$(ProcId).out
+error                 = condor/$(ClusterId).$(ProcId).err
+log                   = condor/$(ClusterId).log
+# +JobFlavour           = "workday"
++JobFlavour           = "tomorrow"
+
+## the line below is ONLY if you belong to CMG (CERN CMS group)
+# +AccountingGroup = "group_u_CMST3.all"
+
+# want CentOS7
+requirements = (OpSysAndVer =?= "CentOS7")
+
+queue 1
