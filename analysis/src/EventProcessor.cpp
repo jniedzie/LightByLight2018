@@ -213,6 +213,7 @@ void EventProcessor::SetupOutputTree(string outFileName)
     outZdcTree[outFileName]->Reset();
   }
   else{
+    outZdcTree[outFileName] = nullptr;
     cout<<"\n\nWARNING -- no ZDC tree found in the input file!\n\n"<<endl;
   }
   
@@ -231,12 +232,12 @@ void EventProcessor::AddEventToOutputTree(int iEvent, string outFileName, bool s
   eventTree->GetEntry(iEvent);
   hltTree->GetEntry(iEvent);
   l1Tree->GetEntry(iEvent);
-  zdcTree->GetEntry(iEvent);
+  if(zdcTree) zdcTree->GetEntry(iEvent);
   
   outEventTree[outFileName]->Fill();
   if(saveHLTtree) outHltTree[outFileName]->Fill();
   outL1Tree[outFileName]->Fill();
-  outZdcTree[outFileName]->Fill();
+  if(outZdcTree[outFileName]) outZdcTree[outFileName]->Fill();
   
   if(pixelTree){
     long long secondaryTreeEntry = GetEntryNumber(pixelTree, runNumber, lumiSection, eventNumber);
@@ -258,8 +259,11 @@ void EventProcessor::SaveOutputTree(string outFileName)
   outL1Tree[outFileName]->Write();
   dirEvent[outFileName]->cd();
   outEventTree[outFileName]->Write();
-  dirZdc[outFileName]->cd();
-  outZdcTree[outFileName]->Write();
+  
+  if(outZdcTree[outFileName]){
+    dirZdc[outFileName]->cd();
+    outZdcTree[outFileName]->Write();
+  }
   
   if(pixelTree){
     dirPixel[outFileName]->cd();

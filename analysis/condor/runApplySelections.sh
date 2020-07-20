@@ -91,7 +91,7 @@ then
   elif [ $3 -eq 4 ] # QED SL, 253 chunks, max chunk number: 253
   then
     sampleName="QED_SL"
-    inputPath="${basePath}/mc_qed/ntuples_sl_full_lumi/QEDGammaGamma_5p02TeV_STARlight/reco_mc_qed_sl_full_lumi/200625_125406/0000/HiForestAOD_LbyL_${1}.root"
+    inputPath="${basePath}/mc_qed/ntuples_sl_full_lumi/QEDGammaGamma_5p02TeV_STARlight/reco_mc_qed_sl_full_lumi/200702_082621/0000/mc_HiForestAOD_${1}.root"
     outputPath="${basePath}/skimmed_ntuples/mc_qed_sl_doubleEG2_full_lumi"
   fi
   mkdir -p $outputPath
@@ -130,7 +130,17 @@ then
   /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $configPath $inputPath $outputLowAco $outputHighAco $sampleName
 elif [ $2 -eq 3 ] # Data passing loose selections
 then
-  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $configPath $inputPath $output $sampleName
+#  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $configPath $inputPath $output $sampleName
+  if [ -s ${output} ]
+  then
+    echo "File already exists, skipping"
+  else
+    echo "File doesn't exist or is empty - running"
+    /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/applySelections $configPath $inputPath $output $sampleName
+  fi
+
+  
+  
 fi
 
 

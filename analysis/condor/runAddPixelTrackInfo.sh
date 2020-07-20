@@ -18,6 +18,14 @@ then
   outputPath="${basePath}/skimmed_ntuples/data_doubleEG2_full_lumi_complete"
   mkdir -p $outputPath
   outputPath="${outputPath}/ntuples_${1}.root"
+elif [ $2 -eq 1 ] # QED SL
+then
+  sampleName="QED_SL"
+  inputPath="${basePath}/skimmed_ntuples/mc_qed_sl_doubleEG2_full_lumi/ntuples_loose_selections_${1}.root"
+  secondaryInputPath="${basePath}/pixel_ntuples/ntuples_pixel_mc_qed_sl.root"
+  outputPath="${basePath}/skimmed_ntuples/mc_qed_sl_doubleEG2_full_lumi_complete"
+  mkdir -p $outputPath
+  outputPath="${outputPath}/ntuples_${1}.root"
 fi
 
 echo "Input path: ${inputPath}"

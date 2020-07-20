@@ -1,10 +1,10 @@
 Universe              = vanilla
 executable            = runAddPixelTrackInfo.sh
-arguments             = $(ProcId) 0
+arguments             = $(ProcId) 1
 GetEnv                = True
 output                = output/$(ClusterId).$(ProcId).out
 error                 = error/$(ClusterId).$(ProcId).err
 log                   = log/$(ClusterId).log
 requirements 	      = (OpSysAndVer =?= "CentOS7")
 +JobFlavour           = "tomorrow"
-queue 10400
+queue 255

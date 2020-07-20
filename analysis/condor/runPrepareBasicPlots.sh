@@ -24,8 +24,8 @@ then
   suffix="_default"
 elif [ $3 -eq 1 ]
 then
-  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_looserHINPhotonHESigma.md"
-  suffix="_looserHINPhotonHESigma"
+  configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/preparePlots_noZDCcut.md"
+  suffix="_noZDCcut"
 fi
 
 ##
@@ -34,7 +34,7 @@ fi
 
 if [ $2 -eq 0 ]
 then
-  sampleName="Data" # last chunk number: 7440, merged into 85 files
+  sampleName="Data" # last chunk number: 7440, merged into 110 files
 #  inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
 #  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_complete/merged/merged_ntuples_${1}.root"
 #  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_complete_full/merged/merged_ntuples_${1}.root"
@@ -64,8 +64,8 @@ then
   outputPath="${basePath}/analysis/basicPlots/basicPlots_mc_lbl_sc${suffix}"
 elif [ $2 -eq 4 ]
 then
-  sampleName="QED_SL"
-#  inputPath="${basePath}/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
+  sampleName="QED_SL" # merged into 1 file
+  inputPath="${basePath}/skimmed_ntuples/mc_qed_sl_doubleEG2_full_lumi_complete/merged.root"
   outputPath="${basePath}/analysis/basicPlots/basicPlots_mc_qed_sl${suffix}"
 fi
 
