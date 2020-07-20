@@ -9,6 +9,7 @@ doTriggerEfficiency:    1
 doHFvetoEfficiency:   1
 doCHEefficiency:        1
 doNEEefficiency:        1
+doElectronRecoEfficiency: 1
 
 ### Max number of events to analyze
 maxEvents: 9999999

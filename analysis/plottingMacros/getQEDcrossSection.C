@@ -16,8 +16,9 @@ const double chargedExclusivityEfficiencyErrSyst = 0.0;
 const double chargedExclusivityEfficiencyErr     = sqrt(pow(chargedExclusivityEfficiencyErrStat, 2) +
                                                         pow(chargedExclusivityEfficiencyErrSyst, 2));
 
-const double generatorCutsEfficiency  = 0.7184;
-const double dataAvailableFraction    = 0.8514227642; // we are missing 15% of the data
+//const double generatorCutsEfficiency  = 0.7184;
+const double generatorCutsEfficiency  = 1.0;
+const double dataAvailableFraction    = 1.0; // we are missing 15% of the data
 
 // From SuperChic
 const double xsecGenerated    = dataAvailableFraction * generatorCutsEfficiency * 8827.220; // μb
@@ -25,11 +26,12 @@ const double xsecGeneratedErr = 79.73715; // μb
 
 // TODO: replace luminosity by the one calculated for our ntuples
 
-const double luminosity       = 1642.797392287; // μb^-1
+//const double luminosity       = 1642.797392287; // μb^-1
 // luminosity from brilcalc obtained with this command:
 // brilcalc lumi --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_BRIL.json  -i /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/HI/PromptReco/Cert_326381-327564_HI_PromptReco_Collisions18_JSON.txt --hltpath HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1
 
 
+const double luminosity       = 1635.123139823; // μb^-1
 // luminosity in our ntuples:
 // brilcalc lumi --normtag /cvmfs/cms-bril.cern.ch/cms-lumi-pog/Normtags/normtag_BRIL.json  -i /afs/cern.ch/work/j/jniedzie/private/lbl_ntuplizer/CMSSW_10_3_4/src/HeavyIonsAnalysis/PhotonAnalysis/test/crab_projects/crab_ntuples_data_lbl/results/processedLumis.json --hltpath HLT_HIUPC_DoubleEG2_NotMBHF2AND_v1
 
@@ -57,7 +59,7 @@ const double nEventsGenerated     = 980000; // TODO: update number of events whe
 const double acoplanarityCut = 0.06;
 const double maxAcolpanarity = 0.01; // TODO: what's the difference between those two numbers?
 
-const double globalSystErr = 2 * scaleFactorErrSyst/sqrt(scaleFactor); // relative uncertainty on Reco+ID scale factor
+const double globalSystErr = 2 * scaleFactorErr/sqrt(scaleFactor); // relative uncertainty on Reco+ID scale factor
 
 void getQEDcrossSection()
 {
@@ -74,7 +76,7 @@ void getQEDcrossSection()
     exit(0);
   }
   
-  TH1D *acoplanarityHistMC = (TH1D*)inFile->Get("qed_acoplanarity_all_QED_SC");
+  TH1D *acoplanarityHistMC = (TH1D*)inFile->Get("qed_acoplanarity_all_QED_SL");
   if(!acoplanarityHistMC){
     cout<<"ERROR -- could not find MC acoplanarity histogram in the input file!"<<endl;
     exit(0);
@@ -128,7 +130,7 @@ void getQEDcrossSection()
   
   double normalizationMCerr, normalizationDataErr;
   
-  double normalizationMC  = acoplanarityHistMC->IntegralAndError(1, maxBin, normalizationMCerr, "width");
+  double normalizationMC   = acoplanarityHistMC->IntegralAndError(1, maxBin, normalizationMCerr, "width");
   double normalizationData = acoplanarityHistData->IntegralAndError(1, maxBin, normalizationDataErr,"width");
   
   cout << "Scaling MC by " << normalizationMC << " / " << normalizationData << " = " << normalizationMC/normalizationData << endl;
@@ -198,6 +200,11 @@ void getQEDcrossSection()
   
   // TODO: why do we calculate it this way?
   double xsec = normalizationData * purityCounting * (nEventsGenerated/(normalizationMC*scaleFactor))/luminosity;
+  
+  cout<<"Raw x-sec: "<<normalizationData/luminosity<<endl;
+  cout<<"x-sec with purity: "<<normalizationData/luminosity * purityCounting<<endl;
+  cout<<"x-sec with purity and efficiency: "<<normalizationData/luminosity * purityCounting * (nEventsGenerated/(normalizationMC))<<endl;
+  cout<<"x-sec with purity, efficiency and SF: "<<normalizationData/luminosity * purityCounting * (nEventsGenerated/(normalizationMC*scaleFactor))<<endl;
   
   
   double xsecErrStat                = xsec * (normalizationDataErr/normalizationData);

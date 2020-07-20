@@ -25,7 +25,8 @@ vector<tuple<string>> efficienciesParams = {
 
 vector<EDataset> datasetsToAnalyze = {
   kData,
-  kMCqedSC
+//  kMCqedSC,
+  kMCqedSL,
 };
 
 void printEfficiencies()
@@ -84,6 +85,23 @@ void plotDoubleHistogram(string histName, EDataset dataset, bool first, TLegend 
   if(leg) leg->AddEntry(histNum, datasetName.at(dataset).c_str(), "elp");
 }
 
+void plotScaleFactor(string histName, EDataset datasetData, EDataset datasetMC)
+{
+  TH1D *histNumData = new TH1D(*(TH1D*)inFile->Get((histName+"_num_"+datasetName.at(datasetData)).c_str()));
+//  TH1D *histDenData = new TH1D(*(TH1D*)inFile->Get((histName+"_den_"+datasetName.at(datasetData)).c_str()));
+//  histNumData->Divide(histDenData);
+
+  TH1D *histNumMC = new TH1D(*(TH1D*)inFile->Get((histName+"_num_"+datasetName.at(datasetMC)).c_str()));
+//  TH1D *histDenMC = new TH1D(*(TH1D*)inFile->Get((histName+"_den_"+datasetName.at(datasetMC)).c_str()));
+//  histNumMC->Divide(histDenMC);
+
+  histNumData->Divide(histNumMC);
+  
+  histNumData->Draw();
+  histNumData->GetYaxis()->SetRangeUser(0, 1.5);
+  histNumData->SetLineColor(kBlack);
+}
+
 void plotSingleHistogram(string histName, EDataset dataset, bool first, TLegend *leg=nullptr)
 {
   TH1D *hist = (TH1D*)inFile->Get((histName+"_"+datasetName.at(dataset)).c_str());
@@ -99,8 +117,16 @@ void plotSingleHistogram(string histName, EDataset dataset, bool first, TLegend 
 
 vector<tuple<string, bool, bool>> histParams = {
   // hist name              doubleRatio logY
-  {"reco_id_eff_vs_pt"        , true  , false },
-  {"reco_id_eff_vs_eta"       , true  , false },
+  {"reco_id_eff_vs_pt"                          , true  , false },
+  {"reco_id_eff_vs_eta"                         , true  , false },
+  
+  {"charged_exclusivity_eff_vs_dielectron_mass" , true  , false },
+  {"charged_exclusivity_eff_vs_dielectron_eta"  , true  , false },
+  {"charged_exclusivity_eff_vs_dielectron_pt"   , true  , false },
+  
+  {"neutral_exclusivity_eff_vs_dielectron_mass" , true  , false },
+  {"neutral_exclusivity_eff_vs_dielectron_eta"  , true  , false },
+  {"neutral_exclusivity_eff_vs_dielectron_pt"   , true  , false },
   
   {"reco_id_eff_cut_through"  , false , true  },
   {"ele_acoplanarity"         , false , false },
@@ -121,13 +147,17 @@ void drawEfficienciesQED()
   
   TCanvas *canvas = new TCanvas("Efficiencies", "Efficiencies", canvasWidth, canvasHeight);
   canvas->Divide(nColumns, nRaws);
+  
+  TCanvas *canvasSF = new TCanvas("Scale factors", "Scale factors", canvasWidth, canvasHeight);
+  canvasSF->Divide(nColumns, nRaws);
+  
   gStyle->SetOptStat(0);
   
   int iPad=1;
   
   for(auto &[histName, doubleRatio, logY] : histParams){
     
-    canvas->cd(iPad++);
+    canvas->cd(iPad);
     gPad->SetLogy(logY);
     
     bool first = true;
@@ -142,6 +172,14 @@ void drawEfficienciesQED()
     
     leg->Draw();
     
+    // Scale factors
+    
+    canvasSF->cd(iPad);
+    if(doubleRatio) plotScaleFactor(histName, kData, kMCqedSL);
+    
+    
+    
+    iPad++;
   }
   
   printEfficiencies();

@@ -33,6 +33,11 @@ vector<string> histParams = {
   "delta_pt_tracks",
   "delta_phi_electron_photon",
   
+  // electron reco+ID efficiency
+  "electron_reco_id_eff_cut_through",
+  "electron_reco_id_eff_num",
+  "electron_reco_id_eff_den",
+  
   // trigger efficiency histograms
   "trigger_eff_cut_through",
   "trigger_HFveto_eff_cut_through",
@@ -189,6 +194,41 @@ void CheckRecoEfficiency(Event &event, map<string, TH1D*> &hists, string dataset
       }
     }
   }
+}
+
+/// Counts number of events passing tag and probe criteria for reco+ID efficiency
+void CheckElectronRecoEfficiency(Event &event, map<string, TH1D*> &hists, string datasetName)
+{
+  string cutThouthName = "electron_reco_id_eff_cut_through_"+datasetName;
+  int cutLevel = 0;
+  hists[cutThouthName]->Fill(cutLevel++); // 0
+  
+  // Check trigger
+  if(!event.HasTrigger(kSingleEG3noHF)) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 1
+  
+  // Preselect events with at least one good electron
+  PhysObjects goodMatchedElectrons = event.GetPhysObjects(kGoodMatchedElectron);
+  
+  if(goodMatchedElectrons.size() < 1) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 2
+  
+  hists["electron_reco_id_eff_den_"+datasetName]->Fill(1);
+  
+  
+  // Check if there are at least two good electrons, with opposite charges
+  int nPositive = 0, nNegative = 0;
+  
+  for(auto electron : goodMatchedElectrons){
+    if(electron->GetCharge() > 0) nPositive++;
+    else                          nNegative++;
+  }
+  
+  if(nPositive == 0 || nNegative == 0) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 2
+  
+  
+  hists["electron_reco_id_eff_num_"+datasetName]->Fill(1);
 }
 
 /// Counts number of events passing tag and probe criteria for trigger efficiency
@@ -524,6 +564,7 @@ void PrintAndSaveResults(TFile *outFile, map<string, TH1D*> &hists,
     if(!config.params("doTriggerEfficiency") && histName.find("trigger") != string::npos)                  continue;
     if(!config.params("doCHEefficiency")     && histName.find("charged_exclusivity_eff") != string::npos)  continue;
     if(!config.params("doNEEefficiency")     && histName.find("neutral_exclusivity_eff") != string::npos)  continue;
+    if(!config.params("doElectronRecoEfficiency") && histName.find("electron_reco_id_eff") != string::npos)              continue;
     
     string title = histName + "_" + datasetType;
     hists[title]->Write();
@@ -553,6 +594,12 @@ void PrintAndSaveResults(TFile *outFile, map<string, TH1D*> &hists,
     nTag    = hists["neutral_exclusivity_eff_den_"+datasetType]->GetBinContent(1);
     nProbe  = hists["neutral_exclusivity_eff_num_"+datasetType]->GetBinContent(1);
     Log(0)<<"Neutral N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<"\n";
+    Log(0)<<" efficiency: "; PrintEfficiency(nProbe, nTag);
+  }
+  if(config.params("doElectronRecoEfficiency")){
+    nTag    = hists["electron_reco_id_eff_den_"+datasetType]->GetBinContent(1);
+    nProbe  = hists["electron_reco_id_eff_num_"+datasetType]->GetBinContent(1);
+    Log(0)<<"Electron reco N tags, probes "<<datasetType<<": "<<nTag<<", "<<nProbe<<"\n";
     Log(0)<<" efficiency: "; PrintEfficiency(nProbe, nTag);
   }
   
@@ -606,11 +653,12 @@ int main(int argc, char* argv[])
     
     auto event = events->GetEvent(iEvent);
     
-    if(config.params("doRecoEfficiency"))    CheckRecoEfficiency(*event, hists, sampleName);
-    if(config.params("doTriggerEfficiency")) CheckTriggerEfficiency(*event, triggerTrees, hists, sampleName);
-    if(config.params("doHFvetoEfficiency"))  CheckTriggerHFvetoEfficiency(*event, hists, sampleName);
-    if(config.params("doCHEefficiency"))     CheckCHEefficiency(*event, hists, sampleName);
-    if(config.params("doNEEefficiency"))     CheckNEEefficiency(*event, hists, sampleName);
+    if(config.params("doRecoEfficiency"))         CheckRecoEfficiency(*event, hists, sampleName);
+    if(config.params("doTriggerEfficiency"))      CheckTriggerEfficiency(*event, triggerTrees, hists, sampleName);
+    if(config.params("doHFvetoEfficiency"))       CheckTriggerHFvetoEfficiency(*event, hists, sampleName);
+    if(config.params("doCHEefficiency"))          CheckCHEefficiency(*event, hists, sampleName);
+    if(config.params("doNEEefficiency"))          CheckNEEefficiency(*event, hists, sampleName);
+    if(config.params("doElectronRecoEfficiency")) CheckElectronRecoEfficiency(*event, hists, sampleName);
   }
   
   PrintAndSaveResults(outFile, hists, triggerTrees, sampleName);
