@@ -102,8 +102,8 @@ int main(int argc, char* argv[])
     auto event = eventProcessor->GetEvent(iEvent);
     
     // Here we get gen and reco photons that pass acceptance (c_ACC) criteria
-    auto goodGenPhotons = event->GetPhysObjects(kGoodGenPhoton);
-    auto photonsPassing = event->GetPhysObjects(kGoodPhoton);
+    auto goodGenPhotons = event->GetPhysObjects(EPhysObjType::kGoodGenPhoton);
+    auto photonsPassing = event->GetPhysObjects(EPhysObjType::kGoodPhoton);
     
     if(goodGenPhotons.size() != 2) continue;
     nGenEvents++;  
@@ -117,13 +117,13 @@ int main(int argc, char* argv[])
     bool hasLbLTrigger            = event->HasTrigger(kDoubleEG2noHF) || event->HasTrigger(kSingleEG3noHF) || event->HasTrigger(kSingleEG5noHF); 
     bool hasTwoPhotonsPassingID   = photonsPassing.size() == 2;
     bool passesNeutralExclusivity = ! event->HasAdditionalTowers();
-    bool passesChargedExclusivity = event->GetPhysObjects(kGoodGeneralTrack).size() == 0;
+    bool passesChargedExclusivity = event->GetPhysObjects(EPhysObjType::kGoodGeneralTrack).size() == 0;
     bool passesDiphotonCuts = false;
     if(hasTwoPhotonsPassingID){
        diphoton                   = physObjectProcessor.GetDiphoton(*photonsPassing[0], *photonsPassing[1]);    
        passesDiphotonCuts         = diphoton.Pt() < config.params("diphotonMaxPt");
     }    
-    bool hasTwoMachingPhotons     = HasTwoMatchingPhotons(goodGenPhotons, event->GetPhysObjects(kPhotonInAcceptance));
+    bool hasTwoMachingPhotons     = HasTwoMatchingPhotons(goodGenPhotons, event->GetPhysObjects(EPhysObjType::kPhotonInAcceptance));
     
     if(hasLbLTrigger &&
        hasTwoPhotonsPassingID &&

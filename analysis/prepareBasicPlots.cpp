@@ -126,7 +126,7 @@ vector<tuple<string, int, double, double>> histParams = {
 
 void fillTriphotonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, bool saveEventDisplays=false)
 {
-  auto photons = event.GetPhysObjects(kGoodPhoton);
+  auto photons = event.GetPhysObjects(EPhysObjType::kGoodPhoton);
   PhysObjects isolatedPhotons;
   
   for(int i=0; i<photons.size(); i++){
@@ -166,17 +166,17 @@ void fillNobjectsHists(Event &event, const map<string, TH1D*> &hists, string dat
 {
   if(suffix != "") suffix += "_";
   
-  hists.at("lbl_n_all_photons_"+suffix+datasetName)->Fill(event.GetPhysObjects(kPhoton).size());
-  hists.at("lbl_n_all_calo_towers_"+suffix+datasetName)->Fill(event.GetPhysObjects(kCaloTower).size());
-  hists.at("lbl_n_all_L1EG_"+suffix+datasetName)->Fill(event.GetPhysObjects(kL1EG).size());
-  hists.at("lbl_n_pixel_tracks_"+suffix+datasetName)->Fill(event.GetPhysObjects(kPixelTrack).size());
-  hists.at("lbl_n_zdc_"+suffix+datasetName)->Fill(event.GetPhysObjects(kZDC).size());
+  hists.at("lbl_n_all_photons_"+suffix+datasetName)->Fill(event.GetPhysObjects(EPhysObjType::kPhoton).size());
+  hists.at("lbl_n_all_calo_towers_"+suffix+datasetName)->Fill(event.GetPhysObjects(EPhysObjType::kCaloTower).size());
+  hists.at("lbl_n_all_L1EG_"+suffix+datasetName)->Fill(event.GetPhysObjects(EPhysObjType::kL1EG).size());
+  hists.at("lbl_n_pixel_tracks_"+suffix+datasetName)->Fill(event.GetPhysObjects(EPhysObjType::kPixelTrack).size());
+  hists.at("lbl_n_zdc_"+suffix+datasetName)->Fill(event.GetPhysObjects(EPhysObjType::kZDC).size());
 }
 
 void fillPhotonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
 {
   if(suffix != "") suffix += "_";
-  for(auto photon : event.GetPhysObjects(kGoodPhoton)){
+  for(auto photon : event.GetPhysObjects(EPhysObjType::kGoodPhoton)){
     hists.at("lbl_photon_et_" +suffix+datasetName)->Fill(photon->GetEt());
     hists.at("lbl_photon_eta_"+suffix+datasetName)->Fill(photon->GetEta());
     hists.at("lbl_photon_phi_"+suffix+datasetName)->Fill(photon->GetPhi());
@@ -185,7 +185,7 @@ void fillPhotonHists(Event &event, const map<string, TH1D*> &hists, string datas
   double zdcEnergySumPos = 0;
   double zdcEnergySumNeg = 0;
   
-  for(auto zdc : event.GetPhysObjects(kZDC)){
+  for(auto zdc : event.GetPhysObjects(EPhysObjType::kZDC)){
     hists.at("lbl_zdc_energy_"+suffix+datasetName)->Fill(zdc->GetEnergy());
     zdcEnergySum += zdc->GetEnergy();
     
@@ -196,9 +196,9 @@ void fillPhotonHists(Event &event, const map<string, TH1D*> &hists, string datas
   hists.at("lbl_zdc_sum_energy_pos_"+suffix+datasetName)->Fill(zdcEnergySumPos);
   hists.at("lbl_zdc_sum_energy_neg_"+suffix+datasetName)->Fill(zdcEnergySumNeg);
   
-  auto goodPhotons = event.GetPhysObjects(kGoodPhoton);
+  auto goodPhotons = event.GetPhysObjects(EPhysObjType::kGoodPhoton);
   
-  for(auto photon : event.GetPhysObjects(kPhoton)){
+  for(auto photon : event.GetPhysObjects(EPhysObjType::kPhoton)){
     if(find(goodPhotons.begin(), goodPhotons.end(), photon) != goodPhotons.end()) continue;
     
     hists.at("lbl_bad_photon_et_" +suffix+datasetName)->Fill(photon->GetEt());
@@ -214,7 +214,7 @@ void fillZDCHists(Event &event, const map<string, TH1D*> &hists, string datasetN
   double zdcEnergySumPos = 0;
   double zdcEnergySumNeg = 0;
   
-  for(auto zdc : event.GetPhysObjects(kZDC)){
+  for(auto zdc : event.GetPhysObjects(EPhysObjType::kZDC)){
     if(zdc->GetZside() > 0) zdcEnergySumPos += zdc->GetEnergy();
     else                    zdcEnergySumNeg += zdc->GetEnergy();
   }
@@ -226,8 +226,8 @@ void fillZDCHists(Event &event, const map<string, TH1D*> &hists, string datasetN
 
 void fillDiphotonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
 {
-  TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*event.GetPhysObjects(kGoodPhoton)[0],
-                                                            *event.GetPhysObjects(kGoodPhoton)[1]);
+  TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*event.GetPhysObjects(EPhysObjType::kGoodPhoton)[0],
+                                                            *event.GetPhysObjects(EPhysObjType::kGoodPhoton)[1]);
   if(suffix != "") suffix += "_";
   hists.at("lbl_diphoton_mass_"     +suffix+datasetName)->Fill(diphoton.M());
   hists.at("lbl_diphoton_rapidity_" +suffix+datasetName)->Fill(diphoton.Rapidity());
@@ -237,7 +237,7 @@ void fillDiphotonHists(Event &event, const map<string, TH1D*> &hists, string dat
 void fillElectronHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
 {
   if(suffix != "") suffix += "_";
-  for(auto electron : event.GetPhysObjects(kGoodMatchedElectron)){
+  for(auto electron : event.GetPhysObjects(EPhysObjType::kGoodMatchedElectron)){
     hists.at("qed_electron_pt_" +suffix+datasetName)->Fill(electron->GetPt());
     hists.at("qed_electron_eta_"+suffix+datasetName)->Fill(electron->GetEta());
     hists.at("qed_electron_phi_"+suffix+datasetName)->Fill(electron->GetPhi());
@@ -248,8 +248,8 @@ void fillDielectronHists(Event &event, const map<string, TH1D*> &hists, string d
 {
   if(suffix != "") suffix += "_";
   
-  TLorentzVector dielectron = physObjectProcessor.GetDielectron(*event.GetPhysObjects(kGoodMatchedElectron)[0],
-                                                                *event.GetPhysObjects(kGoodMatchedElectron)[1]);
+  TLorentzVector dielectron = physObjectProcessor.GetDielectron(*event.GetPhysObjects(EPhysObjType::kGoodMatchedElectron)[0],
+                                                                *event.GetPhysObjects(EPhysObjType::kGoodMatchedElectron)[1]);
   
   hists.at(sample+"_dielectron_mass_"     +suffix+datasetName)->Fill(dielectron.M());
   hists.at(sample+"_dielectron_rapidity_" +suffix+datasetName)->Fill(dielectron.Rapidity());
@@ -266,7 +266,7 @@ void fillNoiseHists(Event &event, const map<string, TH1D*> &hists, string datase
   map<ECaloType, bool> leadingFilled;
   for(auto calo : calotypes) leadingFilled[calo] = false;
   
-  PhysObjects towers = event.GetPhysObjects(kCaloTower);
+  PhysObjects towers = event.GetPhysObjects(EPhysObjType::kCaloTower);
   
   for(auto tower : towers){
     
@@ -330,7 +330,7 @@ void fillTracksHists(Event &event, const map<string, TH1D*> &hists, EDataset dat
   
   PhysObjects tracksLowPt, tracksHighPt;
   
-  int nTracks = (int)event.GetPhysObjects(kGeneralTrack).size();
+  int nTracks = (int)event.GetPhysObjects(EPhysObjType::kGeneralTrack).size();
   
   hists.at("nTracks_"+suffix+name)->Fill(nTracks);
   
@@ -339,7 +339,7 @@ void fillTracksHists(Event &event, const map<string, TH1D*> &hists, EDataset dat
   hists.at("nPixelClusters_"+suffix+name)->Fill(event.GetNpixelClusters());
   hists.at("nPixelRecHits_"+suffix+name)->Fill(event.GetNpixelRecHits());
   
-  for(auto track : event.GetPhysObjects(kGeneralTrack)){
+  for(auto track : event.GetPhysObjects(EPhysObjType::kGeneralTrack)){
     double trackPt = track->GetPt();
     hists.at("track_pt_"+suffix+name)->Fill(trackPt);
     hists.at("track_eta_"+suffix+name)->Fill(track->GetEta());
@@ -383,9 +383,9 @@ void fillTracksHists(Event &event, const map<string, TH1D*> &hists, EDataset dat
     else              tracksHighPt.push_back(track);
   }
   
-  hists.at("nTracks_good_"+suffix+name)->Fill(event.GetPhysObjects(kGoodGeneralTrack).size());
+  hists.at("nTracks_good_"+suffix+name)->Fill(event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack).size());
   
-  for(auto track : event.GetPhysObjects(kGoodGeneralTrack)){
+  for(auto track : event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack)){
     hists.at("track_pt_good_"+suffix+name)->Fill(track->GetPt());
     hists.at("track_eta_good_"+suffix+name)->Fill(track->GetEta());
     hists.at("track_phi_good_"+suffix+name)->Fill(track->GetPhi());
@@ -402,19 +402,19 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   if(checkTriggers && !event.HasTrigger(kDoubleEG2noHF)) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 1 - Trigger
   
-  if(event.GetPhysObjects(kGoodPhoton).size() != 2) return;
+  if(event.GetPhysObjects(EPhysObjType::kGoodPhoton).size() != 2) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 2 - Two good photons
   
-  TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*event.GetPhysObjects(kGoodPhoton)[0],
-                                                            *event.GetPhysObjects(kGoodPhoton)[1]);
+  TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*event.GetPhysObjects(EPhysObjType::kGoodPhoton)[0],
+                                                            *event.GetPhysObjects(EPhysObjType::kGoodPhoton)[1]);
   
   if(diphoton.M() < config.params("diphotonMinMass")) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 3 - Diphoton mass
   
-  if(event.GetPhysObjects(kGoodGeneralTrack).size() > config.params("maxNtracks")) return;
+  if(event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack).size() > config.params("maxNtracks")) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 4 - CHE (general tracks)
   
-  if(event.GetPhysObjects(kPixelTrack).size() > config.params("maxNpixelTracks")) return;
+  if(event.GetPhysObjects(EPhysObjType::kPixelTrack).size() > config.params("maxNpixelTracks")) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 5 - CHE (pixel tracks)
   
   if(event.GetNpixelRecHits() > config.params("maxNpixelRecHits")) return;
@@ -448,8 +448,8 @@ void fillLbLHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   if(fabs(diphoton.Rapidity()) > config.params("diphotonMaxRapidity")) return;
   hists.at("lbl_cut_flow_all_"+name)->Fill(cutThrough++); // 10 - Diphoton rapidity
   
-  double aco = physObjectProcessor.GetAcoplanarity(*event.GetPhysObjects(kGoodPhoton)[0],
-                                                   *event.GetPhysObjects(kGoodPhoton)[1]);
+  double aco = physObjectProcessor.GetAcoplanarity(*event.GetPhysObjects(EPhysObjType::kGoodPhoton)[0],
+                                                   *event.GetPhysObjects(EPhysObjType::kGoodPhoton)[1]);
   hists.at("lbl_acoplanarity_all_"+name)->Fill(aco);
   
   string suffix;
@@ -482,7 +482,7 @@ void fillCHEhistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   
   fillTracksHists(event, hists, dataset, "all");
   
-  auto photons = event.GetPhysObjects(kGoodPhoton);
+  auto photons = event.GetPhysObjects(EPhysObjType::kGoodPhoton);
   if(photons.size() != 2) return;
 
   TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*photons[0], *photons[1]);
@@ -553,11 +553,11 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   if(checkTriggers && !event.HasTrigger(kDoubleEG2noHF)) return;
   hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 1 - Trigger
   
-  if(event.GetPhysObjects(kGoodMatchedElectron).size() != 2) return;
+  if(event.GetPhysObjects(EPhysObjType::kGoodMatchedElectron).size() != 2) return;
   hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 2 - Two good electrons
   
-  auto electron1 = event.GetPhysObjects(kGoodMatchedElectron)[0];
-  auto electron2 = event.GetPhysObjects(kGoodMatchedElectron)[1];
+  auto electron1 = event.GetPhysObjects(EPhysObjType::kGoodMatchedElectron)[0];
+  auto electron2 = event.GetPhysObjects(EPhysObjType::kGoodMatchedElectron)[1];
     
   if(electron1->GetCharge() == electron2->GetCharge()){
     fillDielectronHists(event, hists, name, "samesign", "all");
@@ -591,13 +591,13 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   }
     
   
-  TLorentzVector dielectron = physObjectProcessor.GetDielectron(*event.GetPhysObjects(kGoodMatchedElectron)[0],
-                                                                *event.GetPhysObjects(kGoodMatchedElectron)[1]);
+  TLorentzVector dielectron = physObjectProcessor.GetDielectron(*event.GetPhysObjects(EPhysObjType::kGoodMatchedElectron)[0],
+                                                                *event.GetPhysObjects(EPhysObjType::kGoodMatchedElectron)[1]);
   
   if(dielectron.M() < config.params("dielectronMinMass")) return;
   hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 4 - Dielectron mass
   
-  if(event.GetPhysObjects(kGoodGeneralTrack).size() != 2) return;
+  if(event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack).size() != 2) return;
   hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 5 - CHE
   
   if(event.GetTotalZDCenergy()    > config.params("maxTotalZDCenergy")) return;
@@ -615,8 +615,8 @@ void fillQEDHistograms(Event &event, const map<string, TH1D*> &hists, EDataset d
   if(fabs(dielectron.Rapidity()) > config.params("dielectronMaxRapidity")) return;
   hists.at("qed_cut_flow_all_"+name)->Fill(cutThrough++); // 9 - Dielectron rapidity
   
-  double aco = physObjectProcessor.GetAcoplanarity(*event.GetPhysObjects(kGoodMatchedElectron)[0],
-                                                   *event.GetPhysObjects(kGoodMatchedElectron)[1]);
+  double aco = physObjectProcessor.GetAcoplanarity(*event.GetPhysObjects(EPhysObjType::kGoodMatchedElectron)[0],
+                                                   *event.GetPhysObjects(EPhysObjType::kGoodMatchedElectron)[1]);
   
   hists.at("qed_acoplanarity_all_"+name)->Fill(aco);
   
@@ -718,8 +718,8 @@ int main(int argc, char* argv[])
     auto event = events->GetEvent(iEvent);
     
     // run this here just to save electron cut flow hist
-    event->GetPhysObjects(kGoodElectron, hists.at("qed_electron_cutflow_all_"+sampleName));
-    event->GetPhysObjects(kGoodGeneralTrack, hists.at("tracks_cut_flow_all_"+sampleName));
+    event->GetPhysObjects(EPhysObjType::kGoodElectron, hists.at("qed_electron_cutflow_all_"+sampleName));
+    event->GetPhysObjects(EPhysObjType::kGoodGeneralTrack, hists.at("tracks_cut_flow_all_"+sampleName));
     
     fillLbLHistograms(*event, hists, dataset);
     fillCHEhistograms(*event, hists, dataset);
