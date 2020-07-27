@@ -2,16 +2,17 @@
 
 //string inputPath  = "../results/basicPlots_default_HEMupdate.root";
 string inputPath  = "../results/basicPlots_default.root";
+//string inputPath  = "../results/basicPlots_noZDCcuts.root";
 
 // efficiency for exclusivity, with stat and syst errors.
-const double neutralExclusivityEfficiency        = 0.71; // 0.895;
-const double neutralExclusivityEfficiencyErrStat = 0.03; // 0.013;
+const double neutralExclusivityEfficiency        = 0.70; // 0.895;
+const double neutralExclusivityEfficiencyErrStat = 0.02; // 0.013;
 const double neutralExclusivityEfficiencyErrSyst = 0.0;
 const double neutralExclusivityEfficiencyErr     = sqrt(pow(neutralExclusivityEfficiencyErrStat, 2) +
                                                         pow(neutralExclusivityEfficiencyErrSyst, 2));
 
-const double chargedExclusivityEfficiency        = 0.88;
-const double chargedExclusivityEfficiencyErrStat = 0.04;
+const double chargedExclusivityEfficiency        = 0.89;
+const double chargedExclusivityEfficiencyErrStat = 0.02;
 const double chargedExclusivityEfficiencyErrSyst = 0.0;
 const double chargedExclusivityEfficiencyErr     = sqrt(pow(chargedExclusivityEfficiencyErrStat, 2) +
                                                         pow(chargedExclusivityEfficiencyErrSyst, 2));
@@ -21,7 +22,12 @@ const double generatorCutsEfficiency  = 1.0;
 const double dataAvailableFraction    = 1.0; // we are missing 15% of the data
 
 // From SuperChic
-const double xsecGenerated    = dataAvailableFraction * generatorCutsEfficiency * 8827.220; // μb
+//const double xsecGenerated    = dataAvailableFraction * generatorCutsEfficiency * 8827.220; // μb
+
+// From Starlight
+const double xsecGenerated    = dataAvailableFraction * generatorCutsEfficiency * 7920; // μb
+
+
 const double xsecGeneratedErr = 79.73715; // μb
 
 // TODO: replace luminosity by the one calculated for our ntuples
@@ -48,13 +54,13 @@ const double luminosity       = 1635.123139823; // μb^-1
 const double luminosityErr    = 0.015 * luminosity;
 // Relative uncertainty on luminosity as recommended by: http://cms.cern.ch/iCMS/analysisadmin/cadilines?line=LUM-18-001
 
-const double scaleFactor          = pow(0.71, 2); // This is Reco+ID only.
-const double scaleFactorErrStat   = 0.03;
+const double scaleFactor          = pow(0.74, 2); // This is Reco+ID only.
+const double scaleFactorErrStat   = 0.02;
 const double scaleFactorErr       = 2 * scaleFactorErrStat;
 
 // const double scaleFactorErr       = sqrt(pow(scale, 2) + pow( 2 * 0.02, 2)); // TODO: why second term is multiplied by 2?
 
-const double nEventsGenerated     = 980000; // TODO: update number of events when full stat available
+const double nEventsGenerated = 66750000; // TODO: update number of events when full stat available
 
 const double acoplanarityCut = 0.06;
 const double maxAcolpanarity = 0.01; // TODO: what's the difference between those two numbers?

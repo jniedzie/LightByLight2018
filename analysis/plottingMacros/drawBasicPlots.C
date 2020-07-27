@@ -1,6 +1,7 @@
 #include "../include/Helpers.hpp"
 
- string inputPath  = "../results/basicPlots_default.root";
+// string inputPath  = "../results/basicPlots_default.root";
+string inputPath  = "../results/basicPlots_noZDCcuts.root";
 //string inputPath  = "../results/basicPlots_default_full_lumi.root";
 //string inputPath  = "../results/basicPlots_default_inverted.root";
 //string inputPath  = "../results/basicPlots_default_inverted_qed.root";
@@ -34,12 +35,21 @@ double cutEfficiencyQED_SC = 0.7184;  // SuperChic
 double cutEfficiencyQED_SL = 1.0;     // Starlight
 double scaleFactorsSL = 0.860734 *  // NEE
                         0.98 *      // CHE
-                        0.94;       // HF veto
+                        1.19; // Trigger
+//                        0.94 *      // HF veto
+//                        1.26;       // L1 EG trigger
+
+//double scaleFactorsSL = 1.0;
+
 
 double cutEfficiencyLbL = 1.0;
 
 //double dataAvailableFraction = 0.8514227642; // we are missing 15% of the data
-double dataAvailableFraction = 1.0;
+
+//double dataAvailableFraction = 0.8702892054;
+  double dataAvailableFraction = 1.0;
+
+
 
 map<EDataset, double> crossSection = { // μb
   { kMCqedSC, 8830    * cutEfficiencyQED_SC * dataAvailableFraction * purity },

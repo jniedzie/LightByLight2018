@@ -41,26 +41,26 @@ bool Event::HasTrigger(ETrigger trigger) const
 
 PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
 {
-  if(   type == kPhoton
-     || type == kElectron
-     || type == kMuon
-     || type == kCaloTower
-     || type == kGeneralTrack
-     || type == kL1EG
-     || type == kZDC
-     || type == kPixelTrack){
+  if(   type == EPhysObjType::kPhoton
+     || type == EPhysObjType::kElectron
+     || type == EPhysObjType::kMuon
+     || type == EPhysObjType::kCaloTower
+     || type == EPhysObjType::kGeneralTrack
+     || type == EPhysObjType::kL1EG
+     || type == EPhysObjType::kZDC
+     || type == EPhysObjType::kPixelTrack){
     return physObjects.at(type);
   }
-  else if(type == kGoodGenPhoton)       return GetGoodGenPhotons();
-  else if(type == kPhotonInAcceptance)  return GetPhotonsInAcceptance();
-  else if(type == kGoodPhoton)          return GetGoodPhotons();
-  else if(type == kGoodElectron)        return GetGoodElectrons(cutFlowHist);
-  else if(type == kGoodMatchedElectron) return GetGoodMatchedElectron();
-  else if(type == kGoodMuon)            return GetGoodMuons(cutFlowHist);
-  else if(type == kGoodGeneralTrack)    return GetGoodGeneralTracks(cutFlowHist);
-  else if(type == kGoodPixelTrack)      return GetGoodPixelTracks(cutFlowHist);
+  else if(type == EPhysObjType::kGoodGenPhoton)       return GetGoodGenPhotons();
+  else if(type == EPhysObjType::kPhotonInAcceptance)  return GetPhotonsInAcceptance();
+  else if(type == EPhysObjType::kGoodPhoton)          return GetGoodPhotons();
+  else if(type == EPhysObjType::kGoodElectron)        return GetGoodElectrons(cutFlowHist);
+  else if(type == EPhysObjType::kGoodMatchedElectron) return GetGoodMatchedElectron();
+  else if(type == EPhysObjType::kGoodMuon)            return GetGoodMuons(cutFlowHist);
+  else if(type == EPhysObjType::kGoodGeneralTrack)    return GetGoodGeneralTracks(cutFlowHist);
+  else if(type == EPhysObjType::kGoodPixelTrack)      return GetGoodPixelTracks(cutFlowHist);
   
-  Log(0)<<"ERROR -- unrecognized phys object type: "<<type<<"!!!\n";
+  Log(0)<<"ERROR -- unrecognized phys object type: "<<(int)type<<"!!!\n";
   return PhysObjects();
 }
 
@@ -68,7 +68,7 @@ PhysObjects Event::GetGoodGenPhotons() const
 {
   PhysObjects goodGenPhotons;
   
-  for(auto genPhoton : physObjects.at(kGenParticle)){
+  for(auto genPhoton : physObjects.at(EPhysObjType::kGenParticle)){
     
     if(genPhoton->GetPID() != 22) continue;
     if(fabs(genPhoton->GetEta()) > config.params("photonMaxEta")) continue;
@@ -82,11 +82,11 @@ PhysObjects Event::GetGoodGenPhotons() const
 
 PhysObjects Event::GetPhotonsInAcceptance()
 {
-  if(physObjectsReady.at(kPhotonInAcceptance)) return physObjects.at(kPhotonInAcceptance);
+  if(physObjectsReady.at(EPhysObjType::kPhotonInAcceptance)) return physObjects.at(EPhysObjType::kPhotonInAcceptance);
   
-  physObjects.at(kPhotonInAcceptance).clear();
+  physObjects.at(EPhysObjType::kPhotonInAcceptance).clear();
   
-  for(auto photon : physObjects.at(kPhoton)){
+  for(auto photon : physObjects.at(EPhysObjType::kPhoton)){
     
    
     // Check Et
@@ -99,19 +99,19 @@ PhysObjects Event::GetPhotonsInAcceptance()
     if(physObjectProcessor.IsInHEM(*photon)) continue;
     
     
-    physObjects.at(kPhotonInAcceptance).push_back(photon);
+    physObjects.at(EPhysObjType::kPhotonInAcceptance).push_back(photon);
   }
-  physObjectsReady.at(kPhotonInAcceptance) = true;
-  return physObjects.at(kPhotonInAcceptance);
+  physObjectsReady.at(EPhysObjType::kPhotonInAcceptance) = true;
+  return physObjects.at(EPhysObjType::kPhotonInAcceptance);
 }
 
 PhysObjects Event::GetGoodPhotons()
 {
-  if(physObjectsReady.at(kGoodPhoton)) return physObjects.at(kGoodPhoton);
+  if(physObjectsReady.at(EPhysObjType::kGoodPhoton)) return physObjects.at(EPhysObjType::kGoodPhoton);
   
-  physObjects.at(kGoodPhoton).clear();
+  physObjects.at(EPhysObjType::kGoodPhoton).clear();
   
-  for(auto photon : physObjects.at(kPhoton)){
+  for(auto photon : physObjects.at(EPhysObjType::kPhoton)){
     
     // Check if photon converted
     if(config.params("photonRejectConverted") && photon->IsConverted()) continue;
@@ -151,19 +151,19 @@ PhysObjects Event::GetGoodPhotons()
     if((absEta < maxEtaEB) && (photon->GetHoverE() > config.params("photonMaxHoverEbarrel"))) continue;
     else if((absEta < maxEtaEE) && (photon->GetHoverE() > config.params("photonMaxHoverEendcap"))) continue;
     
-    physObjects.at(kGoodPhoton).push_back(photon);
+    physObjects.at(EPhysObjType::kGoodPhoton).push_back(photon);
   }
-  physObjectsReady.at(kGoodPhoton) = true;
-  return physObjects.at(kGoodPhoton);
+  physObjectsReady.at(EPhysObjType::kGoodPhoton) = true;
+  return physObjects.at(EPhysObjType::kGoodPhoton);
 }
 
 PhysObjects Event::GetGoodElectrons(TH1D *cutFlowHist)
 {
-  if(physObjectsReady.at(kGoodElectron)) return physObjects.at(kGoodElectron);
+  if(physObjectsReady.at(EPhysObjType::kGoodElectron)) return physObjects.at(EPhysObjType::kGoodElectron);
   
-  physObjects.at(kGoodElectron).clear();
+  physObjects.at(EPhysObjType::kGoodElectron).clear();
   
-  for(auto electron : physObjects.at(kElectron)){
+  for(auto electron : physObjects.at(EPhysObjType::kElectron)){
     int cutFlowIndex=0;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 0
     
@@ -209,19 +209,19 @@ PhysObjects Event::GetGoodElectrons(TH1D *cutFlowHist)
     if(electron->GetNeutralIso() >= config.params("electronMaxNeutralIso"+subdet)) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
 
-    physObjects.at(kGoodElectron).push_back(electron);
+    physObjects.at(EPhysObjType::kGoodElectron).push_back(electron);
   }
-  physObjectsReady.at(kGoodElectron) = true;
-  return physObjects.at(kGoodElectron);
+  physObjectsReady.at(EPhysObjType::kGoodElectron) = true;
+  return physObjects.at(EPhysObjType::kGoodElectron);
 }
 
 PhysObjects Event::GetGoodMuons(TH1D *cutFlowHist)
 {
-  if(physObjectsReady.at(kGoodMuon)) return physObjects.at(kGoodMuon);
+  if(physObjectsReady.at(EPhysObjType::kGoodMuon)) return physObjects.at(EPhysObjType::kGoodMuon);
   
-  physObjects.at(kGoodMuon).clear();
+  physObjects.at(EPhysObjType::kGoodMuon).clear();
   
-  for(auto muon : physObjects.at(kMuon)){
+  for(auto muon : physObjects.at(EPhysObjType::kMuon)){
 //    int cutFlowIndex=0;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 0
     
@@ -267,41 +267,45 @@ PhysObjects Event::GetGoodMuons(TH1D *cutFlowHist)
 //    if(muon->GetNeutralIso() >= config.params("muonMaxNeutralIso"+subdet)) continue;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
 
-    physObjects.at(kGoodMuon).push_back(muon);
+    physObjects.at(EPhysObjType::kGoodMuon).push_back(muon);
   }
-  physObjectsReady.at(kGoodMuon) = true;
-  return physObjects.at(kGoodMuon);
+  physObjectsReady.at(EPhysObjType::kGoodMuon) = true;
+  return physObjects.at(EPhysObjType::kGoodMuon);
 }
 
 
 PhysObjects Event::GetGoodMatchedElectron()
 {
-  if(physObjectsReady.at(kGoodMatchedElectron)) return physObjects.at(kGoodMatchedElectron);
+  if(physObjectsReady.at(EPhysObjType::kGoodMatchedElectron)){
+    return physObjects.at(EPhysObjType::kGoodMatchedElectron);
+  }
   
-  physObjects.at(kGoodMatchedElectron).clear();
+  physObjects.at(EPhysObjType::kGoodMatchedElectron).clear();
   
-  for(auto electron : GetPhysObjects(kGoodElectron)){
-    for(auto &L1EG : GetPhysObjects(kL1EG)){
+  for(auto electron : GetPhysObjects(EPhysObjType::kGoodElectron)){
+    for(auto &L1EG : GetPhysObjects(EPhysObjType::kL1EG)){
       if(L1EG->GetEt() < 2.0) continue;
       
       if(physObjectProcessor.GetDeltaR_SC(*electron, *L1EG) < 0.3){
-        physObjects.at(kGoodMatchedElectron).push_back(electron);
+        physObjects.at(EPhysObjType::kGoodMatchedElectron).push_back(electron);
         break;
       }
     }
   }
   
-  physObjectsReady.at(kGoodMatchedElectron) = true;
-  return physObjects.at(kGoodMatchedElectron);
+  physObjectsReady.at(EPhysObjType::kGoodMatchedElectron) = true;
+  return physObjects.at(EPhysObjType::kGoodMatchedElectron);
 }
 
 PhysObjects Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
 {
-  if(physObjectsReady.at(kGoodGeneralTrack)) return physObjects.at(kGoodGeneralTrack);
+  if(physObjectsReady.at(EPhysObjType::kGoodGeneralTrack)){
+    return physObjects.at(EPhysObjType::kGoodGeneralTrack);
+  }
+    
+  physObjects.at(EPhysObjType::kGoodGeneralTrack).clear();
   
-  physObjects.at(kGoodGeneralTrack).clear();
-  
-  for(auto track : physObjects.at(kGeneralTrack)){
+  for(auto track : physObjects.at(EPhysObjType::kGeneralTrack)){
     int cutFlowIndex=0;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 0
     
@@ -340,19 +344,21 @@ PhysObjects Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
     if(track->GetChi2() > config.params("trackMaxChi2")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
     
-    physObjects.at(kGoodGeneralTrack).push_back(track);
+    physObjects.at(EPhysObjType::kGoodGeneralTrack).push_back(track);
   }
-  physObjectsReady.at(kGoodGeneralTrack) = true;
-  return physObjects.at(kGoodGeneralTrack);
+  physObjectsReady.at(EPhysObjType::kGoodGeneralTrack) = true;
+  return physObjects.at(EPhysObjType::kGoodGeneralTrack);
 }
 
 PhysObjects Event::GetGoodPixelTracks(TH1D *cutFlowHist)
 {
-  if(physObjectsReady.at(kGoodPixelTrack)) return physObjects.at(kGoodPixelTrack);
+  if(physObjectsReady.at(EPhysObjType::kGoodPixelTrack)){
+    return physObjects.at(EPhysObjType::kGoodPixelTrack);
+  }
   
-  physObjects.at(kGoodPixelTrack).clear();
+  physObjects.at(EPhysObjType::kGoodPixelTrack).clear();
   
-  for(auto track : physObjects.at(kPixelTrack)){
+  for(auto track : physObjects.at(EPhysObjType::kPixelTrack)){
     int cutFlowIndex=0;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 0
     
@@ -372,15 +378,15 @@ PhysObjects Event::GetGoodPixelTracks(TH1D *cutFlowHist)
     if(track->GetChi2() > config.params("pixelTrackMaxChi2")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
     
-    physObjects.at(kGoodPixelTrack).push_back(track);
+    physObjects.at(EPhysObjType::kGoodPixelTrack).push_back(track);
   }
-  physObjectsReady.at(kGoodPixelTrack) = true;
-  return physObjects.at(kGoodPixelTrack);
+  physObjectsReady.at(EPhysObjType::kGoodPixelTrack) = true;
+  return physObjects.at(EPhysObjType::kGoodPixelTrack);
 }
 
 bool Event::HasAdditionalTowers()
 {
-  for(auto tower : physObjects.at(kCaloTower)){
+  for(auto tower : physObjects.at(EPhysObjType::kCaloTower)){
 
     ECaloType subdetHad = tower->GetTowerSubdetHad();
     ECaloType subdetEm = tower->GetTowerSubdetEm();
@@ -423,7 +429,7 @@ bool Event::HasAdditionalTowers(map<ECaloType, bool> &failingCalo)
   for(ECaloType caloType : calotypes) failingCalo[caloType] = false;
   
   
-  for(auto tower : physObjects.at(kCaloTower)){
+  for(auto tower : physObjects.at(EPhysObjType::kCaloTower)){
 
     ECaloType subdetHad = tower->GetTowerSubdetHad();
     ECaloType subdetEm = tower->GetTowerSubdetEm();
@@ -474,8 +480,8 @@ bool Event::HasAdditionalTowers(map<ECaloType, bool> &failingCalo)
 
 void Event::SortCaloTowersByEnergy()
 {
-  sort(physObjects.at(kCaloTower).begin(),
-       physObjects.at(kCaloTower).end(),
+  sort(physObjects.at(EPhysObjType::kCaloTower).begin(),
+       physObjects.at(EPhysObjType::kCaloTower).end(),
        PhysObjectProcessor::CompareByEnergy());
 }
 
@@ -488,8 +494,8 @@ bool Event::IsOverlappingWithGoodPhoton(const PhysObject &tower)
   double maxDeltaEta = (subdet == kEB ) ? config.params("maxDeltaEtaEB") : config.params("maxDeltaEtaEE");
   double maxDeltaPhi = (subdet == kEB ) ? config.params("maxDeltaPhiEB") : config.params("maxDeltaPhiEE");
   
-  for(int iPhoton=0; iPhoton<GetPhysObjects(kGoodPhoton).size(); iPhoton++){
-    auto photon = GetPhysObjects(kGoodPhoton)[iPhoton];
+  for(int iPhoton=0; iPhoton<GetPhysObjects(EPhysObjType::kGoodPhoton).size(); iPhoton++){
+    auto photon = GetPhysObjects(EPhysObjType::kGoodPhoton)[iPhoton];
     
     double deltaEta = fabs(photon->GetEtaSC() - tower.GetEta());
     double deltaPhi = fabs(photon->GetPhiSC() - tower.GetPhi());
@@ -554,7 +560,7 @@ map<ECaloType, PhysObjects> Event::GetCaloTowersAboveThresholdByDet()
 {
   map<ECaloType, PhysObjects> caloTowersByDet;
   
-  for(auto tower : physObjects.at(kCaloTower)){
+  for(auto tower : physObjects.at(EPhysObjType::kCaloTower)){
     
     ECaloType subdetHad = tower->GetTowerSubdetHad();
     ECaloType subdetEm  = tower->GetTowerSubdetEm();
@@ -590,14 +596,14 @@ map<ECaloType, PhysObjects> Event::GetCaloTowersAboveThresholdByDet()
 double Event::GetTotalZDCenergy() const
 {
   double zdcEnergySum = 0;
-  for(auto zdc : physObjects.at(kZDC)) zdcEnergySum += zdc->GetEnergy();
+  for(auto zdc : physObjects.at(EPhysObjType::kZDC)) zdcEnergySum += zdc->GetEnergy();
   return zdcEnergySum;
 }
 
 double Event::GetTotalZDCenergyPos() const
 {
   double zdcEnergySum = 0;
-  for(auto zdc : physObjects.at(kZDC)){
+  for(auto zdc : physObjects.at(EPhysObjType::kZDC)){
     if(zdc->GetZside() > 0) zdcEnergySum += zdc->GetEnergy();
   }
   return zdcEnergySum;
@@ -606,7 +612,7 @@ double Event::GetTotalZDCenergyPos() const
 double Event::GetTotalZDCenergyNeg() const
 {
   double zdcEnergySum = 0;
-  for(auto zdc : physObjects.at(kZDC)){
+  for(auto zdc : physObjects.at(EPhysObjType::kZDC)){
     if(zdc->GetZside() < 0) zdcEnergySum += zdc->GetEnergy();
   }
   return zdcEnergySum;

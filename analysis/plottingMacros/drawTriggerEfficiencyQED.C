@@ -15,8 +15,8 @@ vector<string> triggerCombinations = {
 
 vector<EDataset> datasetsToDraw = {
   kData,
-  kMCqedSC,
-  //  kMCqedSL
+//  kMCqedSC,
+  kMCqedSL
 };
 
 vector<tuple<string, string, string, string>> variables = {
@@ -85,6 +85,11 @@ void drawTriggerEfficiencyQED()
         
         string filePath = basePath + "_" + triggerCombination + "_" + datasetName.at(dataset)+".root";
         TFile *inFile = TFile::Open(filePath.c_str());
+        
+        if(!inFile){
+          cout<<"ERROR -- couldn't open file: "<<filePath<<endl;
+          continue;
+        }
         
         
         string resultsPath = "triggerTree_"+datasetName.at(dataset)+"/"+dirName+"/fit_eff";

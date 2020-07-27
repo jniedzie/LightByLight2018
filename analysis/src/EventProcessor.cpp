@@ -49,13 +49,13 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   for(auto &[trigger, name] : triggerNames){
     hltTree->SetBranchAddress(name.c_str()            , &triggerValues[trigger]);
   }
-  eventTree->SetBranchAddress("nMC"                   , &nPhysObjects.at(kGenParticle));
+  eventTree->SetBranchAddress("nMC"                   , &nPhysObjects.at(EPhysObjType::kGenParticle));
   eventTree->SetBranchAddress("mcEta"                 , &mcEta);
   eventTree->SetBranchAddress("mcPhi"                 , &mcPhi);
   eventTree->SetBranchAddress("mcEt"                  , &mcEt);
   eventTree->SetBranchAddress("mcPID"                 , &mcPID);
   
-  eventTree->SetBranchAddress("nPho"                  , &nPhysObjects.at(kPhoton));
+  eventTree->SetBranchAddress("nPho"                  , &nPhysObjects.at(EPhysObjType::kPhoton));
   eventTree->SetBranchAddress("phoHoverE"             , &photonHoverE);
   eventTree->SetBranchAddress("phoEta"                , &photonEta);
   eventTree->SetBranchAddress("phoPhi"                , &photonPhi);
@@ -76,7 +76,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("phoERight"             , &photonEright);
   eventTree->SetBranchAddress("phoHasConversionTracks", &photonIsConverted);
   
-  eventTree->SetBranchAddress("nTower"                , &nPhysObjects.at(kCaloTower));
+  eventTree->SetBranchAddress("nTower"                , &nPhysObjects.at(EPhysObjType::kCaloTower));
   eventTree->SetBranchAddress("CaloTower_hadE"        , &towerEnergyHad);
   eventTree->SetBranchAddress("CaloTower_emE"         , &towerEnergyEm);
   eventTree->SetBranchAddress("CaloTower_e"           , &towerEnergy);
@@ -84,7 +84,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("CaloTower_eta"         , &towerEta);
   eventTree->SetBranchAddress("CaloTower_phi"         , &towerPhi);
   
-  eventTree->SetBranchAddress("nTrk"                  , &nPhysObjects.at(kGeneralTrack));
+  eventTree->SetBranchAddress("nTrk"                  , &nPhysObjects.at(EPhysObjType::kGeneralTrack));
   eventTree->SetBranchAddress("trkPt"                 , &generalTrackPt);
   eventTree->SetBranchAddress("trkP"                  , &generalTrackP);
   eventTree->SetBranchAddress("trkEta"                , &generalTrackEta);
@@ -102,7 +102,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("trkvy"                 , &generalTrackVertexY);
   eventTree->SetBranchAddress("trkvz"                 , &generalTrackVertexZ);
   
-  eventTree->SetBranchAddress("nEle"                  , &nPhysObjects.at(kElectron));
+  eventTree->SetBranchAddress("nEle"                  , &nPhysObjects.at(EPhysObjType::kElectron));
   eventTree->SetBranchAddress("eleCharge"             , &electronCharge);
   eventTree->SetBranchAddress("eleMissHits"           , &electronNmissing);
   eventTree->SetBranchAddress("elePt"                 , &electronPt);
@@ -120,7 +120,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("elePFPhoIso"       , &electronPhoIso);
   eventTree->SetBranchAddress("elePFNeuIso"       , &electronNeuIso);
 
-  eventTree->SetBranchAddress("nMu"              , &nPhysObjects.at(kMuon));
+  eventTree->SetBranchAddress("nMu"              , &nPhysObjects.at(EPhysObjType::kMuon));
   eventTree->SetBranchAddress("muCharge"         , &muonCharge);
 //  eventTree->SetBranchAddress("muMissHits"       , &muonNmissing);
   eventTree->SetBranchAddress("muPt"             , &muonPt);
@@ -170,7 +170,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
     return;
   }
   
-  pixelTree->SetBranchAddress("nPix"            , &nPhysObjects.at(kPixelTrack));
+  pixelTree->SetBranchAddress("nPix"            , &nPhysObjects.at(EPhysObjType::kPixelTrack));
   pixelTree->SetBranchAddress("pixPt"           , &pixelTrackPt);
   pixelTree->SetBranchAddress("pixP"            , &pixelTrackP);
   pixelTree->SetBranchAddress("pixEta"          , &pixelTrackEta);
@@ -299,7 +299,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   }
   
   // Fill in collection of gen particles
-  for(int iGenPart=0; iGenPart<nPhysObjects.at(kGenParticle); iGenPart++){
+  for(int iGenPart=0; iGenPart<nPhysObjects.at(EPhysObjType::kGenParticle); iGenPart++){
     auto genParticle = make_shared<PhysObject>();
     
     genParticle->eta   = mcEta->at(iGenPart);
@@ -307,12 +307,12 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     genParticle->et    = mcEt->at(iGenPart);
     genParticle->pdgID = mcPID->at(iGenPart);
     
-    currentEvent->physObjects.at(kGenParticle).push_back(genParticle);
+    currentEvent->physObjects.at(EPhysObjType::kGenParticle).push_back(genParticle);
   }
   
   // Fill in collection of photon superclusters
   
-  for(size_t iPhoton=0; iPhoton<nPhysObjects.at(kPhoton); iPhoton++){
+  for(size_t iPhoton=0; iPhoton<nPhysObjects.at(EPhysObjType::kPhoton); iPhoton++){
     auto photon = make_shared<PhysObject>();
     
     photon->hOverE   = photonHoverE->at(iPhoton);
@@ -337,12 +337,12 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     
     photon->hasConversionTracks = photonIsConverted->at(iPhoton);
     
-    currentEvent->physObjects.at(kPhoton).push_back(photon);
+    currentEvent->physObjects.at(EPhysObjType::kPhoton).push_back(photon);
   }
   
   // Fill in collection of calo towers
   
-  for(size_t iTower=0; iTower<nPhysObjects.at(kCaloTower); iTower++){
+  for(size_t iTower=0; iTower<nPhysObjects.at(EPhysObjType::kCaloTower); iTower++){
     auto tower = make_shared<PhysObject>();
     
     tower->eta       = towerEta->at(iTower);
@@ -357,12 +357,12 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     
     tower->energyEm  = towerEnergyEm->at(iTower);
     
-    currentEvent->physObjects.at(kCaloTower).push_back(tower);
+    currentEvent->physObjects.at(EPhysObjType::kCaloTower).push_back(tower);
   }
   
   // Fill in collection of general tracks
   
-  for(size_t iTrack=0; iTrack<nPhysObjects.at(kGeneralTrack); iTrack++){
+  for(size_t iTrack=0; iTrack<nPhysObjects.at(EPhysObjType::kGeneralTrack); iTrack++){
     auto track = make_shared<PhysObject>();
     
     track->charge       = generalTrackCharge->at(iTrack);
@@ -382,12 +382,12 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     track->vy           = generalTrackVertexY->at(iTrack);
     track->vz           = generalTrackVertexZ->at(iTrack);
     
-    currentEvent->physObjects.at(kGeneralTrack).push_back(track);
+    currentEvent->physObjects.at(EPhysObjType::kGeneralTrack).push_back(track);
   }
   
   // Fill in collection of electrons
   
-  for(size_t iElectron=0; iElectron<nPhysObjects.at(kElectron); iElectron++){
+  for(size_t iElectron=0; iElectron<nPhysObjects.at(EPhysObjType::kElectron); iElectron++){
     auto electron = make_shared<PhysObject>();
     
     electron->charge       = electronCharge->at(iElectron);
@@ -407,12 +407,12 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     electron->photonIso    = electronPhoIso->at(iElectron);
     electron->neutralIso   = electronNeuIso->at(iElectron);
     
-    currentEvent->physObjects.at(kElectron).push_back(electron);
+    currentEvent->physObjects.at(EPhysObjType::kElectron).push_back(electron);
   }
 
   // Fill in collection of muons
   
-  for(size_t iMuon=0; iMuon<nPhysObjects.at(kMuon); iMuon++){
+  for(size_t iMuon=0; iMuon<nPhysObjects.at(EPhysObjType::kMuon); iMuon++){
     auto muon = make_shared<PhysObject>();
     
     muon->charge       = muonCharge->at(iMuon);
@@ -432,7 +432,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     muon->photonIso    = muonPhoIso->at(iMuon);
     muon->neutralIso   = muonNeuIso->at(iMuon);
     
-    currentEvent->physObjects.at(kMuon).push_back(muon);
+    currentEvent->physObjects.at(EPhysObjType::kMuon).push_back(muon);
   }
 
   
@@ -445,7 +445,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     L1EG->phi = L1EGphi->at(iL1EG);
     L1EG->et  = L1EGet->at(iL1EG);
     
-    currentEvent->physObjects.at(kL1EG).push_back(L1EG);
+    currentEvent->physObjects.at(EPhysObjType::kL1EG).push_back(L1EG);
   }
   
   for(size_t iZDC=0; iZDC<nZDCs; iZDC++){
@@ -454,7 +454,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     zdc->energy = zdcE[iZDC];
     zdc->zSide  = zdcZside[iZDC];
     
-    currentEvent->physObjects.at(kZDC).push_back(zdc);
+    currentEvent->physObjects.at(EPhysObjType::kZDC).push_back(zdc);
   }
   
   if(!pixelTree) return currentEvent;
@@ -462,7 +462,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   pixelTree->GetEntry(iEvent);
   
   // Fill in collection of pixel tracks
-   for(size_t iTrack=0; iTrack<nPhysObjects.at(kPixelTrack); iTrack++){
+   for(size_t iTrack=0; iTrack<nPhysObjects.at(EPhysObjType::kPixelTrack); iTrack++){
      auto track = make_shared<PhysObject>();
      
      track->charge       = pixelTrackCharge->at(iTrack);
@@ -482,7 +482,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
      track->vy           = pixelTrackVertexY->at(iTrack);
      track->vz           = pixelTrackVertexZ->at(iTrack);
      
-     currentEvent->physObjects.at(kPixelTrack).push_back(track);
+     currentEvent->physObjects.at(EPhysObjType::kPixelTrack).push_back(track);
    }
   
   return currentEvent;

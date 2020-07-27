@@ -79,7 +79,7 @@ enum EDataset{
 
 const vector<EDataset> datasets = { kData, kMCqedSC, kMCcep, kMCqedSL, kMClbl };
 
-enum EPhysObjType {
+enum class EPhysObjType {
   kGenParticle,
   kGoodGenPhoton,
   kPhoton,
@@ -100,23 +100,23 @@ enum EPhysObjType {
 };
 
 const vector<EPhysObjType> physObjTypes = {
-  kGenParticle,
-  kGoodGenPhoton,
-  kPhoton,
-  kPhotonInAcceptance,
-  kGoodPhoton,
-  kCaloTower,
-  kGeneralTrack,
-  kGoodGeneralTrack,
-  kElectron,
-  kGoodElectron,
-  kGoodMatchedElectron,
-  kMuon,
-  kGoodMuon,
-  kL1EG,
-  kPixelTrack,
-  kGoodPixelTrack,
-  kZDC,
+  EPhysObjType::kGenParticle,
+  EPhysObjType::kGoodGenPhoton,
+  EPhysObjType::kPhoton,
+  EPhysObjType::kPhotonInAcceptance,
+  EPhysObjType::kGoodPhoton,
+  EPhysObjType::kCaloTower,
+  EPhysObjType::kGeneralTrack,
+  EPhysObjType::kGoodGeneralTrack,
+  EPhysObjType::kElectron,
+  EPhysObjType::kGoodElectron,
+  EPhysObjType::kGoodMatchedElectron,
+  EPhysObjType::kMuon,
+  EPhysObjType::kGoodMuon,
+  EPhysObjType::kL1EG,
+  EPhysObjType::kPixelTrack,
+  EPhysObjType::kGoodPixelTrack,
+  EPhysObjType::kZDC,
 };
 
 const map<EDataset, int> datasetColor = {
