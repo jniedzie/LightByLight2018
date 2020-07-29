@@ -83,7 +83,7 @@ bool endsWith(const std::string &mainStr, const std::string &toMatch)
 
 void fillMuonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
 {
-  for(auto muon : event.GetPhysObjects(kMuon)){
+  for(auto muon : event.GetPhysObjects(EPhysObjType::kMuon)){
     hists.at("lepton_pt_" +suffix+datasetName)->Fill(muon->GetPt());
     hists.at("lepton_eta_"+suffix+datasetName)->Fill(muon->GetEta());
     hists.at("lepton_phi_"+suffix+datasetName)->Fill(muon->GetPhi());
@@ -93,8 +93,8 @@ void fillMuonHists(Event &event, const map<string, TH1D*> &hists, string dataset
 void fillDimuonHists(Event &event, const map<string, TH1D*> &hists, string datasetName, string suffix="")
 {
   
-  TLorentzVector dimuon = physObjectProcessor.GetDimuon(*event.GetPhysObjects(kMuon)[0],
-                                                        *event.GetPhysObjects(kMuon)[1]);
+  TLorentzVector dimuon = physObjectProcessor.GetDimuon(*event.GetPhysObjects(EPhysObjType::kMuon)[0],
+                                                        *event.GetPhysObjects(EPhysObjType::kMuon)[1]);
   
   hists.at("dilepton_mass_"     +suffix+datasetName)->Fill(dimuon.M());
   hists.at("dilepton_rapidity_" +suffix+datasetName)->Fill(dimuon.Rapidity());
@@ -107,12 +107,12 @@ void fillTracksHists(Event &event, const map<string, TH1D*> &hists, EDataset dat
 {
   string name = datasetName.at(dataset);
   
-  int nTracks = (int)event.GetPhysObjects(kGeneralTrack).size();
+  int nTracks = (int)event.GetPhysObjects(EPhysObjType::kGeneralTrack).size();
   
   hists.at("nTracks_"+suffix+name)->Fill(nTracks);
   
   
-  for(auto track : event.GetPhysObjects(kGeneralTrack)){
+  for(auto track : event.GetPhysObjects(EPhysObjType::kGeneralTrack)){
     double trackPt = track->GetPt();
     hists.at("track_pt_"+suffix+name)->Fill(trackPt);
     hists.at("track_eta_"+suffix+name)->Fill(track->GetEta());
@@ -160,8 +160,8 @@ void fillTauTauHistograms(Event &event, const map<string, TH1D*> &hists, EDatase
   string name = datasetName.at(dataset);
   int cutThrough=0;
   
-  double aco = physObjectProcessor.GetAcoplanarity(*event.GetPhysObjects(kMuon)[0],
-                                                   *event.GetPhysObjects(kMuon)[1]);
+  double aco = physObjectProcessor.GetAcoplanarity(*event.GetPhysObjects(EPhysObjType::kMuon)[0],
+                                                   *event.GetPhysObjects(EPhysObjType::kMuon)[1]);
   for(string suffix : suffix_list){
     if(suffix != "") suffix += "_";
     hists.at("dilepton_acoplanarity_"+suffix+name)->Fill(aco);
