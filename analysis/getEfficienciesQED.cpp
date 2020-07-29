@@ -213,26 +213,78 @@ void CheckElectronRecoEfficiency(Event &event, map<string, TH1D*> &hists, string
   if(goodMatchedElectrons.size() != 1) return;
   hists[cutThouthName]->Fill(cutLevel++); // 2
   
-  hists["electron_reco_id_eff_den_"+datasetName]->Fill(1);
   
-  
-  PhysObjects goodGeneralTracks = event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
+  PhysObjects photons = event.GetPhysObjects(EPhysObjType::kGoodPhoton);
+  if(photons.size() > 2) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 2
   
   auto electron = goodMatchedElectrons.front();
   
-  bool matched = false;
+  if(electron->GetPt() < 3.0) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 3
+  
+  
+  PhysObjects goodGeneralTracks = event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
+  if(goodGeneralTracks.size() != 2) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 4
+  
+  shared_ptr<PhysObject> matchedTrack = nullptr;
+  shared_ptr<PhysObject> otherTrack = nullptr;
   
   for(auto track : goodGeneralTracks){
-    if(track->GetPt() < 2.0) continue;
-    
     if(physObjectProcessor.GetDeltaR(*electron, *track) < config.params("maxDeltaR")){
-      matched = true;
+      if(matchedTrack){
+        matchedTrack = nullptr;
+        break;
+      }
+      matchedTrack = track;
+    }
+    else{
+      if(otherTrack){
+        otherTrack = nullptr;
+        break;
+      }
+      otherTrack = track;
+    }
+  }
+  
+  
+  if(!matchedTrack || !otherTrack) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 5
+  
+  if(otherTrack->GetPt() > 3.0) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 6
+  
+  hists["electron_reco_id_eff_den_"+datasetName]->Fill(1);
+  
+  bool photonMatched = false;
+  
+  for(auto photon : photons){
+    if(physObjectProcessor.GetDeltaR_SC(*electron, *photon) < config.params("maxDeltaR")){
+      photonMatched = true;
+      break;
+    }
+    if(physObjectProcessor.GetDeltaR_SC(*otherTrack, *photon) < config.params("maxDeltaR")){
+      photonMatched = true;
       break;
     }
   }
   
-  if(!matched) return;
-  hists[cutThouthName]->Fill(cutLevel++); // 2
+  if(photonMatched) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 7
+  
+  int nUnmatchedPhotons = 0;
+  
+  for(auto photon : photons){
+    if(physObjectProcessor.GetDeltaR_SC(*electron, *photon) > config.params("maxDeltaR")) nUnmatchedPhotons++;
+  }
+  
+  if(nUnmatchedPhotons > 1) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 8
+  
+  if(fabs(electron->GetPhi()-otherTrack->GetPhi()) < 0.5) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 9
+
   hists["electron_reco_id_eff_num_"+datasetName]->Fill(1);
 }
 
