@@ -37,6 +37,8 @@ vector<string> histParams = {
   "electron_reco_id_eff_cut_through",
   "electron_reco_id_eff_num",
   "electron_reco_id_eff_den",
+  "electron_reco_id_eff_acoplanarity_num",
+  "electron_reco_id_eff_acoplanarity_den",
   
   // trigger efficiency histograms
   "trigger_eff_cut_through",
@@ -256,6 +258,7 @@ void CheckElectronRecoEfficiency(Event &event, map<string, TH1D*> &hists, string
   hists[cutThouthName]->Fill(cutLevel++); // 6
   
   hists["electron_reco_id_eff_den_"+datasetName]->Fill(1);
+  hists["electron_reco_id_eff_acoplanarity_den_"+datasetName]->Fill(physObjectProcessor.GetAcoplanarity(*matchedTrack, *otherTrack));
   
   bool photonMatched = false;
   
@@ -286,6 +289,7 @@ void CheckElectronRecoEfficiency(Event &event, map<string, TH1D*> &hists, string
   hists[cutThouthName]->Fill(cutLevel++); // 9
 
   hists["electron_reco_id_eff_num_"+datasetName]->Fill(1);
+  hists["electron_reco_id_eff_acoplanarity_num_"+datasetName]->Fill(physObjectProcessor.GetAcoplanarity(*matchedTrack, *otherTrack));
 }
 
 /// Counts number of events passing tag and probe criteria for trigger efficiency
