@@ -40,6 +40,11 @@ vector<string> histParams = {
   "electron_reco_id_eff_acoplanarity_num",
   "electron_reco_id_eff_acoplanarity_den",
   
+  "electron_reco_id_eff_vs_pt_num",
+  "electron_reco_id_eff_vs_pt_den",
+  "electron_reco_id_eff_vs_eta_num",
+  "electron_reco_id_eff_vs_eta_den",
+  
   // trigger efficiency histograms
   "trigger_eff_cut_through",
   "trigger_HFveto_eff_cut_through",
@@ -209,87 +214,73 @@ void CheckElectronRecoEfficiency(Event &event, map<string, TH1D*> &hists, string
   if(!event.HasTrigger(kSingleEG3noHF)) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
-  // Preselect events with at least one good electron
-  PhysObjects goodMatchedElectrons = event.GetPhysObjects(EPhysObjType::kGoodMatchedElectron);
+  // Preselect events with one or two electrons
+  PhysObjects goodMatchedElectrons  = event.GetPhysObjects(EPhysObjType::kGoodMatchedElectron);
+  PhysObjects goodElectrons         = event.GetPhysObjects(EPhysObjType::kGoodElectron);
   
-  if(goodMatchedElectrons.size() != 1) return;
+  if(goodElectrons.size() != 1 && goodElectrons.size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 2
   
-  
-  PhysObjects photons = event.GetPhysObjects(EPhysObjType::kGoodPhoton);
-  if(photons.size() > 2) return;
-  hists[cutThouthName]->Fill(cutLevel++); // 2
-  
-  auto electron = goodMatchedElectrons.front();
-  
-  if(electron->GetPt() < 3.0) return;
+  if(goodMatchedElectrons.size() != 1 && goodMatchedElectrons.size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 3
   
   
+  auto electronTag = goodMatchedElectrons[0];
+  shared_ptr<PhysObject> trackTag = nullptr;
   PhysObjects goodGeneralTracks = event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
-  if(goodGeneralTracks.size() != 2) return;
-  hists[cutThouthName]->Fill(cutLevel++); // 4
+  PhysObjects probeTracks;
   
-  shared_ptr<PhysObject> matchedTrack = nullptr;
-  shared_ptr<PhysObject> otherTrack = nullptr;
-  
+  // Find track matched to the tag and put other tracks in a separate collection
   for(auto track : goodGeneralTracks){
-    if(physObjectProcessor.GetDeltaR(*electron, *track) < config.params("maxDeltaR")){
-      if(matchedTrack){
-        matchedTrack = nullptr;
-        break;
-      }
-      matchedTrack = track;
-    }
-    else{
-      if(otherTrack){
-        otherTrack = nullptr;
-        break;
-      }
-      otherTrack = track;
-    }
+    if(track->GetPt() < 2.0) continue;
+    bool matched = physObjectProcessor.GetDeltaR(*electronTag, *track) < config.params("maxDeltaR");
+    if(matched) trackTag = track;
+    else        probeTracks.push_back(track);
   }
   
-  
-  if(!matchedTrack || !otherTrack) return;
+  // make sure that tag electon is matched with a track > 2 GeV
+  if(!trackTag) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 4
+
+  // Check that there are some tracks left
+  if(probeTracks.size() != 1) return;
   hists[cutThouthName]->Fill(cutLevel++); // 5
+
+  auto dielectron = physObjectProcessor.GetDielectron(*trackTag, *probeTracks[0]);
   
-  if(otherTrack->GetPt() > 3.0) return;
+  if(dielectron.Pt() > 2.0 || dielectron.M() < 4.0) return;
   hists[cutThouthName]->Fill(cutLevel++); // 6
   
   hists["electron_reco_id_eff_den_"+datasetName]->Fill(1);
-  hists["electron_reco_id_eff_acoplanarity_den_"+datasetName]->Fill(physObjectProcessor.GetAcoplanarity(*matchedTrack, *otherTrack));
+  hists["electron_reco_id_eff_vs_pt_den_"+datasetName]->Fill(electronTag->GetPt());
+  hists["electron_reco_id_eff_vs_eta_den_"+datasetName]->Fill(electronTag->GetEta());
   
-  bool photonMatched = false;
-  
-  for(auto photon : photons){
-    if(physObjectProcessor.GetDeltaR_SC(*electron, *photon) < config.params("maxDeltaR")){
-      photonMatched = true;
-      break;
-    }
-    if(physObjectProcessor.GetDeltaR_SC(*otherTrack, *photon) < config.params("maxDeltaR")){
-      photonMatched = true;
-      break;
-    }
-  }
-  
-  if(photonMatched) return;
+  // Check that there is a second electron
+  if(goodElectrons.size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 7
   
-  int nUnmatchedPhotons = 0;
+  shared_ptr<PhysObject> electronProbe;
   
-  for(auto photon : photons){
-    if(physObjectProcessor.GetDeltaR_SC(*electron, *photon) > config.params("maxDeltaR")) nUnmatchedPhotons++;
+  for(auto electron : goodElectrons){
+    if(electron != electronTag) electronProbe = electron;
   }
   
-  if(nUnmatchedPhotons > 1) return;
+  bool probeMatched = false;
+  
+  for(auto track : probeTracks){
+    bool matched = physObjectProcessor.GetDeltaR(*electronProbe, *track) < config.params("maxDeltaR");
+    if(matched){
+      probeMatched = true;
+      break;
+    }
+  }
+  
+  if(!probeMatched) return;
   hists[cutThouthName]->Fill(cutLevel++); // 8
   
-  if(fabs(electron->GetPhi()-otherTrack->GetPhi()) < 0.5) return;
-  hists[cutThouthName]->Fill(cutLevel++); // 9
-
   hists["electron_reco_id_eff_num_"+datasetName]->Fill(1);
-  hists["electron_reco_id_eff_acoplanarity_num_"+datasetName]->Fill(physObjectProcessor.GetAcoplanarity(*matchedTrack, *otherTrack));
+  hists["electron_reco_id_eff_vs_pt_num_"+datasetName]->Fill(electronTag->GetPt());
+  hists["electron_reco_id_eff_vs_eta_num_"+datasetName]->Fill(electronTag->GetEta());
 }
 
 /// Counts number of events passing tag and probe criteria for trigger efficiency
