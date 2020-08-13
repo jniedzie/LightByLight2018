@@ -19,10 +19,9 @@ string inputPath  = "../results/basicPlots_noZDCcuts.root";
 string outputPath = "../plots/distributions";
 
 map<EDataset, double> initialNevents = {
-//  { kMCqedSC, 67820000  }, // total
-  { kMCqedSC, 980000    }, // currently available
+  { kMCqedSC, 67810000  }, // total
   { kMCqedSL, 66750000  }, // total
-  { kMClbl  , 362000    }, // currently available
+  { kMClbl  , 466000    }, // currently available
   { kMCcep  , 144900    }, // currently available
 };
 
@@ -35,7 +34,8 @@ double cutEfficiencyQED_SC = 0.7184;  // SuperChic
 double cutEfficiencyQED_SL = 1.0;     // Starlight
 double scaleFactorsSL = 0.860734 *  // NEE
                         0.98 *      // CHE
-                        1.19; // Trigger
+                        1.19 *      // Trigger
+                        pow(0.61, 2); // electron reco+ID
 //                        0.94 *      // HF veto
 //                        1.26;       // L1 EG trigger
 

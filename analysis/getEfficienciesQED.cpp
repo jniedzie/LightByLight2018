@@ -44,6 +44,9 @@ vector<string> histParams = {
   "electron_reco_id_eff_vs_pt_den",
   "electron_reco_id_eff_vs_eta_num",
   "electron_reco_id_eff_vs_eta_den",
+ 
+  "failed_electron_reco_id_eff_vs_pt",
+  "failed_electron_reco_id_eff_vs_eta",
   
   // trigger efficiency histograms
   "trigger_eff_cut_through",
@@ -256,8 +259,13 @@ void CheckElectronRecoEfficiency(Event &event, map<string, TH1D*> &hists, string
   hists["electron_reco_id_eff_vs_eta_den_"+datasetName]->Fill(electronTag->GetEta());
   
   // Check that there is a second electron
-  if(goodElectrons.size() != 2) return;
-  hists[cutThouthName]->Fill(cutLevel++); // 7
+  
+  if(goodElectrons.size() != 2){
+    hists["failed_electron_reco_id_eff_vs_pt_"+datasetName]->Fill(electronTag->GetPt());
+    hists["failed_electron_reco_id_eff_vs_eta_"+datasetName]->Fill(electronTag->GetEta());
+    return;
+  }
+  
   
   shared_ptr<PhysObject> electronProbe;
   
@@ -275,8 +283,13 @@ void CheckElectronRecoEfficiency(Event &event, map<string, TH1D*> &hists, string
     }
   }
   
-  if(!probeMatched) return;
+  if(!probeMatched){
+    hists["failed_electron_reco_id_eff_vs_pt_"+datasetName]->Fill(electronTag->GetPt());
+    hists["failed_electron_reco_id_eff_vs_eta_"+datasetName]->Fill(electronTag->GetEta());
+    return;
+  }
   hists[cutThouthName]->Fill(cutLevel++); // 8
+  
   
   hists["electron_reco_id_eff_num_"+datasetName]->Fill(1);
   hists["electron_reco_id_eff_vs_pt_num_"+datasetName]->Fill(electronTag->GetPt());
