@@ -8,7 +8,7 @@ sampleName=""
 
 basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
 
-suffix=""
+suffix="_noElectronIDcuts"
 
 if [ $2 -eq 0 ]
 then
@@ -17,9 +17,10 @@ then
   outputPath="${basePath}/analysis/efficienciesQED/efficienciesQED_data${suffix}"
 elif [ $2 -eq 1 ]
 then
-  sampleName="QED_SC" # last chunk numer: 96
+  sampleName="QED_SC" # last chunk numer: 255
 #inputPath="${basePath}/skimmed_ntuples/mc_qed_sc_doubleEG2/merged_ntuples.root"
-  inputPath="${basePath}/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
+#  inputPath="${basePath}/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
+  inputPath="${basePath}/mc_qed/ntuples_sc_full_lumi/QEDGammaGamma_5p02TeV_SuperChic/reco_mc_qed_sc_full_lumi/200807_100412/0000/mc_HiForestAOD_${1}.root"
   outputPath="${basePath}/analysis/efficienciesQED/efficienciesQED_mc_qed_sc${suffix}"
 elif [ $2 -eq 2 ]
 then
@@ -33,9 +34,9 @@ mkdir -p $outputPath
 output="${outputPath}/efficienciesQED_${1}.root"
 
 if [ -s ${output} ]
- then
-   echo "File already exists, skipping"
- else
-   echo "File doesn't exist or is empty - running"
-   /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/getEfficienciesQED $configPath $inputPath $output $sampleName
- fi
+then
+  echo "File already exists, skipping"
+else
+  echo "File doesn't exist or is empty - running"
+  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/getEfficienciesQED $configPath $inputPath $output $sampleName
+fi

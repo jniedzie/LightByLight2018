@@ -26,6 +26,30 @@ then
   outputPath="${basePath}/skimmed_ntuples/mc_qed_sl_doubleEG2_full_lumi_complete"
   mkdir -p $outputPath
   outputPath="${outputPath}/ntuples_${1}.root"
+elif [ $2 -eq 2 ] # QED SC
+then
+  sampleName="QED_SC"
+  inputPath="${basePath}/skimmed_ntuples/mc_qed_sc_doubleEG2_full_lumi/ntuples_loose_selections_${1}.root"
+  secondaryInputPath="${basePath}/pixel_ntuples/ntuples_pixel_mc_qed_sc.root"
+  outputPath="${basePath}/skimmed_ntuples/mc_qed_sc_doubleEG2_full_lumi_complete"
+  mkdir -p $outputPath
+  outputPath="${outputPath}/ntuples_${1}.root"
+elif [ $2 -eq 3 ] # CEP SC
+then
+  sampleName="CEP"
+  inputPath="${basePath}/skimmed_ntuples/mc_cep_sc_doubleEG2_full_lumi/ntuples_loose_selections_${1}.root"
+  secondaryInputPath="${basePath}/pixel_ntuples/ntuples_pixel_mc_cep_sc.root"
+  outputPath="${basePath}/skimmed_ntuples/mc_cep_sc_doubleEG2_full_lumi_complete"
+  mkdir -p $outputPath
+  outputPath="${outputPath}/ntuples_${1}.root"
+elif [ $2 -eq 4 ] # LbL SC
+then
+  sampleName="LbL"
+  inputPath="${basePath}/skimmed_ntuples/mc_lbl_sc_doubleEG2_full_lumi/ntuples_loose_selections_${1}.root"
+  secondaryInputPath="${basePath}/pixel_ntuples/ntuples_pixel_mc_lbl_sc.root"
+  outputPath="${basePath}/skimmed_ntuples/mc_lbl_sc_doubleEG2_full_lumi_complete"
+  mkdir -p $outputPath
+  outputPath="${outputPath}/ntuples_${1}.root"
 fi
 
 echo "Input path: ${inputPath}"

@@ -16,6 +16,7 @@ outputPathLowAco=""
 outputPathHighAco=""
 outputPath=""
 
+echo "Params: ${1}, ${2}, ${3}"
 
 if [ $2 -eq 0 ] # data
 then
@@ -68,31 +69,44 @@ then
   mkdir -p $outputPathHighAco
 elif [ $2 -eq 3 ] # Loose selections
 then
-  if [ $3 -eq 0 ] # data, 10400 chunks
+  echo "Applying loose selections, ${3}"
+
+  if [ ${3} -eq 0 ] # data, 10400 chunks
   then
+    echo "Data"
     sampleName="Data"
     inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
     outputPath="${basePath}/skimmed_ntuples/data_doubleEG2_full_lumi"
-  elif [ $3 -eq 1 ] # QED SC, 96 chunks, max chunk number: 96
+  elif [ ${3} -eq 1 ] # QED SC, 255 chunks, max chunk number: 255
   then
+    echo "QED SC"
     sampleName="QED_SC"
-    inputPath="${basePath}/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
-    outputPath="${basePath}/skimmed_ntuples/mc_qed_sc_doubleEG2"
-  elif [ $3 -eq 2 ] # CEP SC, 408 chunks, max chunk number: 411
+#    inputPath="${basePath}/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
+    inputPath="${basePath}/mc_qed/ntuples_sc_full_lumi/QEDGammaGamma_5p02TeV_SuperChic/reco_mc_qed_sc_full_lumi/200807_100412/0000/mc_HiForestAOD_${1}.root"
+    outputPath="${basePath}/skimmed_ntuples/mc_qed_sc_doubleEG2_full_lumi"
+  elif [ ${3} -eq 2 ] # CEP SC, 3 chunks, max chunk number: 3
   then
+    echo "CEP"
     sampleName="CEP"
-    inputPath="${basePath}/mc_cep/ntuples_1034/ntuples_cep_1034/ntuples_cep_1034/200211_054704/0000/HiForestAOD_cep_${1}.root"
-    outputPath="${basePath}/skimmed_ntuples/mc_cep_sc_doubleEG2"
-  elif [ $3 -eq 3 ] # LbL SC, 362 chunks, max chunk number: 376
+#    inputPath="${basePath}/mc_cep/ntuples_1034/ntuples_cep_1034/ntuples_cep_1034/200211_054704/0000/HiForestAOD_cep_${1}.root"
+    inputPath="${basePath}/mc_cep/ntuples_full_lumi/QCDDiphoton_5p02TeV_SuperChic/reco_mc_cep_full_lumi/200811_121848/0000/mc_HiForestAOD_${1}.root"
+    echo "Elo rap"
+    outputPath="${basePath}/skimmed_ntuples/mc_cep_sc_doubleEG2_full_lumi"
+  elif [ ${3} -eq 3 ] # LbL SC, 3 chunks, max chunk number: 3
   then
+    echo "LbL"
     sampleName="LbL"
-    inputPath="${basePath}/mc_lbl/ntuples_1034/ntuples_lbl_1034/ntuples_lbl_1034/200207_114802/0000/HiForestAOD_LbyL_${1}.root"
-    outputPath="${basePath}/skimmed_ntuples/mc_lbl_sc_doubleEG2"
-  elif [ $3 -eq 4 ] # QED SL, 253 chunks, max chunk number: 253
+#    inputPath="${basePath}/mc_lbl/ntuples_1034/ntuples_lbl_1034/ntuples_lbl_1034/200207_114802/0000/HiForestAOD_LbyL_${1}.root"
+    inputPath="${basePath}/mc_lbl/ntuples_full_lumi/LbyLSignal_5p02TeV_SuperChic/reco_mc_lbl_full_lumi/200807_100656/0000/mc_HiForestAOD_${1}.root"
+    outputPath="${basePath}/skimmed_ntuples/mc_lbl_sc_doubleEG2_full_lumi"
+  elif [ ${3} -eq 4 ] # QED SL, 253 chunks, max chunk number: 253
   then
+    echo "QED SL"
     sampleName="QED_SL"
     inputPath="${basePath}/mc_qed/ntuples_sl_full_lumi/QEDGammaGamma_5p02TeV_STARlight/reco_mc_qed_sl_full_lumi/200702_082621/0000/mc_HiForestAOD_${1}.root"
     outputPath="${basePath}/skimmed_ntuples/mc_qed_sl_doubleEG2_full_lumi"
+  else
+    echo "Unknown option: ${3}"
   fi
   mkdir -p $outputPath
 fi

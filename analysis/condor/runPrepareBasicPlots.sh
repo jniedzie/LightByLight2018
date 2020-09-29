@@ -79,5 +79,13 @@ echo "Config: ${configPath}"
 echo "Input: ${inputPath}"
 echo "Output: ${output}"
 
-/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/prepareBasicPlots $configPath $inputPath $output $sampleName $triggerScaleFactorsPath
+if [ -s ${output} ]
+then
+  echo "File already exists, skipping"
+else
+  echo "File doesn't exist or is empty - running"
+  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/prepareBasicPlots $configPath $inputPath $output $sampleName $triggerScaleFactorsPath
+fi
+
+
 
