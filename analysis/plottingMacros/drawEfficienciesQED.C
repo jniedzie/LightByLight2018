@@ -7,9 +7,9 @@
 #include "../include/Helpers.hpp"
 
 //const string  inputPath    = "../results/efficienciesQED.root";
-//const string  inputPath    = "../results/efficienciesQED_test.root";
+const string  inputPath    = "../results/efficienciesQED_test.root";
 //const string  inputPath    = "../results/efficienciesQED_noPhotonIso.root";
-const string  inputPath    = "../results/efficienciesQED_noElectronIDcuts.root";
+//const string  inputPath    = "../results/efficienciesQED_noElectronIDcuts.root";
 const string  outputPath   = "../plots/efficienciesQED.pdf";
 
 const double  canvasWidth  = 2880;
@@ -28,9 +28,9 @@ vector<tuple<string>> efficienciesParams = {
 };
 
 vector<EDataset> datasetsToAnalyze = {
-  kData,
-  kMCqedSC,
-//  kMCqedSL,
+//  kData,
+//  kMCqedSC,
+  kMCqedSL,
 };
 
 void printEfficiencies()
@@ -100,9 +100,7 @@ void plotDoubleHistogram(string histName, EDataset dataset, bool first, TLegend 
 
 void plotScaleFactor(string histName, EDataset datasetData, EDataset datasetMC)
 {
-  
   return;
-  
   string dataName = histName+"_num_"+datasetName.at(datasetData);
   TH1D *histNumData = new TH1D(*(TH1D*)inFile->Get(dataName.c_str()));
 //  TH1D *histDenData = new TH1D(*(TH1D*)inFile->Get((histName+"_den_"+datasetName.at(datasetData)).c_str()));
@@ -144,32 +142,35 @@ void plotSingleHistogram(string histName, EDataset dataset, bool first, TLegend 
 }
 
 vector<tuple<string, bool, bool>> histParams = {
-  // hist name              doubleRatio logY
-  {"reco_id_eff_vs_pt"                          , true  , false },
-  {"reco_id_eff_vs_eta"                         , true  , false },
+  // hist name                                    doubleRatio logY
+  {"reco_id_eff_vs_pt"                              , true  , false },
+  {"reco_id_eff_vs_eta"                             , true  , false },
   
-  {"electron_reco_id_eff_vs_pt"                 , true  , false },
-  {"electron_reco_id_eff_vs_eta"                , true  , false },
+  {"electron_reco_id_eff_vs_pt"                     , true  , false },
+  {"electron_reco_id_eff_vs_eta"                    , true  , false },
   
-  {"charged_exclusivity_eff_vs_dielectron_mass" , true  , false },
-  {"charged_exclusivity_eff_vs_dielectron_eta"  , true  , false },
-  {"charged_exclusivity_eff_vs_dielectron_pt"   , true  , false },
+  {"electron_reco_id_eff_n_good_electrons"          , false , false },
+  {"electron_reco_id_eff_n_good_matched_electrons"  , false , false },
   
-  {"neutral_exclusivity_eff_vs_dielectron_mass" , true  , false },
-  {"neutral_exclusivity_eff_vs_dielectron_eta"  , true  , false },
-  {"neutral_exclusivity_eff_vs_dielectron_pt"   , true  , false },
+  {"charged_exclusivity_eff_vs_dielectron_mass"     , true  , false },
+  {"charged_exclusivity_eff_vs_dielectron_eta"      , true  , false },
+  {"charged_exclusivity_eff_vs_dielectron_pt"       , true  , false },
   
-  {"reco_id_eff_cut_through"  , false , true  },
-  {"ele_acoplanarity"         , false , false },
-  {"brem_track_pt"            , false , false },
-  {"failingPhotonEt"          , false , false },
-  {"failingPhotonEta"         , false , false },
-  {"failingPhotonSigmaBarrel" , false , false },
-  {"failingPhotonSigmaEndcap" , false , false },
-  {"failingPhotonHEbarrel"    , false , false },
-  {"failingPhotonHEendcap"    , false , false },
-  {"delta_pt_tracks"          , false , false },
-  {"delta_phi_electron_photon", false , false },
+  {"neutral_exclusivity_eff_vs_dielectron_mass"     , true  , false },
+  {"neutral_exclusivity_eff_vs_dielectron_eta"      , true  , false },
+  {"neutral_exclusivity_eff_vs_dielectron_pt"       , true  , false },
+  
+  {"reco_id_eff_cut_through"                        , false , true  },
+  {"ele_acoplanarity"                               , false , false },
+  {"brem_track_pt"                                  , false , false },
+  {"failingPhotonEt"                                , false , false },
+  {"failingPhotonEta"                               , false , false },
+  {"failingPhotonSigmaBarrel"                       , false , false },
+  {"failingPhotonSigmaEndcap"                       , false , false },
+  {"failingPhotonHEbarrel"                          , false , false },
+  {"failingPhotonHEendcap"                          , false , false },
+  {"delta_pt_tracks"                                , false , false },
+  {"delta_phi_electron_photon"                      , false , false },
 };
 
 void drawEfficienciesQED()

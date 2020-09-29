@@ -45,6 +45,9 @@ vector<string> histParams = {
   "electron_reco_id_eff_vs_eta_num",
   "electron_reco_id_eff_vs_eta_den",
  
+  "electron_reco_id_eff_n_good_electrons",
+  "electron_reco_id_eff_n_good_matched_electrons",
+  
   "failed_electron_reco_id_eff_vs_pt",
   "failed_electron_reco_id_eff_vs_eta",
   
@@ -221,6 +224,9 @@ void CheckElectronRecoEfficiency(Event &event, map<string, TH1D*> &hists, string
   PhysObjects goodMatchedElectrons  = event.GetPhysObjects(EPhysObjType::kGoodMatchedElectron);
   PhysObjects goodElectrons         = event.GetPhysObjects(EPhysObjType::kGoodElectron);
   
+  hists["electron_reco_id_eff_n_good_electrons_"+datasetName]->Fill(goodElectrons.size());
+  hists["electron_reco_id_eff_n_good_matched_electrons_"+datasetName]->Fill(goodMatchedElectrons.size());
+  
   if(goodElectrons.size() != 1 && goodElectrons.size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 2
   
@@ -252,7 +258,7 @@ void CheckElectronRecoEfficiency(Event &event, map<string, TH1D*> &hists, string
   auto dielectron = physObjectProcessor.GetDielectron(*trackTag, *probeTracks[0]);
   
 //  if(dielectron.Pt() > 2.0 || dielectron.M() < 4.0) return;
-//  hists[cutThouthName]->Fill(cutLevel++); // 6
+  hists[cutThouthName]->Fill(cutLevel++); // 6c
   
   hists["electron_reco_id_eff_den_"+datasetName]->Fill(1);
   hists["electron_reco_id_eff_vs_pt_den_"+datasetName]->Fill(electronTag->GetPt());
@@ -288,9 +294,8 @@ void CheckElectronRecoEfficiency(Event &event, map<string, TH1D*> &hists, string
     hists["failed_electron_reco_id_eff_vs_eta_"+datasetName]->Fill(electronTag->GetEta());
     return;
   }
-  hists[cutThouthName]->Fill(cutLevel++); // 8
-  
-  
+  hists[cutThouthName]->Fill(cutLevel++); // 7
+    
   hists["electron_reco_id_eff_num_"+datasetName]->Fill(1);
   hists["electron_reco_id_eff_vs_pt_num_"+datasetName]->Fill(electronTag->GetPt());
   hists["electron_reco_id_eff_vs_eta_num_"+datasetName]->Fill(electronTag->GetEta());
@@ -607,6 +612,9 @@ void InitializeHistograms(map<string, TH1D*> &hists, const string &datasetType)
     }
     else if(histName == "dielectron_mass"){
       hists[title] = new TH1D(title.c_str(), title.c_str(), 50, 0, 20);
+    }
+    else if(histName.find("_n_") != string::npos){
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 20, 0, 20);
     }
     else{
       bins = { 0, 2, 3, 4, 5, 6, 8, 10, 13, 20 };
