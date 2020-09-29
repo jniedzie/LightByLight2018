@@ -251,8 +251,8 @@ void CheckElectronRecoEfficiency(Event &event, map<string, TH1D*> &hists, string
 
   auto dielectron = physObjectProcessor.GetDielectron(*trackTag, *probeTracks[0]);
   
-  if(dielectron.Pt() > 2.0 || dielectron.M() < 4.0) return;
-  hists[cutThouthName]->Fill(cutLevel++); // 6
+//  if(dielectron.Pt() > 2.0 || dielectron.M() < 4.0) return;
+//  hists[cutThouthName]->Fill(cutLevel++); // 6
   
   hists["electron_reco_id_eff_den_"+datasetName]->Fill(1);
   hists["electron_reco_id_eff_vs_pt_den_"+datasetName]->Fill(electronTag->GetPt());
@@ -562,12 +562,12 @@ void InitializeHistograms(map<string, TH1D*> &hists, const string &datasetType)
     
     if(histName.find("vs_pt") != string::npos ||
        histName.find("vs_dielectron_pt") != string::npos){
-      bins  = { 0, 2, 4, 6, 8, 20 };
+      bins  = { 0, 2, 4, 6, 8, 20 , 40, 100};
       hists[title] = new TH1D(title.c_str(), title.c_str(), (int)bins.size()-1, (float*)&bins[0]);
     }
     else if(histName.find("vs_eta") != string::npos ||
             histName.find("vs_dielectron_eta") != string::npos){
-      hists[title] = new TH1D(title.c_str(), title.c_str(), 5, 0.0, 2.5);
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 10, 0.0, 5.0);
     }
     else if(histName.find("vs_dielectron_mass") != string::npos){
       hists[title] = new TH1D(title.c_str(), title.c_str(), 40, 0, 20);
