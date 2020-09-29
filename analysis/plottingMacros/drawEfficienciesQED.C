@@ -6,7 +6,10 @@
 
 #include "../include/Helpers.hpp"
 
-const string  inputPath    = "../results/efficienciesQED.root";
+//const string  inputPath    = "../results/efficienciesQED.root";
+//const string  inputPath    = "../results/efficienciesQED_test.root";
+//const string  inputPath    = "../results/efficienciesQED_noPhotonIso.root";
+const string  inputPath    = "../results/efficienciesQED_noElectronIDcuts.root";
 const string  outputPath   = "../plots/efficienciesQED.pdf";
 
 const double  canvasWidth  = 2880;
@@ -26,8 +29,8 @@ vector<tuple<string>> efficienciesParams = {
 
 vector<EDataset> datasetsToAnalyze = {
   kData,
-//  kMCqedSC,
-  kMCqedSL,
+  kMCqedSC,
+//  kMCqedSL,
 };
 
 void printEfficiencies()
@@ -40,8 +43,17 @@ void printEfficiencies()
     
     for(EDataset dataset : datasetsToAnalyze){
       
-      TH1D *histNum = (TH1D*)inFile->Get((efficiencyType+"_eff_num_"+datasetName.at(dataset)).c_str());
-      TH1D *histDen = (TH1D*)inFile->Get((efficiencyType+"_eff_den_"+datasetName.at(dataset)).c_str());
+      string numName = efficiencyType+"_eff_num_"+datasetName.at(dataset);
+      string denName = efficiencyType+"_eff_den_"+datasetName.at(dataset);
+      
+      TH1D *histNum = (TH1D*)inFile->Get(numName.c_str());
+      TH1D *histDen = (TH1D*)inFile->Get(denName.c_str());
+      
+      if(!histNum || !histDen){
+        cout<<"Could not open hist: "<<numName<<"\t or: "<<denName<<endl;
+        continue;
+      }
+      
       double nTags    = histNum->GetBinContent(1);
       double nProbes  = histDen->GetBinContent(1);
     
@@ -88,14 +100,29 @@ void plotDoubleHistogram(string histName, EDataset dataset, bool first, TLegend 
 
 void plotScaleFactor(string histName, EDataset datasetData, EDataset datasetMC)
 {
-  TH1D *histNumData = new TH1D(*(TH1D*)inFile->Get((histName+"_num_"+datasetName.at(datasetData)).c_str()));
+  
+  return;
+  
+  string dataName = histName+"_num_"+datasetName.at(datasetData);
+  TH1D *histNumData = new TH1D(*(TH1D*)inFile->Get(dataName.c_str()));
 //  TH1D *histDenData = new TH1D(*(TH1D*)inFile->Get((histName+"_den_"+datasetName.at(datasetData)).c_str()));
 //  histNumData->Divide(histDenData);
 
-  TH1D *histNumMC = new TH1D(*(TH1D*)inFile->Get((histName+"_num_"+datasetName.at(datasetMC)).c_str()));
+  string mcName = histName+"_num_"+datasetName.at(datasetMC);
+  TH1D *histNumMC = new TH1D(*(TH1D*)inFile->Get(mcName.c_str()));
 //  TH1D *histDenMC = new TH1D(*(TH1D*)inFile->Get((histName+"_den_"+datasetName.at(datasetMC)).c_str()));
 //  histNumMC->Divide(histDenMC);
+                   
 
+  if(!histNumData){
+    cout<<"Could not open hist: "<<dataName<<endl;
+    return;
+  }
+  if(!histNumMC){
+    cout<<"Could not open hist: "<<mcName<<endl;
+    return;
+  }
+                   
   histNumData->Divide(histNumMC);
   
   histNumData->Draw();
@@ -120,6 +147,9 @@ vector<tuple<string, bool, bool>> histParams = {
   // hist name              doubleRatio logY
   {"reco_id_eff_vs_pt"                          , true  , false },
   {"reco_id_eff_vs_eta"                         , true  , false },
+  
+  {"electron_reco_id_eff_vs_pt"                 , true  , false },
+  {"electron_reco_id_eff_vs_eta"                , true  , false },
   
   {"charged_exclusivity_eff_vs_dielectron_mass" , true  , false },
   {"charged_exclusivity_eff_vs_dielectron_eta"  , true  , false },
