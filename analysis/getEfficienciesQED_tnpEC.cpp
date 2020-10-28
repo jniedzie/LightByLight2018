@@ -57,7 +57,6 @@ float pair_acop;
 
 /// initialise tree
 void InitTree(TTree *tr) {
-   tr = new TTree("fitter_tree","");
    tr->Branch("run",&run,"run/I");
    tr->Branch("ls",&ls,"ls/I");
    tr->Branch("evtnb",&evtnb,"evtnb/I");
@@ -181,8 +180,8 @@ shared_ptr<PhysObject> EleMatch(PhysObject obj, PhysObjects electrons, double dR
    double minDR = dRmax;
 
    for (auto& ele : electrons) {
-      double deltaR = physObjectProcessor.GetDeltaR_SC(obj, *ele);
-      double dptRel = fabs(obj.GetPt() / ele->GetPt() - 1.);
+      double deltaR = physObjectProcessor.GetDeltaR(obj, *ele);
+      double dptRel = fabs((obj.GetPt() / ele->GetPt()) - 1.);
       if (deltaR < minDR && dptRel < dptRelMax) {
          minDR = deltaR;
          ans = static_pointer_cast<PhysObject>(ele);
@@ -217,16 +216,17 @@ int main(int argc, char* argv[])
   config = ConfigManager(configPath);
   EDataset dataset = datasetForName.at(sampleName);
   
-  TFile *outFile = new TFile(outputPath.c_str(), "recreate");
-  outFile->mkdir(("triggerTree_"+sampleName).c_str());
-  TTree *tr = NULL;
+  TFile *outFile = TFile::Open(outputPath.c_str(), "recreate");
+  outFile->mkdir("tnpQED");
+  outFile->cd("tnpQED");
+  TTree *tr = new TTree("fitter_tree","");
   InitTree(tr);
   
   auto events = make_unique<EventProcessor>(inputPath, dataset);
   
   // Loop over events
   for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
-    if(iEvent%1000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
+    if(iEvent%1000 == 0) Log(1)<<"Processing event "<<iEvent<<"\n";
     if(iEvent >= config.params("maxEvents")) break;
 
     auto event = events->GetEvent(iEvent);
@@ -315,6 +315,16 @@ int main(int argc, char* argv[])
                 L1DR = physObjectProcessor.GetDeltaR(*matchedEle, *matchedL1EG);
              }
           } // if matchedEle
+
+          // compute pair quantities
+          TLorentzVector thepair = physObjectProcessor.GetDielectron(*tag, *probe);
+          pair_pt = thepair.Pt();
+          pair_eta = thepair.Eta();
+          pair_y = thepair.Rapidity();
+          pair_phi = thepair.Phi();
+          pair_mass = thepair.M();
+          pair_acop = physObjectProcessor.GetAcoplanarity(*tag, *probe);
+
           tr->Fill();
        } // probe track loop
     } // tag electron loop

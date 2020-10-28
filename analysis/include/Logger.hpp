@@ -13,7 +13,7 @@ public:
   
   template <class T>
   Log &operator<<(const T &v){
-    if(config.params("verbosityLevel") >= level) cout << v;
+    if(config.params("verbosityLevel",true) >= level) cout << v;
     return *this;
   }
   

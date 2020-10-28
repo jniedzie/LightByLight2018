@@ -21,7 +21,8 @@ public:
   /// Returns value of given parameter from the config file.
   /// Prints and error if parameter could not be found.
   /// \param name Name of the parameter, as in the config file
-  double params(string name="");
+  /// \param silent Flag to prevent the function from calling Log()
+  double params(string name="", bool silent=false);
   
 private:
   map<string, double> _params; ///< All bool, int and double parameters from the config file
