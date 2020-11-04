@@ -16,6 +16,7 @@ int ls;
 int evtnb;
 float pt;
 float eta;
+float abseta;
 float phi;
 float ele_pt;
 float ele_eta;
@@ -34,13 +35,16 @@ float L1DR;
 float Ntrk;
 float HFE;
 int ok_elematch;
+int ok_ID;
 int ok_deta_vtx;
 int ok_NMissHits;
 int ok_chiso;
 int ok_neuiso;
 int ok_phoiso;
 int ok_HoE;
-int ok_trg;
+int ok_trg2;
+int ok_trg3;
+int ok_trg5;
 int ok_chexcl;
 int ok_neuexcl;
 int ok_HFveto;
@@ -62,6 +66,7 @@ void InitTree(TTree *tr) {
    tr->Branch("evtnb",&evtnb,"evtnb/I");
    tr->Branch("pt",&pt,"pt/F");
    tr->Branch("eta",&eta,"eta/F");
+   tr->Branch("abseta",&abseta,"abseta/F");
    tr->Branch("phi",&phi,"phi/F");
    tr->Branch("ele_pt",&ele_pt,"ele_pt/F");
    tr->Branch("ele_eta",&ele_eta,"ele_eta/F");
@@ -80,13 +85,16 @@ void InitTree(TTree *tr) {
    tr->Branch("Ntrk",&Ntrk,"Ntrk/F");
    tr->Branch("HFE",&HFE,"HFE/F");
    tr->Branch("ok_elematch",&ok_elematch,"ok_elematch/I");
+   tr->Branch("ok_ID",&ok_ID,"ok_ID/I");
    tr->Branch("ok_deta_vtx",&ok_deta_vtx,"ok_deta_vtx/I");
    tr->Branch("ok_NMissHits",&ok_NMissHits,"ok_NMissHits/I");
    tr->Branch("ok_chiso",&ok_chiso,"ok_chiso/I");
    tr->Branch("ok_neuiso",&ok_neuiso,"ok_neuiso/I");
    tr->Branch("ok_phoiso",&ok_phoiso,"ok_phoiso/I");
    tr->Branch("ok_HoE",&ok_HoE,"ok_HoE/I");
-   tr->Branch("ok_trg",&ok_trg,"ok_trg/I");
+   tr->Branch("ok_trg2",&ok_trg2,"ok_trg2/I");
+   tr->Branch("ok_trg3",&ok_trg3,"ok_trg3/I");
+   tr->Branch("ok_trg5",&ok_trg5,"ok_trg5/I");
    tr->Branch("ok_chexcl",&ok_chexcl,"ok_chexcl/I");
    tr->Branch("ok_neuexcl",&ok_neuexcl,"ok_neuexcl/I");
    tr->Branch("ok_HFveto",&ok_HFveto,"ok_HFveto/I");
@@ -124,6 +132,7 @@ void ResetTagVars() {
 void ResetProbeVars() {
    pt = 0;
    eta = 0;
+   abseta = 0;
    phi = 0;
    ele_pt = 0;
    ele_eta = 0;
@@ -140,13 +149,16 @@ void ResetProbeVars() {
    L1phi = 0;
    L1DR = 0;
    ok_elematch = 0;
+   ok_ID = 0;
    ok_deta_vtx = 0;
    ok_NMissHits = 0;
    ok_chiso = 0;
    ok_neuiso = 0;
    ok_phoiso = 0;
    ok_HoE = 0;
-   ok_trg = 0;
+   ok_trg2 = 0;
+   ok_trg3 = 0;
+   ok_trg5 = 0;
    pair_pt = 0;
    pair_eta = 0;
    pair_phi = 0;
@@ -268,6 +280,7 @@ int main(int argc, char* argv[])
           ResetProbeVars();
           pt = probe->GetPt();
           eta = probe->GetEta();
+          abseta = fabs(eta);
           phi = probe->GetPhi();
 
           // basic cuts
@@ -304,15 +317,20 @@ int main(int argc, char* argv[])
                 ok_phoiso = (phoiso < config.params("electronMaxPhotonIsoEndcap"));
                 ok_HoE = (HoE < config.params("electronMaxHoverE_Endcap"));
              }
+             if (ok_NMissHits && ok_deta_vtx 
+                   // && ok_chiso && ok_neuiso && ok_phoiso 
+                   && ok_HoE) ok_ID = 1;
 
              // trigger
-             auto matchedL1EG = TriggerMatch(*matchedEle, L1EGs, 3, 5);
+             auto matchedL1EG = TriggerMatch(*matchedEle, L1EGs, 2, 5);
              if (matchedL1EG) {
-                ok_trg = 1;
                 L1Et = matchedL1EG->GetEt();
                 L1eta = matchedL1EG->GetEta();
                 L1phi = matchedL1EG->GetPhi();
                 L1DR = physObjectProcessor.GetDeltaR(*matchedEle, *matchedL1EG);
+                ok_trg2 = 1;
+                ok_trg3 = (L1Et > 3);
+                ok_trg5 = (L1Et > 5);
              }
           } // if matchedEle
 
