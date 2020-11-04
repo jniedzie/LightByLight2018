@@ -8,13 +8,13 @@ sampleName=""
 
 basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
 
-suffix="_noElectronIDcuts"
+suffix="_QED_tnpEC_20201028"
 
 if [ $2 -eq 0 ]
 then
   sampleName="Data" # 10400 files
-  inputPath=`sed "${1}q;d" /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/input_list.txt`
-  outputPath="${basePath}/analysis/efficienciesQED/efficienciesQED_data${suffix}"
+  inputPath=`sed "${1}q;d" /afs/cern.ch/user/e/echapon/workspace/private/LightByLight_2018PbPb/LightByLight2018/analysis/input_list.txt`
+  outputPath="${basePath}/analysis_emilien/efficienciesQED/efficienciesQED_data${suffix}"
 elif [ $2 -eq 1 ]
 then
   sampleName="QED_SC" # last chunk numer: 255
