@@ -33,10 +33,10 @@ ConfigManager::ConfigManager(string path)
   }
 }
 
-double ConfigManager::params(string name)
+double ConfigManager::params(string name, bool silent)
 {
   if(_params.find(name) == _params.end()){
-    Log(0)<<"ERROR -- requested param "<<name<<" doesn't exist in the configuration\n";
+    if (!silent) Log(0)<<"ERROR -- requested param "<<name<<" doesn't exist in the configuration\n";
     return 0;
   }
   return _params.at(name);

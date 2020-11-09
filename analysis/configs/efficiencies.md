@@ -13,6 +13,7 @@ doElectronRecoEfficiency: 1
 
 ### Max number of events to analyze
 maxEvents: 9999999
+# maxEvents: 50000
 
 ### Criteria to match calo tower with photon SC for neutral exclusivity
 maxDeltaEtaEB:  0.15
