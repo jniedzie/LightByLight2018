@@ -1,10 +1,19 @@
 Universe              = vanilla
 executable            = runElectronIDplots.sh
-arguments             = $(ProcId)
+arguments             = $(ProcId) 2 
 GetEnv                = True
 output                = output/$(ClusterId).$(ProcId).out
 error                 = error/$(ClusterId).$(ProcId).err
 log                   = log/$(ClusterId).log
-requirements         = (OpSysAndVer =?= "CentOS7")
-+JobFlavour           = "espresso"
-queue 1000
+requirements 	      = (OpSysAndVer =?= "CentOS7")
++JobFlavour           = "tomorrow"
+
+## data (0)
+#queue 10400
+#queue 110
+
+## MC SC (1)
+#queue 256
+
+## MC SL (2)
+queue 242

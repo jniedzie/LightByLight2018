@@ -27,6 +27,11 @@ analysis/getEfficienciesMC
 analysis/addPixelTrackInfo
 analysis/applySelections
 analysis/libAnalysis.a
+analysis/getEfficienciesQED_tnpEC
+analysis/getRecoIDEfficienciesQED_MC
+analysis/selectQEDEvents
+
+analysis/*.root
 
 analysis/caloNoiseStudy/*.root
 analysis/caloNoiseStudy/getCaloNoiseHistograms
@@ -43,6 +48,7 @@ analysis/cmake_install.cmake
 analysis/condor/error/
 analysis/condor/log/
 analysis/condor/output/
+analysis/condor/rchudasa.cc
 
 analysis/ntuples/
 analysis/results/
@@ -100,3 +106,10 @@ stat_analysis/higgsCombineExp.MultiDimFit.mH120.root
 stat_analysis/higgsCombineObs.FitDiagnostics.mH120.root
 stat_analysis/higgsCombineObs.MultiDimFit.mH120.root
 stat_analysis/higgsCombineTest.Significance.mH120.root
+
+TnP/setup.sh
+TnP/recoIDeff_singleEG5_allIDcuts/*
+TnP/recoeff_singleEG3/*
+TnP/recoeff_singleEG5/*
+TnP/triggerEff_singleEG5/*
+TnP/*.root

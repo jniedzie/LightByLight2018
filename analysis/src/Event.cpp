@@ -41,7 +41,8 @@ bool Event::HasTrigger(ETrigger trigger) const
 
 PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
 {
-  if(   type == EPhysObjType::kPhoton
+  if(   type == EPhysObjType::kGenParticle
+     || type == EPhysObjType::kPhoton
      || type == EPhysObjType::kElectron
      || type == EPhysObjType::kMuon
      || type == EPhysObjType::kCaloTower
@@ -54,6 +55,8 @@ PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
   else if(type == EPhysObjType::kGoodGenPhoton)       return GetGoodGenPhotons();
   else if(type == EPhysObjType::kPhotonInAcceptance)  return GetPhotonsInAcceptance();
   else if(type == EPhysObjType::kGoodPhoton)          return GetGoodPhotons();
+  else if(type == EPhysObjType::kGoodGenElectron)     return GetGoodGenElectrons();
+  else if(type == EPhysObjType::kElectronInAcceptance)return GetElectronsInAcceptance();
   else if(type == EPhysObjType::kGoodElectron)        return GetGoodElectrons(cutFlowHist);
   else if(type == EPhysObjType::kGoodMatchedElectron) return GetGoodMatchedElectron();
   else if(type == EPhysObjType::kGoodMuon)            return GetGoodMuons(cutFlowHist);
@@ -73,7 +76,9 @@ PhysObjects Event::GetGoodGenPhotons() const
     if(genPhoton->GetPID() != 22) continue;
     if(fabs(genPhoton->GetEta()) > config.params("photonMaxEta")) continue;
     if(genPhoton->GetEt() < config.params("photonMinEt")) continue;
-    
+    if(physObjectProcessor.IsInCrack(*genPhoton)) continue;
+    if(physObjectProcessor.IsInHEM(*genPhoton)) continue;
+ 
     goodGenPhotons.push_back(genPhoton);
   }
   
@@ -157,6 +162,50 @@ PhysObjects Event::GetGoodPhotons()
   return physObjects.at(EPhysObjType::kGoodPhoton);
 }
 
+PhysObjects Event::GetGoodGenElectrons() const
+{
+  PhysObjects goodGenElectrons;
+
+  for(auto genElectron : physObjects.at(EPhysObjType::kGenParticle)){
+
+    //if(genElectron->GetPID() != 11 || genElectron->GetPID() != -11) continue;
+    if(fabs(genElectron->GetEta()) > config.params("electronMaxEta")) continue;
+    if(genElectron->GetEt() < config.params("electronMinPt")) continue;
+    if(physObjectProcessor.IsInCrack(*genElectron)) continue;
+    if(physObjectProcessor.IsInHEM(*genElectron)) continue;
+
+    goodGenElectrons.push_back(genElectron);
+  }
+
+  return goodGenElectrons;
+}
+
+PhysObjects Event::GetElectronsInAcceptance()
+{
+  if(physObjectsReady.at(EPhysObjType::kElectronInAcceptance)) return physObjects.at(EPhysObjType::kElectronInAcceptance);
+  
+  physObjects.at(EPhysObjType::kElectronInAcceptance).clear();
+  
+  for(auto electron : physObjects.at(EPhysObjType::kElectron)){
+    
+   
+    // Check Et
+    if(electron->GetPt() < config.params("electronMinPt")) continue;
+    
+    // Check eta & phi (remove noisy region >2.3, remove cracks between EB and EE, remove HEM issue region)
+    double absEta = fabs(electron->GetEta());
+    if(absEta > config.params("electronMaxEta")) continue;
+    if(physObjectProcessor.IsInCrack(*electron)) continue;
+    if(physObjectProcessor.IsInHEM(*electron)) continue;
+    
+    
+    physObjects.at(EPhysObjType::kElectronInAcceptance).push_back(electron);
+  }
+  physObjectsReady.at(EPhysObjType::kElectronInAcceptance) = true;
+  return physObjects.at(EPhysObjType::kElectronInAcceptance);
+}
+
+
 PhysObjects Event::GetGoodElectrons(TH1D *cutFlowHist)
 {
   if(physObjectsReady.at(EPhysObjType::kGoodElectron)) return physObjects.at(EPhysObjType::kGoodElectron);
@@ -200,14 +249,14 @@ PhysObjects Event::GetGoodElectrons(TH1D *cutFlowHist)
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 7
     
     // Check isolation
-    if(electron->GetChargedIso() >= config.params("electronMaxChargedIso"+subdet)) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 8
+    //if(electron->GetChargedIso() >= config.params("electronMaxChargedIso"+subdet)) continue;
+    //if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 8
     
-    if(electron->GetPhotonIso()  >= config.params("electronMaxPhotonIso"+subdet))  continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 9
+    //if(electron->GetPhotonIso()  >= config.params("electronMaxPhotonIso"+subdet))  continue;
+    //if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 9
     
-    if(electron->GetNeutralIso() >= config.params("electronMaxNeutralIso"+subdet)) continue;
-    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
+    //if(electron->GetNeutralIso() >= config.params("electronMaxNeutralIso"+subdet)) continue;
+    //if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
 
     physObjects.at(EPhysObjType::kGoodElectron).push_back(electron);
   }

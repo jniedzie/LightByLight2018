@@ -31,6 +31,7 @@ etaWidth(-9999),
 sigmaEta2012(-9999),
 phiWidth(-9999),
 hOverE(-9999),
+eOverP(-9999),
 
 pdgID(0),
 charge(9999),
@@ -143,6 +144,13 @@ double PhysObject::GetHoverE()  const
   if(hOverE < 0) Log(1)<<"WARNING - carefull, hOverE probably not set\n";
   return hOverE;
 }
+
+double PhysObject::GetEoverP()  const
+{
+  if(eOverP < 0) Log(1)<<"WARNING - carefull, eOverP probably not set\n";
+  return eOverP;
+}
+
 
 int PhysObject::GetPID() const
 {
@@ -328,7 +336,7 @@ double PhysObject::GetRelIsoWithEA() const
 double PhysObject::GetDetaSeed() const
 {
   if(dEtaSeed < -999) Log(1)<<"WARNING - carefull, dEtaSeed probably not set\n";
-  return dEtaSeed;
+  return abs(dEtaSeed);
 }
 
 double PhysObject::GetChargedIso() const

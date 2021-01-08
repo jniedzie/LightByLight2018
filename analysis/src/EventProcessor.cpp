@@ -109,6 +109,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("eleEta"                , &electronEta);
   eventTree->SetBranchAddress("elePhi"                , &electronPhi);
   eventTree->SetBranchAddress("eleHoverE"             , &electronHoverE);
+  eventTree->SetBranchAddress("eleEoverP"             , &electronEoverP);
   eventTree->SetBranchAddress("elePFRelIsoWithEA"     , &electronRelIsoWithEA);
   eventTree->SetBranchAddress("eledEtaAtVtx"          , &electronDetaSeed);
   eventTree->SetBranchAddress("eleSCEta"              , &electronSCEta);
@@ -303,7 +304,9 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     auto genParticle = make_shared<PhysObject>();
     
     genParticle->eta   = mcEta->at(iGenPart);
+    genParticle->etaSC = mcEta->at(iGenPart);
     genParticle->phi   = mcPhi->at(iGenPart);
+    genParticle->phiSC = mcPhi->at(iGenPart);
     genParticle->et    = mcEt->at(iGenPart);
     genParticle->pdgID = mcPID->at(iGenPart);
     
@@ -396,6 +399,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     electron->eta          = electronEta->at(iElectron);
     electron->phi          = electronPhi->at(iElectron);
     electron->hOverE       = electronHoverE->at(iElectron);
+    electron->eOverP       = electronEoverP->at(iElectron);
     // TODO: fix missing RelIsoWithEA branch!!
 //    electron->relIsoWithEA = electronRelIsoWithEA->at(iElectron);
     electron->dEtaSeed     = electronDetaSeed->at(iElectron);

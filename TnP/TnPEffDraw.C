@@ -53,26 +53,26 @@ bool doToys = false;
 
 
 // // Location of the files
-// const char* fDataName = "tnp_Ana_Data_trig.root";
-// const char* fMCName = "tnp_Ana_MC_trig.root";
+ const char* fDataName = "tnp_Ana_Data_trig_EG5.root";
+ const char* fMCName = "tnp_Ana_MC_trig_EG5.root";
 
 // //////////////////////////////////////////////////////////////////////////
 
 // // Other parameters
-// TString etaTag("DoubleEG2_abseta");
-// TString ptTag("DoubleEG2_pt");
-// TString allTag("DoubleEG2_1bin");
+ TString etaTag("DoubleEG2_abseta");
+ TString ptTag("DoubleEG2_pt");
+ TString allTag("DoubleEG2_1bin");
 
 // // Automatic parameters (shouldn't require modification by the user)
-// const int nAbsEtaBins = 2;
-// TString cutTag("tnpQED"); 
-// TString cutLegend("L1 EG2 trigger");
-// TString absetaTag("DoubleEG2_EBEE");
-// TString absetaVar("eta");
-// ofstream file_sfs("correction_functions.txt");
+ const int nAbsEtaBins = 2;
+ TString cutTag("tnpQED"); 
+ TString cutLegend("L1 EG2 trigger");
+ TString absetaTag("DoubleEG2_EBEE");
+ TString absetaVar("eta");
+ ofstream file_sfs("correction_functions.txt");
 
-// const double effmin = 0.;
-// const double sfrange = 0.55;
+ const double effmin = 0.;
+ const double sfrange = 0.55;
 
 
 ////////////////////
@@ -81,8 +81,8 @@ bool doToys = false;
 
 
 // Location of the files
-const char* fDataName = "tnp_Ana_Data_reco.root";
-const char* fMCName = "tnp_Ana_MC_reco.root";
+/*const char* fDataName = "tnp_Ana_Data_recoID_singleEG5_missHits.root";
+const char* fMCName = "tnp_Ana_MC_recoID_singleEG5_missHits.root";
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -101,6 +101,7 @@ ofstream file_sfs("correction_functions.txt");
 
 const double effmin = 0.;
 const double sfrange = 0.55;
+*/
 
 // Function Define
 TH2F *plotEff2D(RooDataSet *a, TString b);
@@ -111,6 +112,7 @@ void formatTGraph(TGraph* a, int b, int c, int d);
 void formatTLeg(TLegend* a);
 void CalEffErr(TGraph *a, double *b);
 void CalEffErr(vector<TGraphAsymmErrors*> a, double **b);
+
 
 // From here you need to set up your environments.
 void TnPEffDraw() {
@@ -305,7 +307,7 @@ void TnPEffDraw() {
         // leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(p^{e}_{T}>%.1f, #eta #in [%.1f, %.1f])}",ptmin,etamin,etamax));
         leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(SC E_{T}>%.1f, #eta #in [%.1f, %.1f])}",ptmin,etamin,etamax));
      }
-     sprintf(legs,"MC STARLIGHT: %.4f^{ + %.3f}_{ - %.3f}", TrkAbsEta0[i][0], TrkAbsEta0[i][1], TrkAbsEta0[i][2]);
+     sprintf(legs,"MC Superchic: %.4f^{ + %.3f}_{ - %.3f}", TrkAbsEta0[i][0], TrkAbsEta0[i][1], TrkAbsEta0[i][2]);
      leg1->AddEntry(ComPt0[i],legs,"pl");
      sprintf(legs,"Data: %.4f^{ + %.3f}_{ - %.3f}", TrkAbsEta1[i][0], TrkAbsEta1[i][1], TrkAbsEta1[i][2]);
      leg1->AddEntry(ComPt1[i],legs,"pl");
@@ -456,7 +458,7 @@ void TnPEffDraw() {
   double ptmin = ((RooRealVar*) daEtaData0->get()->find("pt"))->getBinning().binLow(0);
   // leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(p^{e}_{T}>%.1f)}",ptmin));
   leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(SC E_{T}>%.1f)}",ptmin));
-  sprintf(legs,"MC STARLIGHT: %.4f^{ + %.3f}_{ - %.3f}", Trk0[0], Trk0[1], Trk0[2]);
+  sprintf(legs,"MC Superchic: %.4f^{ + %.3f}_{ - %.3f}", Trk0[0], Trk0[1], Trk0[2]);
   leg1->AddEntry(ComPt0[0],legs,"pl");
   sprintf(legs,"Data: %.4f^{ + %.3f}_{ - %.3f}", Trk1[0], Trk1[1], Trk1[2]);
   leg1->AddEntry(ComPt1[0],legs,"pl");
