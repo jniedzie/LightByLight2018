@@ -37,6 +37,7 @@ public:
   double GetSigmaEta2012()  const;
   double GetPhiWidth()      const;
   double GetHoverE()        const;
+  double GetEoverP()        const;
   
   int    GetPID()           const;
   int    GetCharge()        const;
@@ -106,6 +107,7 @@ private:
   double sigmaEta2012;  ///< Shower width in eta as in 2012
   
   double hOverE;    ///< Hadronic/EM energy
+  double eOverP;    ///< SC energy/ track momentum
   
   int pdgID;        ///< PDG PID code
   int charge;       ///< Particle charge

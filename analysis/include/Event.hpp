@@ -84,6 +84,8 @@ private:
   PhysObjects GetGoodGenPhotons() const;
   PhysObjects GetPhotonsInAcceptance();
   PhysObjects GetGoodPhotons();
+  PhysObjects GetGoodGenElectrons() const;
+  PhysObjects GetElectronsInAcceptance();
   PhysObjects GetGoodElectrons(TH1D *cutFlowHist=nullptr);
   PhysObjects GetGoodMuons(TH1D *cutFlowHist=nullptr);
   PhysObjects GetGoodMatchedElectron();

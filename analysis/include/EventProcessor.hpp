@@ -103,6 +103,7 @@ private:
   vector<float> *electronEta            = nullptr;
   vector<float> *electronPhi            = nullptr;
   vector<float> *electronHoverE         = nullptr;
+  vector<float> *electronEoverP         = nullptr;
   vector<float> *electronRelIsoWithEA   = nullptr;
   vector<float> *electronDetaSeed       = nullptr;
   vector<float> *electronSCEta          = nullptr;

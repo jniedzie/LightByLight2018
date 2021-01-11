@@ -42,6 +42,23 @@ vector<tuple<string, int, double, double, int, double, double>> histParams2D = {
 //  {"HoverEmapDen" , 314 , -3.14 , 3.14 , 460 , -2.3 , 2.3 },
 };
 
+/// Checks that number of arguments provided is correct and sets corresponding variables
+void ReadInputArguments(int argc, char* argv[],
+                        string &configPath, string &inputPath, string &outputPath, string &sampleName)
+{
+  if(argc != 5){
+    Log(0)<<"This app requires 4 parameters:\n";
+    Log(0)<<"./eleIDVariables configPath inputPath outputPath datasetName[Data|QED_SC|QED_SL|LbL|CEP]\n";
+    exit(0);
+  }
+  
+  configPath = argv[1];
+  inputPath  = argv[2];
+  outputPath = argv[3];
+  sampleName = argv[4];
+}
+
+
 void fillHistograms(const unique_ptr<EventProcessor> &events,
                     const map<string, TH1D*> &hists,
                     const map<string, TH2D*> &hists2D,
@@ -105,56 +122,46 @@ void fillHistograms(const unique_ptr<EventProcessor> &events,
   }
 }
 
+
+/// Application starting point
 int main(int argc, char* argv[])
 {
-  if(argc != 8){
-    Log(0)<<"This app requires 7 parameters.\n";
-    Log(0)<<"./getEfficienciesData configPath inputPathData inputPathLbL inputPathQED_SC inputPathQED_SL inputPathCEP outputPath\n";
-    exit(0);
-  }
-  
-  string configPath = argv[1];
+  string configPath, inputPath, outputPath, sampleName;
+  ReadInputArguments(argc, argv, configPath, inputPath, outputPath, sampleName);
+
   config = ConfigManager(configPath);
-  
-  map<EDataset, string> inputPaths;
-  inputPaths[kData]    = argv[2];
-  inputPaths[kMClbl]   = argv[3];
-  inputPaths[kMCqedSC] = argv[4];
-  inputPaths[kMCqedSL] = argv[5];
-  inputPaths[kMCcep]   = argv[6];
-  
-  string outputPath = argv[7];
-  TFile *outFile = new TFile(outputPath.c_str(), "recreate");
-  
+  EDataset dataset = datasetForName.at(sampleName);
+ 
+  TH1D *hist = new TH1D("hist","",9,1,10);
+ 
+  TFile *outFile = TFile::Open(outputPath.c_str(), "recreate");
+   
   map<string, TH1D*> hists;
   map<string, TH2D*> hists2D;
   
-  for(EDataset dataset : datasets){
-    if(find(datasetsToSkip.begin(), datasetsToSkip.end(), dataset) != datasetsToSkip.end()) continue;
-    
-    string name = datasetName.at(dataset);
-    
-    for(auto params : histParams){
-      string title = get<0>(params)+name;
-      hists[title] = new TH1D(title.c_str(), title.c_str(), get<1>(params), get<2>(params), get<3>(params));
-      title += "_withCuts";
-      hists[title] = new TH1D(title.c_str(), title.c_str(), get<1>(params), get<2>(params), get<3>(params));
-    }
-    for(auto params : histParams2D){
-      string title = get<0>(params)+name;
-      hists2D[title] = new TH2D(title.c_str(), title.c_str(),
-                                get<1>(params), get<2>(params), get<3>(params),
-                                get<4>(params), get<5>(params), get<6>(params));
-    }
-    
-    Log(0)<<"Creating "<<name<<" plots\n";
-    auto events = make_unique<EventProcessor>(inputPaths[dataset], dataset);
-    fillHistograms(events, hists, hists2D, name);
-    
-    outFile->cd();
-    for(auto hist : hists)    hist.second->Write();
-    for(auto hist : hists2D)  hist.second->Write();
+  string name = datasetName.at(dataset);
+  
+  for(auto params : histParams){
+    string title = get<0>(params)+name;
+    hists[title] = new TH1D(title.c_str(), title.c_str(), get<1>(params), get<2>(params), get<3>(params));
+    title += "_withCuts";
+    hists[title] = new TH1D(title.c_str(), title.c_str(), get<1>(params), get<2>(params), get<3>(params));
   }
+  for(auto params : histParams2D){
+    string title = get<0>(params)+name;
+    hists2D[title] = new TH2D(title.c_str(), title.c_str(),
+			      get<1>(params), get<2>(params), get<3>(params),
+			      get<4>(params), get<5>(params), get<6>(params));
+  }
+  
+  Log(0)<<"Creating "<<name<<" plots\n";
+  auto events = make_unique<EventProcessor>(inputPath, dataset);
+  fillHistograms(events, hists, hists2D, name);
+  
+  outFile->cd();
+  for(auto hist : hists)    hist.second->Write();
+  for(auto hist : hists2D)  hist.second->Write();
+  
   
   outFile->Close();
 }

@@ -51,6 +51,12 @@ int ok_HFveto;
 float tag_pt;
 float tag_eta;
 float tag_phi;
+int pass_EG3;
+int pass_EG5;
+float tag_L1Et_passEG3;
+float tag_L1Eta_passEG3;
+float tag_L1Et_passEG5;
+float tag_L1Eta_passEG5;
 float pair_pt;
 float pair_eta;
 float pair_phi;
@@ -101,6 +107,12 @@ void InitTree(TTree *tr) {
    tr->Branch("tag_pt",&tag_pt,"tag_pt/F");
    tr->Branch("tag_eta",&tag_eta,"tag_eta/F");
    tr->Branch("tag_phi",&tag_phi,"tag_phi/F");
+   tr->Branch("pass_EG3",&pass_EG3,"pass_EG3/I");
+   tr->Branch("pass_EG5",&pass_EG5,"pass_EG5/I");
+   tr->Branch("tag_L1Et_passEG3",&tag_L1Et_passEG3,"tag_L1Et_passEG3/F");
+   tr->Branch("tag_L1Eta_passEG3",&tag_L1Eta_passEG3,"tag_L1Eta_passEG3/F");
+   tr->Branch("tag_L1Et_passEG5",&tag_L1Et_passEG5,"tag_L1Et_passEG5/F");
+   tr->Branch("tag_L1Eta_passEG5",&tag_L1Eta_passEG5,"tag_L1Eta_passEG5/F");
    tr->Branch("pair_pt",&pair_pt,"pair_pt/F");
    tr->Branch("pair_eta",&pair_eta,"pair_eta/F");
    tr->Branch("pair_phi",&pair_phi,"pair_phi/F");
@@ -123,9 +135,15 @@ void ResetEventVars() {
 
 // reset tag variables
 void ResetTagVars() {
+   pass_EG3 = 0;
+   pass_EG5 = 0;
    tag_pt = 0;
    tag_eta = 0;
    tag_phi = 0;
+   tag_L1Et_passEG3 = 0;
+   tag_L1Eta_passEG3 = 0;
+   tag_L1Et_passEG5 = 0;
+   tag_L1Eta_passEG5 = 0;
 }
 
 // reset probe variables
@@ -236,15 +254,19 @@ int main(int argc, char* argv[])
   
   auto events = make_unique<EventProcessor>(inputPath, dataset);
   
+  int tag_loop = 0; int tag_cuts = 0; int probe_loop = 0; int probe_cuts =0; int matched_ele =0; 
+  
   // Loop over events
   for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
-    if(iEvent%1000 == 0) Log(1)<<"Processing event "<<iEvent<<"\n";
+  //for(int iEvent=0; iEvent<200; iEvent++){
+    if(iEvent%1000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
     if(iEvent >= config.params("maxEvents")) break;
 
     auto event = events->GetEvent(iEvent);
 
     // Check trigger
     if(!event->HasTrigger(kSingleEG3noHF) && !event->HasTrigger(kSingleEG5noHF)) continue;
+    //if(!event->HasTrigger(kSingleEG3noHF)) continue;
 
     ResetEventVars();
     run = event->GetRunNumber();
@@ -262,22 +284,45 @@ int main(int argc, char* argv[])
     auto genTracks = event->GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
     auto allElectrons = event->GetPhysObjects(EPhysObjType::kElectron);
 
+    if(allElectrons.size()>2) continue;
+    if(goodElectrons.size()>2) continue;
+    if(genTracks.size()>10) continue;
+
     // loop on tags (good electrons with additional cuts)
     for (auto tag : goodElectrons) {
        // trigger matching
-       if (!TriggerMatch(*tag, L1EGs, 3, 5)) continue;
+       auto matchedL1EG3 = TriggerMatch(*tag, L1EGs, 3, 5);
+       auto matchedL1EG5 = TriggerMatch(*tag, L1EGs, 5, 5);
+       if (!matchedL1EG3 && !matchedL1EG5) continue;
+       //if (!matchedL1EG5) continue;
+       //if (!TriggerMatch(*tag, L1EGs, 3, 5)) continue;
        ResetTagVars();
+       if(matchedL1EG3){
+	  pass_EG3 = 1;
+          Log(1) << "matched EG3:"<< pass_EG3 << "\n";
+          tag_L1Et_passEG3   = matchedL1EG3->GetEt();
+          tag_L1Eta_passEG3  = matchedL1EG3->GetEta();
+       }
+       if(matchedL1EG5){
+	  pass_EG5 = 1;
+          Log(1) << "matched EG5:"<< pass_EG5 << "\n";
+          tag_L1Et_passEG5   = matchedL1EG5->GetEt();
+          tag_L1Eta_passEG5  = matchedL1EG5->GetEta();
+       }
        tag_pt = tag->GetPt();
        tag_eta = tag->GetEta();
        tag_phi = tag->GetPhi();
+       tag_loop++;
+     
        if (tag_pt < config.params("electronMinPt") || fabs(tag_eta) > config.params("electronMaxEta")) continue;
+       tag_cuts++;
 
        // loop on probes (general tracks)
        for (auto probe : genTracks) {
-          // only look at opposite sign events (also excludes cases when tag==probe)
-          if(tag->GetCharge() == probe->GetCharge()) continue;
+         // only look at opposite sign events (also excludes cases when tag==probe)
 
-          ResetProbeVars();
+          if(tag->GetCharge() == probe->GetCharge()) continue;
+          ResetProbeVars(); probe_loop++;
           pt = probe->GetPt();
           eta = probe->GetEta();
           abseta = fabs(eta);
@@ -285,15 +330,17 @@ int main(int argc, char* argv[])
 
           // basic cuts
           if (pt < config.params("electronMinPt") || fabs(eta) > config.params("electronMaxEta")) continue;
+          probe_cuts++;
 
           // reco
           auto matchedEle = EleMatch(*probe, allElectrons);
           if (matchedEle) {
-             ok_elematch = 1;
+             ok_elematch = 1; matched_ele++;
              ele_pt = matchedEle->GetPt();
              ele_eta = matchedEle->GetEta();
              ele_phi = matchedEle->GetPhi();
              ele_DR = physObjectProcessor.GetDeltaR(*probe,*matchedEle);
+
 
              // ID
              deta_vtx = matchedEle->GetDetaSeed();
@@ -303,7 +350,7 @@ int main(int argc, char* argv[])
              phoiso = matchedEle->GetPhotonIso();
              HoE = matchedEle->GetHoverE();
 
-             ok_NMissHits = (NMissHits < config.params("electronMaxNmissingHits"));
+             ok_NMissHits = (NMissHits <= config.params("electronMaxNmissingHits"));
              if (fabs(ele_eta) < 1.5) { // barrel
                 ok_deta_vtx = (deta_vtx < config.params("electronMaxDetaSeedBarrel"));
                 ok_chiso = (chiso < config.params("electronMaxChargedIsoBarrel"));
@@ -322,12 +369,12 @@ int main(int argc, char* argv[])
                    && ok_HoE) ok_ID = 1;
 
              // trigger
-             auto matchedL1EG = TriggerMatch(*matchedEle, L1EGs, 2, 5);
-             if (matchedL1EG) {
-                L1Et = matchedL1EG->GetEt();
-                L1eta = matchedL1EG->GetEta();
-                L1phi = matchedL1EG->GetPhi();
-                L1DR = physObjectProcessor.GetDeltaR(*matchedEle, *matchedL1EG);
+             auto matchedL1EG2 = TriggerMatch(*matchedEle, L1EGs, 2, 5);
+             if (matchedL1EG2) {
+                L1Et = matchedL1EG2->GetEt();
+                L1eta = matchedL1EG2->GetEta();
+                L1phi = matchedL1EG2->GetPhi();
+                L1DR = physObjectProcessor.GetDeltaR(*matchedEle, *matchedL1EG2);
                 ok_trg2 = 1;
                 ok_trg3 = (L1Et > 3);
                 ok_trg5 = (L1Et > 5);
@@ -342,12 +389,19 @@ int main(int argc, char* argv[])
           pair_phi = thepair.Phi();
           pair_mass = thepair.M();
           pair_acop = physObjectProcessor.GetAcoplanarity(*tag, *probe);
-
-          tr->Fill();
+    
+          tr->Fill(); 
        } // probe track loop
     } // tag electron loop
   } // event loop
 
+  Log(0) << "Events in tag loop:" << tag_loop << "\n" ;
+  Log(0) << "Events after pt and eta cut of tag loop:" << tag_cuts << "\n";
+  Log(0) << "Events in probe loop: " << probe_loop << "\n";
+  Log(0) << "Events after cuts on probe:" << probe_cuts << "\n";
+  Log(0) << "Matched electrons and tracks:" << matched_ele << "\n";
+
+ 
   outFile->Write();
   outFile->Close();
   
