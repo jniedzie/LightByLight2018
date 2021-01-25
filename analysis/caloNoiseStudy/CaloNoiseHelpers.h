@@ -19,8 +19,13 @@ enum EDet { kEB, kEE, kHB, kHE, kHFm, kHFp, nDets };
 vector<string> detNames = { "EB", "EE", "HB", "HE", "HFm", "HFp", "unknown" };
 
 vector<pair<double,double>> detLimits = {
-  {0    , 1.479 }, // EB
-  {1.479, 3.0   }, // EE
+//  {0    , 1.479 }, // EB
+//  {1.479, 3.0   }, // EE
+  
+  // Taking into account transition region
+  {0    , 1.4442 }, // EB
+  {1.566, 3.0   }, // EE
+  
   {0    , 1.3   }, // HB
   {1.3  , 3.0   }, // HE
   {-5.2 ,-3.0   }, // HFm
