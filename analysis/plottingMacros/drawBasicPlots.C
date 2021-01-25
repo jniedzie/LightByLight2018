@@ -1,7 +1,7 @@
 #include "../include/Helpers.hpp"
 
-// string inputPath  = "../results/basicPlots_default.root";
-string inputPath  = "../results/basicPlots_noZDCcuts.root";
+ string inputPath  = "../results/basicPlots_default.root";
+//string inputPath  = "../results/basicPlots_noZDCcuts.root";
 //string inputPath  = "../results/basicPlots_default_full_lumi.root";
 //string inputPath  = "../results/basicPlots_default_inverted.root";
 //string inputPath  = "../results/basicPlots_default_inverted_qed.root";
