@@ -8,7 +8,7 @@ sampleName=""
 
 basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
 
-suffix="_QED_tnpEC_20201208_SingleEG3orEG5"
+suffix="_eleRecoIDTrigger_tnpEC_20210121_SingleEG3orEG5_eta2p1"
 
 if [ $2 -eq 0 ]
 then

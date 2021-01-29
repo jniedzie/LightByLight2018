@@ -56,6 +56,14 @@ vector<string> histParams = {
   "trigger_HFveto_eff_cut_through",
   "trigger_HFveto_eff_num",
   "trigger_HFveto_eff_den",
+  "trigger_HFveto_eff_vs_dielectron_mass_num",
+  "trigger_HFveto_eff_vs_dielectron_mass_den",
+  "trigger_HFveto_eff_vs_dielectron_rapidity_num",
+  "trigger_HFveto_eff_vs_dielectron_rapidity_den",
+  "trigger_HFveto_eff_vs_dielectron_pt_num",
+  "trigger_HFveto_eff_vs_dielectron_pt_den",
+  "trigger_HFveto_eff_vs_acoplanarity_num",
+  "trigger_HFveto_eff_vs_acoplanarity_den",
   
   // exclusivity efficiency histograms
   "charged_exclusivity_eff_cut_through",
@@ -64,8 +72,8 @@ vector<string> histParams = {
   "dielectron_mass",
   "charged_exclusivity_eff_vs_dielectron_mass_num",
   "charged_exclusivity_eff_vs_dielectron_mass_den",
-  "charged_exclusivity_eff_vs_dielectron_eta_num",
-  "charged_exclusivity_eff_vs_dielectron_eta_den",
+  "charged_exclusivity_eff_vs_dielectron_rapidity_num",
+  "charged_exclusivity_eff_vs_dielectron_rapidity_den",
   "charged_exclusivity_eff_vs_dielectron_pt_num",
   "charged_exclusivity_eff_vs_dielectron_pt_den",
   
@@ -75,8 +83,8 @@ vector<string> histParams = {
   "neutral_exclusivity_eff_den",
   "neutral_exclusivity_eff_vs_dielectron_mass_num",
   "neutral_exclusivity_eff_vs_dielectron_mass_den",
-  "neutral_exclusivity_eff_vs_dielectron_eta_num",
-  "neutral_exclusivity_eff_vs_dielectron_eta_den",
+  "neutral_exclusivity_eff_vs_dielectron_rapidity_num",
+  "neutral_exclusivity_eff_vs_dielectron_rapidity_den",
   "neutral_exclusivity_eff_vs_dielectron_pt_num",
   "neutral_exclusivity_eff_vs_dielectron_pt_den",
 };
@@ -85,6 +93,9 @@ map<string, int> matched;
 map<string, float> acoplanarity;
 map<string, float> SCEt;
 map<string, float> absEta;
+
+Double_t getDPHI( Double_t phi1, Double_t phi2);
+Double_t getDETA(Double_t eta1, Double_t eta2);
 
 /// Counts number of events passing tag and probe criteria for reco+ID efficiency
 void CheckRecoEfficiency(Event &event, map<string, TH1D*> &hists, string datasetName)
@@ -311,20 +322,20 @@ void CheckTriggerEfficiency(Event &event, map<string, TTree*> &trees, map<string
   // Check trigger
   
   // has EG3
-//    if(!event.HasTrigger(kSingleEG3noHF)) return;
-//    double threshold = 3.0;
+  //    if(!event.HasTrigger(kSingleEG3noHF)) return;
+  //    double threshold = 3.0;
   
   // has EG5
-//  if(!event.HasTrigger(kSingleEG5noHF)) return;
-//  double threshold = 5.0;
+  //  if(!event.HasTrigger(kSingleEG5noHF)) return;
+  //  double threshold = 5.0;
   
   // has only EG3
-//  if(!event.HasTrigger(kSingleEG3noHF) || event.HasTrigger(kSingleEG5noHF)) return;
-//  double threshold = 3.0;
+  //  if(!event.HasTrigger(kSingleEG3noHF) || event.HasTrigger(kSingleEG5noHF)) return;
+  //  double threshold = 3.0;
   
   // has only EG5
-//  if(event.HasTrigger(kSingleEG3noHF) || !event.HasTrigger(kSingleEG5noHF)) return;
-//  double threshold = 5.0;
+  //  if(event.HasTrigger(kSingleEG3noHF) || !event.HasTrigger(kSingleEG5noHF)) return;
+  //  double threshold = 5.0;
   
   // has either of the triggers
   if(!event.HasTrigger(kSingleEG3noHF) && !event.HasTrigger(kSingleEG5noHF)) return;
@@ -332,8 +343,8 @@ void CheckTriggerEfficiency(Event &event, map<string, TTree*> &trees, map<string
   if(event.HasTrigger(kSingleEG3noHF)) threshold = 3.0;
   if(event.HasTrigger(kSingleEG5noHF)) threshold = 5.0;
   
-//  if(!event.HasTrigger(kSingleEG3noHF)) return;
-//  if(!event.HasTrigger(kSingleEG5noHF)) return;
+  //  if(!event.HasTrigger(kSingleEG3noHF)) return;
+  //  if(!event.HasTrigger(kSingleEG5noHF)) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Neutral exclusivity
@@ -402,7 +413,7 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
   hists[cutThouthName]->Fill(cutLevel++); // 0
   
   // Check trigger with no HF veto
-  if(!event.HasTrigger(kSingleEG3singleTrack)) return;
+  if(!event.HasTrigger(kSingleEG3singleTrack) && !event.HasTrigger(kSingleEG5singleTrack) ) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Neutral exclusivity
@@ -420,8 +431,19 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
   if(electron1->GetCharge() == electron2->GetCharge()) return;
   hists[cutThouthName]->Fill(cutLevel++); // 4
   
-  // Charged exclusivity
-  if(event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack).size() != 2) return;
+  // very tight charged exclusivity
+  //if(event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack).size() != 2) return;
+  //hists[cutThouthName]->Fill(cutLevel++); // 5
+  
+  // Charged exclusivity: remove extra track outside electron cone
+  auto genTracks = event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
+  int nextratracks =0;
+  for (auto trk : genTracks) {
+    if (getDPHI(trk->GetPhi(), electron1->GetPhi())<0.7 && getDETA(trk->GetEta(), electron1->GetEta())<0.15) continue;
+    if (getDPHI(trk->GetPhi(), electron2->GetPhi())<0.7 && getDETA(trk->GetEta(), electron2->GetEta())<0.15) continue;
+    nextratracks++;
+  }
+  if(nextratracks!=0) return;
   hists[cutThouthName]->Fill(cutLevel++); // 5
   
   // Check if there are two electrons matched with L1 objects
@@ -441,12 +463,32 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
   
   if(matchedElectrons.size() != 2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 6
+
+  TLorentzVector dielectron = physObjectProcessor.GetDielectron(*matchedElectrons[0], *matchedElectrons[1]);
+  if(dielectron.M() < 5.0) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 7
+  
+  if(dielectron.Pt() > 1.0) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 8
+  
+  if(fabs(dielectron.Rapidity()) > 2.4) return;
+  hists[cutThouthName]->Fill(cutLevel++); // 9
+
   hists["trigger_HFveto_eff_den_"+datasetName]->Fill(1);
+  hists["trigger_HFveto_eff_vs_dielectron_mass_den_"+datasetName]->Fill(dielectron.M());
+  hists["trigger_HFveto_eff_vs_dielectron_rapidity_den_"+datasetName]->Fill(dielectron.Rapidity());
+  hists["trigger_HFveto_eff_vs_dielectron_pt_den_"+datasetName]->Fill(dielectron.Pt());
+  hists["trigger_HFveto_eff_vs_acoplanarity_den_"+datasetName]->Fill(physObjectProcessor.GetAcoplanarity(*matchedElectrons[0], *matchedElectrons[1]));
+
   
   // Check if it also has double EG2 trigger
   if(!event.HasTrigger(kDoubleEG2noHF)) return;
-  hists[cutThouthName]->Fill(cutLevel++); // 7
+  hists[cutThouthName]->Fill(cutLevel++); // 10
   hists["trigger_HFveto_eff_num_"+datasetName]->Fill(1);
+  hists["trigger_HFveto_eff_vs_dielectron_mass_num_"+datasetName]->Fill(dielectron.M());
+  hists["trigger_HFveto_eff_vs_dielectron_rapidity_num_"+datasetName]->Fill(dielectron.Rapidity());
+  hists["trigger_HFveto_eff_vs_dielectron_pt_num_"+datasetName]->Fill(dielectron.Pt());
+  hists["trigger_HFveto_eff_vs_acoplanarity_num_"+datasetName]->Fill(physObjectProcessor.GetAcoplanarity(*matchedElectrons[0], *matchedElectrons[1]));
 }
 
 /// Counts number of events passing tag and probe criteria for charged exclusivity efficiency
@@ -480,21 +522,31 @@ void CheckCHEefficiency(Event &event, map<string, TH1D*> &hists, string datasetN
   if(dielectron.Pt() > 1.0) return;
   hists[cutThouthName]->Fill(cutLevel++); // 5
   
-  if(fabs(dielectron.Eta()) > 2.3) return;
+  if(fabs(dielectron.Rapidity()) > 2.4) return;
   hists[cutThouthName]->Fill(cutLevel++); // 6
-  
   
   hists["charged_exclusivity_eff_den_"+datasetName]->Fill(1);
   hists["charged_exclusivity_eff_vs_dielectron_mass_den_"+datasetName]->Fill(dielectron.M());
-  hists["charged_exclusivity_eff_vs_dielectron_eta_den_"+datasetName]->Fill(dielectron.Eta());
+  hists["charged_exclusivity_eff_vs_dielectron_rapidity_den_"+datasetName]->Fill(dielectron.Rapidity());
   hists["charged_exclusivity_eff_vs_dielectron_pt_den_"+datasetName]->Fill(dielectron.Pt());
   
-  // Charged exclusivity
-  if(event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack).size() != 2) return;
+  // very tight charged exclusivity
+  //if(event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack).size() != 2) return;
+  //hists[cutThouthName]->Fill(cutLevel++); // 5
+  
+  // Charged exclusivity: remove extra track outside electron cone
+  auto genTracks = event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
+  int nextratracks =0;
+  for (auto trk : genTracks) {
+    if (getDPHI(trk->GetPhi(), electron1->GetPhi())<0.7 && getDETA(trk->GetEta(), electron1->GetEta())<0.15) continue;
+    if (getDPHI(trk->GetPhi(), electron2->GetPhi())<0.7 && getDETA(trk->GetEta(), electron2->GetEta())<0.15) continue;
+    nextratracks++;
+  }
+  if(nextratracks!=0) return;
   hists[cutThouthName]->Fill(cutLevel++); // 5
   hists["charged_exclusivity_eff_num_"+datasetName]->Fill(1);
   hists["charged_exclusivity_eff_vs_dielectron_mass_num_"+datasetName]->Fill(dielectron.M());
-  hists["charged_exclusivity_eff_vs_dielectron_eta_num_"+datasetName]->Fill(dielectron.Eta());
+  hists["charged_exclusivity_eff_vs_dielectron_rapidity_num_"+datasetName]->Fill(dielectron.Rapidity());
   hists["charged_exclusivity_eff_vs_dielectron_pt_num_"+datasetName]->Fill(dielectron.Pt());
 }
 
@@ -522,24 +574,35 @@ void CheckNEEefficiency(Event &event, map<string, TH1D*> &hists, string datasetN
   
   // Check dielectron properties
   TLorentzVector dielectron = physObjectProcessor.GetDielectron(*electron1, *electron2);
-  if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || fabs(dielectron.Eta()) > 2.3) return;
+  if(dielectron.M() < 5.0 || dielectron.Pt() > 1.0 || fabs(dielectron.Rapidity()) > 2.4) return;
   hists[cutThouthName]->Fill(cutLevel++); // 4
   
-  // Charged exclusivity
-  if(event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack).size() != 2) return;
+  // very tight charged exclusivity
+  //if(event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack).size() != 2) return;
+  //hists[cutThouthName]->Fill(cutLevel++); // 5
+  
+  // Charged exclusivity: remove extra track outside electron cone
+  auto genTracks = event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
+  int nextratracks =0;
+  for (auto trk : genTracks) {
+    if (getDPHI(trk->GetPhi(), electron1->GetPhi())<0.7 && getDETA(trk->GetEta(), electron1->GetEta())<0.15) continue;
+    if (getDPHI(trk->GetPhi(), electron2->GetPhi())<0.7 && getDETA(trk->GetEta(), electron2->GetEta())<0.15) continue;
+    nextratracks++;
+  }
+  if(nextratracks!=0) return;
   hists[cutThouthName]->Fill(cutLevel++); // 5
   hists["neutral_exclusivity_eff_den_"+datasetName]->Fill(1);
   hists["neutral_exclusivity_eff_vs_dielectron_mass_den_"+datasetName]->Fill(dielectron.M());
-  hists["neutral_exclusivity_eff_vs_dielectron_eta_den_"+datasetName]->Fill(dielectron.Eta());
+  hists["neutral_exclusivity_eff_vs_dielectron_rapidity_den_"+datasetName]->Fill(dielectron.Rapidity());
   hists["neutral_exclusivity_eff_vs_dielectron_pt_den_"+datasetName]->Fill(dielectron.Pt());
   
-
+  
   // Neutral exclusivity
   if(event.HasAdditionalTowers()) return;
   hists[cutThouthName]->Fill(cutLevel++); // 6
   hists["neutral_exclusivity_eff_num_"+datasetName]->Fill(1);
   hists["neutral_exclusivity_eff_vs_dielectron_mass_num_"+datasetName]->Fill(dielectron.M());
-  hists["neutral_exclusivity_eff_vs_dielectron_eta_num_"+datasetName]->Fill(dielectron.Eta());
+  hists["neutral_exclusivity_eff_vs_dielectron_rapidity_num_"+datasetName]->Fill(dielectron.Rapidity());
   hists["neutral_exclusivity_eff_vs_dielectron_pt_num_"+datasetName]->Fill(dielectron.Pt());
 }
 
@@ -571,7 +634,7 @@ void InitializeHistograms(map<string, TH1D*> &hists, const string &datasetType)
       hists[title] = new TH1D(title.c_str(), title.c_str(), (int)bins.size()-1, (float*)&bins[0]);
     }
     else if(histName.find("vs_eta") != string::npos ||
-            histName.find("vs_dielectron_eta") != string::npos){
+            histName.find("vs_dielectron_rapidity") != string::npos){
       hists[title] = new TH1D(title.c_str(), title.c_str(), 10, 0.0, 5.0);
     }
     else if(histName.find("vs_dielectron_mass") != string::npos){
@@ -602,7 +665,7 @@ void InitializeHistograms(map<string, TH1D*> &hists, const string &datasetType)
       hists[title] = new TH1D(title.c_str(), title.c_str(), 100, 0, 2*TMath::Pi());
     }
     else if(histName.find("acoplanarity") != string::npos){
-      hists[title] = new TH1D(title.c_str(), title.c_str(), 10, 0, 0.1);
+      hists[title] = new TH1D(title.c_str(), title.c_str(), 50, 0, 0.1);
     }
     else if(histName.find("brem_track_pt") != string::npos){
       hists[title] = new TH1D(title.c_str(), title.c_str(), 30, 0, 10);
@@ -634,7 +697,8 @@ void PrintAndSaveResults(TFile *outFile, map<string, TH1D*> &hists,
   
   for(auto histName : histParams){
     if(!config.params("doRecoEfficiency")    && histName.find("reco_id_eff") != string::npos)              continue;
-    if(!config.params("doTriggerEfficiency") && histName.find("trigger") != string::npos)                  continue;
+    if(!config.params("doHFvetoEfficiency")  && histName.find("trigger_HFveto_eff") != string::npos)       continue;
+    //if(!config.params("doTriggerEfficiency") && histName.find("trigger") != string::npos)                  continue;
     if(!config.params("doCHEefficiency")     && histName.find("charged_exclusivity_eff") != string::npos)  continue;
     if(!config.params("doNEEefficiency")     && histName.find("neutral_exclusivity_eff") != string::npos)  continue;
     if(!config.params("doElectronRecoEfficiency") && histName.find("electron_reco_id_eff") != string::npos)              continue;
@@ -739,4 +803,24 @@ int main(int argc, char* argv[])
   outFile->Close();
   
   return 0;
+}
+
+Double_t getDPHI( Double_t phi1, Double_t phi2) {
+  Double_t dphi = phi1 - phi2;
+  
+  if ( dphi > 3.141592653589 )
+    dphi = dphi - 2. * 3.141592653589;
+  if ( dphi <= -3.141592653589 )
+    dphi = dphi + 2. * 3.141592653589;
+  
+  if ( TMath::Abs(dphi) > 3.141592653589 ) {
+    cout << " commonUtility::getDPHI error!!! dphi is bigger than 3.141592653589 " << endl;
+  }
+  
+  return TMath::Abs(dphi);
+  //return dphi;
+}
+
+Double_t getDETA(Double_t eta1, Double_t eta2){
+  return TMath::Abs(eta1 - eta2);
 }

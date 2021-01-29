@@ -7,7 +7,7 @@ outputPath=""
 sampleName=""
 
 basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
-suffix="_DoubleEG2_30122020"
+suffix="_zdcCuts_recoIDTrigSF_20012021"
 
 if [ $2 -eq 0 ]
 then

@@ -112,4 +112,10 @@ TnP/recoIDeff_singleEG5_allIDcuts/*
 TnP/recoeff_singleEG3/*
 TnP/recoeff_singleEG5/*
 TnP/triggerEff_singleEG5/*
+TnP/eleRecoIDEff_EG5Tag_SLMC/
+TnP/plots/
+TnP/results/
+TnP/triggerEff_EG5Tag_SCMC_fineEtabins/
+TnP/triggerEff_EG5Tag_SLMC/
+TnP/triggerEff_EG5Tag_SLMC_fineEtabins/
 TnP/*.root

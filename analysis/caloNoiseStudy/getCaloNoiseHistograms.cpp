@@ -19,7 +19,7 @@ vector<string> allowedTriggers = {
 int main(int argc, char** argv)
 {
   if(argc!=3){
-    cout<<"Usage: ./getCaloNoiseHistograms inputPath outputPath"<<endl;
+    cout<<"Usage: ./getCaloNoiseThresholds inputPath outputPath"<<endl;
     exit(0);
   }
   const char* inputPath   = argv[1];
@@ -37,7 +37,7 @@ int main(int argc, char** argv)
     cout<<"ERROR -- event tree not found"<<endl;
     exit(0);
   }
-  
+
   TTree *hltTree = (TTree*)inFile->Get("hltanalysis/HltTree");
   if(!hltTree){
     cout<<"ERROR -- hlt tree not found"<<endl;
@@ -69,7 +69,7 @@ int main(int argc, char** argv)
   vector<CaloTower> leadingCaloTowers[nDets];
   
   int nEvents = eventTree->GetEntries();
-  
+
   for(int iEvent=0; iEvent<nEvents; iEvent++){
     if(iEvent%1000==0) cout<<"Processing event "<<iEvent<<" / "<<nEvents<<endl;
     
@@ -137,7 +137,7 @@ int main(int argc, char** argv)
       }
       
       if(tower.energy > maxEnergy[kHFm] &&
-         tower.eta > detLimits[kHFm].first && tower.eta < detLimits[kHFm].second){
+        tower.eta > detLimits[kHFm].first && tower.eta < detLimits[kHFm].second){
         maxEnergy[kHFm] = tower.energy;
         leadingTower[kHFm] = tower;
       }
