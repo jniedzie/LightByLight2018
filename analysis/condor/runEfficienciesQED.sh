@@ -1,6 +1,7 @@
 #!/bin/bash
 
-configPath="/afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation.md"
+userBasePath="/afs/cern.ch/work/r/rchudasa/private"
+configPath="${userBasePath}/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation.md"
 
 inputPath=""
 outputPath=""
@@ -8,12 +9,13 @@ sampleName=""
 
 basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
 
-suffix="_HFveto_eff_singleEG3orEG5SingleTrack_21012021_eta2p1"
+#suffix="_HFveto_eff_singleEG3orEG5SingleTrack_21012021_eta2p1"
+suffix="_check"
 
 if [ $2 -eq 0 ]
 then
   sampleName="Data" # 10400 files
-  inputPath=`sed "${1}q;d" /afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/input_list.txt`
+  inputPath=`sed "${1}q;d" ${userBasePath}/LightByLight2018/analysis/input_list.txt`
   outputPath="${basePath}/analysis_ruchi/efficienciesQED/efficienciesQED_data${suffix}"
 elif [ $2 -eq 1 ]
 then
@@ -38,5 +40,5 @@ then
   echo "File already exists, skipping"
 else
   echo "File doesn't exist or is empty - running"
-  /afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/getEfficienciesQED $configPath $inputPath $output $sampleName
+  ${userBasePath}/LightByLight2018/analysis/getEfficienciesQED $configPath $inputPath $output $sampleName
 fi
