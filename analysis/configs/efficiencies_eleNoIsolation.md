@@ -4,12 +4,12 @@
 verbosityLevel: 0
 
 ### Select which efficiencies should be calculated:
-doRecoEfficiency:       1
-doTriggerEfficiency:    1
+doRecoEfficiency:      0 
+doTriggerEfficiency:   0 
 doHFvetoEfficiency:   1
-doCHEefficiency:        1
+doCHEefficiency:       1 
 doNEEefficiency:        1
-doElectronRecoEfficiency: 1
+doElectronRecoEfficiency: 0
 
 ### Max number of events to analyze
 maxEvents: 9999999
@@ -24,7 +24,7 @@ maxDeltaPhiEE:  0.4
 ### Charged exclusivity cuts (GeV)
 maxNtracks:                             0
 trackMinPt:                               0.8 
-trackMaxEta:                            2.4
+trackMaxEta:                            2.1
 trackMaxDxy:                           999999
 trackMaxXYdistanceFromBS:  999999
 trackMaxDxyOverSigma:         999999
@@ -40,7 +40,7 @@ maxNpixelRecHits:                  999999
 ### Pixel track cuts
 maxNpixelTracks:                    0
 pixelTrackMinPt:                      0.05
-pixelTrackMaxEta:                   2.4
+pixelTrackMaxEta:                   2.1
 pixelTrackMinNvalidHits:         3
 pixelTrackMaxChi2:                 999999
 
@@ -54,7 +54,7 @@ maxDeltaR:              0.3
 
 ### Photon ID cuts:
 photonMinEt:                            2.0
-photonMaxEta:                         2.4
+photonMaxEta:                         2.1
 photonMaxHoverEbarrel:          0.04596
 photonMaxHoverEendcap:       0.0590
 photonMaxEtaWidthBarrel:       0.0106
@@ -70,7 +70,7 @@ photonRejectConverted:           1
 
 ### Electron ID cuts:
 electronMinPt:                            2.0
-electronMaxEta:                         2.4
+electronMaxEta:                         2.1
 electronMaxNmissingHits:         1
 electronMaxHoverE_Barrel:         0.005
 electronMaxHoverE_Endcap:      0.005

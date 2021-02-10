@@ -5,39 +5,51 @@
 //double effMC = 0.714;
 //double effMCerr = 0.041;
 
-// Trigger
-//double effData = 0.95;
-//double effDataErr = 0.01;
-//double effMC = 0.91;
-//double effMCerr = 0.02;
+// Trigger updated 11.01.2021
+//double effData = 0.889;
+//double effDataErr = 0.002;
+//double effMC = 0.899;
+//double effMCErr = 0.001;
 
-double effData = 0.851;
-double effDataErr = 0.004;
-double effMC = 0.86;
-double effMCerr = 0.01;
+// Reco+ID electron updated 11.01.2021
+//double effData = 0.764;
+//double effDataErr = 0.003;
+//double effMC = 0.777;
+//double effMCErr = 0.001;
 
-// HF veto
-//double effData = 1.0;
-//double effDataErr = 0.243;
-//double effMC = 1.0;
-//double effMCerr = 0.047;
+// HF veto updated 15.01.2021
+double effData = 0.944;
+double effDataErr = 0.093;
+double effMC = 1.0; 
+double effMCErr =0.004;
 
-// Charged exclusivity
-//double effData = 1.000;
-//double effDataErr = 0.059;
-//double effMC = 1.000;
-//double effMCerr = 0.117;
+// Charged exclusivity 13.01.2021
+//double effData = 0.959;
+//double effDataErr = 0.0079;
+//double effMC = 0.999;
+//double effMCErr = 0.0033;
 
-// Neutral exclusivity
-//double effData = 0.634;
-//double effDataErr = 0.043;
-//double effMC = 0.823;
-//double effMCerr = 0.101;
+// Neutral exclusivity 13.01.2021
+//double effData = 0.684;
+//double effDataErr = 0.006;
+//double effMC = 0.809;
+//double effMCErr = 0.003;
+
+double getError(double A, double eA, double B, double eB);
 
 void getScaleFactor()
 {
-  double scaleFactor = effMC/effData;
-  double scaleFactorErr = 1/effData * sqrt(effMCerr*effMCerr + effMC*effMC*effDataErr*effDataErr/(effData*effData));
-  
+  double scaleFactor = effData/effMC;
+  double scaleFactorErr = getError(effData, effDataErr, effMC, effMCErr);
+ 
   cout<<"Scale factor: "<<scaleFactor<<" +/- "<<scaleFactorErr<<endl;
+}
+
+//Ratio Error
+double getError(double A, double eA, double B, double eB){
+  double f=A/B;
+  double fA=eA/A;
+  double fB=eB/B;
+  double eR=  f*sqrt( (fA*fA + fB*fB )) ;
+  return eR;
 }

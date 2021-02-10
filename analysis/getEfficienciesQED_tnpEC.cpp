@@ -32,6 +32,9 @@ float L1Et;
 float L1eta;
 float L1phi;
 float L1DR;
+float SCEt;
+float SCeta;
+float SCphi;
 float Ntrk;
 float HFE;
 int ok_elematch;
@@ -88,6 +91,9 @@ void InitTree(TTree *tr) {
    tr->Branch("L1eta",&L1eta,"L1eta/F");
    tr->Branch("L1phi",&L1phi,"L1phi/F");
    tr->Branch("L1DR",&L1DR,"L1DR/F");
+   tr->Branch("SCEt",&SCEt,"SCEt/F");
+   tr->Branch("SCeta",&SCeta,"SCeta/F");
+   tr->Branch("SCphi",&SCphi,"SCphi/F");
    tr->Branch("Ntrk",&Ntrk,"Ntrk/F");
    tr->Branch("HFE",&HFE,"HFE/F");
    tr->Branch("ok_elematch",&ok_elematch,"ok_elematch/I");
@@ -166,6 +172,9 @@ void ResetProbeVars() {
    L1eta = 0;
    L1phi = 0;
    L1DR = 0;
+   SCEt = 0;
+   SCeta = 0;
+   SCphi = 0;
    ok_elematch = 0;
    ok_ID = 0;
    ok_deta_vtx = 0;
@@ -340,7 +349,9 @@ int main(int argc, char* argv[])
              ele_eta = matchedEle->GetEta();
              ele_phi = matchedEle->GetPhi();
              ele_DR = physObjectProcessor.GetDeltaR(*probe,*matchedEle);
-
+             SCEt =  matchedEle->GetEnergySC()*sin(2.*atan(exp(-matchedEle->GetEtaSC()))); 
+             SCeta = matchedEle->GetEtaSC();
+             SCphi = matchedEle->GetPhiSC();
 
              // ID
              deta_vtx = matchedEle->GetDetaSeed();

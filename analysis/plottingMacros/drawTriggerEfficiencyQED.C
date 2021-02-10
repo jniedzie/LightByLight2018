@@ -1,28 +1,28 @@
 #include "../include/Helpers.hpp"
 
-string basePath = "../results/triggerEfficiencyQED";
+string basePath = "../results/efficienciesQED";
 //string basePath = "../results/triggerEfficiencyQED_EG3_or_EG5";
 string outputPath = "../plots/triggerEfficiencyDependanceL1.pdf";
 string outputPathScaleFactors = "../results/triggerScaleFactors.root";
 
 vector<string> triggerCombinations = {
   //  "EG3",
-  //  "EG5",
+    "EG5"
   //  "EG3_only",
   //  "EG5_only",
-  "EG3_or_EG5"
+  //"EG3_or_EG5"
 };
 
 vector<EDataset> datasetsToDraw = {
   kData,
-//  kMCqedSC,
-  kMCqedSL
+  kMCqedSC,
+//  kMCqedSL
 };
 
 vector<tuple<string, string, string, string>> variables = {
-  {"effVsPt_lowEta"   , "SCEt"    , "SC E_{t} (GeV)"  , "#splitline{|#eta|#in[0.0, 1.2]}{SC E_{t} > 2 GeV}" },
-  {"effVsPt_highEta"  , "SCEt"    , "SC E_{t} (GeV)"  , "#splitline{|#eta|#in[1.2, 2.4]}{SC E_{t} > 2 GeV}" },
-  {"effVsEta"         , "abseta"  , "|#eta|"          , "SC E_{t} > 2 GeV"                                  },
+  {"DoubleEG2_pt0"   , "pt"    , "SC E_{t} (GeV)"  , "#splitline{|#eta|#in[0.0, 1.2]}{SC E_{t} > 2 GeV}" },
+  {"DoubleEG2_pt1"  , "pt"    , "SC E_{t} (GeV)"  , "#splitline{|#eta|#in[1.2, 2.4]}{SC E_{t} > 2 GeV}" },
+  {"DoubleEG2_abseta", "eta"  , "|#eta|"          , "SC E_{t} > 2 GeV"                                  },
 };
 
 TGraphAsymmErrors *getEfficiencyPlot(RooDataSet *fitResults, string xVarName){
@@ -83,7 +83,7 @@ void drawTriggerEfficiencyQED()
       
       for(EDataset dataset : datasetsToDraw){
         
-        string filePath = basePath + "_" + triggerCombination + "_" + datasetName.at(dataset)+".root";
+        string filePath = basePath + "_" + triggerCombination + "_" + datasetName.at(dataset)+".root"; 
         TFile *inFile = TFile::Open(filePath.c_str());
         
         if(!inFile){
@@ -92,7 +92,8 @@ void drawTriggerEfficiencyQED()
         }
         
         
-        string resultsPath = "triggerTree_"+datasetName.at(dataset)+"/"+dirName+"/fit_eff";
+        string resultsPath = "tnpQED/"+dirName+"/fit_eff";
+        //string resultsPath = "triggerTree_"+datasetName.at(dataset)+"/"+dirName+"/fit_eff";
         RooDataSet *fitResults = (RooDataSet*)inFile->Get(resultsPath.c_str());
         
         if(!fitResults){
@@ -175,11 +176,11 @@ void drawTriggerEfficiencyQED()
       
       outFile->cd();
       
-      if(dirName == "effVsPt_lowEta"){
+      if(dirName == "DoubleEG2_pt0"){
         scaleFactorGraph->SetName("triggerScaleFactors_vsEt_etaBelow1p2");
         scaleFactorGraph->Write();
       }
-      if(dirName == "effVsPt_highEta"){
+      if(dirName == "DoubleEG2_pt1"){
         scaleFactorGraph->SetName("triggerScaleFactors_vsEt_etaAbove1p2");
         scaleFactorGraph->Write();
       }

@@ -55,8 +55,8 @@ bool doToys = false;
 // // Location of the files
  //const char* fDataName = "tnp_Ana_Data_trig_EG5.root";
  //const char* fMCName = "tnp_Ana_MCSL_trig_EG5.root";
-/* const char* fDataName = "tnp_Ana_Data_trig_EG5_fineEtabins_checkscet.root";
- const char* fMCName = "tnp_Ana_MC_trig_EG5_fineEtabins_checkscet.root";
+ const char* fDataName = "tnp_Ana_Data_trig_EG5_fineEtabins.root";
+ const char* fMCName = "tnp_Ana_MCSC_trig_EG5_fineEtabins.root";
  //const char* fDataName = "tnp_Ana_Data_trig_EG5_fineEtabins.root";
  //const char* fMCName = "tnp_Ana_MCSC_trig_EG5_fineEtabins.root";
 // //////////////////////////////////////////////////////////////////////////
@@ -71,12 +71,12 @@ bool doToys = false;
  TString cutTag("tnpQED"); 
  TString cutLegend("L1 EG2 trigger");
  TString absetaTag("DoubleEG2_EBEE");
- TString absetaVar("eta");
+ TString absetaVar("SCeta");
  ofstream file_sfs("correction_functions.txt");
 
  const double effmin = 0.;
  const double sfrange = 0.55;
-*/
+
 
 ////////////////////
 //     R E C O    //
@@ -84,8 +84,8 @@ bool doToys = false;
 
 
 // Location of the files
-const char* fDataName = "tnp_Ana_Data_EleRecoID_singleEG5_eta2p1.root";
-const char* fMCName = "tnp_Ana_Data_EleRecoID_singleEG5_eta2p1.root";
+/*const char* fDataName = "tnp_Ana_Data_EleRecoID_singleEG5.root";
+const char* fMCName = "tnp_Ana_MC_EleRecoID_singleEG5.root";
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -104,7 +104,7 @@ ofstream file_sfs("correction_functions.txt");
 
 const double effmin = 0.;
 const double sfrange = 0.55;
-
+*/
 
 // Function Define
 TH2F *plotEff2D(RooDataSet *a, TString b);
@@ -118,7 +118,7 @@ void CalEffErr(vector<TGraphAsymmErrors*> a, double **b);
 
 
 // From here you need to set up your environments.
-void TnPEffDraw() {
+void TnPEffDraw_SCEt() {
 
   // gROOT->Macro("~/logon.C");
   gROOT->SetStyle("Plain");
@@ -155,8 +155,8 @@ void TnPEffDraw() {
   
   for (unsigned int i=0; i<daPtData0.size(); i++)
   {
-     ComPt0.push_back(plotEff_1bin(daPtData0[i], 1, "pt"));
-     ComPt1.push_back(plotEff_1bin(daPtData1[i], 1, "pt"));
+     ComPt0.push_back(plotEff_1bin(daPtData0[i], 1, "SCEt"));
+     ComPt1.push_back(plotEff_1bin(daPtData1[i], 1, "SCEt"));
   }
 
 
@@ -173,8 +173,8 @@ void TnPEffDraw() {
 
   TGraphAsymmErrors* Com0Pt0 = plotEff_1bin(daPtMC1Bin0,0,absetaVar);
   TGraphAsymmErrors* Com0Pt1 = plotEff_1bin(daPtData1Bin0,0,absetaVar);
-  vector<TGraphAsymmErrors*> Com0AbsEta0 = plotEff_Nbins(daAbsEtaMC1,0,"pt",absetaVar);
-  vector<TGraphAsymmErrors*> Com0AbsEta1 = plotEff_Nbins(daAbsEtaData1,0,"pt",absetaVar);
+  vector<TGraphAsymmErrors*> Com0AbsEta0 = plotEff_Nbins(daAbsEtaMC1,0,"SCEt",absetaVar);
+  vector<TGraphAsymmErrors*> Com0AbsEta1 = plotEff_Nbins(daAbsEtaData1,0,"SCEt",absetaVar);
 
 
   int nbins_abseta = ComPt0.size();
@@ -294,7 +294,7 @@ void TnPEffDraw() {
      leg1->SetFillColor(0);
      leg1->SetBorderSize(0);
      leg1->SetTextSize(0.035);
-     double ptmin = ((RooRealVar*) daPtData0[i]->get()->find("pt"))->getBinning().binLow(0);
+     double ptmin = ((RooRealVar*) daPtData0[i]->get()->find("SCEt"))->getBinning().binLow(0);
      double etamin, etamax;
      if (daPtData0[i]->get()->find(absetaVar))
      {
@@ -305,8 +305,8 @@ void TnPEffDraw() {
      }
      else
      {
-        etamin = ((RooRealVar*) daPtData0[i]->get()->find("eta"))->getBinning().binLow(0);
-        etamax = ((RooRealVar*) daPtData0[i]->get()->find("eta"))->getBinning().binHigh(0);
+        etamin = ((RooRealVar*) daPtData0[i]->get()->find("SCeta"))->getBinning().binLow(0);
+        etamax = ((RooRealVar*) daPtData0[i]->get()->find("SCeta"))->getBinning().binHigh(0);
         // leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(p^{e}_{T}>%.1f, #eta #in [%.1f, %.1f])}",ptmin,etamin,etamax));
         leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(SC E_{T}>%.1f, #eta #in [%.1f, %.1f])}",ptmin,etamin,etamax));
      }
@@ -369,7 +369,7 @@ void TnPEffDraw() {
      // in case we are looking at muon Id + trigger: get the scale factor at the same time
 // #ifdef MUIDTRG
      pad1->cd();
-     double ptmax = ((RooRealVar*) daPtData0[i]->get()->find("pt"))->getMax();
+     double ptmax = ((RooRealVar*) daPtData0[i]->get()->find("SCEt"))->getMax();
      TLatex tchi; tchi.SetNDC();
      tchi.SetTextSize(0.035);
      double chi2, pval; int dof;
@@ -458,7 +458,7 @@ void TnPEffDraw() {
   leg1->SetFillColor(0);
   leg1->SetBorderSize(0);
   leg1->SetTextSize(0.035);
-  double ptmin = ((RooRealVar*) daEtaData0->get()->find("pt"))->getBinning().binLow(0);
+  double ptmin = ((RooRealVar*) daEtaData0->get()->find("SCEt"))->getBinning().binLow(0);
   // leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(p^{e}_{T}>%.1f)}",ptmin));
   leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(SC E_{T}>%.1f)}",ptmin));
   sprintf(legs,"MC Superchic: %.4f^{ + %.3f}_{ - %.3f}", Trk0[0], Trk0[1], Trk0[2]);
@@ -567,7 +567,7 @@ void formatTGraph(TGraph* a, int b, int c, int d)
     // a->GetXaxis()->SetTitle("p_{T} (GeV/c)"); 
     a->GetXaxis()->SetTitle("SC E_{T} (GeV/c)"); 
   }else if(d == 2){ 
-    a->GetXaxis()->SetTitle("eta"); 
+    a->GetXaxis()->SetTitle("SC #eta"); 
   }else if(d == 3){ 
     a->GetXaxis()->SetTitle("rapidity"); 
   }else if(d == 4){
@@ -712,8 +712,8 @@ vector<TGraphAsymmErrors*> plotEff_Nbins(RooDataSet *a, int aa, const char* varx
 
 TH2F *plotEff2D(RooDataSet *a, TString b){
   const RooArgSet *set = a->get();
-  RooRealVar *yAx = (RooRealVar*)set->find("pt");
-  RooRealVar *xAx = (RooRealVar*)set->find("eta");
+  RooRealVar *yAx = (RooRealVar*)set->find("SCEt");
+  RooRealVar *xAx = (RooRealVar*)set->find("SCeta");
   RooRealVar *eff = (RooRealVar*)set->find("efficiency");
 
   //const int xnbins = xAx->getBinning().numBins();
