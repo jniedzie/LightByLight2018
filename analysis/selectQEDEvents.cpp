@@ -68,6 +68,13 @@ int nExtrk;
 float SFweight_reco[16];
 float SFweight_trig[16];
 
+float  leadingEmEnergy_EB;
+float  leadingEmEnergy_EE;
+float  leadingHadEnergy_HB; 
+float  leadingHadEnergy_HE;
+float  leadingHadEnergy_HF_Plus;
+float  leadingHadEnergy_HF_Minus;
+
 /// initialise gen tree
 void InitGenTree(TTree *genTree) {
   genTree->Branch("gen_Pt",  &gen_Pt, "gen_Pt/F");
@@ -117,6 +124,12 @@ void InitTree(TTree *tr) {
   tr->Branch("nExtrk",              &nExtrk,          "nExtrk/I");
   tr->Branch("SFweight_reco",       SFweight_reco,    "SFweight_reco[16]/F");
   tr->Branch("SFweight_trig",       SFweight_trig,    "SFweight_trig[16]/F");
+  tr->Branch("leadingEmEnergy_EB",  &leadingEmEnergy_EB,"leadingEmEnergy_EB/F");
+  tr->Branch("leadingEmEnergy_EE",  &leadingEmEnergy_EE,"leadingEmEnergy_EE/F");
+  tr->Branch("leadingHadEnergy_HB",  &leadingHadEnergy_HB,"leadingHadEnergy_HB/F");
+  tr->Branch("leadingHadEnergy_HE",  &leadingHadEnergy_HE,"leadingHadEnergy_HE/F");
+  tr->Branch("leadingHadEnergy_HF_Plus",  &leadingHadEnergy_HF_Plus,"leadingHadEnergy_HF_Plus/F");
+  tr->Branch("leadingHadEnergy_HF_Minus",  &leadingHadEnergy_HF_Minus,"leadingHadEnergy_HF_Minus/F");
 }
 
 // reset gen variables
@@ -167,6 +180,13 @@ void ResetVars() {
   ok_chexcl = 0;
   ok_chexcl_extrk = 0;
   nExtrk = 0;
+
+  leadingEmEnergy_EB = 0;
+  leadingEmEnergy_EE = 0;
+  leadingHadEnergy_HB = 0; 
+  leadingHadEnergy_HE = 0;
+  leadingHadEnergy_HF_Plus = 0;
+  leadingHadEnergy_HF_Minus = 0;
 }
 
 
@@ -236,7 +256,7 @@ int main(int argc, char* argv[])
     
     // Check trigger
     //if(sampleName != "Data"){
-     if(!event->HasTrigger(kDoubleEG2noHF)) continue;
+     //if(!event->HasTrigger(kDoubleEG2noHF)) continue;
     //}
 
     trigger_passed++;
@@ -255,7 +275,8 @@ int main(int argc, char* argv[])
     auto genTracks = event->GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
     auto electron1 = event->GetPhysObjects(EPhysObjType::kGoodElectron)[0];
     auto electron2 = event->GetPhysObjects(EPhysObjType::kGoodElectron)[1];
-    
+    auto caloTower = event->GetPhysObjects(EPhysObjType::kCaloTower);
+
     if(electron1->GetCharge() == electron2->GetCharge()) continue;
     oppCharge++;
     hist->SetBinContent(3,oppCharge);      hist_wozdc->SetBinContent(3,oppCharge);
@@ -334,6 +355,69 @@ int main(int argc, char* argv[])
     ele_deta = fabs(eleEta_1 - eleEta_2);
     ele_dphi = getDPHI(elePhi_1,elePhi_2);
     ele_acop = 1- (ele_dphi/3.141592653589);  
+
+    float  EmEnergy_EB = 0;
+    float  EmEnergy_EE = 0;
+    float  HadEnergy_HB = 0;
+    float  HadEnergy_HE = 0;
+    float  HadEnergy_HF_Plus = 0;
+    float  HadEnergy_HF_Minus = 0;
+    
+    for(auto tower : caloTower){
+      
+      ECaloType subdetHad = tower->GetTowerSubdetHad();
+      ECaloType subdetEm = tower->GetTowerSubdetEm();
+
+      if(subdetEm==kEB){ // check EB exclusivity
+	if (getDPHI(tower->GetPhi(), elePhi_1)< config.params("maxDeltaPhiEB") && getDETA(tower->GetEta(), eleEta_1)<config.params("maxDeltaEtaEB")) continue;
+	if (getDPHI(tower->GetPhi(), elePhi_2)< config.params("maxDeltaPhiEB") && getDETA(tower->GetEta(), eleEta_2)<config.params("maxDeltaEtaEB")) continue;
+	if (tower->GetEnergyEm() > EmEnergy_EB){                         
+	  EmEnergy_EB = tower->GetEnergyEm();
+	}
+      }
+      
+      if(subdetEm==kEE){ // Check EE exclusivity
+      if(fabs(tower->GetEta()) > config.params("maxEtaEEtower")) continue;
+	if (getDPHI(tower->GetPhi(), elePhi_1)< config.params("maxDeltaPhiEE") && getDETA(tower->GetEta(), eleEta_1)<config.params("maxDeltaEtaEE")) continue;
+	if (getDPHI(tower->GetPhi(), elePhi_2)< config.params("maxDeltaPhiEE") && getDETA(tower->GetEta(), eleEta_2)<config.params("maxDeltaEtaEE")) continue;
+	if (tower->GetEnergyEm() > EmEnergy_EE){                         
+	  EmEnergy_EE = tower->GetEnergyEm();
+	}
+      }
+      
+      if(subdetHad==kHB){ // Check HB exclusivity
+	if(tower->GetEnergyHad() > HadEnergy_HB){
+	  HadEnergy_HB = tower->GetEnergyHad();
+	}
+      }
+      
+      if(subdetHad==kHE){ // Check HE exclusivity
+	if(tower->GetEnergyHad() > HadEnergy_HE){
+	  HadEnergy_HE = tower->GetEnergyHad();
+	}
+      }
+      
+      if(subdetHad==kHFp){ // Check HF exclusivity
+	if(tower->GetEnergy() > HadEnergy_HF_Plus){
+	  HadEnergy_HF_Plus = tower->GetEnergy();
+	}
+      } // HF exclusivity plus
+      
+      if(subdetHad==kHFm){ // Check HF exclusivity
+	if(tower->GetEnergy() > HadEnergy_HF_Minus){
+	  HadEnergy_HF_Minus = tower->GetEnergy();
+	}
+      } // HF exclusivity minus
+    }//tower
+    
+    
+    leadingEmEnergy_EB = EmEnergy_EB;
+    leadingEmEnergy_EE = EmEnergy_EE;
+    leadingHadEnergy_HB = HadEnergy_HB;
+    leadingHadEnergy_HE = HadEnergy_HE;
+    leadingHadEnergy_HF_Plus = HadEnergy_HF_Plus;
+    leadingHadEnergy_HF_Minus = HadEnergy_HF_Minus;
+    
     
     if(ok_chexcl_extrk==1){
       charged_excl++;

@@ -30,6 +30,8 @@ analysis/libAnalysis.a
 analysis/getEfficienciesQED_tnpEC
 analysis/getRecoIDEfficienciesQED_MC
 analysis/selectQEDEvents
+analysis/getPhotonRecoIDEfficiencies
+analysis/runDumpEvent
 
 analysis/*.root
 
