@@ -291,7 +291,8 @@ int main(int argc, char* argv[])
 
     auto goodElectrons = event->GetPhysObjects(EPhysObjType::kGoodElectron);
     auto genTracks = event->GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
-    auto allElectrons = event->GetPhysObjects(EPhysObjType::kElectron);
+    //auto allElectrons = event->GetPhysObjects(EPhysObjType::kElectron);
+    auto allElectrons = event->GetPhysObjects(EPhysObjType::kElectronInAcceptance);
 
     if(allElectrons.size()>2) continue;
     if(goodElectrons.size()>2) continue;
