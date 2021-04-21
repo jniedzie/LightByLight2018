@@ -12,7 +12,7 @@ config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'runForestAOD_pponAA_MC_103X.py'
 config.JobType.maxMemoryMB = 4000
 
-config.Data.inputDataset ='/QEDGammaGamma_5p02TeV_STARlight/HINPbPbAutumn18DR-NoPUlowPtPhotonReg_LbyL_103X_upgrade2018_realistic_HI_LowPtPhotonReg_v2-v2/AODSIM'
+config.Data.inputDataset ='/QEDGammaGamma_5p02TeV_STARlight/HINPbPbAutumn18DR-NoPUlowPtPhotonReg_LbyL_103X_upgrade2018_realistic_HI_LowPtPhotonReg_v2-v5/AODSIM'
 # config.Data.userInputFiles = open('input_mc_qed_sl.txt').readlines()
 
 config.JobType.allowUndistributedCMSSW = True
@@ -20,7 +20,8 @@ config.JobType.allowUndistributedCMSSW = True
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
 
-config.Data.outLFNDirBase = '/store/group/phys_diffraction/lbyl_2018/mc_qed/ntuples_sl_full_lumi'
+#config.Data.outLFNDirBase = '/store/group/phys_diffraction/lbyl_2018/mc_qed/ntuples_sl_full_lumi'
+config.Data.outLFNDirBase = '/store/group/phys_heavyions/rchudasa/lbyl_2018/mc_qed'
 config.Data.allowNonValidInputDataset = True
 config.Data.publication = False
 config.Data.outputDatasetTag = 'reco_mc_qed_sl_full_lumi'

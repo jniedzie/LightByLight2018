@@ -12,6 +12,7 @@
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "HeavyIonsAnalysis/PhotonAnalysis/interface/GenParticleParentage.h"
 #include "HeavyIonsAnalysis/PhotonAnalysis/interface/ggHiNtuplizer.h"
 #include "HeavyIonsAnalysis/PhotonAnalysis/src/pfIsoCalculator.h"
@@ -54,8 +55,12 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
       eleTightIdMapToken_     = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronTightID"));
     }
   }
-  if (doPhotons_)
+  if (doPhotons_){
     recoPhotonsCollection_  = consumes<edm::View<reco::Photon>>(ps.getParameter<edm::InputTag>("recoPhotonSrc"));
+    ebReducedRecHitCollection_ = consumes<EcalRecHitCollection>          (ps.getParameter<edm::InputTag>("ebReducedRecHitCollection"));
+    eeReducedRecHitCollection_ = consumes<EcalRecHitCollection>          (ps.getParameter<edm::InputTag>("eeReducedRecHitCollection"));
+    esReducedRecHitCollection_ = consumes<EcalRecHitCollection>          (ps.getParameter<edm::InputTag>("esReducedRecHitCollection")); 
+ }
   if (doMuons_)
     recoMuonsCollection_    = consumes<edm::View<reco::Muon>>(ps.getParameter<edm::InputTag>("recoMuonSrc"));
   vtxCollection_          = consumes<std::vector<reco::Vertex>>(ps.getParameter<edm::InputTag>("VtxLabel"));
@@ -91,7 +96,7 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
 
   //**addition for LbyL analysis
   doGeneralTracks_          = ps.getParameter<bool>("doGeneralTracks");
-  doPixelTracks_          = ps.getParameter<bool>("doPixelTracks");
+  doPixelTracks_            = ps.getParameter<bool>("doPixelTracks");
   doCaloTower_              = ps.getParameter<bool>("doCaloTower");
   doTrackerHits_            = ps.getParameter<bool>("doTrackerHits");
   
@@ -1670,6 +1675,18 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
       e.getByToken(recHitsEE_, recHitsEEHandle);
   }
 
+  edm::Handle<EcalRecHitCollection> ecalhitsCollEB;
+  e.getByToken(ebReducedRecHitCollection_, ecalhitsCollEB);
+
+  edm::Handle<EcalRecHitCollection> ecalhitsCollEE;
+  e.getByToken(eeReducedRecHitCollection_, ecalhitsCollEE);
+
+  edm::Handle<EcalRecHitCollection> ecalhitsCollES;
+  e.getByToken(esReducedRecHitCollection_, ecalhitsCollES);
+
+
+  EcalClusterLazyTools       lazyTool    (e, es, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
+
   // loop over photons
   for (auto pho = recoPhotonsHandle->begin(); pho != recoPhotonsHandle->end(); ++pho) {
 
@@ -1840,6 +1857,19 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
         phoBC1rawID_    .push_back(0);
     }
 
+    DetId seed = (pho->superCluster()->seed()->hitsAndFractions())[0].first;
+    bool isBarrel = seed.subdetId() == EcalBarrel;
+    const EcalRecHitCollection * rechits = (isBarrel?lazyTool.getEcalEBRecHitCollection():lazyTool.getEcalEERecHitCollection());
+    
+    EcalRecHitCollection::const_iterator theSeedHit = rechits->find(seed);
+    if (theSeedHit != rechits->end()) {
+      //std::cout<<"(*theSeedHit).time()"<<(*theSeedHit).time()<<"seed energy: "<<(*theSeedHit).energy()<<std::endl;  
+      
+      pho_seedTime_  .push_back((*theSeedHit).time());
+    } else{
+      pho_seedTime_  .push_back(-99.);
+    }
+    
     // parameters of the very first PFCluster
     // reco::CaloCluster_iterator bc = pho->superCluster()->clustersBegin();
     // if (bc != pho->superCluster()->clustersEnd()) {
@@ -1853,7 +1883,7 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
     if (useValMapIso_) {
       unsigned int idx = pho - recoPhotonsHandle->begin();
       edm::RefToBase<reco::Photon> photonRef = recoPhotonsHandle->refAt(idx);
-
+      
       pho_ecalClusterIsoR2_.push_back(isoMap[photonRef].ecalClusterIsoR2());
       pho_ecalClusterIsoR3_.push_back(isoMap[photonRef].ecalClusterIsoR3());
       pho_ecalClusterIsoR4_.push_back(isoMap[photonRef].ecalClusterIsoR4());
@@ -1868,8 +1898,8 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
       pho_trackIsoR3PtCut20_.push_back(isoMap[photonRef].trackIsoR3PtCut20());
       pho_trackIsoR4PtCut20_.push_back(isoMap[photonRef].trackIsoR4PtCut20());
       pho_trackIsoR5PtCut20_.push_back(isoMap[photonRef].trackIsoR5PtCut20());
-      pho_swissCrx_.push_back(isoMap[photonRef].swissCrx());
-      pho_seedTime_.push_back(isoMap[photonRef].seedTime());
+      //pho_swissCrx_.push_back(isoMap[photonRef].swissCrx());
+      //pho_seedTime_.push_back(isoMap[photonRef].seedTime());
     }
 
     if (doRecHitsEB_ || doRecHitsEE_) {
@@ -2067,7 +2097,7 @@ void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, re
 
   for (const auto& mu : *recoMuonsHandle) {
     
-    if (mu.pt() < 3.0) continue;
+    //if (mu.pt() < 3.0) continue;
     if (!(mu.isPFMuon() || mu.isGlobalMuon() || mu.isTrackerMuon())) continue;
 
     muPt_    .push_back(mu.pt());

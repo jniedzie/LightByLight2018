@@ -102,7 +102,9 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    edm::EDGetTokenT<edm::View<reco::PFCandidate> >    pfCollection_;
 
    edm::EDGetToken particleBasedIsolationPhoton_;
-
+   edm::EDGetTokenT<EcalRecHitCollection>           ebReducedRecHitCollection_;
+   edm::EDGetTokenT<EcalRecHitCollection>           eeReducedRecHitCollection_;
+   edm::EDGetTokenT<EcalRecHitCollection>           esReducedRecHitCollection_; 
    edm::EDGetTokenT<EcalRecHitCollection> recHitsEB_;
    edm::EDGetTokenT<EcalRecHitCollection> recHitsEE_;
    edm::EDGetTokenT<reco::TrackCollection>    generalTracks_;

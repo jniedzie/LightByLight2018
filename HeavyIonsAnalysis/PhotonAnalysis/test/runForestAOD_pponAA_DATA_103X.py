@@ -33,7 +33,8 @@ process.source = cms.Source("PoolSource",
 
         #"file:/afs/cern.ch/work/r/rbi/public/forest/HIHardProbes_HIRun2018A-PromptReco-v2_AOD.root"
         # "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/B3B60266-96AA-A146-8658-4FE0F40F9D00.root"
-        "/store/hidata/HIRun2018A/HIEmptyBX/AOD/27Feb2019-v1/110000/63642B26-DA82-934B-A025-2520A60462B4.root"
+        #"/store/hidata/HIRun2018A/HIEmptyBX/AOD/27Feb2019-v1/110000/63642B26-DA82-934B-A025-2520A60462B4.root"
+        "/store/hidata/HIRun2018A/HIForward/AOD/ForLByL-v2/20000/01A52D57-2199-354D-AAA5-BEF26229F7FC.root"
         # "file:/eos/cms/store/hidata/HIRun2018A/HIEmptyBX/AOD/27Feb2019-v1/110000/450F2ABE-73C8-DC41-A53E-A2AFB5993430.root"
         # 'file:B3B60266-96AA-A146-8658-4FE0F40F9D00.root'
         #"file:/afs/cern.ch/work/r/rchudasa/private/hiforest_1034/CMSSW_10_3_4/src/from_old_1034_repo/step3_RAW2DIGI_L1Reco_RECO.root"
