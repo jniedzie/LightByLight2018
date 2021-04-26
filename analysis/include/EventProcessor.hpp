@@ -72,6 +72,7 @@ private:
   vector<float> *photonEleft            = nullptr;
   vector<float> *photonEright           = nullptr;
   vector<int>   *photonIsConverted      = nullptr;
+  vector<float> *photonSeedTime         = nullptr;
   
   vector<float> *towerEta               = nullptr;
   vector<float> *towerPhi               = nullptr;
@@ -89,6 +90,7 @@ private:
   vector<int>   *generalTrackMissingHits= nullptr;
   vector<int>   *generalTrackPurity     = nullptr;
   vector<float> *generalTrackChi2       = nullptr;
+  vector<float> *generalTrackD0         = nullptr;
   vector<float> *generalTrackDxy        = nullptr;
   vector<float> *generalTrackDz         = nullptr;
   vector<float> *generalTrackDxyErr     = nullptr;
@@ -109,6 +111,7 @@ private:
   vector<float> *electronSCEta          = nullptr;
   vector<float> *electronSCEt           = nullptr;
   vector<float> *electronSCPhi          = nullptr;
+  vector<float> *electronEn             = nullptr;
   vector<float> *electronSCEn           = nullptr;
   vector<float> *electronChIso          = nullptr;
   vector<float> *electronPhoIso         = nullptr;

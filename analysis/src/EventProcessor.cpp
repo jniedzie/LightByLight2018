@@ -75,6 +75,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("phoELeft"              , &photonEleft);
   eventTree->SetBranchAddress("phoERight"             , &photonEright);
   eventTree->SetBranchAddress("phoHasConversionTracks", &photonIsConverted);
+  eventTree->SetBranchAddress("pho_seedTime"          , &photonSeedTime);
   
   eventTree->SetBranchAddress("nTower"                , &nPhysObjects.at(EPhysObjType::kCaloTower));
   eventTree->SetBranchAddress("CaloTower_hadE"        , &towerEnergyHad);
@@ -94,6 +95,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("trkMissHits"           , &generalTrackMissingHits);
   eventTree->SetBranchAddress("trkPurity"             , &generalTrackPurity);
   eventTree->SetBranchAddress("trknormchi2"           , &generalTrackChi2);
+  eventTree->SetBranchAddress("trkd0"                 , &generalTrackD0);
   eventTree->SetBranchAddress("trkdxy"                , &generalTrackDxy);
   eventTree->SetBranchAddress("trkdz"                 , &generalTrackDz);
   eventTree->SetBranchAddress("trkdxyError"           , &generalTrackDxyErr);
@@ -115,6 +117,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("eleSCEta"              , &electronSCEta);
 //  eventTree->SetBranchAddress("eleSCEt"               , &electronSCEt);
   eventTree->SetBranchAddress("eleSCPhi"              , &electronSCPhi);
+  eventTree->SetBranchAddress("eleEn"                 , &electronEn);
   eventTree->SetBranchAddress("eleSCEn"               , &electronSCEn);
   
   eventTree->SetBranchAddress("elePFChIso"        , &electronChIso);
@@ -339,6 +342,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     if(photonEright)  photon->energyRight  = photonEright->at(iPhoton);
     
     photon->hasConversionTracks = photonIsConverted->at(iPhoton);
+    photon->seedTime            = photonSeedTime->at(iPhoton);
     
     currentEvent->physObjects.at(EPhysObjType::kPhoton).push_back(photon);
   }
@@ -377,6 +381,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     track->nMissingHits = generalTrackMissingHits->at(iTrack);
     track->purity       = generalTrackPurity->at(iTrack);
     track->chi2         = generalTrackChi2->at(iTrack);
+    track->d0           = generalTrackD0->at(iTrack);
     track->dxy          = generalTrackDxy->at(iTrack);
     track->dz           = generalTrackDz->at(iTrack);
     track->dxyErr       = generalTrackDxyErr->at(iTrack);
@@ -406,6 +411,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     electron->etaSC        = electronSCEta->at(iElectron);
 //    electron->etSC         = electronSCEt->at(iElectron);
     electron->phiSC        = electronSCPhi->at(iElectron);
+    electron->energy       = electronEn->at(iElectron);
     electron->energySC     = electronSCEn->at(iElectron);
     electron->chargedIso   = electronChIso->at(iElectron);
     electron->photonIso    = electronPhoIso->at(iElectron);

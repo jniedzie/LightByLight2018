@@ -240,7 +240,7 @@ int main(int argc, char* argv[])
     ResetGenVars();  
     ResetVars();  
     
-    if(sampleName == "QED_SC" || sampleName == "QED_SL" || sampleName == "LbL" || sampleName == "CEP"){
+   /* if(sampleName == "QED_SC" || sampleName == "QED_SL" || sampleName == "LbL" || sampleName == "CEP"){
     auto genP = event->GetPhysObjects(EPhysObjType::kGenParticle);
      for(auto gen : genP ){
 	ResetGenVars();
@@ -252,11 +252,11 @@ int main(int argc, char* argv[])
 	} // PID
      } //genpartcle 
     } //samplename
-    
+    */
     
     // Check trigger
     //if(sampleName != "Data"){
-     //if(!event->HasTrigger(kDoubleEG2noHF)) continue;
+     if(!event->HasTrigger(kDoubleEG2noHF)) continue;
     //}
 
     trigger_passed++;
@@ -277,7 +277,7 @@ int main(int argc, char* argv[])
     auto electron2 = event->GetPhysObjects(EPhysObjType::kGoodElectron)[1];
     auto caloTower = event->GetPhysObjects(EPhysObjType::kCaloTower);
 
-    if(electron1->GetCharge() == electron2->GetCharge()) continue;
+    if(electron1->GetCharge() != electron2->GetCharge()) continue;
     oppCharge++;
     hist->SetBinContent(3,oppCharge);      hist_wozdc->SetBinContent(3,oppCharge);
     

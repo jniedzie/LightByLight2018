@@ -249,14 +249,14 @@ PhysObjects Event::GetGoodElectrons(TH1D *cutFlowHist)
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 7
     
     // Check isolation
-    //if(electron->GetChargedIso() >= config.params("electronMaxChargedIso"+subdet)) continue;
-    //if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 8
+    if(electron->GetChargedIso() >= config.params("electronMaxChargedIso"+subdet)) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 8
     
-    //if(electron->GetPhotonIso()  >= config.params("electronMaxPhotonIso"+subdet))  continue;
-    //if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 9
+    if(electron->GetPhotonIso()  >= config.params("electronMaxPhotonIso"+subdet))  continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 9
     
-    //if(electron->GetNeutralIso() >= config.params("electronMaxNeutralIso"+subdet)) continue;
-    //if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
+    if(electron->GetNeutralIso() >= config.params("electronMaxNeutralIso"+subdet)) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
 
     physObjects.at(EPhysObjType::kGoodElectron).push_back(electron);
   }

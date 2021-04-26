@@ -1,6 +1,7 @@
 #!/bin/bash
 
-configPath="/afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation.md"
+configPath="/afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/configs/efficiencies.md"
+#configPath="/afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation.md"
 
 inputPath=""
 outputPath=""
@@ -8,7 +9,7 @@ sampleName=""
 
 basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
 
-suffix="_deta_dphi_cuts_20210219"
+suffix="_eleIsolationApplied_24March21"
 
 if [ $2 -eq 0 ]
 then

@@ -45,115 +45,158 @@ float tag_L1Eta_passEG3;
 float tag_L1Et_passEG5;
 float tag_L1Eta_passEG5;
 int nPho_notag;
+float phoEt_notag;
+float phoEta_notag;
+float phoPhi_notag;
+float phoAco_notag;
 float phoSCEt_notag;
 float phoSCEta_notag;
 float phoSCPhi_notag;
-float phoAco;
+float phoSCAco_notag;
 
 int ok_probeTrk;
 int nprobeTrk;
-float probetkPt, probetkEta, probetkPhi, probeTkMinDphi, probetkAco; 
-int probetkCharge; 
-float probetkMinDpt, probetkMinDet;
-
+float probetkPt, probetkEta, probetkPhi, probeTkMinDphi, probetkAco; int probetkCharge; float probetkMinDpt, probetkMinDet;
+float probetkvx; float probetkvy; float probetkvz; float probetkd0; float probetkdxy; float probetkdz; float probetkdxyError; 
+float probetkdzError; int probetkValidHits; int probetkMissHits;  float diffPt_probetkEleGamma, diffEt_probetkEleGamma;
+float diffSCPt_probetkEleGamma, diffSCEt_probetkEleGamma;
 
 /// initialise tree
 void InitTree(TTree *tr) {
-   tr->Branch("run",&run,"run/I");
-   tr->Branch("ls",&ls,"ls/I");
-   tr->Branch("evtnb",&evtnb,"evtnb/I");
-   tr->Branch("nTag",   &nTag,   "nTag/I");
-   tr->Branch("tag_charge",&tag_charge,"tag_charge/I");
-   tr->Branch("tag_Et",&tag_Et,"tag_Et/F");
-   tr->Branch("tag_SCEt",&tag_SCEt,"tag_SCEt/F");
-   tr->Branch("tag_SCEta",&tag_SCEta,"tag_SCEta/F");
-   tr->Branch("tag_SCPhi",&tag_SCPhi,"tag_SCPhi/F");
-   tr->Branch("tag_pt",&tag_pt,"tag_pt/F");
-   tr->Branch("tag_eta",&tag_eta,"tag_eta/F");
-   tr->Branch("tag_phi",&tag_phi,"tag_phi/F");
-   tr->Branch("pass_EG3",&pass_EG3,"pass_EG3/I");
-   tr->Branch("pass_EG5",&pass_EG5,"pass_EG5/I");
-   tr->Branch("tag_L1Et_passEG3",&tag_L1Et_passEG3,"tag_L1Et_passEG3/F");
-   tr->Branch("tag_L1Eta_passEG3",&tag_L1Eta_passEG3,"tag_L1Eta_passEG3/F");
-   tr->Branch("tag_L1Et_passEG5",&tag_L1Et_passEG5,"tag_L1Et_passEG5/F");
-   tr->Branch("tag_L1Eta_passEG5",&tag_L1Eta_passEG5,"tag_L1Eta_passEG5/F");
-   tr->Branch("swissCross",&swissCross,"swissCross/F");
-   tr->Branch("etaWidth",&etaWidth,"etaWidth/F");
-   tr->Branch("HoE",&HoE,"HoE/F");
-   tr->Branch("ok_photon",&ok_photon,"ok_photon/I");
-   tr->Branch("ok_ID",&ok_ID,"ok_ID/I");
-   tr->Branch("ok_etaWidth",&ok_etaWidth,"ok_etaWidth/I");
-   tr->Branch("ok_swissCross",&ok_swissCross,"ok_swissCross/I");
-   tr->Branch("ok_HoE",&ok_HoE,"ok_HoE/I");
-   tr->Branch("nPho_notag",   &nPho_notag,   "nPho_notag/I");
-   tr->Branch("phoSCEt_notag",&phoSCEt_notag,"phoSCEt_notag/F");
-   tr->Branch("phoSCEta_notag",&phoSCEta_notag,"phoSCEta_notag/F");
-   tr->Branch("phoSCPhi_notag",&phoSCPhi_notag,"phoSCPhi_notag/F");
-   tr->Branch("phoAco",&phoAco,"phoAco/F");
-   tr->Branch("ok_probeTrk",&ok_probeTrk,"ok_probeTrk/I");
-   tr->Branch("nprobeTrk",   &nprobeTrk,   "nprobeTrk/I");
-   tr->Branch("probetkCharge",&probetkCharge,"probetkCharge/I");
-   tr->Branch("probetkPt",&probetkPt,"probetkPt/F");
-   tr->Branch("probetkEta",&probetkEta,"probetkEta/F");
-   tr->Branch("probetkPhi",&probetkPhi,"probetkPhi/F");
-   tr->Branch("probetkMinDpt",&probetkMinDpt,"probetkMinDpt/F");
-   tr->Branch("probetkAco",&probetkAco,"probetkAco/F");
+  tr->Branch("run",&run,"run/I");
+  tr->Branch("ls",&ls,"ls/I");
+  tr->Branch("evtnb",&evtnb,"evtnb/I");
+  tr->Branch("nTag",   &nTag,   "nTag/I");
+  tr->Branch("tag_charge",&tag_charge,"tag_charge/I");
+  tr->Branch("tag_Et",&tag_Et,"tag_Et/F");
+  tr->Branch("tag_SCEt",&tag_SCEt,"tag_SCEt/F");
+  tr->Branch("tag_SCEta",&tag_SCEta,"tag_SCEta/F");
+  tr->Branch("tag_SCPhi",&tag_SCPhi,"tag_SCPhi/F");
+  tr->Branch("tag_pt",&tag_pt,"tag_pt/F");
+  tr->Branch("tag_eta",&tag_eta,"tag_eta/F");
+  tr->Branch("tag_phi",&tag_phi,"tag_phi/F");
+  tr->Branch("pass_EG3",&pass_EG3,"pass_EG3/I");
+  tr->Branch("pass_EG5",&pass_EG5,"pass_EG5/I");
+  tr->Branch("tag_L1Et_passEG3",&tag_L1Et_passEG3,"tag_L1Et_passEG3/F");
+  tr->Branch("tag_L1Eta_passEG3",&tag_L1Eta_passEG3,"tag_L1Eta_passEG3/F");
+  tr->Branch("tag_L1Et_passEG5",&tag_L1Et_passEG5,"tag_L1Et_passEG5/F");
+  tr->Branch("tag_L1Eta_passEG5",&tag_L1Eta_passEG5,"tag_L1Eta_passEG5/F");
+  tr->Branch("swissCross",&swissCross,"swissCross/F");
+  tr->Branch("etaWidth",&etaWidth,"etaWidth/F");
+  tr->Branch("HoE",&HoE,"HoE/F");
+  tr->Branch("ok_photon",&ok_photon,"ok_photon/I");
+  tr->Branch("ok_ID",&ok_ID,"ok_ID/I");
+  tr->Branch("ok_etaWidth",&ok_etaWidth,"ok_etaWidth/I");
+  tr->Branch("ok_swissCross",&ok_swissCross,"ok_swissCross/I");
+  tr->Branch("ok_HoE",&ok_HoE,"ok_HoE/I");
+  tr->Branch("nPho_notag",   &nPho_notag,   "nPho_notag/I");
+  tr->Branch("phoEt_notag",&phoEt_notag,"phoEt_notag/F");
+  tr->Branch("phoEta_notag",&phoEta_notag,"phoEta_notag/F");
+  tr->Branch("phoPhi_notag",&phoPhi_notag,"phoPhi_notag/F");
+  tr->Branch("phoAco_notag",&phoAco_notag,"phoAco_notag/F");
+  tr->Branch("phoSCEt_notag",&phoSCEt_notag,"phoSCEt_notag/F");
+  tr->Branch("phoSCEta_notag",&phoSCEta_notag,"phoSCEta_notag/F");
+  tr->Branch("phoSCPhi_notag",&phoSCPhi_notag,"phoSCPhi_notag/F");
+  tr->Branch("phoSCAco_notag",&phoSCAco_notag,"phoSCAco_notag/F");
+  tr->Branch("ok_probeTrk",&ok_probeTrk,"ok_probeTrk/I");
+  tr->Branch("nprobeTrk",   &nprobeTrk,   "nprobeTrk/I");
+  tr->Branch("probetkCharge",&probetkCharge,"probetkCharge/I");
+  tr->Branch("probetkPt",&probetkPt,"probetkPt/F");
+  tr->Branch("probetkEta",&probetkEta,"probetkEta/F");
+  tr->Branch("probetkPhi",&probetkPhi,"probetkPhi/F");
+  tr->Branch("probetkMinDpt",&probetkMinDpt,"probetkMinDpt/F");
+  tr->Branch("probetkMinDet",&probetkMinDet,"probetkMinDet/F");
+  tr->Branch("diffPt_probetkEleGamma",&diffPt_probetkEleGamma,"diffPt_probetkEleGamma/F");
+  tr->Branch("diffEt_probetkEleGamma",&diffEt_probetkEleGamma,"diffEt_probetkEleGamma/F");
+
+  tr->Branch("diffSCPt_probetkEleGamma",&diffSCPt_probetkEleGamma,"diffSCPt_probetkEleGamma/F");
+  tr->Branch("diffSCEt_probetkEleGamma",&diffSCEt_probetkEleGamma,"diffSCEt_probetkEleGamma/F");
+
+  tr->Branch("probetkAco",&probetkAco,"probetkAco/F");
+  tr->Branch("probetkvx",&probetkvx,"probetkvx/F");
+  tr->Branch("probetkvy",&probetkvy,"probetkvy/F");
+  tr->Branch("probetkvz",&probetkvz,"probetkvz/F");
+  tr->Branch("probetkd0",&probetkd0,"probetkd0/F");
+  tr->Branch("probetkdxy",&probetkdxy,"probetkdxy/F");
+  tr->Branch("probetkdz",&probetkdz,"probetkdz/F");
+  tr->Branch("probetkdxyError",&probetkdxyError,"probetkdxyError/F");
+  tr->Branch("probetkdzError",&probetkdzError,"probetkdzError/F");
+  tr->Branch("probetkValidHits",&probetkValidHits,"probetkValidHits/I");
+  tr->Branch("probetkMissHits",&probetkMissHits,"probetkMissHits/I");
 }
 
 // reset event variables
 void ResetEventVars() {
-  run = -999;
-  ls = -999;
+  run   = -999;
+  ls    = -999;
   evtnb = -999;
 }
 
 // reset tag variables
 void ResetTagVars() {
   nTag=0;
-  pass_EG3 = -999;
-  pass_EG5 = -999;
+  pass_EG3   = -999;
+  pass_EG5   = -999;
   tag_charge = -999;
-  tag_Et = -999;
-  tag_SCEt = -999;
-  tag_SCEta = -999;
-  tag_SCPhi = -999;
-  tag_pt = -999;
-  tag_eta = -999;
-  tag_phi = -999;
-  tag_L1Et_passEG3 = -999;
+  tag_Et     = -999;
+  tag_SCEt   = -999;
+  tag_SCEta  = -999;
+  tag_SCPhi  = -999;
+  tag_pt     = -999;
+  tag_eta    = -999;
+  tag_phi    = -999;
+  tag_L1Et_passEG3  = -999;
   tag_L1Eta_passEG3 = -999;
-  tag_L1Et_passEG5 = -999;
+  tag_L1Et_passEG5  = -999;
   tag_L1Eta_passEG5 = -999;
 }
 
 // reset passing probe variables
 void ResetPassingProbeVars() {
-   swissCross = -999;
-   etaWidth = -999;
-   HoE = -999;
-   ok_photon = -999;
-   ok_ID = -999;
-   ok_etaWidth = -999;
-   ok_swissCross = -999;
-   ok_HoE = -999;
-   nPho_notag= 0;
-   phoSCEt_notag = -999;
+   swissCross     = -999;
+   etaWidth       = -999;
+   HoE            = -999;
+   ok_photon      = -999;
+   ok_ID          = -999;
+   ok_etaWidth    = -999;
+   ok_swissCross  = -999;
+   ok_HoE         = -999;
+   nPho_notag     = 0;
+   phoEt_notag    = -999;
+   phoEta_notag   = -999;
+   phoPhi_notag   = 999;
+   phoAco_notag   = 999;
+   phoSCEt_notag  = -999;
    phoSCEta_notag = -999;
    phoSCPhi_notag = 999;
-   phoAco = 999;
+   phoSCAco_notag = 999;
 }
 
 // reset probe variables
 void ResetProbeVars() {
-   ok_probeTrk = -999;
-   nprobeTrk = 0;
-   probetkPt = -999;
-   probetkEta = -999; 
-   probetkPhi = -999;
-   probeTkMinDphi = 999;
-   probetkAco = 999;
-   probetkMinDpt=999.;
-   probetkMinDet=999.;
+   ok_probeTrk       = -999;
+   nprobeTrk         = 0;
+   probetkPt         = -999;
+   probetkEta        = -999; 
+   probetkPhi        = -999;
+   probeTkMinDphi    = 999;
+   probetkAco        = 999;
+   probetkMinDpt     = 999.;
+   probetkMinDet     = 999.;
+   diffPt_probetkEleGamma   = 999.;
+   diffEt_probetkEleGamma   = 999.;
+   diffSCPt_probetkEleGamma   = 999.;
+   diffSCEt_probetkEleGamma   = 999.;
+   probetkvx         = 999.; 
+   probetkvy         = 999.;
+   probetkvz         = 999.;
+   probetkd0         = 999.;
+   probetkdxy        = 999.; 
+   probetkdz         = 999.;
+   probetkdxyError   = 999.; 
+   probetkdzError    = 999.;
+   probetkValidHits  = 999.; 
+   probetkMissHits   = 999.;
 }
 
 /// trigger matching
@@ -201,9 +244,8 @@ shared_ptr<PhysObject> UnMatched(PhysObject obj, PhysObjects electrons, double d
   for (auto& ele : electrons) {
     double deltaR = physObjectProcessor.GetDeltaR(obj, *ele);
     if (deltaR < minDR) continue;
-      ans = static_pointer_cast<PhysObject>(ele);
+    ans = static_pointer_cast<PhysObject>(ele);
   }
-  
   return ans;
 }
 
@@ -242,12 +284,12 @@ int main(int argc, char* argv[])
   auto events = make_unique<EventProcessor>(inputPath, dataset);
   
   int tag_loop = 0; int probeTrk_loop = 0; int photon_loop = 0;
-
+  
   int cnt[10] = {0};
   
   // Loop over events
+  //for(int iEvent=0; iEvent<10000; iEvent++){
   for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
-    //for(int iEvent=50000; iEvent<55600; iEvent++){
     if(iEvent%1000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
     if(iEvent >= config.params("maxEvents")) break;
     
@@ -271,14 +313,14 @@ int main(int argc, char* argv[])
     cnt[1]++;
     if(goodPhoton.size()>2) continue;
     cnt[2]++;
-    if(genTracks.size()!=2) continue;
+    if(genTracks.size()!=2 || genTracks.size()!=3) continue;
     cnt[3]++;
-    
+   
     auto track1 = genTracks[0];
     auto track2 = genTracks[1];
     if(track1->GetCharge() == track2->GetCharge()) continue;
     cnt[4]++; 
-    
+     
     // find the tag electron
     PhysObjects goodMatchedElectrons;
     
@@ -312,7 +354,8 @@ int main(int argc, char* argv[])
     cnt[5]++;
     
     tag_charge = theTag->GetCharge();
-    tag_Et     = theTag->GetEt();
+    //tag_Et     = theTag->GetEnergy();
+    tag_Et     = theTag->GetEnergy()*sin(2.*atan(exp(-theTag->GetEtaSC()))); 
     tag_pt     = theTag->GetPt();
     tag_eta    = theTag->GetEta();
     tag_phi    = theTag->GetPhi();
@@ -321,7 +364,8 @@ int main(int argc, char* argv[])
     tag_SCPhi  = theTag->GetPhiSC();
     
     Log(1) << iEvent <<  "\n" ;
-    Log(1) << iEvent << "Tag pt:" << tag_pt << "Tag eta:" <<  tag_eta << "phi:" << tag_phi << "\n" ;
+    Log(1) << iEvent << "Tag pt:" << tag_pt << "  eta:" <<  tag_eta << "  phi:" << tag_phi << "  energy:" << tag_Et;
+    Log(1) << "  SC energy:" << theTag->GetEnergySC()  << "\n" ;
     
     
     ResetPassingProbeVars();
@@ -334,69 +378,99 @@ int main(int argc, char* argv[])
       double deltaR = physObjectProcessor.GetDeltaR_SC(*photon, *theTag);	
       auto unmathched_photon = UnMatched(*photon, goodElectrons);
       //if(unmathched_photon){
-	if (deta<0.15 && dphi<0.7) continue;
-	photon_loop++;
-	ok_photon = 1;
-	nPho_notag++;
-	phoSCEt_notag  = photon->GetEnergySC()*sin(2.*atan(exp(-photon->GetEtaSC()))); 
-	phoSCEta_notag = photon->GetEtaSC();
-	phoSCPhi_notag = photon->GetPhiSC();
-	phoAco         = acop(theTag->GetPhi() - phoSCPhi_notag);
-	Log(0) << iEvent << "  photon event:" << photon_loop << "  photon pt:" << phoSCEt_notag << "   eta:" << phoSCEta_notag << "   phi:" << phoSCPhi_notag << "   deltaR:"<< deltaR << "  ok"<<  ok_photon << "\n" ;
-	
-	// ID parameters
-	etaWidth   = photon->GetEtaWidth();
-	HoE        = photon->GetHoverE();
-	double E4  = photon->GetEnergyCrystalTop() + photon->GetEnergyCrystalBottom() + 
-	  photon->GetEnergyCrystalLeft() + photon->GetEnergyCrystalRight();
-	swissCross = E4/photon->GetEnergyCrystalMax();
-	
-	ok_swissCross = (swissCross > config.params("photonMinSwissCross"));
-	if (fabs(phoSCEta_notag) < 1.5) { // barrel
-	  ok_etaWidth = (etaWidth < config.params("photonMaxEtaWidthBarrel"));
-	  ok_HoE      = (HoE < config.params("photonMaxHoverEbarrel"));
-	}
-	else { // endcap
-	  ok_etaWidth = (etaWidth < config.params("photonMaxEtaWidthEndcap"));
-	  ok_HoE      = (HoE < config.params("photonMaxHoverEendcap"));
-	}
-	if (ok_swissCross && ok_etaWidth && ok_HoE) ok_ID = 1;
-	
-     // } //unmatched photon
+      if (deta<0.15 && dphi<0.7) continue;
+      photon_loop++;
+      ok_photon = 1;
+      nPho_notag++;
+      phoEt_notag    = photon->GetEnergy()*sin(2.*atan(exp(-photon->GetEta())));
+      phoEta_notag   = photon->GetEta();
+      phoPhi_notag   = photon->GetPhi();
+      phoAco_notag   = acop(theTag->GetPhi() - phoPhi_notag);
+      phoSCEt_notag  = photon->GetEnergySC()*sin(2.*atan(exp(-photon->GetEtaSC()))); 
+      phoSCEta_notag = photon->GetEtaSC();
+      phoSCPhi_notag = photon->GetPhiSC();
+      phoSCAco_notag = acop(theTag->GetPhi() - phoSCPhi_notag);
+      //Log(0) << iEvent << "  photon event:" << photon_loop << "  photon pt:" << phoSCEt_notag << "   eta:" << phoSCEta_notag << "   phi:" << phoSCPhi_notag << "   deltaR:"<< deltaR << "  ok"<<  ok_photon << "\n" ;
+      
+      // ID parameters
+      etaWidth   = photon->GetEtaWidth();
+      HoE        = photon->GetHoverE();
+      double E4  = photon->GetEnergyCrystalTop() + photon->GetEnergyCrystalBottom() + 
+	photon->GetEnergyCrystalLeft() + photon->GetEnergyCrystalRight();
+      swissCross = E4/photon->GetEnergyCrystalMax();
+      
+      ok_swissCross = (swissCross > config.params("photonMinSwissCross"));
+      if (fabs(phoSCEta_notag) < 1.5) { // barrel
+	ok_etaWidth = (etaWidth < config.params("photonMaxEtaWidthBarrel"));
+	ok_HoE      = (HoE < config.params("photonMaxHoverEbarrel"));
+      }
+      else { // endcap
+	ok_etaWidth = (etaWidth < config.params("photonMaxEtaWidthEndcap"));
+	ok_HoE      = (HoE < config.params("photonMaxHoverEendcap"));
+      }
+      if (ok_swissCross && ok_etaWidth && ok_HoE) ok_ID = 1;
     } // photon loop
     
     // there should be max 1 photon unmatched to the tag
     if (nPho_notag>1) continue;
     cnt[6]++;
     
+    // find the track not matched to the electron tag or the photon. there should be only 1
     ResetProbeVars();   
     for (auto probe : genTracks) {
       
       if (probe->GetPt() >3) continue;
       double deta = getDETA(theTag->GetEta(), probe->GetEta());
       double dphi = getDPHI(theTag->GetPhi(), probe->GetPhi());
- 
+      
       auto unmathched_track = UnMatched(*probe, goodElectrons);
-     // if(unmathched_track){
-	if (deta<0.15 && dphi<0.7) continue;
-	ok_probeTrk = 1; probeTrk_loop++; nprobeTrk++;
-	double dpt = fabs(theTag->GetPt() - (probe->GetPt()));
-	
-	probetkMinDpt = dpt;
-	probetkCharge = probe->GetCharge();   
-	probetkPt     = probe->GetPt();
-	probetkEta    = probe->GetEta();
-	probetkPhi    = probe->GetPhi();
-	probetkAco    = acop(theTag->GetPhi()-probetkPhi);
+      if (deta<0.15 && dphi<0.7) continue;
+      ok_probeTrk = 1; probeTrk_loop++; nprobeTrk++;
+ 
+      double dpt = fabs(tag_pt-probe->GetPt());
+      double det = fabs(tag_Et-probe->GetPt());
+     
+      double dpt_tkEleGamma = fabs((tag_pt-probe->GetPt())-phoEt_notag);
+      double det_tkEleGamma = fabs((tag_Et-probe->GetPt())-phoEt_notag);
+
+      double dSCpt_tkEleGamma = fabs((tag_pt-probe->GetPt())-phoSCEt_notag);
+      double dSCet_tkEleGamma = fabs((tag_Et-probe->GetPt())-phoSCEt_notag);
+      
+      if (det<probetkMinDet) {
+	probetkMinDpt    = dpt;
+	probetkMinDet    = det;
+	diffPt_probetkEleGamma  = dpt_tkEleGamma;
+	diffEt_probetkEleGamma  = det_tkEleGamma;
+	diffSCPt_probetkEleGamma  = dSCpt_tkEleGamma;
+	diffSCEt_probetkEleGamma  = dSCet_tkEleGamma;
+
+	probetkCharge    = probe->GetCharge();   
+	probetkPt        = probe->GetPt();
+	probetkEta       = probe->GetEta();
+	probetkPhi       = probe->GetPhi();
+	probetkAco       = acop(theTag->GetPhi()-probetkPhi);
+	probetkvx        = probe->GetVertexX();  
+	probetkvy        = probe->GetVertexY();  
+	probetkvz        = probe->GetVertexZ();  
+	probetkd0        = probe->GetD0();  
+	probetkdxy       = probe->GetDxy();  
+	probetkdz        = probe->GetDz();  
+	probetkdxyError  = probe->GetDxyErr();  
+	probetkdzError   = probe->GetDzErr();  
+	probetkValidHits = probe->GetNvalidHits();  
+	probetkMissHits  = probe->GetNmissingHits();  
 	Log(1) << iEvent << "  probe loop:" << probeTrk_loop << "  probe pt:" <<probetkPt << "   eta:" << probetkEta << "   phi:" << probetkPhi << "\n" ;
-     // }
+      }
     } 
     if (probetkMinDpt>990) continue;
     cnt[7]++;
     
+    if(nprobeTrk >1) continue;   
+    cnt[8]++;
+    
     // the tag and track +- back to back
     if (acop(theTag->GetPhi() - probetkPhi)>0.5) continue;
-    cnt[8]++;
+    cnt[9]++;
     
     tr->Fill(); 
   } // event loop

@@ -7,7 +7,7 @@ outputPath=""
 sampleName=""
 
 basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
-suffix="_caloVars_01022021"
+suffix="_sameSignEle_25March"
 
 if [ $2 -eq 0 ]
 then

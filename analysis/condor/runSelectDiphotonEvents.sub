@@ -1,5 +1,5 @@
 Universe              = vanilla
-executable            = runPhotonRecoIDEfficiencies.sh
+executable            = runSelectDiphotonEvents.sh
 arguments             = $(ProcId) 1 
 GetEnv                = True
 output                = output/$(ClusterId).$(ProcId).out
@@ -10,9 +10,16 @@ requirements 	      = (OpSysAndVer =?= "CentOS7")
 
 ## data (0)
 #queue 10400
+#queue 110
 
 ## MC SC (1)
 queue 256
 
 ## MC SL (2)
 #queue 242
+
+## MC LbL (3)
+#queue 5
+
+## MC CEP (4)
+#queue 5

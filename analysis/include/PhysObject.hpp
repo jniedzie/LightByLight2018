@@ -45,6 +45,7 @@ public:
   int    GetNvalidHits()    const;
   int    GetPurity()        const;
   double GetChi2()          const;
+  double GetD0()            const;
   double GetDxy()           const;
   double GetDz()            const;
   double GetDxyErr()        const;
@@ -78,6 +79,7 @@ public:
   
   bool IsConverted()  const;
   int  GetZside()     const;
+  double GetSeedTime()      const;
   
 private:
   double eta;       ///< Pseudorapidity
@@ -115,6 +117,7 @@ private:
   int nValidHits;   ///< Number of valid hits
   int purity;       ///< Purity of the track
   double chi2;      ///< chi2 of the track fit
+  double d0;        ///< transverse impact parameter between track and beam spot
   double dxy, dz;   ///< distance between track and primary vertex
   double dxyErr, dzErr;///< uncertainties on dxy and dz
   double vx, vy, vz;///< vertex coordinates
@@ -127,6 +130,7 @@ private:
   double dEtaSeed;      ///< Seed Δη
   
   bool hasConversionTracks; ///< Is it a converted photon
+  double seedTime;      ///< Seed Δη
   
   int zSide;          ///< z-side for ZDC
   

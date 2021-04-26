@@ -39,6 +39,7 @@ nMissingHits(-1),
 nValidHits(-1),
 purity(-9999),
 chi2(-9999),
+d0(-9999),
 dxy(-9999),
 dz(-9999),
 dxyErr(-9999),
@@ -55,6 +56,7 @@ relIsoWithEA(-9999),
 dEtaSeed(-9999),
 
 hasConversionTracks(false),
+seedTime(-9999),
 zSide(-9999)
 {
   
@@ -186,6 +188,12 @@ double PhysObject::GetChi2() const
 {
   if(chi2 < -999) Log(1)<<"WARNING - carefull, chi2 probably not set\n";
   return chi2;
+}
+
+double PhysObject::GetD0() const
+{
+  if(d0 < -999) Log(1)<<"WARNING - carefull, d0 probably not set\n";
+  return d0;
 }
 
 double PhysObject::GetDxy() const
@@ -360,6 +368,12 @@ double PhysObject::GetNeutralIso() const
 bool PhysObject::IsConverted() const
 {
   return hasConversionTracks;
+}
+
+double PhysObject::GetSeedTime() const
+{
+  if(seedTime < -999) Log(1)<<"WARNING - carefull, seedTime probably not set\n";
+  return seedTime;
 }
 
 int PhysObject::GetZside() const

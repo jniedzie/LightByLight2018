@@ -32,6 +32,8 @@ analysis/getRecoIDEfficienciesQED_MC
 analysis/selectQEDEvents
 analysis/getPhotonRecoIDEfficiencies
 analysis/runDumpEvent
+analysis/selectAnomalousEvents
+analysis/selectDiphotonEvents
 
 analysis/*.root
 
