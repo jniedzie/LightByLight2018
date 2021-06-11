@@ -55,7 +55,8 @@ std::vector<float>  monoPhoL1Phi;
 std::vector<float>  monoPhoL1deta;
 std::vector<float>  monoPhoL1dphi;
 std::vector<float>  monoPhoL1dr;
-
+int    monoPho_nPixelCluster;
+int    monoPho_nPixelRecHits;
 
 int    mono_nEle;
 int    monoEleCharge;
@@ -74,17 +75,30 @@ std::vector<int>     monoEle_ExtraTrkCharge;
 std::vector<float>   monoEle_ExtraTrkPt;
 std::vector<float>   monoEle_ExtraTrkEta;
 std::vector<float>   monoEle_ExtraTrkPhi;
+int    monoEle_nPixelCluster;
+int    monoEle_nPixelRecHits;
 
 int    tri_nPho;
 std::vector<float>  triPhoEt;
 std::vector<float>  triPhoEta;
 std::vector<float>  triPhoPhi;
+std::vector<float>  triPhoEtaWidth;
+std::vector<float>  triPhoHoverE;
+std::vector<float>  triPhoEnergyTop;
+std::vector<float>  triPhoEnergyBottom;
+std::vector<float>  triPhoEnergyLeft;
+std::vector<float>  triPhoEnergyRight;
+std::vector<float>  triPhoEnergyCrysMax;
+std::vector<float>  triPhoSeedTime;
+std::vector<float>  triPhoSigmaIEta;
 int    triPhook_zdcexcl;
 int    triPhook_neuexcl;
 int    triPhook_chexcl;
 float  triPho_invmass;
 float  triPho_pt;
 float  triPho_rapidity;
+int    triPho_nPixelCluster;
+int    triPho_nPixelRecHits;
 
 int    tri_nEle;
 std::vector<int>    triEleCharge;
@@ -107,6 +121,8 @@ std::vector<int>     triEle_ExtraTrkCharge;
 std::vector<float>   triEle_ExtraTrkPt;
 std::vector<float>   triEle_ExtraTrkEta;
 std::vector<float>   triEle_ExtraTrkPhi;
+int    triEle_nPixelCluster;
+int    triEle_nPixelRecHits;
 
 
 /// initialise tree
@@ -144,6 +160,8 @@ void InitmonoPhoTree(TTree *tr) {
   tr->Branch("monoPhoL1deta",           &monoPhoL1deta);
   tr->Branch("monoPhoL1dphi",           &monoPhoL1dphi);
   tr->Branch("monoPhoL1dr",             &monoPhoL1dr);
+  tr->Branch("monoPho_nPixelCluster",   &monoPho_nPixelCluster,"monoPho_nPixelCluster/I");
+  tr->Branch("monoPho_nPixelRecHits",   &monoPho_nPixelRecHits,"monoPho_nPixelRecHits/I");
 }
 
 void InitmonoEleTree(TTree *tr) {
@@ -160,12 +178,13 @@ void InitmonoEleTree(TTree *tr) {
   tr->Branch("monoEle_matchedTrkPt",               &monoEle_matchedTrkPt);
   tr->Branch("monoEle_matchedTrkEta",              &monoEle_matchedTrkEta);
   tr->Branch("monoEle_matchedTrkPhi",              &monoEle_matchedTrkPhi);
-
   tr->Branch("monoEle_nExtraTrk",                &monoEle_nExtraTrk,       "monoEle_nExtraTrk/I");
   tr->Branch("monoEle_ExtraTrkCharge",           &monoEle_ExtraTrkCharge);
   tr->Branch("monoEle_ExtraTrkPt",               &monoEle_ExtraTrkPt);
   tr->Branch("monoEle_ExtraTrkEta",              &monoEle_ExtraTrkEta);
   tr->Branch("monoEle_ExtraTrkPhi",              &monoEle_ExtraTrkPhi);
+  tr->Branch("monoEle_nPixelCluster",   &monoEle_nPixelCluster,"monoEle_nPixelCluster/I");
+  tr->Branch("monoEle_nPixelRecHits",   &monoEle_nPixelRecHits,"monoEle_nPixelRecHits/I");
 }
   
 void InittriPhoTree(TTree *tr) {
@@ -176,13 +195,23 @@ void InittriPhoTree(TTree *tr) {
   tr->Branch("triPhoEt",               &triPhoEt);
   tr->Branch("triPhoEta",              &triPhoEta);
   tr->Branch("triPhoPhi",              &triPhoPhi);
-  
+  tr->Branch("triPhoEtaWidth",         &triPhoEtaWidth);
+  tr->Branch("triPhoHoverE",           &triPhoHoverE);
+  tr->Branch("triPhoEnergyTop",        &triPhoEnergyTop);
+  tr->Branch("triPhoEnergyBottom",     &triPhoEnergyBottom);
+  tr->Branch("triPhoEnergyLeft",       &triPhoEnergyLeft);
+  tr->Branch("triPhoEnergyRight",      &triPhoEnergyRight);
+  tr->Branch("triPhoEnergyCrysMax",    &triPhoEnergyCrysMax);
+  tr->Branch("triPhoSeedTime",         &triPhoSeedTime);
+  tr->Branch("triPhoSigmaIEta",        &triPhoSigmaIEta);
   tr->Branch("triPhook_zdcexcl",       &triPhook_zdcexcl,"triPhook_zdcexcl/I");
   tr->Branch("triPhook_neuexcl",       &triPhook_neuexcl,"triPhook_neuexcl/I");
   tr->Branch("triPhook_chexcl",        &triPhook_chexcl, "triPhook_chexcl/I");
   tr->Branch("triPho_invmass",         &triPho_invmass,  "triPho_invmass/F");
   tr->Branch("triPho_pt",              &triPho_pt,       "triPho_pt/F");
   tr->Branch("triPho_rapidity",        &triPho_rapidity,  "triPho_rapidity/F");
+  tr->Branch("triPho_nPixelCluster",   &triPho_nPixelCluster,"triPho_nPixelCluster/I");
+  tr->Branch("triPho_nPixelRecHits",   &triPho_nPixelRecHits,"triPho_nPixelRecHits/I");
 }
 
 
@@ -199,19 +228,21 @@ void InittriEleTree(TTree *tr) {
   tr->Branch("triEle_invmass",         &triEle_invmass,  "triEle_invmass/F");
   tr->Branch("triEle_pt",              &triEle_pt,       "triEle_pt/F");
   tr->Branch("triEle_rapidity",        &triEle_rapidity,  "triEle_rapidity/F");
-
   tr->Branch("triEle_nmatchedTrk",               &triEle_nmatchedTrk,       "triEle_nmatchedTrk/I");
   tr->Branch("triEle_matchedTrkCharge",           &triEle_matchedTrkCharge);
   tr->Branch("triEle_matchedTrkPt",               &triEle_matchedTrkPt);
   tr->Branch("triEle_matchedTrkEta",              &triEle_matchedTrkEta);
   tr->Branch("triEle_matchedTrkPhi",              &triEle_matchedTrkPhi);
-
   tr->Branch("triEle_nExtraTrk",                &triEle_nExtraTrk,       "triEle_nExtraTrk/I");
   tr->Branch("triEle_ExtraTrkCharge",           &triEle_ExtraTrkCharge);
   tr->Branch("triEle_ExtraTrkPt",               &triEle_ExtraTrkPt);
   tr->Branch("triEle_ExtraTrkEta",              &triEle_ExtraTrkEta);
   tr->Branch("triEle_ExtraTrkPhi",              &triEle_ExtraTrkPhi);
+  tr->Branch("triEle_nPixelCluster",            &triEle_nPixelCluster,"triEle_nPixelCluster/I");
+  tr->Branch("triEle_nPixelRecHits",            &triEle_nPixelRecHits,"triEle_nPixelRecHits/I");
 }
+
+
 // reset all variables
 void ResetmonoPhoVars() {
   run = -999;
@@ -247,6 +278,8 @@ void ResetmonoPhoVars() {
   monoPhoL1deta.clear();
   monoPhoL1dphi.clear();
   monoPhoL1dr.clear();
+  monoPho_nPixelCluster = -999;
+  monoPho_nPixelRecHits = -999;
 }
 
 void ResetmonoEleVars() {
@@ -267,6 +300,8 @@ void ResetmonoEleVars() {
   monoEle_ExtraTrkPt .clear();
   monoEle_ExtraTrkEta .clear();
   monoEle_ExtraTrkPhi .clear();
+  monoEle_nPixelCluster = -999;
+  monoEle_nPixelRecHits = -999;
 
 }
  
@@ -275,13 +310,23 @@ void ResettriPhoVars() {
   triPhoEt.clear();
   triPhoEta.clear();
   triPhoPhi.clear();
-
+  triPhoEtaWidth.clear() ;
+  triPhoHoverE.clear() ;
+  triPhoEnergyTop.clear() ;
+  triPhoEnergyBottom.clear() ;
+  triPhoEnergyLeft.clear() ;
+  triPhoEnergyRight.clear() ;
+  triPhoEnergyCrysMax.clear() ;
+  triPhoSeedTime.clear() ;
+  triPhoSigmaIEta.clear() ;
   triPhook_zdcexcl = -999 ;
   triPhook_neuexcl = -999 ;
   triPhook_chexcl = -999 ;
   triPho_invmass = -999 ;
   triPho_pt    = -999 ;
   triPho_rapidity = -999 ;
+  triPho_nPixelCluster = -999;
+  triPho_nPixelRecHits = -999;
 }
 
 
@@ -308,6 +353,8 @@ void ResettriEleVars() {
   triEle_ExtraTrkPt .clear();
   triEle_ExtraTrkEta .clear();
   triEle_ExtraTrkPhi .clear();
+  triEle_nPixelCluster = -999;
+  triEle_nPixelRecHits = -999;
 }
 
   
@@ -358,6 +405,9 @@ void FillmonoPhotonTree(Event &event, TTree* tr, string datasetName){
 
   if(datasetName=="Data")monoPhook_zdcexcl = event.GetTotalZDCenergyPos() < 10000 && event.GetTotalZDCenergyNeg() < 10000;
  
+  monoPho_nPixelCluster = event.GetNpixelClusters();
+  monoPho_nPixelRecHits =  event.GetNpixelRecHits();
+
   // start filling photon variables
   monoPhoEt      = photon->GetEt();
   monoPhoEta     = photon->GetEta();
@@ -463,6 +513,9 @@ void FillmonoEleTree(Event &event, TTree* tr , string datasetName){
   // apply neutral exclusivity
   if(event.HasAdditionalTowers())return;
   if(datasetName=="Data")monoEleok_zdcexcl = event.GetTotalZDCenergyPos() < 10000 && event.GetTotalZDCenergyNeg() < 10000;
+
+  monoEle_nPixelCluster = event.GetNpixelClusters();
+  monoEle_nPixelRecHits =  event.GetNpixelRecHits();
   
   // Find tracks that match electrons
   PhysObjects matchingTracks;
@@ -537,16 +590,28 @@ void FilltriPhotonTree(Event &event, TTree* tr, string datasetName){
 							      *isolatedPhotons[1],
 							      *isolatedPhotons[2]);
   
+  triPho_nPixelCluster = event.GetNpixelClusters();
+  triPho_nPixelRecHits =  event.GetNpixelRecHits();
+
   triPho_invmass  = triphoton.M();
   triPho_pt       = triphoton.Pt();
   triPho_rapidity = triphoton.Rapidity();
  
   for( auto isolatedPhoton : isolatedPhotons){
-    triPhoEt      .push_back(isolatedPhoton->GetEt());
-    triPhoEta     .push_back(isolatedPhoton->GetEta());
-    triPhoPhi     .push_back(isolatedPhoton->GetPhi());
-   } 
-
+    triPhoEt            .push_back(isolatedPhoton->GetEt());
+    triPhoEta           .push_back(isolatedPhoton->GetEta());
+    triPhoPhi           .push_back(isolatedPhoton->GetPhi());
+    triPhoEtaWidth      .push_back(isolatedPhoton->GetEtaWidth());
+    triPhoHoverE        .push_back(isolatedPhoton->GetHoverE());
+    triPhoEnergyTop     .push_back(isolatedPhoton->GetEnergyCrystalTop());
+    triPhoEnergyBottom  .push_back(isolatedPhoton->GetEnergyCrystalBottom()); 
+    triPhoEnergyLeft    .push_back(isolatedPhoton->GetEnergyCrystalLeft());
+    triPhoEnergyRight   .push_back(isolatedPhoton->GetEnergyCrystalRight());
+    triPhoEnergyCrysMax .push_back(isolatedPhoton->GetEnergyCrystalMax());
+    triPhoSeedTime      .push_back(isolatedPhoton->GetSeedTime());
+    triPhoSigmaIEta     .push_back(isolatedPhoton->GetSigmaEta2012());
+  } 
+  
   tri_nPho++;
   tr->Fill(); 
 } //fill tri photon tree
@@ -583,7 +648,10 @@ void FilltriElectronTree(Event &event, TTree* tr, string datasetName){
   }
 
   if(isolatedElectrons.size() != 3) return;
-  std::cout << "isolatedElectrons size" << isolatedElectrons.size() << "  electron size:" << electrons.size() <<  std::endl;   
+  std::cout << "isolatedElectrons size" << isolatedElectrons.size() << "  electron size:" << electrons.size() <<  std::endl; 
+
+  triEle_nPixelCluster = event.GetNpixelClusters();
+  triEle_nPixelRecHits =  event.GetNpixelRecHits();  
   
   double eleMass = 0.5109989461e-3;
 
@@ -677,7 +745,7 @@ int main(int argc, char* argv[])
 
    // Check trigger
     //if(!event->HasTrigger(kSingleEG3noHF) && !event->HasTrigger(kSingleEG5noHF)) continue;
-    //if(!event->HasTrigger(kDoubleEG2noHF))continue;
+   // if(!event->HasTrigger(kDoubleEG2noHF))continue;
  
     FillmonoPhotonTree(*event,monoPhotree,sampleName);
     FillmonoEleTree(*event,monoEletree,sampleName);

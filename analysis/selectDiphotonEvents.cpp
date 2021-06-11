@@ -38,6 +38,17 @@ float  phoPhi_1;
 float  phoSCEt_1;
 float  phoSCEta_1;
 float  phoSCPhi_1;
+float  phoEtaWidth_1;
+float  phoHoverE_1;
+float  phoEnergyTop_1;
+float  phoEnergyBottom_1;
+float  phoEnergyLeft_1;
+float  phoEnergyRight_1;
+float  phoEnergyCrysMax_1;
+float  phoSwissCross_1;
+float  phoSeedTime_1;
+float  phoSigmaIEta_1;
+
 
 float  phoEt_2;
 float  phoEta_2;
@@ -45,6 +56,16 @@ float  phoPhi_2;
 float  phoSCEt_2;
 float  phoSCEta_2;
 float  phoSCPhi_2;
+float  phoEtaWidth_2;
+float  phoHoverE_2;
+float  phoEnergyTop_2;
+float  phoEnergyBottom_2;
+float  phoEnergyLeft_2;
+float  phoEnergyRight_2;
+float  phoEnergyCrysMax_2;
+float  phoSwissCross_2;
+float  phoSeedTime_2;
+float  phoSigmaIEta_2;
 
 float vSum_diPho_M;
 float vSum_diPho_Energy;
@@ -84,6 +105,17 @@ void InitTree(TTree *tr) {
   tr->Branch("phoSCEt_1",           &phoSCEt_1,     "phoSCEt_1/F");
   tr->Branch("phoSCEta_1",          &phoSCEta_1,    "phoSCEta_1/F");
   tr->Branch("phoSCPhi_1",          &phoSCPhi_1,    "phoSCPhi_1/F");
+  tr->Branch("phoEtaWidth_1",       &phoEtaWidth_1,  "phoEtaWidth_1/F");
+  tr->Branch("phoHoverE_1",         &phoHoverE_1,    "phoHoverE_1/F");
+  tr->Branch("phoEnergyTop_1",      &phoEnergyTop_1, "phoEnergyTop_1/F");
+  tr->Branch("phoEnergyBottom_1",   &phoEnergyBottom_1, "phoEnergyBottom_1/F");
+  tr->Branch("phoEnergyLeft_1",     &phoEnergyLeft_1,   "phoEnergyLeft_1/F");
+  tr->Branch("phoEnergyRight_1",    &phoEnergyRight_1,  "phoEnergyRight_1/F");
+  tr->Branch("phoEnergyCrysMax_1",  &phoEnergyCrysMax_1,"phoEnergyCrysMax_1/F");
+  tr->Branch("phoSwissCross_1",     &phoSwissCross_1,   "phoSwissCross_1/F");
+  tr->Branch("phoSeedTime_1",       &phoSeedTime_1,     "phoSeedTime_1/F");
+  tr->Branch("phoSigmaIEta_1",      &phoSigmaIEta_1,    "phoSigmaIEta_1/F");
+
 
  
   tr->Branch("phoEt_2",             &phoEt_2,       "phoEt_2/F");
@@ -92,6 +124,16 @@ void InitTree(TTree *tr) {
   tr->Branch("phoSCEt_2",           &phoSCEt_2,     "phoSCEt_2/F");
   tr->Branch("phoSCEta_2",          &phoSCEta_2,    "phoSCEta_2/F");
   tr->Branch("phoSCPhi_2",          &phoSCPhi_2,    "phoSCPhi_2/F");
+  tr->Branch("phoEtaWidth_2",       &phoEtaWidth_2,  "phoEtaWidth_2/F");
+  tr->Branch("phoHoverE_2",         &phoHoverE_2,    "phoHoverE_2/F");
+  tr->Branch("phoEnergyTop_2",      &phoEnergyTop_2, "phoEnergyTop_2/F");
+  tr->Branch("phoEnergyBottom_2",   &phoEnergyBottom_2, "phoEnergyBottom_2/F");
+  tr->Branch("phoEnergyLeft_2",     &phoEnergyLeft_2,   "phoEnergyLeft_2/F");
+  tr->Branch("phoEnergyRight_2",    &phoEnergyRight_2,  "phoEnergyRight_2/F");
+  tr->Branch("phoEnergyCrysMax_2",  &phoEnergyCrysMax_2,"phoEnergyCrysMax_2/F");
+  tr->Branch("phoSwissCross_2",     &phoSwissCross_2,   "phoSwissCross_2/F");
+  tr->Branch("phoSeedTime_2",       &phoSeedTime_2,     "phoSeedTime_2/F");
+  tr->Branch("phoSigmaIEta_2",      &phoSigmaIEta_2,    "phoSigmaIEta_2/F");
   
   tr->Branch("vSum_M",              &vSum_diPho_M,       "vSum_diPho_M/F");
   tr->Branch("vSum_Energy",         &vSum_diPho_Energy,  "vSum_diPho_Energy/F");
@@ -128,19 +170,39 @@ void ResetVars() {
   ls=0;
   evtnb =0;
   nPho = 0;
-  phoEt_1= 0 ;
-  phoEta_1= 0 ;
-  phoPhi_1= 0 ;
-  phoSCEt_1= 0 ;
-  phoSCEta_1= 0 ;
-  phoSCPhi_1= 0 ;
- 
-  phoEt_2 = 0 ;
-  phoEta_2 = 0 ;
-  phoPhi_2 = 0 ;
-  phoSCEt_2 = 0 ;
-  phoSCEta_2 = 0 ;
-  phoSCPhi_2 = 0 ;
+  phoEt_1= -999 ;
+  phoEta_1= -999 ;
+  phoPhi_1= -999 ;
+  phoSCEt_1= -999 ;
+  phoSCEta_1= -999 ;
+  phoSCPhi_1= -999 ;
+  phoEtaWidth_1 = -999 ;
+  phoHoverE_1 = -999 ;
+  phoEnergyTop_1 = -999 ;
+  phoEnergyBottom_1 = -999 ;
+  phoEnergyLeft_1 = -999 ;
+  phoEnergyRight_1 = -999 ;
+  phoEnergyCrysMax_1 = -999 ;
+  phoSwissCross_1 = -999;
+  phoSeedTime_1 = -999 ;
+  phoSigmaIEta_1 = -999 ;
+
+  phoEt_2= -999 ;
+  phoEta_2= -999 ;
+  phoPhi_2= -999 ;
+  phoSCEt_2= -999 ;
+  phoSCEta_2= -999 ;
+  phoSCPhi_2= -999 ;
+  phoEtaWidth_2 = -999 ;
+  phoHoverE_2 = -999 ;
+  phoEnergyTop_2 = -999 ;
+  phoEnergyBottom_2 = -999 ;
+  phoEnergyLeft_2 = -999 ;
+  phoEnergyRight_2 = -999 ;
+  phoEnergyCrysMax_2 = -999 ;
+  phoSwissCross_2 = -999;
+  phoSeedTime_2 = -999 ;
+  phoSigmaIEta_2 = -999 ;
  
   vSum_diPho_M = 0 ;
   vSum_diPho_Energy = 0 ;
@@ -264,14 +326,39 @@ int main(int argc, char* argv[])
     phoSCEt_1    = photon1->GetEnergySC()*sin(2.*atan(exp(-photon1->GetEtaSC())));
     phoSCEta_1   = photon1->GetEtaSC();
     phoSCPhi_1   = photon1->GetPhiSC();
-   
+    phoEtaWidth_1      = photon1->GetEtaWidth();
+    phoHoverE_1        = photon1->GetHoverE();
+    phoEnergyTop_1     = photon1->GetEnergyCrystalTop();
+    phoEnergyBottom_1  = photon1->GetEnergyCrystalBottom();
+    phoEnergyLeft_1    = photon1->GetEnergyCrystalLeft();
+    phoEnergyRight_1   = photon1->GetEnergyCrystalRight();
+    phoEnergyCrysMax_1 = photon1->GetEnergyCrystalMax();
+    phoSeedTime_1      = photon1->GetSeedTime();
+    phoSigmaIEta_1     = photon1->GetSigmaEta2012();
+
+    double E4 = phoEnergyTop_1 + phoEnergyBottom_1 +  phoEnergyLeft_1 + phoEnergyRight_1;
+    phoSwissCross_1 = 1 - (E4/phoEnergyCrysMax_1);
+
+       
     phoEt_2      = photon2->GetEt();
     phoEta_2     = photon2->GetEta();
     phoPhi_2     = photon2->GetPhi();
     phoSCEt_2    = photon2->GetEnergySC()*sin(2.*atan(exp(-photon2->GetEtaSC())));
     phoSCEta_2   = photon2->GetEtaSC();
     phoSCPhi_2   = photon2->GetPhiSC();
- 
+    phoEtaWidth_2      = photon2->GetEtaWidth();
+    phoHoverE_2        = photon2->GetHoverE();
+    phoEnergyTop_2     = photon2->GetEnergyCrystalTop();
+    phoEnergyBottom_2  = photon2->GetEnergyCrystalBottom();
+    phoEnergyLeft_2    = photon2->GetEnergyCrystalLeft();
+    phoEnergyRight_2   = photon2->GetEnergyCrystalRight();
+    phoEnergyCrysMax_2 = photon2->GetEnergyCrystalMax();
+    phoSeedTime_2      = photon2->GetSeedTime();
+    phoSigmaIEta_2     = photon2->GetSigmaEta2012();
+
+    double E4_2 = phoEnergyTop_2 + phoEnergyBottom_2 +  phoEnergyLeft_2 + phoEnergyRight_2;
+    phoSwissCross_2 = 1 - (E4_2/phoEnergyCrysMax_2);
+    
     TLorentzVector pho1, pho2, dipho;
     pho1.SetPtEtaPhiE(phoEt_1,phoEta_1,phoPhi_1,photon1->GetEnergy());
     pho2.SetPtEtaPhiE(phoEt_2,phoEta_2,phoPhi_2,photon2->GetEnergy());
@@ -333,6 +420,7 @@ int main(int argc, char* argv[])
     tr->Fill(); 
   } //nevents
   Log(0) << "Number of events triggered:" << trigger_passed << "\n" ;
+  Log(0) << "Number of events with two good photons:" << twoGoodPho << "\n" ;
   outFile->cd();
   hist->Write(); 
   hist_wozdc->Write(); 

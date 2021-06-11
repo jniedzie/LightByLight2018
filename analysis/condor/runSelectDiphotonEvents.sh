@@ -6,7 +6,7 @@ inputPath=""
 outputPath=""
 sampleName=""
 
-basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
+basePath="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018"
 suffix="_4March21"
 
 if [ $2 -eq 0 ]
