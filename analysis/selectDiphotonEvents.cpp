@@ -80,10 +80,10 @@ float pho_acop;
 int ok_neuexcl;
 int ok_zdcexcl;
 int ok_chexcl;
-int ok_chexcl_extrk;
-int nExtrk;
 float SFweight_reco[16];
 float SFweight_trig[16];
+int   nPixelCluster;
+int   nPixelRecHits;
 
 /// initialise gen tree
 void InitGenTree(TTree *genTree) {
@@ -148,10 +148,11 @@ void InitTree(TTree *tr) {
   tr->Branch("ok_neuexcl",          &ok_neuexcl,      "ok_neuexcl/I");
   tr->Branch("ok_zdcexcl",          &ok_zdcexcl,      "ok_zdcexcl/I");
   tr->Branch("ok_chexcl",           &ok_chexcl,       "ok_chexcl/I");
-  tr->Branch("ok_chexcl_extrk",     &ok_chexcl_extrk, "ok_chexcl_extrk/I");
-  tr->Branch("nExtrk",              &nExtrk,          "nExtrk/I");
   tr->Branch("SFweight_reco",       SFweight_reco,    "SFweight_reco[16]/F");
   tr->Branch("SFweight_trig",       SFweight_trig,    "SFweight_trig[16]/F");
+
+  tr->Branch("nPixelCluster",      &nPixelCluster,    "nPixelCluster/I");
+  tr->Branch("nPixelRecHits",      &nPixelRecHits,    "nPixelRecHits/I");
 
 }
 
@@ -217,8 +218,8 @@ void ResetVars() {
   ok_neuexcl = 0;
   ok_zdcexcl = 0;
   ok_chexcl = 0;
-  ok_chexcl_extrk = 0;
-  nExtrk = 0;
+  nPixelCluster = -999;
+  nPixelRecHits = -999;
 
 }
 
@@ -260,7 +261,7 @@ int main(int argc, char* argv[])
   
   auto events = make_unique<EventProcessor>(inputPath, dataset);
   
-  int trigger_passed=0, twoGoodPho=0, oppCharge=0, neutral_excl=0, charged_excl=0, diphomass_wozdc=0, diphopt_wozdc=0;
+  int trigger_passed=0, twoPho=0, twoGoodPho=0, oppCharge=0, neutral_excl=0, charged_excl=0, diphomass_wozdc=0, diphopt_wozdc=0;
   int acop_cut_wozdc=0, diphomass=0, diphopt=0, acop_cut = 0, zdc_excl=0;
   
   // Loop over events
@@ -301,13 +302,20 @@ int main(int argc, char* argv[])
     evtnb = event->GetEventNumber();
     
     // select two exclusive photons 
+    //if(event->GetPhysObjects(EPhysObjType::kGoodPhoton).size() != 2) continue; applying cut on good photon ==2  retains photons with pT less than 2 GeV and there can be more than 2 photons passing the criteria and others not passing... 
+
+    // use normal photon size 2
+    if(event->GetPhysObjects(EPhysObjType::kPhoton).size() != 2) continue;
+    twoPho++;
+    hist->SetBinContent(2,twoPho);     hist_wozdc->SetBinContent(2,twoPho);
+    // now require two photons passing ID only
     if(event->GetPhysObjects(EPhysObjType::kGoodPhoton).size() != 2) continue;
     twoGoodPho++;
-    hist->SetBinContent(2,twoGoodPho);     hist_wozdc->SetBinContent(2,twoGoodPho);
-    
-    auto genTracks = event->GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
-    auto electrons = event->GetPhysObjects(EPhysObjType::kGoodElectron);
-    auto muons     = event->GetPhysObjects(EPhysObjType::kGoodMuon);
+    hist->SetBinContent(3,twoGoodPho);     hist_wozdc->SetBinContent(3,twoGoodPho);
+
+    auto genTracks = event->GetPhysObjects(EPhysObjType::kGeneralTrack);
+    auto electrons = event->GetPhysObjects(EPhysObjType::kElectron);
+    auto muons     = event->GetPhysObjects(EPhysObjType::kMuon);
     auto photon1   = event->GetPhysObjects(EPhysObjType::kGoodPhoton)[0];
     auto photon2   = event->GetPhysObjects(EPhysObjType::kGoodPhoton)[1];
     auto caloTower = event->GetPhysObjects(EPhysObjType::kCaloTower);
@@ -317,8 +325,7 @@ int main(int argc, char* argv[])
     ok_chexcl  = (genTracks.size()==0 && electrons.size()==0 && muons.size()==0 );
     if(sampleName == "Data")ok_zdcexcl = event->GetTotalZDCenergyPos() < 10000 && event->GetTotalZDCenergyNeg() < 10000;
     
-    // start filling extra track information here ........................................
-    ok_chexcl_extrk = (nExtrk==0);
+    // start filling photon information here ........................................
     
     phoEt_1      = photon1->GetEt();
     phoEta_1     = photon1->GetEta();
@@ -376,8 +383,11 @@ int main(int argc, char* argv[])
     pho_dphi = getDPHI(phoPhi_1,phoPhi_2);
     pho_acop = 1- (pho_dphi/3.141592653589);  
 
+   nPixelCluster = event->GetNpixelClusters();
+   nPixelRecHits =  event->GetNpixelRecHits();
+
      
-    if(ok_chexcl_extrk==1){
+    if(ok_chexcl==1){
       charged_excl++;
       hist->SetBinContent(4,charged_excl);
       hist_wozdc->SetBinContent(4,charged_excl);
@@ -400,7 +410,7 @@ int main(int argc, char* argv[])
       }// neutral excl
     }//charged excl
     
-    if(ok_chexcl_extrk==1 && ok_neuexcl==1 && ok_zdcexcl==1){
+    if(ok_chexcl==1 && ok_neuexcl==1 && ok_zdcexcl==1){
       zdc_excl++;
       hist->SetBinContent(6,zdc_excl);
       if(vSum_diPho_M>5){
@@ -420,6 +430,7 @@ int main(int argc, char* argv[])
     tr->Fill(); 
   } //nevents
   Log(0) << "Number of events triggered:" << trigger_passed << "\n" ;
+  Log(0) << "Number of events with two photons:" << twoPho << "\n" ;
   Log(0) << "Number of events with two good photons:" << twoGoodPho << "\n" ;
   outFile->cd();
   hist->Write(); 

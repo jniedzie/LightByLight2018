@@ -1,18 +1,19 @@
 #!/bin/bash
 
-configPath="/afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation.md"
+#configPath="/afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation.md"
+configPath="/afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation_noCutOnPhoEtawidthButIetaIeta.md"
 
 inputPath=""
 outputPath=""
 sampleName=""
 
 basePath="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018"
-suffix="_4March21"
+suffix="_02July21_correctnPho_chrgExcl_newPhotonIDCutsIEtaIEta_noEtaWidth"
 
 if [ $2 -eq 0 ]
 then
   sampleName="Data" # 10400 files
-  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_full_lumi_complete/merged/merged_ntuples_${1}.root"
+  inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_full_lumi/merged/merged_ntuples_${1}.root"
   #inputPath=`sed "${1}q;d" /afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/input_list.txt`
   outputPath="${basePath}/analysis_ruchi/diphoton_data-MC_plots/data${suffix}"
 elif [ $2 -eq 1 ]
