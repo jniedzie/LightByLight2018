@@ -313,14 +313,13 @@ int main(int argc, char* argv[])
     cnt[1]++;
     if(goodPhoton.size()>2) continue;
     cnt[2]++;
-    if(genTracks.size()!=2 || genTracks.size()!=3) continue;
+    if(genTracks.size()!=2) continue;
     cnt[3]++;
    
     auto track1 = genTracks[0];
     auto track2 = genTracks[1];
     if(track1->GetCharge() == track2->GetCharge()) continue;
     cnt[4]++; 
-     
     // find the tag electron
     PhysObjects goodMatchedElectrons;
     
