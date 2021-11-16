@@ -41,6 +41,11 @@ then
   sampleName="CEP" # 3 files only
   inputPath="${basePath}/skimmed_ntuples/mc_cep_sc_doubleEG2_full_lumi/ntuples_loose_selections_${1}.root"
   outputPath="${basePath}/analysis_ruchi/anomalous_plots/mc_cep_sc${suffix}"
+elif [ $2 -eq 5 ]
+then
+  sampleName="Noise_data" # 3 files only
+  inputPath="${basePath}/HIEmptyBX/ntuples/HIEmptyBX/ntuples_emptyBx_castor_pixel_branches/210803_040945/0000/data_emptyBx_HiForwardAOD_${1}.root"
+  outputPath="${basePath}/analysis_ruchi/anomalous_plots/noise_data${suffix}"
 fi
 
 

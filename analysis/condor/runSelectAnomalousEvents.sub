@@ -1,6 +1,6 @@
 Universe              = vanilla
 executable            = runSelectAnomalousEvents.sh
-arguments             = $(ProcId) 4 
+arguments             = $(ProcId) 5 
 GetEnv                = True
 output                = output/$(ClusterId).$(ProcId).out
 error                 = error/$(ClusterId).$(ProcId).err
@@ -22,4 +22,7 @@ requirements 	      = (OpSysAndVer =?= "CentOS7")
 #queue 5
 
 ## MC CEP (4)
-queue 5
+#queue 5
+
+## Data Noise (5)
+queue 934 

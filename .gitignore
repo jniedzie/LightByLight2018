@@ -57,6 +57,8 @@ analysis/condor/rchudasa.cc
 analysis/ntuples/
 analysis/results/
 analysis/plots/
+analysis/photonConversion.cpp
+analysis/input_list_setTwo.txt
 
 HeavyIonsAnalysis/PhotonAnalysis/test/crab_projects/
 
@@ -123,3 +125,5 @@ TnP/triggerEff_EG5Tag_SCMC_fineEtabins/
 TnP/triggerEff_EG5Tag_SLMC/
 TnP/triggerEff_EG5Tag_SLMC_fineEtabins/
 TnP/*.root
+TnP/*.pdf
+TnP/*.png

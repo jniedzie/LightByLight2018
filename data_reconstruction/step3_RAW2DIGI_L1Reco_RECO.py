@@ -2,12 +2,13 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: step3 --conditions 103X_dataRun2_Prompt_fixEcalADCToGeV_v1 -s RAW2DIGI,L1Reco,RECO --process reRECO -n 30 --data --era Run2_2018 --eventcontent AOD --runUnscheduled --scenario pp --datatier AOD --customise Configuration/DataProcessing/Utils.addMonitoring --customise_commands process.AODoutput.outputCommands.extend(["keep *_towerMaker_*_*", "keep *_siPixelRecHits_*_*", "keep *_siPixelClusters_*_*"]) --repacked RAW2DIGI,L1Reco,RECO,ENDJOB
+# with command line options: step3 --conditions 103X_dataRun2_Prompt_LowPtPhotonReg_v1 -s RAW2DIGI,L1Reco,RECO --process reRECO -n 10000 --data --era Run2_2018 --procModifiers egamma_lowPt_exclusive --eventcontent AOD --runUnscheduled --scenario pp --datatier AOD --customise Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018 --repacked RAW2DIGI,L1Reco,RECO,ENDJOB
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
+from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
 
-process = cms.Process('reRECO',eras.Run2_2018)
+process = cms.Process('reRECO',eras.Run2_2018,egamma_lowPt_exclusive)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -23,7 +24,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(30)
+    input = cms.untracked.int32(10000)
 )
 
 # Input source
@@ -38,7 +39,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('step3 nevts:30'),
+    annotation = cms.untracked.string('step3 nevts:10000'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
@@ -61,7 +62,7 @@ process.AODoutput = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '103X_dataRun2_Prompt_fixEcalADCToGeV_v1', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '103X_dataRun2_Prompt_LowPtPhotonReg_v1', '')
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
@@ -80,11 +81,11 @@ MassReplaceInputTag(process, new="rawDataMapperByLabel", old="rawDataCollector")
 
 # customisation of the process.
 
-# Automatic addition of the customisation function from Configuration.DataProcessing.Utils
-from Configuration.DataProcessing.Utils import addMonitoring 
+# Automatic addition of the customisation function from Configuration.DataProcessing.RecoTLR
+from Configuration.DataProcessing.RecoTLR import customisePostEra_Run2_2018 
 
-#call to customisation function addMonitoring imported from Configuration.DataProcessing.Utils
-process = addMonitoring(process)
+#call to customisation function customisePostEra_Run2_2018 imported from Configuration.DataProcessing.RecoTLR
+process = customisePostEra_Run2_2018(process)
 
 # End of customisation functions
 #do not add changes to your config after this point (unless you know what you are doing)
@@ -94,7 +95,6 @@ process=convertToUnscheduled(process)
 
 # Customisation from command line
 
-process.AODoutput.outputCommands.extend(["keep *_towerMaker_*_*", "keep *_siPixelRecHits_*_*", "keep *_siPixelClusters_*_*"])
 #Have logErrorHarvester wait for the same EDProducers to finish as those providing data for the OutputModule
 from FWCore.Modules.logErrorHarvester_cff import customiseLogErrorHarvesterUsingOutputCommands
 process = customiseLogErrorHarvesterUsingOutputCommands(process)

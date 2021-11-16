@@ -745,7 +745,7 @@ int main(int argc, char* argv[])
 
    // Check trigger
     //if(!event->HasTrigger(kSingleEG3noHF) && !event->HasTrigger(kSingleEG5noHF)) continue;
-   // if(!event->HasTrigger(kDoubleEG2noHF))continue;
+    if(!event->HasTrigger(kDoubleEG2noHF))continue;
  
     FillmonoPhotonTree(*event,monoPhotree,sampleName);
     FillmonoEleTree(*event,monoEletree,sampleName);
