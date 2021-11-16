@@ -10,7 +10,7 @@ requirements 	      = (OpSysAndVer =?= "CentOS7")
 
 ## data (0)
 #queue 10400
-#queue 5273
+#queue 5710
 
 ## MC SC (1)
 #queue 256
@@ -23,3 +23,4 @@ requirements 	      = (OpSysAndVer =?= "CentOS7")
 
 ## MC CEP (4)
 queue 5
+ 

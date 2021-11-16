@@ -375,6 +375,46 @@ void ReadInputArguments(int argc, char* argv[],
   sampleName = argv[4];
 }
 
+std::vector<double> castorThreshold = {
+  63.4991 ,
+  62.5065 ,
+  116.067 ,
+  63.4402 ,
+  59.1121 ,
+  61.2649 ,
+  112.775 ,
+  152.773 ,
+  73.1601 ,
+  155.603 ,
+  145.965 ,
+  68.6483 ,
+  60.86 ,
+  53.5446 ,
+  63.8748 ,
+  58.3723 
+};
+
+unsigned int convertPhiToIndex(double phi){
+  vector<double> possiblePhiValues = {-2.95,-2.55,-2.16,-1.77,-1.37,-0.98,-0.59,-0.20,0.20,0.59,0.98,1.37,1.77,2.16,2.55,2.95};
+
+  for(unsigned int index = 0; index < possiblePhiValues.size(); index++)
+    if(fabs(possiblePhiValues[index]-phi) < 0.2)
+      return index;
+
+  return -1;
+}
+
+// Function to perform CASTOR veto
+bool castorVeto(PhysObjects castorTowers){
+  for(auto castor : castorTowers){
+    if(castor->GetEnergy() > castorThreshold[convertPhiToIndex(castor->GetPhi() )]){
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void FillmonoPhotonTree(Event &event, TTree* tr, string datasetName){
   
   ResetmonoPhoVars();  
@@ -382,20 +422,23 @@ void FillmonoPhotonTree(Event &event, TTree* tr, string datasetName){
   run = event.GetRunNumber();
   ls = event.GetLumiSection();
   evtnb = event.GetEventNumber();
-
+ 
   // select one exclusive photon
   if(event.GetPhysObjects(EPhysObjType::kPhoton).size() != 1) return;
   
   // select one photon passing ID criteria
   if(event.GetPhysObjects(EPhysObjType::kGoodPhoton).size() != 1) return;
- 
-  auto genTracks = event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
-  auto electrons = event.GetPhysObjects(EPhysObjType::kGoodElectron);
-  auto muons     = event.GetPhysObjects(EPhysObjType::kGoodMuon);
-  auto photon    = event.GetPhysObjects(EPhysObjType::kGoodPhoton)[0];
-  auto caloTower = event.GetPhysObjects(EPhysObjType::kCaloTower);
-  auto L1EGs     = event.GetPhysObjects(EPhysObjType::kL1EG);
   
+  auto genTracks    = event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
+  auto electrons    = event.GetPhysObjects(EPhysObjType::kGoodElectron);
+  auto muons        = event.GetPhysObjects(EPhysObjType::kGoodMuon);
+  auto photon       = event.GetPhysObjects(EPhysObjType::kGoodPhoton)[0];
+  auto caloTower    = event.GetPhysObjects(EPhysObjType::kCaloTower);
+  auto L1EGs        = event.GetPhysObjects(EPhysObjType::kL1EG);
+  auto castorTowers = event.GetPhysObjects(EPhysObjType::kCastor);
+
+  if(castorVeto(castorTowers)) return;
+
   // apply charged and neutral exclusivity
   
   if(genTracks.size()!=0 || electrons.size()!=0 || muons.size()!=0) return;

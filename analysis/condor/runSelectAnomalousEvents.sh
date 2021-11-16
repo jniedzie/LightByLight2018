@@ -1,6 +1,6 @@
 #!/bin/bash
 
-configPath="/afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation.md"
+configPath="/afs/cern.ch/work/o/osuranyi/public/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation_newThresholds.md"
 
 inputPath=""
 outputPath=""
@@ -8,7 +8,7 @@ sampleName=""
 
 basePath="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018"
 #basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
-suffix="_pixelRecHits_03May21"
+suffix="_03Oct_newThresholds"
 
 if [ $2 -eq 0 ]
 then
@@ -41,11 +41,6 @@ then
   sampleName="CEP" # 3 files only
   inputPath="${basePath}/skimmed_ntuples/mc_cep_sc_doubleEG2_full_lumi/ntuples_loose_selections_${1}.root"
   outputPath="${basePath}/analysis_ruchi/anomalous_plots/mc_cep_sc${suffix}"
-elif [ $2 -eq 5 ]
-then
-  sampleName="Noise_data" # 3 files only
-  inputPath="${basePath}/HIEmptyBX/ntuples/HIEmptyBX/ntuples_emptyBx_castor_pixel_branches/210803_040945/0000/data_emptyBx_HiForwardAOD_${1}.root"
-  outputPath="${basePath}/analysis_ruchi/anomalous_plots/noise_data${suffix}"
 fi
 
 

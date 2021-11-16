@@ -1,6 +1,6 @@
 Universe              = vanilla
-executable            = runSelectDiphotonEvents.sh
-arguments             = $(ProcId) 0
+executable            = runCaloPlots.sh
+arguments             = $(ProcId) 0 
 GetEnv                = True
 output                = output/$(ClusterId).$(ProcId).out
 error                 = error/$(ClusterId).$(ProcId).err
@@ -9,17 +9,10 @@ requirements 	      = (OpSysAndVer =?= "CentOS7")
 +JobFlavour           = "tomorrow"
 
 ## data (0)
-#queue 10400
-queue 106
+queue 934
 
 ## MC SC (1)
 #queue 256
 
 ## MC SL (2)
-#queue 243
-
-## MC LbL (3)
-#queue 4
-
-## MC CEP (4)
-#queue 4
+#queue 242

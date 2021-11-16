@@ -2,7 +2,7 @@
 //
 //  Created by Jeremi Niedziela on 23/07/2019.
 
-#include "ConfigManager.hpp"
+#include "../include/ConfigManager.hpp"
 #include "Logger.hpp"
 
 ConfigManager config("init");

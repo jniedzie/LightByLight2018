@@ -78,8 +78,25 @@ float pho_deta;
 float pho_dphi;
 float pho_acop;
 int ok_neuexcl;
+int ok_zdcexcl_1n_pos;
+int ok_zdcexcl_1n_neg;
+int ok_zdcexcl_3n_pos;
+int ok_zdcexcl_3n_neg;
+int ok_zdcexcl_4n_pos;
+int ok_zdcexcl_4n_neg;
+int ok_zdcexcl_5n_pos;
+int ok_zdcexcl_5n_neg;
+
 int ok_zdcexcl;
+int ok_castorexcl;
+
 int ok_chexcl;
+int ok_chexcl_tracks;
+int ok_chexcl_electrons;
+int ok_chexcl_muons;
+int ok_chexcl_goodtracks;
+int ok_chexcl_goodelectrons;
+
 float SFweight_reco[16];
 float SFweight_trig[16];
 int   nPixelCluster;
@@ -146,8 +163,29 @@ void InitTree(TTree *tr) {
   tr->Branch("pho_dphi",            &pho_dphi,        "pho_dphi/F");
   tr->Branch("pho_acop",            &pho_acop,        "pho_acop/F");
   tr->Branch("ok_neuexcl",          &ok_neuexcl,      "ok_neuexcl/I");
+  
+  tr->Branch("ok_zdcexcl_1n_pos",          &ok_zdcexcl_1n_pos,      "ok_zdcexcl_1n_pos/I");
+  tr->Branch("ok_zdcexcl_1n_neg",          &ok_zdcexcl_1n_neg,      "ok_zdcexcl_1n_neg/I");
+
+  tr->Branch("ok_zdcexcl_3n_pos",          &ok_zdcexcl_3n_pos,      "ok_zdcexcl_3n_pos/I");
+  tr->Branch("ok_zdcexcl_3n_neg",          &ok_zdcexcl_3n_neg,      "ok_zdcexcl_3n_neg/I");
+  
+  tr->Branch("ok_zdcexcl_4n_pos",          &ok_zdcexcl_4n_pos,      "ok_zdcexcl_4n_pos/I");
+  tr->Branch("ok_zdcexcl_4n_neg",          &ok_zdcexcl_4n_neg,      "ok_zdcexcl_4n_neg/I");
+
+  tr->Branch("ok_zdcexcl_5n_pos",          &ok_zdcexcl_5n_pos,      "ok_zdcexcl_5n_pos/I");
+  tr->Branch("ok_zdcexcl_5n_neg",          &ok_zdcexcl_5n_neg,      "ok_zdcexcl_5n_neg/I");
+
   tr->Branch("ok_zdcexcl",          &ok_zdcexcl,      "ok_zdcexcl/I");
+  tr->Branch("ok_castorexcl",       &ok_castorexcl,   "ok_castorexcl/I");
+
   tr->Branch("ok_chexcl",           &ok_chexcl,       "ok_chexcl/I");
+  tr->Branch("ok_chexcl_tracks",           &ok_chexcl_tracks,       "ok_chexcl_tracks/I");
+  tr->Branch("ok_chexcl_electrons",           &ok_chexcl_electrons,       "ok_chexcl_electrons/I");
+  tr->Branch("ok_chexcl_muons",           &ok_chexcl_muons,       "ok_chexcl_muons/I");
+  tr->Branch("ok_chexcl_goodtracks",           &ok_chexcl_goodtracks,       "ok_chexcl_goodtracks/I");
+  tr->Branch("ok_chexcl_goodelectrons",           &ok_chexcl_goodelectrons,       "ok_chexcl_goodelectrons/I");
+
   tr->Branch("SFweight_reco",       SFweight_reco,    "SFweight_reco[16]/F");
   tr->Branch("SFweight_trig",       SFweight_trig,    "SFweight_trig[16]/F");
 
@@ -216,8 +254,24 @@ void ResetVars() {
   pho_dphi = 0;
   pho_acop = 0;
   ok_neuexcl = 0;
+  ok_zdcexcl_1n_pos = 0;
+  ok_zdcexcl_1n_neg = 0;
+  ok_zdcexcl_3n_pos = 0;
+  ok_zdcexcl_3n_neg = 0;
+  ok_zdcexcl_4n_pos = 0;
+  ok_zdcexcl_4n_neg = 0;
+  ok_zdcexcl_5n_pos = 0;
+  ok_zdcexcl_5n_neg = 0;
   ok_zdcexcl = 0;
+  ok_castorexcl = 0;
+
   ok_chexcl = 0;
+  ok_chexcl_tracks = 0;
+  ok_chexcl_electrons = 0;
+  ok_chexcl_muons = 0;
+  ok_chexcl_goodtracks = 0;
+  ok_chexcl_goodelectrons = 0;
+ 
   nPixelCluster = -999;
   nPixelRecHits = -999;
 
@@ -304,8 +358,16 @@ int main(int argc, char* argv[])
     // select two exclusive photons 
     //if(event->GetPhysObjects(EPhysObjType::kGoodPhoton).size() != 2) continue; applying cut on good photon ==2  retains photons with pT less than 2 GeV and there can be more than 2 photons passing the criteria and others not passing... 
 
+    //if(event->GetPhysObjects(EPhysObjType::kPhoton).size() != 2) continue;
+
     // use normal photon size 2
-    if(event->GetPhysObjects(EPhysObjType::kPhoton).size() != 2) continue;
+    /*int nPhoNotEE = 0; // number of photons with |eta| < 2.1
+    for(auto photon : event->GetPhysObjects(EPhysObjType::kPhoton)){
+      if(fabs(photon->GetEta()) < 2.1)
+        nPhoNotEE++;
+    }
+
+    if(nPhoNotEE != 2) continue;*/
     twoPho++;
     hist->SetBinContent(2,twoPho);     hist_wozdc->SetBinContent(2,twoPho);
     // now require two photons passing ID only
@@ -315,6 +377,8 @@ int main(int argc, char* argv[])
 
     auto genTracks = event->GetPhysObjects(EPhysObjType::kGeneralTrack);
     auto electrons = event->GetPhysObjects(EPhysObjType::kElectron);
+    auto goodGenTracks = event->GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
+    auto goodElectrons = event->GetPhysObjects(EPhysObjType::kGoodElectron);
     auto muons     = event->GetPhysObjects(EPhysObjType::kMuon);
     auto photon1   = event->GetPhysObjects(EPhysObjType::kGoodPhoton)[0];
     auto photon2   = event->GetPhysObjects(EPhysObjType::kGoodPhoton)[1];
@@ -322,8 +386,28 @@ int main(int argc, char* argv[])
 
        // event variables
     ok_neuexcl = (!event->HasAdditionalTowers());
+    ok_castorexcl = (!event->HasCastorTowers());
+    
     ok_chexcl  = (genTracks.size()==0 && electrons.size()==0 && muons.size()==0 );
-    if(sampleName == "Data")ok_zdcexcl = event->GetTotalZDCenergyPos() < 10000 && event->GetTotalZDCenergyNeg() < 10000;
+    ok_chexcl_tracks = (genTracks.size()==0);
+    ok_chexcl_electrons = (electrons.size()==0);
+    ok_chexcl_muons = (muons.size()==0);
+    ok_chexcl_goodtracks = (goodGenTracks.size()==0);
+    ok_chexcl_goodelectrons = (goodElectrons.size()==0);
+
+
+    if(sampleName == "Data"){
+      ok_zdcexcl = event->GetTotalZDCenergyPos() < 10000 && event->GetTotalZDCenergyNeg() < 10000;
+      ok_zdcexcl_1n_pos = event->GetTotalZDCenergyPos() < 1500;
+      ok_zdcexcl_1n_neg = event->GetTotalZDCenergyNeg() < 1500;
+      ok_zdcexcl_3n_pos = event->GetTotalZDCenergyPos() < 8000;
+      ok_zdcexcl_3n_neg = event->GetTotalZDCenergyNeg() < 8000;
+      ok_zdcexcl_4n_pos = event->GetTotalZDCenergyPos() < 10000;
+      ok_zdcexcl_4n_neg = event->GetTotalZDCenergyNeg() < 10000;
+      ok_zdcexcl_5n_pos = event->GetTotalZDCenergyPos() < 12000;
+      ok_zdcexcl_5n_neg = event->GetTotalZDCenergyNeg() < 12000;
+
+    }
     
     // start filling photon information here ........................................
     
@@ -381,7 +465,7 @@ int main(int argc, char* argv[])
     pho_dpt  = fabs(phoEt_1  - phoEt_2);
     pho_deta = fabs(phoEta_1 - phoEta_2);
     pho_dphi = getDPHI(phoPhi_1,phoPhi_2);
-    pho_acop = 1- (pho_dphi/3.141592653589);  
+    pho_acop = 1 - (pho_dphi/3.141592653589);  
 
    nPixelCluster = event->GetNpixelClusters();
    nPixelRecHits =  event->GetNpixelRecHits();

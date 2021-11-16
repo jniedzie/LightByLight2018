@@ -88,6 +88,7 @@ enum class EPhysObjType {
   kPhotonInAcceptance,
   kGoodPhoton,
   kCaloTower,
+  kCastor,
   kGeneralTrack,
   kGoodGeneralTrack,
   kElectron,
@@ -110,6 +111,7 @@ const vector<EPhysObjType> physObjTypes = {
   EPhysObjType::kPhotonInAcceptance,
   EPhysObjType::kGoodPhoton,
   EPhysObjType::kCaloTower,
+  EPhysObjType::kCastor,
   EPhysObjType::kGeneralTrack,
   EPhysObjType::kGoodGeneralTrack,
   EPhysObjType::kElectron,
@@ -220,5 +222,7 @@ inline long long GetEntryNumber(TTree *tree, uint runNumber, uint lumiSection, U
   }
   return iEntry;
 }
+
+
 
 #endif /* Helpers_h */

@@ -34,8 +34,23 @@ analysis/getPhotonRecoIDEfficiencies
 analysis/runDumpEvent
 analysis/selectAnomalousEvents
 analysis/selectDiphotonEvents
+analysis/SAFE_prepareCastorPlots
+analysis/SAFE_selectAnomalousEventsWCastorVeto
+analysis/checkSignalLoss
+analysis/getPhotonRecoIDEfficiencies_SAFE
+analysis/prepareCaloPlots
+analysis/prepareCastorPlots
+analysis/selectAnomalousEventsWCastorVeto
+analysis/runDumpEvent
+
+analysis/condor/*.root
+analysis/condor/*.cc
+
+
+analysis/test
 
 analysis/*.root
+analysis/plottingMacros/*.root 
 
 analysis/caloNoiseStudy/*.root
 analysis/caloNoiseStudy/getCaloNoiseHistograms
@@ -43,6 +58,12 @@ analysis/caloNoiseStudy/log/
 analysis/caloNoiseStudy/error/
 analysis/caloNoiseStudy/output/
 analysis/caloNoiseStudy/input_filelist.txt
+
+analysis/plottingMacros/caloPlots_lbl/
+analysis/plottingMacros/castorPlots/
+analysis/plottingMacros/figures/
+analysis/plottingMacros/monoPhotonPlots/
+analysis/prepareCaloPlots
 
 analysis/CMakeCache.txt
 analysis/CMakeFiles/

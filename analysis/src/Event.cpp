@@ -27,7 +27,7 @@ void Event::Reset()
 {
   for(auto &[type, objects] : physObjects)    objects.clear();
   for(auto &[type, ready] : physObjectsReady) ready = false;
-  
+
   nDisplacedTracks = 0;
   nPixelClusters = 0;
   nPixelRecHits = 0;
@@ -46,6 +46,7 @@ PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
      || type == EPhysObjType::kElectron
      || type == EPhysObjType::kMuon
      || type == EPhysObjType::kCaloTower
+     || type == EPhysObjType::kCastor
      || type == EPhysObjType::kGeneralTrack
      || type == EPhysObjType::kL1EG
      || type == EPhysObjType::kZDC
@@ -135,7 +136,7 @@ PhysObjects Event::GetGoodPhotons()
     }
     else{
       double swissCross = E4/photon->GetEnergyCrystalMax();
-      if(swissCross < config.params("photonMinSwissCross")) continue;
+      if(swissCross > config.params("photonMinSwissCross")) continue;
     }
     
     // Check eta & phi (remove noisy region >2.3, remove cracks between EB and EE, remove HEM issue region)
@@ -433,14 +434,115 @@ PhysObjects Event::GetGoodPixelTracks(TH1D *cutFlowHist)
   return physObjects.at(EPhysObjType::kGoodPixelTrack);
 }
 
+//////////////////////////////////////////////////////////////////
+
+constexpr std::array<double, 42> etaedge = {
+      {0.000, 0.087, 0.174, 0.261, 0.348, 0.435, 0.522, 0.609, 0.696, 0.783, 0.870, 0.957, 1.044, 1.131,
+       1.218, 1.305, 1.392, 1.479, 1.566, 1.653, 1.740, 1.830, 1.930, 2.043, 2.172, 2.322, 2.500, 2.650,
+       2.853, 3.000, 3.139, 3.314, 3.489, 3.664, 3.839, 4.013, 4.191, 4.363, 4.538, 4.716, 4.889, 5.191}};
+
+static constexpr int ietaMax = 42;
+
+template <class valType>
+  inline constexpr valType make0To2pi(valType angle) {
+    constexpr valType twoPi = 2*M_PI;
+    constexpr valType oneOverTwoPi = 1. / twoPi;
+    constexpr valType epsilon = 1.e-13;
+
+    if ((std::abs(angle) <= epsilon) || (std::abs(twoPi - std::abs(angle)) <= epsilon))
+      return (0.);
+    if (std::abs(angle) > twoPi) {
+      valType nFac = trunc(angle * oneOverTwoPi);
+      angle -= (nFac * twoPi);
+      if (std::abs(angle) <= epsilon)
+        return (0.);
+    }
+    if (angle < 0.)
+      angle += twoPi;
+    return (angle);
+  }
+
+
+
+// helper functions
+int eta2ieta(double eta) {
+  // binary search in the array of towers eta edges
+
+  int ieta = 1;
+  double xeta = fabs(eta);
+  while (xeta > etaedge[ieta] && ieta < ietaMax - 1) {
+    ++ieta;
+  }
+
+  if (eta < 0)
+    ieta = -ieta;
+  return ieta;
+}
+
+int phi2iphi(double phi, int ieta){
+  phi = make0To2pi(phi);
+  int nphi = 72;
+  int n = 1;
+  if (abs(ieta) > 20)
+    n = 2;
+  if (abs(ieta) >= 40)
+    n = 4;
+
+  int iphi = (int)std::ceil(phi / 2.0 / M_PI * nphi / n);
+
+  iphi = n * (iphi - 1) + 1;
+
+  return iphi;
+}
+
+//////////////////////////////////////////////////////////////////
+
 bool Event::HasAdditionalTowers()
 {
   for(auto tower : physObjects.at(EPhysObjType::kCaloTower)){
 
     ECaloType subdetHad = tower->GetTowerSubdetHad();
     ECaloType subdetEm = tower->GetTowerSubdetEm();
-        
+
+    int ieta = eta2ieta(tower->GetEta());
+
     if(subdetHad==kHFp || subdetHad==kHFm){ // Check HF exclusivity
+      if(subdetHad==kHFp && (ieta == 29 || ieta == 30)) continue;
+      if(subdetHad==kHFm && (ieta == -29 || ieta == -30)) continue;    
+
+      if(tower->GetEnergy() > config.params("noiseThreshold"+caloName.at(subdetHad))){
+        return true;
+      }
+    }
+    if(subdetHad==kHB || subdetHad==kHE){ // Check HB and HE exclusivity
+      if(subdetHad==kHE && (ieta == 16 || ieta == -16 )) continue;
+      
+      if(tower->GetEnergyHad() > config.params("noiseThreshold"+caloName.at(subdetHad))){
+        return true;
+      }
+    }
+    if(subdetEm==kEB){
+      if(IsOverlappingWithGoodPhoton(*tower)) continue;
+      if(IsOverlappingWithGoodElectron(*tower)) continue;
+      
+      if(tower->GetEnergyEm() > GetEmThresholdForTower(*tower)){
+        return true;
+      }
+    }
+    if(subdetEm==kEE){ // Check EB and EE exclusivity
+      //if(ieta == 27 || ieta == 28 || ieta == 29 || ieta == -27 || ieta == -28 || ieta == -29) continue;
+      if(fabs(tower->GetEta()) > config.params("maxEtaEEtower")) continue;
+      if(physObjectProcessor.IsInHEM(*tower)) continue;
+      if(IsOverlappingWithGoodPhoton(*tower)) continue;
+      if(IsOverlappingWithGoodElectron(*tower)) continue;
+      
+      if(tower->GetEnergyEm() > GetEmThresholdForTower(*tower)){
+        return true;
+      }
+    }
+  }
+
+/*    if(subdetHad==kHFp || subdetHad==kHFm){ // Check HF exclusivity
       if(tower->GetEnergy() > config.params("noiseThreshold"+caloName.at(subdetHad))){
         return true;
       }
@@ -468,6 +570,20 @@ bool Event::HasAdditionalTowers()
         return true;
       }
     }
+  }
+*/
+  // Check castor towers too
+  if(config.params("doCASTOR")){
+    return HasCastorTowers();
+  }
+
+  return false;
+}
+
+bool Event::HasCastorTowers(){
+  for(auto castor : physObjects.at(EPhysObjType::kCastor)){
+    if(castor->GetEnergy() > GetCastorThreshold(*castor))
+      return true;
   }
   return false;
 }
@@ -547,7 +663,7 @@ bool Event::IsOverlappingWithGoodPhoton(const PhysObject &tower)
     auto photon = GetPhysObjects(EPhysObjType::kGoodPhoton)[iPhoton];
     
     double deltaEta = fabs(photon->GetEtaSC() - tower.GetEta());
-    double deltaPhi = fabs(photon->GetPhiSC() - tower.GetPhi());
+    double deltaPhi = fabs(TVector2::Phi_mpi_pi(photon->GetPhiSC() - tower.GetPhi()));
     
     if(deltaEta < maxDeltaEta && deltaPhi < maxDeltaPhi){
       overlapsWithPhoton = true;
@@ -567,7 +683,7 @@ bool Event::IsOverlappingWithGoodElectron(const PhysObject &tower)
   
   for(auto electron : GetGoodElectrons()){
     double deltaEta = fabs(electron->GetEtaSC() - tower.GetEta());
-    double deltaPhi = fabs(electron->GetPhiSC() - tower.GetPhi());
+    double deltaPhi = fabs(TVector2::Phi_mpi_pi(electron->GetPhiSC() - tower.GetPhi()));
     
     if(deltaEta < maxDeltaEta && deltaPhi < maxDeltaPhi){
       overlapsWithElectron = true;
@@ -604,6 +720,31 @@ double Event::GetEmThresholdForTower(const PhysObject &tower)
   if(threshold < 0) Log(0)<<"ERROR - could not find threshold for thower !!\n";
   return threshold;
 }
+
+double Event::GetCastorThreshold(const PhysObject &castor)
+{
+  double threshold;
+
+  if(config.params("doNoiseCASTORphiDependant")){
+    int index;
+    
+    // converting CASTOR phi to index=0-15
+    vector<double> possiblePhiValues = {-2.95,-2.55,-2.16,-1.77,-1.37,-0.98,-0.59,-0.20,0.20,0.59,0.98,1.37,1.77,2.16,2.55,2.95};
+    for(unsigned int i = 0; i < possiblePhiValues.size(); i++)
+      if(fabs(possiblePhiValues[i]-castor.GetPhi()) < 0.2)
+        index = i;
+    
+    threshold = config.params("noiseThresholdCASTOR_"+to_string(index));
+  }
+  else{
+    threshold = config.params("noiseThresholdCASTOR");
+  }
+
+  return threshold;
+}
+
+
+
 
 map<ECaloType, PhysObjects> Event::GetCaloTowersAboveThresholdByDet()
 {

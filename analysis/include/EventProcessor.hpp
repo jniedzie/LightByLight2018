@@ -7,6 +7,11 @@
 
 #include "Helpers.hpp"
 #include "Event.hpp"
+//#include "TROOT.h"
+//#include "TMath.h"
+//#include "TLorentzVector.h"
+#include "Math/GenVector/PxPyPzE4D.h"
+#include "Math/GenVector/LorentzVector.h"
 
 /// This class keeps a link to input ROOT trees and creates Event class objects when moving
 /// to next event.
@@ -154,7 +159,19 @@ private:
   vector<float> *pixelTrackVertexX      = nullptr;
   vector<float> *pixelTrackVertexY      = nullptr;
   vector<float> *pixelTrackVertexZ      = nullptr;
-  
+ 
+  int nCastorTower;
+  vector<float> *CastorTower_hadE         = nullptr;
+  vector<float> *CastorTower_emE          = nullptr;
+  vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>> *CastorTower_p4  = nullptr;
+  //vector<TLorentzVector> *CastorTower_p4  = nullptr;
+
+  //vector<int> *CastorTower_NrecHits       = nullptr;
+
+  //int nTrackerHits;
+  //int nPixelClusters;
+  //int nPixelRecHits
+
   int   nZDCs;
   float zdcE[100];
   float zdcSaturation[100];

@@ -1,6 +1,6 @@
 Universe              = vanilla
-executable            = runSelectDiphotonEvents.sh
-arguments             = $(ProcId) 0
+executable            = runSelectAnomalousEventsWCastor.sh
+arguments             = $(ProcId) 1
 GetEnv                = True
 output                = output/$(ClusterId).$(ProcId).out
 error                 = error/$(ClusterId).$(ProcId).err
@@ -9,17 +9,16 @@ requirements 	      = (OpSysAndVer =?= "CentOS7")
 +JobFlavour           = "tomorrow"
 
 ## data (0)
-#queue 10400
-queue 106
+#queue 106
 
 ## MC SC (1)
-#queue 256
+queue 255
 
 ## MC SL (2)
-#queue 243
+#queue 242
 
 ## MC LbL (3)
-#queue 4
+#queue 5
 
 ## MC CEP (4)
-#queue 4
+#queue 5

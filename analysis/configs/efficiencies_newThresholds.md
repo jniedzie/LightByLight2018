@@ -100,11 +100,11 @@ maxEtaEEtower:      2.4
 
 ### Calorimeter noise thresolds (GeV)
 noiseThresholdEB:        0.7
-noiseThresholdEE:        7.5
+noiseThresholdEE:        3.0
 noiseThresholdHB:        2.8
-noiseThresholdHE:        2.4
-noiseThresholdHFp:      7.2
-noiseThresholdHFm:     7.5
+noiseThresholdHE:        1.0
+noiseThresholdHFp:      5.0
+noiseThresholdHFm:      5.0
 
 
 ### eta dependant EE noise thresholds (GeV)
@@ -129,3 +129,24 @@ noiseThresholdEE_2.7:   10.01
 noiseThresholdEE_2.8:   10.01
 noiseThresholdEE_2.9:   10.01
 noiseThresholdEE_3.0:   10.01
+
+### phi dependant CASTOR noise thresholds (GeV)
+doCASTOR: 0
+doNoiseCASTORphiDependant:    1
+
+noiseThresholdCASTOR_0: 63.50
+noiseThresholdCASTOR_1: 62.51
+noiseThresholdCASTOR_2: 116.07
+noiseThresholdCASTOR_3: 63.44
+noiseThresholdCASTOR_4: 59.11
+noiseThresholdCASTOR_5: 61.26
+noiseThresholdCASTOR_6: 112.78
+noiseThresholdCASTOR_7: 152.77
+noiseThresholdCASTOR_8: 73.16
+noiseThresholdCASTOR_9: 155.60
+noiseThresholdCASTOR_10:  145.97
+noiseThresholdCASTOR_11:  68.65
+noiseThresholdCASTOR_12:  60.86
+noiseThresholdCASTOR_13:  53.54
+noiseThresholdCASTOR_14:  63.87
+noiseThresholdCASTOR_15:  58.37

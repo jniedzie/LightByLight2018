@@ -155,7 +155,20 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("nPixelClusters"  , &nPixelClusters);
   eventTree->SetBranchAddress("nPixelRecHits"   , &nPixelRecHits);
   eventTree->SetBranchAddress("nDedxHits"       , &nDedxHits);
- 
+
+ // if(castorTree){
+  eventTree->SetBranchAddress("nCastorTower"          , &nPhysObjects.at(EPhysObjType::kCastor));
+  eventTree->SetBranchAddress("CastorTower_hadE"      , &CastorTower_hadE);
+  eventTree->SetBranchAddress("CastorTower_emE"       , &CastorTower_emE);
+  eventTree->SetBranchAddress("CastorTower_p4"        , &CastorTower_p4);
+  //eventTree->SetBranchAddress("CastorTower_NrecHits"  , CastorTower_NrecHits);
+  
+  //eventTree->SetBranchAddress("nTrackerHits"    , &nTrackerHits);
+  //eventTree->SetBranchAddress("nPixelClusters"  , &nPixelClusters);
+  //eventTree->SetBranchAddress("nPixelRecHits"   , &nPixelRecHits);
+  
+  //}
+
   if(zdcTree){
     zdcTree->SetBranchAddress("n"                 , &nZDCs);
     zdcTree->SetBranchAddress("e"                 , zdcE);
@@ -365,6 +378,20 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     tower->energyEm  = towerEnergyEm->at(iTower);
     
     currentEvent->physObjects.at(EPhysObjType::kCaloTower).push_back(tower);
+  }
+
+  // Fill in castor towers
+
+  for(size_t iCastor=0; iCastor < nPhysObjects.at(EPhysObjType::kCastor); iCastor++){
+    auto castor = make_shared<PhysObject>();
+
+    castor->energyHad = CastorTower_hadE->at(iCastor);
+    castor->energyEm = CastorTower_emE->at(iCastor);
+    castor->energy = CastorTower_hadE->at(iCastor) + CastorTower_emE->at(iCastor);
+    castor->eta = CastorTower_p4->at(iCastor).Eta();
+    castor->phi = CastorTower_p4->at(iCastor).Phi();
+
+    currentEvent->physObjects.at(EPhysObjType::kCastor).push_back(castor);
   }
   
   // Fill in collection of general tracks

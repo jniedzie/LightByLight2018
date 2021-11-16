@@ -32,7 +32,8 @@ public:
   /// photons nor electrons passing ID selections. Returns true as soon as the first tower above
   /// the threshold is found.
   bool HasAdditionalTowers();
-  
+  bool HasCastorTowers();
+ 
   /// Check if there are calo towers above noise threshold. In ECal they must not overlap with
   /// photons nor electrons passing ID selections. Continues to loop over towers even after the
   /// first tower above the noise threshold is found.
@@ -94,7 +95,8 @@ private:
   
   /// Returns noise threshold for given tower in EM calos
   double GetEmThresholdForTower(const PhysObject &tower);
-  
+  double GetCastorThreshold(const PhysObject &castor);
+
   EDataset dataset;
   
   int nDisplacedTracks;

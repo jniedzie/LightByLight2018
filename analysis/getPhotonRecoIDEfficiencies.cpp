@@ -46,10 +46,14 @@ float tag_L1Et_passEG5;
 float tag_L1Eta_passEG5;
 int nPho_notag;
 float phoEt_notag;
+float phoEtBarrel_notag;
+float phoEtEndcap_notag;
 float phoEta_notag;
 float phoPhi_notag;
 float phoAco_notag;
 float phoSCEt_notag;
+float phoSCEtBarrel_notag;
+float phoSCEtEndcap_notag;
 float phoSCEta_notag;
 float phoSCPhi_notag;
 float phoSCAco_notag;
@@ -91,10 +95,14 @@ void InitTree(TTree *tr) {
   tr->Branch("ok_HoE",&ok_HoE,"ok_HoE/I");
   tr->Branch("nPho_notag",   &nPho_notag,   "nPho_notag/I");
   tr->Branch("phoEt_notag",&phoEt_notag,"phoEt_notag/F");
+  tr->Branch("phoEtBarrel_notag",&phoEtBarrel_notag,"phoEtBarrel_notag/F");
+  tr->Branch("phoEtEndcap_notag",&phoEtEndcap_notag,"phoEtEndcap_notag/F");
   tr->Branch("phoEta_notag",&phoEta_notag,"phoEta_notag/F");
   tr->Branch("phoPhi_notag",&phoPhi_notag,"phoPhi_notag/F");
   tr->Branch("phoAco_notag",&phoAco_notag,"phoAco_notag/F");
   tr->Branch("phoSCEt_notag",&phoSCEt_notag,"phoSCEt_notag/F");
+  tr->Branch("phoSCEtBarrel_notag",&phoSCEtBarrel_notag,"phoSCEtBarrel_notag/F");
+  tr->Branch("phoSCEtEndcap_notag",&phoSCEtEndcap_notag,"phoSCEtEndcap_notag/F");
   tr->Branch("phoSCEta_notag",&phoSCEta_notag,"phoSCEta_notag/F");
   tr->Branch("phoSCPhi_notag",&phoSCPhi_notag,"phoSCPhi_notag/F");
   tr->Branch("phoSCAco_notag",&phoSCAco_notag,"phoSCAco_notag/F");
@@ -163,10 +171,14 @@ void ResetPassingProbeVars() {
    ok_HoE         = -999;
    nPho_notag     = 0;
    phoEt_notag    = -999;
+   phoEtBarrel_notag    = -999;
+   phoEtEndcap_notag    = -999;
    phoEta_notag   = -999;
    phoPhi_notag   = 999;
    phoAco_notag   = 999;
    phoSCEt_notag  = -999;
+   phoSCEtBarrel_notag  = -999;
+   phoSCEtEndcap_notag  = -999;
    phoSCEta_notag = -999;
    phoSCPhi_notag = 999;
    phoSCAco_notag = 999;
@@ -383,10 +395,30 @@ int main(int argc, char* argv[])
       nPho_notag++;
       phoEt_notag    = photon->GetEnergy()*sin(2.*atan(exp(-photon->GetEta())));
       phoEta_notag   = photon->GetEta();
+      
+      ////////////////////
+      // Added by O. S. //
+      /////////////////////////////////////
+      /*if(phoEta_notag < 1.5) // barrel
+        phoEtBarrel_notag = phoEt_notag;
+      else // endcap
+        phoEtEndcap_notag = phoEt_notag;*/
+      /////////////////////////////////////
+
       phoPhi_notag   = photon->GetPhi();
       phoAco_notag   = acop(theTag->GetPhi() - phoPhi_notag);
-      phoSCEt_notag  = photon->GetEnergySC()*sin(2.*atan(exp(-photon->GetEtaSC()))); 
+      phoSCEt_notag  = photon->GetEnergySC()*sin(2.*atan(exp(-photon->GetEtaSC())));       
       phoSCEta_notag = photon->GetEtaSC();
+
+      ////////////////////
+      // Added by O. S. //
+      /////////////////////////////////////
+      /*if(phoSCEta_notag < 1.5) // barrel
+        phoSCEtBarrel_notag = phoSCEt_notag;
+      else // endcap
+        phoSCEtEndcap_notag = phoSCEt_notag;*/
+      /////////////////////////////////////
+
       phoSCPhi_notag = photon->GetPhiSC();
       phoSCAco_notag = acop(theTag->GetPhi() - phoSCPhi_notag);
       //Log(0) << iEvent << "  photon event:" << photon_loop << "  photon pt:" << phoSCEt_notag << "   eta:" << phoSCEta_notag << "   phi:" << phoSCPhi_notag << "   deltaR:"<< deltaR << "  ok"<<  ok_photon << "\n" ;
@@ -398,7 +430,7 @@ int main(int argc, char* argv[])
 	photon->GetEnergyCrystalLeft() + photon->GetEnergyCrystalRight();
       swissCross = E4/photon->GetEnergyCrystalMax();
       
-      ok_swissCross = (swissCross > config.params("photonMinSwissCross"));
+      ok_swissCross = (swissCross < config.params("photonMaxSwissCross"));
       if (fabs(phoSCEta_notag) < 1.5) { // barrel
 	ok_etaWidth = (etaWidth < config.params("photonMaxEtaWidthBarrel"));
 	ok_HoE      = (HoE < config.params("photonMaxHoverEbarrel"));
@@ -468,7 +500,7 @@ int main(int argc, char* argv[])
     cnt[8]++;
     
     // the tag and track +- back to back
-    if (acop(theTag->GetPhi() - probetkPhi)>0.5) continue;
+    if (acop(theTag->GetPhi() - probetkPhi)>0.5) continue; // O.S.: plan to modify to 0.1
     cnt[9]++;
     
     tr->Fill(); 
