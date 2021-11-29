@@ -4,11 +4,13 @@
 #include <array>
 #include <string>
 #include "plotStyle.h"
+#include <TLine.h>
 
 void drawCaloPlots(){
-  //TFile f("/eos/cms/store/group/phys_heavyions/osuranyi/lbyl_2018/caloPlots/merged_caloPlots.root");
-  TFile f("../test_calo.root");
-  TFile f_lbl("../test_calo_lbl.root");
+  TFile f("merged_caloPlots.root");
+  //TFile f("../test_calo.root");
+  //TFile f_lbl("../test_calo_lbl.root");
+  TFile f_lbl("merged_caloPlots.root");
 
   initRootStyle();
 
@@ -270,7 +272,7 @@ void drawCaloPlots(){
   /////////////////////
 
   // Scale plots
-  eEB->Scale(1.0/eEB->Integral());
+ /* eEB->Scale(1.0/eEB->Integral());
   eEE->Scale(1.0/eEE->Integral());
   eHB->Scale(1.0/eHB->Integral());
   eHE->Scale(1.0/eHE->Integral());
@@ -314,13 +316,13 @@ void drawCaloPlots(){
   eHB_leadingTower_lbl->SetLineColor(2);
   eHE_leadingTower_lbl->SetLineColor(2);
   eHFp_leadingTower_lbl->SetLineColor(2);
-  eHFm_leadingTower_lbl->SetLineColor(2);
+  eHFm_leadingTower_lbl->SetLineColor(2);*/
 
 
   /////////////////////
-  c1->SetLogz();
+  //c1->SetLogy();
 
-  eEB->Draw("hist e");
+ /* eEB->Draw("hist e");
   eEB_lbl->Draw("hist e same");
   c1->SaveAs("caloPlots_lbl/allTower/eEB.png");
 
@@ -405,36 +407,56 @@ void drawCaloPlots(){
   c1->SaveAs("caloPlots_lbl/allTower_index/eHE_ieta_iphi.png");
   
   eHF_ieta_iphi->Draw("colz");
-  c1->SaveAs("caloPlots_lbl/allTower_index/eHF_ieta_iphi.png");
+  c1->SaveAs("caloPlots_lbl/allTower_index/eHF_ieta_iphi.png");*/
   
 
   // Leading tower plots
+  TLine *l1 = new TLine(0.7,0,0.7,14000000);
+  l1->SetLineColor(kRed);
   eEB_leadingTower->Draw("hist e");
-  eEB_leadingTower_lbl->Draw("hist e same");
+  l1->Draw();
+  //eEB_leadingTower_lbl->Draw("hist e same");
   c1->SaveAs("caloPlots_lbl/leadingTower/eEB_leadingTower.png");
 
-  eEE_leadingTower->Draw("hist e");
-  eEE_leadingTower_lbl->Draw("hist e same");
+
+  TLine *l2 = new TLine(3.0,0,3.0,3500000);
+  l2->SetLineColor(kRed); 
+   eEE_leadingTower->Draw("hist e");
+  l2->Draw();
+  //eEE_leadingTower_lbl->Draw("hist e same");
   c1->SaveAs("caloPlots_lbl/leadingTower/eEE_leadingTower.png");
-  
+ 
+
+  TLine *l3 = new TLine(2.8,0,2.8,3500000);
+  l3->SetLineColor(kRed);  
   eHB_leadingTower->Draw("hist e");
-  eHB_leadingTower_lbl->Draw("hist e same");
+  l3->Draw();
+  //eHB_leadingTower_lbl->Draw("hist e same");
   c1->SaveAs("caloPlots_lbl/leadingTower/eHB_leadingTower.png");
-  
+ 
+  TLine *l4 = new TLine(1.0,0,1.0,8000000);
+  l4->SetLineColor(kRed);   
   eHE_leadingTower->Draw("hist e");
-  eHE_leadingTower_lbl->Draw("hist e same");
+  l4->Draw();
+  //eHE_leadingTower_lbl->Draw("hist e same");
   c1->SaveAs("caloPlots_lbl/leadingTower/eHE_leadingTower.png");
-  
+ 
+
+  TLine *l5 = new TLine(6.0,0,6.0,2200000);
+  l5->SetLineColor(kRed);    
   eHFp_leadingTower->Draw("hist e");
-  eHFp_leadingTower_lbl->Draw("hist e same");
+  l5->Draw();
+  //eHFp_leadingTower_lbl->Draw("hist e same");
   c1->SaveAs("caloPlots_lbl/leadingTower/eHFp_leadingTower.png");
-  
+ 
+
   eHFm_leadingTower->Draw("hist e");
-  eHFm_leadingTower_lbl->Draw("hist e same");
+  l5->Draw();
+  //eHFm_leadingTower_lbl->Draw("hist e same");
   c1->SaveAs("caloPlots_lbl/leadingTower/eHFm_leadingTower.png");
 
 
-  eEB_eta_leadingTower->Draw("colz");
+/*  eEB_eta_leadingTower->Draw("colz");
   c1->SaveAs("caloPlots_lbl/leadingTower/eEB_eta_leadingTower.png");
 
   eEE_eta_leadingTower->Draw("colz");
@@ -495,7 +517,7 @@ void drawCaloPlots(){
   c1->SaveAs("caloPlots_lbl/leadingTower_index/eHE_ieta_iphi_leadingTower.png");
   
   eHF_ieta_iphi_leadingTower->Draw("colz");
-  c1->SaveAs("caloPlots_lbl/leadingTower_index/eHF_ieta_iphi_leadingTower.png");
+  c1->SaveAs("caloPlots_lbl/leadingTower_index/eHF_ieta_iphi_leadingTower.png");*/
 
 
 }

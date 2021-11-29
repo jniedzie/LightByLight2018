@@ -1,16 +1,17 @@
 #!/bin/bash
 
 userBasePath="/afs/cern.ch/work/r/rchudasa/private"
-configPath="${userBasePath}/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation.md"
+#configPath="${userBasePath}/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation.md"
+configPath="${userBasePath}/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation_newThresholds.md"
 
 inputPath=""
 outputPath=""
 sampleName=""
 
+inbasePath="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018"
 basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
 
-#suffix="_HFveto_eff_singleEG3orEG5SingleTrack_21012021_eta2p1"
-suffix="_check"
+suffix="_HFveto_eff_singleEG3orEG5SingleTrack_23Nov21_OlivCaloThresholds_eta2p4"
 
 if [ $2 -eq 0 ]
 then
@@ -22,12 +23,14 @@ then
   sampleName="QED_SC" # last chunk numer: 255
 #inputPath="${basePath}/skimmed_ntuples/mc_qed_sc_doubleEG2/merged_ntuples.root"
 #  inputPath="${basePath}/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
-  inputPath="${basePath}/mc_qed/ntuples_sc_full_lumi/QEDGammaGamma_5p02TeV_SuperChic/reco_mc_qed_sc_full_lumi/200807_100412/0000/mc_HiForestAOD_${1}.root"
+  #inputPath="${basePath}/mc_qed/ntuples_sc_full_lumi/QEDGammaGamma_5p02TeV_SuperChic/reco_mc_qed_sc_full_lumi/200807_100412/0000/mc_HiForestAOD_${1}.root"
+  inputPath="${inbasePath}/mcForests/mc_qed/QEDGammaGamma_5p02TeV_SuperChic/reco_mc_qed_sc_CastorInfo/210906_102658/0000/mc_HiForestAOD_${1}.root"
   outputPath="${basePath}/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sc${suffix}"
 elif [ $2 -eq 2 ]
 then
   sampleName="QED_SL" # last chunk numer: 253
-  inputPath="${basePath}/mc_qed/ntuples_sl_full_lumi_v5/QEDGammaGamma_5p02TeV_STARlight/reco_mc_qed_sl_full_lumi_v5/200929_094304/0000/mc_HiForestAOD_${1}.root"
+  #inputPath="${basePath}/mc_qed/ntuples_sl_full_lumi_v5/QEDGammaGamma_5p02TeV_STARlight/reco_mc_qed_sl_full_lumi_v5/200929_094304/0000/mc_HiForestAOD_${1}.root"
+  inputPath="${inbasePath}/mcForests/mc_qed/QEDGammaGamma_5p02TeV_STARlight/reco_mc_qed_sl_CastorInfo/210906_102343/0000/mc_HiForestAOD_${1}.root"
   outputPath="${basePath}/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sl${suffix}"
 fi
 

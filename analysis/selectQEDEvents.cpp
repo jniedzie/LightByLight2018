@@ -240,7 +240,7 @@ int main(int argc, char* argv[])
     ResetGenVars();  
     ResetVars();  
     
-   /* if(sampleName == "QED_SC" || sampleName == "QED_SL" || sampleName == "LbL" || sampleName == "CEP"){
+    if(sampleName == "QED_SC" || sampleName == "QED_SL" || sampleName == "LbL" || sampleName == "CEP"){
     auto genP = event->GetPhysObjects(EPhysObjType::kGenParticle);
      for(auto gen : genP ){
 	ResetGenVars();
@@ -252,11 +252,11 @@ int main(int argc, char* argv[])
 	} // PID
      } //genpartcle 
     } //samplename
-    */
+   
     
     // Check trigger
     //if(sampleName != "Data"){
-     if(!event->HasTrigger(kDoubleEG2noHF)) continue;
+    // if(!event->HasTrigger(kDoubleEG2noHF)) continue;
     //}
 
     trigger_passed++;
@@ -277,7 +277,7 @@ int main(int argc, char* argv[])
     auto electron2 = event->GetPhysObjects(EPhysObjType::kGoodElectron)[1];
     auto caloTower = event->GetPhysObjects(EPhysObjType::kCaloTower);
 
-    if(electron1->GetCharge() != electron2->GetCharge()) continue;
+    if(electron1->GetCharge() == electron2->GetCharge()) continue;
     oppCharge++;
     hist->SetBinContent(3,oppCharge);      hist_wozdc->SetBinContent(3,oppCharge);
     
@@ -356,7 +356,7 @@ int main(int argc, char* argv[])
     ele_dphi = getDPHI(elePhi_1,elePhi_2);
     ele_acop = 1- (ele_dphi/3.141592653589);  
 
-    float  EmEnergy_EB = 0;
+   /* float  EmEnergy_EB = 0;
     float  EmEnergy_EE = 0;
     float  HadEnergy_HB = 0;
     float  HadEnergy_HE = 0;
@@ -417,7 +417,7 @@ int main(int argc, char* argv[])
     leadingHadEnergy_HE = HadEnergy_HE;
     leadingHadEnergy_HF_Plus = HadEnergy_HF_Plus;
     leadingHadEnergy_HF_Minus = HadEnergy_HF_Minus;
-    
+    */
     
     if(ok_chexcl_extrk==1){
       charged_excl++;

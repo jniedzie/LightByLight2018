@@ -28,6 +28,8 @@ int nbin = 8;
 const char *dir = "figures";
 
 #define PI 3.141592653589
+double getError(double A, double eA, double B, double eB);
+void getEfficiency(TH1F *&, TH1F *&, double *, double *);
 
 void make_hist(TH1D *&, Color_t , int );
 
@@ -73,9 +75,9 @@ void plot_photonRecoID(){
   //TFile *outf= new TFile("histos.root","recreate");  
 
   TChain *data = new TChain("tnpQED/fitter_tree");
-  data->Add("/afs/cern.ch/user/o/osuranyi/eos/lbyl_2018/efficienciesQED/efficiencies_data.root");
+  data->Add("efficiencies_data.root");
   TChain *qed = new TChain("tnpQED/fitter_tree");
-  qed->Add("/afs/cern.ch/user/o/osuranyi/eos/lbyl_2018/efficienciesQED/efficiencies_qed.root");
+  qed->Add("efficiencies_qed.root");
 
 
   int run;
@@ -346,7 +348,8 @@ void plot_photonRecoID(){
       if(fabs(probetkEta) < 1.5){
         denominator_barrel_pT->Fill(probetkMinDpt);
         denominator_eta->Fill(fabs(probetkEta));
-        if(ok_photon == 1 && ok_etaWidth == 1 && ok_HoE == 1){
+        //if(ok_photon == 1 && ok_etaWidth == 1 && ok_HoE == 1){
+        if(ok_photon == 1 && ok_ID == 1 ){
           numerator_barrel_pT->Fill(probetkMinDpt);
           numerator_eta->Fill(fabs(probetkEta));
         }
@@ -354,7 +357,8 @@ void plot_photonRecoID(){
       else if(fabs(probetkEta) > 1.5){
         denominator_endcap_pT->Fill(probetkMinDpt);
         denominator_eta->Fill(fabs(probetkEta));
-        if(ok_photon == 1 && ok_etaWidth == 1 && ok_HoE == 1){
+        //if(ok_photon == 1 && ok_etaWidth == 1 && ok_HoE == 1){
+        if(ok_photon == 1 && ok_ID == 1 ){
           numerator_endcap_pT->Fill(probetkMinDpt);
           numerator_eta->Fill(fabs(probetkEta));
         }
@@ -372,7 +376,8 @@ void plot_photonRecoID(){
         qed_denominator_barrel_pT->Fill(qed_probetkMinDpt);
         qed_denominator_eta->Fill(qed_probetkEta);
 
-        if(qed_ok_photon == 1 && qed_ok_etaWidth == 1 && qed_ok_HoE == 1){
+        //if(qed_ok_photon == 1 && qed_ok_etaWidth == 1 && qed_ok_HoE == 1){
+        if(qed_ok_photon == 1 && qed_ok_ID == 1 ){
           qed_numerator_barrel_pT->Fill(qed_probetkMinDpt);
           qed_numerator_eta->Fill(qed_probetkEta);      
         }
@@ -381,7 +386,8 @@ void plot_photonRecoID(){
         qed_denominator_endcap_pT->Fill(qed_probetkMinDpt);
         qed_denominator_eta->Fill(qed_probetkEta);
 
-        if(qed_ok_photon == 1 && qed_ok_etaWidth == 1 && qed_ok_HoE == 1){
+        //if(qed_ok_photon == 1 && qed_ok_etaWidth == 1 && qed_ok_HoE == 1){
+        if(qed_ok_photon == 1 && qed_ok_ID == 1 ){
           qed_numerator_endcap_pT->Fill(qed_probetkMinDpt);
           qed_numerator_eta->Fill(qed_probetkEta);
         }
@@ -443,6 +449,25 @@ void plot_photonRecoID(){
 
   c1->SaveAs("figures/photonEfficiency/efficiency_eta.png");
 
+  double eff, err;
+  cout << "*****Data ******" << endl;; 
+  cout << "pt barrel efficiency = "; 
+  getEfficiency(numerator_barrel_pT, denominator_barrel_pT, &eff, &err);
+  cout << "pt endcap efficiency = "; 
+  getEfficiency(numerator_endcap_pT, denominator_endcap_pT, &eff, &err);
+  cout << "Eta efficiency = "; 
+  getEfficiency(numerator_eta, denominator_eta, &eff, &err);
+
+
+ // double eff, err;
+  cout << "*****MC ******" << endl;; 
+  cout << "pt barrel efficiency = "; 
+  getEfficiency(qed_numerator_barrel_pT, qed_denominator_barrel_pT, &eff, &err);
+  cout << "pt endcap efficiency = "; 
+  getEfficiency(qed_numerator_endcap_pT, qed_denominator_endcap_pT, &eff, &err);
+  cout << "Eta efficiency = "; 
+  getEfficiency(qed_numerator_eta, qed_denominator_eta, &eff, &err);
+
 
 }
 
@@ -459,5 +484,27 @@ void make_hist(TH1D *& hist, Color_t kcolor, int kstyle){
   hist->SetMarkerStyle(kstyle);
   
   //hist->SetTitle("");
+}
+
+void getEfficiency(TH1F *& hnum, TH1F *& hden, double *efficiency, double *error){
+  double numError, denError;
+  double int_num = hnum->IntegralAndError(1,hnum->GetNbinsX(),numError);
+  double int_den = hden->IntegralAndError(1,hden->GetNbinsX(),denError);
+  double int_num_err = numError;
+  double int_den_err = denError;
+  *efficiency = int_num/int_den;
+  *error = getError(int_num,int_num_err,int_den,int_den_err);
+  //cout <<"Num: " << int_num << endl;
+  //cout <<"Den: " << int_den << endl;
+  std::cout << *efficiency  << " +/- " << *error <<  endl;  
+}
+
+//Ratio Error
+double getError(double A, double eA, double B, double eB){
+  double f=A/B;
+  double fA=eA/A;
+  double fB=eB/B;
+  double eR=  f*sqrt( (fA*fA + fB*fB )) ;
+  return eR;
 }
 

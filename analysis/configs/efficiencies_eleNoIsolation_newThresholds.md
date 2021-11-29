@@ -61,6 +61,7 @@ photonMaxEtaWidthBarrel:      0.0106
 photonMaxEtaWidthEndcap:      0.0272
 photonMaxSigmaEta2012Barrel:     999999
 photonMaxSigmaEta2012Endcap:  999999
+photonMinSwissCross:             999 
 photonMaxSwissCross:             0.95 
 diphotonMaxPt:                        1.0
 diphotonMaxRapidity:               9999999

@@ -85,21 +85,24 @@ then
     sampleName="QED_SC"
     #inputPath="${basePath}/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
     #inputPath="${basePath}/mc_qed/ntuples_sc_full_lumi/QEDGammaGamma_5p02TeV_SuperChic/reco_mc_qed_sc_full_lumi/200807_100412/0000/mc_HiForestAOD_${1}.root"
-    inputPath="${basePath}/mc_qed/QEDGammaGamma_5p02TeV_SuperChic/reco_mc_qed_sc_full_lumi/210417_081453/0000/mc_HiForestAOD_${1}.root"
+    #inputPath="${basePath}/mc_qed/QEDGammaGamma_5p02TeV_SuperChic/reco_mc_qed_sc_full_lumi/210417_081453/0000/mc_HiForestAOD_${1}.root"
+    inputPath="${basePath}/mcForests/mc_qed/QEDGammaGamma_5p02TeV_SuperChic/reco_mc_qed_sc_CastorInfo/210906_102658/0000/mc_HiForestAOD_${1}.root"
     outputPath="${basePath}/skimmed_ntuples/mc_qed_sc_doubleEG2_full_lumi"
   elif [ ${3} -eq 2 ] # CEP SC, 3 chunks, max chunk number: 3
   then
     echo "QED SL"
     sampleName="QED_SL"
     #inputPath="${basePath}/mc_qed/ntuples_sl_full_lumi/QEDGammaGamma_5p02TeV_STARlight/reco_mc_qed_sl_full_lumi/200702_082621/0000/mc_HiForestAOD_${1}.root"
-    inputPath="${basePath}/mc_qed/QEDGammaGamma_5p02TeV_STARlight/reco_mc_qed_sl_full_lumi/210417_080949/0000/mc_HiForestAOD_${1}.root"
+    #inputPath="${basePath}/mc_qed/QEDGammaGamma_5p02TeV_STARlight/reco_mc_qed_sl_full_lumi/210417_080949/0000/mc_HiForestAOD_${1}.root"
+    inputPath="${basePath}/mcForests/mc_qed/QEDGammaGamma_5p02TeV_STARlight/reco_mc_qed_sl_CastorInfo/210906_102343/0000/mc_HiForestAOD_${1}.root"
     outputPath="${basePath}/skimmed_ntuples/mc_qed_sl_doubleEG2_full_lumi"
   elif [ ${3} -eq 3 ] # LbL SC, 3 chunks, max chunk number: 3
   then
     echo "LbL"
     sampleName="LbL"
     #inputPath="${basePath}/mc_lbl/ntuples_1034/ntuples_lbl_1034/ntuples_lbl_1034/200207_114802/0000/HiForestAOD_LbyL_${1}.root"
-    inputPath="${basePath}/mc_lbl/LbyLSignal_5p02TeV_SuperChic/reco_mc_lbl_try2/210420_063700/0000/mc_HiForestAOD_${1}.root"
+    #inputPath="${basePath}/mc_lbl/LbyLSignal_5p02TeV_SuperChic/reco_mc_lbl_try2/210420_063700/0000/mc_HiForestAOD_${1}.root"
+    inputPath="${basePath}/mcForests/mc_lbl/LbyLSignal_5p02TeV_SuperChic/reco_mc_lbl_CastorInfo/210906_102904/0000/mc_HiForestAOD_${1}.root"
     outputPath="${basePath}/skimmed_ntuples/mc_lbl_sc_doubleEG2_full_lumi"
   elif [ ${3} -eq 4 ] # QED SL, 253 chunks, max chunk number: 253
   then
@@ -107,8 +110,18 @@ then
     sampleName="CEP"
     #inputPath="${basePath}/mc_cep/ntuples_1034/ntuples_cep_1034/ntuples_cep_1034/200211_054704/0000/HiForestAOD_cep_${1}.root"
     #inputPath="${basePath}/mc_cep/ntuples_full_lumi/QCDDiphoton_5p02TeV_SuperChic/reco_mc_cep_full_lumi/200811_121848/0000/mc_HiForestAOD_${1}.root"
-    inputPath="${basePath}/mc_cep/QCDDiphoton_5p02TeV_SuperChic/reco_mc_cep_tryv2/210420_064351/0000/mc_HiForestAOD_${1}.root"
+    #inputPath="${basePath}/mc_cep/QCDDiphoton_5p02TeV_SuperChic/reco_mc_cep_tryv2/210420_064351/0000/mc_HiForestAOD_${1}.root"
+    inputPath="${basePath}/mcForests/mc_cep/QCDDiphoton_5p02TeV_SuperChic/reco_mc_cep_CastorInfo/210906_103054/0000/mc_HiForestAOD_${1}.root"
     outputPath="${basePath}/skimmed_ntuples/mc_cep_sc_doubleEG2_full_lumi"
+  elif [ ${3} -eq 5] # CEP incoh
+  then
+    echo "CEPIncoh"
+    sampleName="CEPIncoh"
+    #inputPath="${basePath}/mc_cep/ntuples_1034/ntuples_cep_1034/ntuples_cep_1034/200211_054704/0000/HiForestAOD_cep_${1}.root"
+    #inputPath="${basePath}/mc_cep/ntuples_full_lumi/QCDDiphoton_5p02TeV_SuperChic/reco_mc_cep_full_lumi/200811_121848/0000/mc_HiForestAOD_${1}.root"
+    #inputPath="${basePath}/mc_cep/QCDDiphoton_5p02TeV_SuperChic/reco_mc_cep_tryv2/210420_064351/0000/mc_HiForestAOD_${1}.root"
+    inputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/mcForests/mc_cepIncoh/gen_sim_cep_SC_incoh/reco_mc_cepIncoh_CastorInfo/211125_053225/0000/mc_HiForestAOD_${1}.root"   
+    outputPath="/eos/cms/store/group/phys_diffraction/lbyl_2018/skimmed_ntuples/mc_cepIncoh_sc_doubleEG2_full_lumi"
   else
     echo "Unknown option: ${3}"
   fi

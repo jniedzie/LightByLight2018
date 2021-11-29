@@ -84,8 +84,11 @@ bool doToys = false;
 
 
 // Location of the files
-const char* fDataName = "tnp_Ana_Data_EleRecoID_singleEG5_eta2p1.root";
-const char* fMCName = "tnp_Ana_Data_EleRecoID_singleEG5_eta2p1.root";
+//const char* fDataName = "tnp_Ana_Data_EleRecoID_singleEG5_eta2p1.root";
+//const char* fMCName = "tnp_Ana_Data_EleRecoID_singleEG5_eta2p1.root";
+
+ const char* fDataName = "tnp_Ana_Data_EleRecoID_singleEG5_eta2p4_OliverThresholds.root";
+ const char* fMCName = "tnp_Ana_QEDSL_EleRecoID_singleEG5_eta2p4_OliverThresholds.root";
 
 //////////////////////////////////////////////////////////////////////////
 
