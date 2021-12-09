@@ -6,8 +6,8 @@
 
 #include "../include/Helpers.hpp"
 
-//const string  inputPath    = "../results/efficienciesQED.root";
-const string  inputPath    = "../results/efficienciesQED_test.root";
+const string  inputPath    = "../results/efficienciesQED.root";
+//const string  inputPath    = "../results/efficienciesQED_test.root";
 //const string  inputPath    = "../results/efficienciesQED_noPhotonIso.root";
 //const string  inputPath    = "../results/efficienciesQED_noElectronIDcuts.root";
 const string  outputPath   = "../plots/efficienciesQED.pdf";
@@ -28,8 +28,8 @@ vector<tuple<string>> efficienciesParams = {
 };
 
 vector<EDataset> datasetsToAnalyze = {
-//  kData,
-//  kMCqedSC,
+  kData,
+  kMCqedSC,
   kMCqedSL,
 };
 
@@ -148,6 +148,8 @@ vector<tuple<string, bool, bool>> histParams = {
   
   {"electron_reco_id_eff_vs_pt"                     , true  , false },
   {"electron_reco_id_eff_vs_eta"                    , true  , false },
+  
+  {"electron_reco_id_eff_cut_through"               , false , true  },
   
   {"electron_reco_id_eff_n_good_electrons"          , false , false },
   {"electron_reco_id_eff_n_good_matched_electrons"  , false , false },

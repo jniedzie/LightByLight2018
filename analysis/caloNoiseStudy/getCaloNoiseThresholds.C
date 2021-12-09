@@ -1,7 +1,8 @@
 //#include "CaloNoiseHelpers.h"
 #include "../include/Helpers.hpp"
 
-string inputPath = "noiseStudyOutputEmpty_newGT.root";
+//string inputPath = "noiseStudyOutputEmpty_newGT.root";
+string inputPath = "caloNoiseHistsMerged.root";
 
 double getThreshold(TH1D *hist)
 {
@@ -29,7 +30,7 @@ void getCaloNoiseThresholds()
   
   auto canvasEE = new TCanvas("canvasEE", "canvasEE", 800, 400);
   canvasEE->Divide(2,1);
- 
+  
   gStyle->SetOptStat(0);
   
   // Find noise thresholds
@@ -104,7 +105,7 @@ void getCaloNoiseThresholds()
   TLegend *legend = new TLegend(0.4, 0.55, 0.9, 0.9);
   
   vector<tuple<double, int>> etaParams ={
-    {1.4,   kGreen+3   },
+//    {1.4,   kGreen+3   },
     {1.6,   kGreen     },
     {1.8,   kCyan      },
     {2.0,   kBlue      },
@@ -115,6 +116,7 @@ void getCaloNoiseThresholds()
     {3.0,   kRed       },
   };
   
+  bool first = true;
   for(auto &[eta, color] : etaParams){
     TH1D *histEEp = (TH1D*)histEEvsFabsEta->ProjectionY(("histEEp"+to_string(eta)).c_str(),
                                                         histEEvsFabsEta->GetXaxis()->FindFixBin(0.0),
@@ -124,26 +126,36 @@ void getCaloNoiseThresholds()
     for(int i=1; i<=histEEp->GetNbinsX(); i++) histEEp->SetBinError(i, 0);
     histEEp->Rebin(5);
     histEEp->SetLineColor(color);
-    histEEp->SetTitle("Leading tower energy in EE");
-    if(eta==1.4){
+    
+    
+    if(first){
+      histEEp->SetTitle("Leading tower energy in EE");
       histEEp->GetXaxis()->SetTitle("Leading tower energy (GeV)");
-      histEEp->SetMinimum(1e-4);
-      histEEp->SetMaximum(1e3);
-      histEEp->DrawNormalized();
+      histEEp->SetMinimum(1e-2);
+      histEEp->SetMaximum(100);
       
+      histEEp->DrawNormalized();
+//      histEEp->GetYaxis()->SetRangeUser(1e-4, 10);
+      
+      
+      
+      gPad->SetLogy();
+      first = false;
     }
     else{
       histEEp->DrawNormalized("same");
     }
     double threshold = getThreshold(histEEp);
     
+    cout<<"Eta: "<<eta<<"\t threshold: "<<threshold<<endl;
+    
     legend->AddEntry(histEEp, ("|#eta| < "+to_string_with_precision(eta, 1)+" ("+to_string_with_precision(threshold, 1)+" GeV)").c_str(), "l");
-
-    gPad->SetLogy();
+    
+    
   }
   legend->Draw();
-
-                    
+  
+  
   canvas->SaveAs("noise_thresholds.pdf");
   canvasEE->SaveAs("noise_thresholds_EE.pdf");
   

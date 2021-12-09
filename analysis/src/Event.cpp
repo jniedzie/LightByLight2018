@@ -86,6 +86,24 @@ PhysObjects Event::GetGoodGenPhotons() const
   return goodGenPhotons;
 }
 
+PhysObjects Event::GetGoodGenElectrons() const
+{
+  PhysObjects goodGenElectrons;
+
+  for(auto genElectron : physObjects.at(EPhysObjType::kGenParticle)){
+
+    //if(genElectron->GetPID() != 11 || genElectron->GetPID() != -11) continue;
+    if(fabs(genElectron->GetEta()) > config.params("electronMaxEta")) continue;
+    if(genElectron->GetEt() < config.params("electronMinPt")) continue;
+    if(physObjectProcessor.IsInCrack(*genElectron)) continue;
+    if(physObjectProcessor.IsInHEM(*genElectron)) continue;
+
+    goodGenElectrons.push_back(genElectron);
+  }
+
+  return goodGenElectrons;
+}
+
 PhysObjects Event::GetPhotonsInAcceptance()
 {
   if(physObjectsReady.at(EPhysObjType::kPhotonInAcceptance)) return physObjects.at(EPhysObjType::kPhotonInAcceptance);
@@ -161,24 +179,6 @@ PhysObjects Event::GetGoodPhotons()
   }
   physObjectsReady.at(EPhysObjType::kGoodPhoton) = true;
   return physObjects.at(EPhysObjType::kGoodPhoton);
-}
-
-PhysObjects Event::GetGoodGenElectrons() const
-{
-  PhysObjects goodGenElectrons;
-
-  for(auto genElectron : physObjects.at(EPhysObjType::kGenParticle)){
-
-    //if(genElectron->GetPID() != 11 || genElectron->GetPID() != -11) continue;
-    if(fabs(genElectron->GetEta()) > config.params("electronMaxEta")) continue;
-    if(genElectron->GetEt() < config.params("electronMinPt")) continue;
-    if(physObjectProcessor.IsInCrack(*genElectron)) continue;
-    if(physObjectProcessor.IsInHEM(*genElectron)) continue;
-
-    goodGenElectrons.push_back(genElectron);
-  }
-
-  return goodGenElectrons;
 }
 
 PhysObjects Event::GetElectronsInAcceptance()

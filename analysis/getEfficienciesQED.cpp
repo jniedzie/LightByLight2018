@@ -269,7 +269,7 @@ void CheckElectronRecoEfficiency(Event &event, map<string, TH1D*> &hists, string
   auto dielectron = physObjectProcessor.GetDielectron(*trackTag, *probeTracks[0]);
   
 //  if(dielectron.Pt() > 2.0 || dielectron.M() < 4.0) return;
-  hists[cutThouthName]->Fill(cutLevel++); // 6c
+  hists[cutThouthName]->Fill(cutLevel++); // 6
   
   hists["electron_reco_id_eff_den_"+datasetName]->Fill(1);
   hists["electron_reco_id_eff_vs_pt_den_"+datasetName]->Fill(electronTag->GetPt());

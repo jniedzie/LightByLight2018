@@ -1,0 +1,1 @@
+../aFF_data/prediction_20nb_data.txt

@@ -322,7 +322,8 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     genParticle->eta   = mcEta->at(iGenPart);
     genParticle->etaSC = mcEta->at(iGenPart);
     genParticle->phi   = mcPhi->at(iGenPart);
-    genParticle->phiSC = mcPhi->at(iGenPart);
+    genParticle->etaSC   = mcEta->at(iGenPart);
+    genParticle->phiSC   = mcPhi->at(iGenPart);
     genParticle->et    = mcEt->at(iGenPart);
     genParticle->pdgID = mcPID->at(iGenPart);
     

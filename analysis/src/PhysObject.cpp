@@ -381,3 +381,4 @@ int PhysObject::GetZside() const
   if(zSide < -999) Log(1)<<"WARNING - carefull, zSide probably not set\n";
   return zSide;
 }
+
