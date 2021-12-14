@@ -413,11 +413,16 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
   hists[cutThouthName]->Fill(cutLevel++); // 0
   
   // Check trigger with no HF veto
-  if(!event.HasTrigger(kSingleEG3singleTrack) && !event.HasTrigger(kSingleEG5singleTrack) ) return;
+  //if(!event.HasTrigger(kSingleEG3singleTrack) && !event.HasTrigger(kSingleEG5singleTrack) ) return;
+  if(!event.HasTrigger(kSingleEG5singleTrack)) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Neutral exclusivity
-  if(event.HasAdditionalTowers()) return;
+  //if(event.HasAdditionalTowers()) return;
+  //hists[cutThouthName]->Fill(cutLevel++); // 2
+ 
+  auto genTracks = event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
+  if(genTracks.size() > 5) return;
   hists[cutThouthName]->Fill(cutLevel++); // 2
   
   // Preselect events with exactly two electrons
@@ -436,7 +441,7 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
   //hists[cutThouthName]->Fill(cutLevel++); // 5
   
   // Charged exclusivity: remove extra track outside electron cone
-  auto genTracks = event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
+  //auto genTracks = event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
   int nextratracks =0;
   for (auto trk : genTracks) {
     if (getDPHI(trk->GetPhi(), electron1->GetPhi())<0.7 && getDETA(trk->GetEta(), electron1->GetEta())<0.15) continue;
@@ -457,8 +462,8 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
     double deltaR1 = physObjectProcessor.GetDeltaR_SC(*electron1, *L1EG);
     double deltaR2 = physObjectProcessor.GetDeltaR_SC(*electron2, *L1EG);
     
-    if(deltaR1 < 1.0) matchedElectrons.push_back(electron1);
-    if(deltaR2 < 1.0) matchedElectrons.push_back(electron2);
+    if(deltaR1 < 0.5) matchedElectrons.push_back(electron1);
+    if(deltaR2 < 0.5) matchedElectrons.push_back(electron2);
   }
   
   if(matchedElectrons.size() != 2) return;

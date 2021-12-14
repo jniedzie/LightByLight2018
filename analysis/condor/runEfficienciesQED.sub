@@ -1,6 +1,6 @@
 Universe              = vanilla
 executable            = runEfficienciesQED.sh
-arguments             = $(ProcId) 1 
+arguments             = $(ProcId) 0 
 GetEnv                = True
 output                = output/$(ClusterId).$(ProcId).out
 error                 = error/$(ClusterId).$(ProcId).err
@@ -10,10 +10,10 @@ requirements 	      = (OpSysAndVer =?= "CentOS7")
 
 ## data (0)
 #queue 10400
-#queue 5272
+queue 5272
 
 ## MC SC (1)
-queue 256
+#queue 256
 
 ## MC SL (2)
 #queue 242
