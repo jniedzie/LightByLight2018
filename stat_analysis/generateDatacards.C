@@ -1,9 +1,9 @@
-string inputFileName = "old_analysis/input_hinvmass.root";
+string inputFileName = "input_hinvmass.root";
 string outputBasePath = "datacards/datacard_axion_";
-string outputSuffix = "GeV_old.txt";
+string outputSuffix = "GeV_test.txt";
 
-//vector<int> alpMasses = { 5, 6, 9, 11, 14, 16, 22, 30, 50, 90 };
-vector<int> alpMasses = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+vector<int> alpMasses = { 5, 6, 9, 11, 14, 16, 22, 30, 50, 90 };
+//vector<int> alpMasses = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
 
 void addHeaderToFile(ofstream &file, int mass, int observedRate)
 {

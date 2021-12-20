@@ -11,7 +11,7 @@ statonly="--freezeParameters all"
 #suffix="_3p0"
 #suffix="_4p0"
 #suffix="_4p5"
-suffix="_old"
+suffix="_test"
 
 #alpMasses=( 5 6 9 11 14 16 22 30 50 90 )
 alpMasses=( 0 1 2 3 4 5 6 7 8 9 )
