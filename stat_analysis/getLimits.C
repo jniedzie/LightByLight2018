@@ -10,7 +10,7 @@
 
 bool findCoupling = false;
 
-string suffix = "";
+string suffix = "_test";
 vector<int> alpMasses = { 5, 6, 9, 11, 14, 16, 22, 30, 90 };
 
 string inputPath        = "combineOutput"+suffix+".txt";

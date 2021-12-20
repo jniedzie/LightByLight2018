@@ -3,7 +3,7 @@
 # Calculates limits in the asymptotic approximation, for each mass point separately
 
 ## uncomment for limits without systematic uncertainties
-statonly="--freezeParameters all"
+#statonly="--freezeParameters all"
 ## uncomment for limits including systematic uncertainties
 # statonly=""
 
@@ -13,8 +13,8 @@ statonly="--freezeParameters all"
 #suffix="_4p5"
 suffix="_test"
 
-#alpMasses=( 5 6 9 11 14 16 22 30 50 90 )
-alpMasses=( 0 1 2 3 4 5 6 7 8 9 )
+alpMasses=( 5 6 9 11 14 16 22 30 50 90 )
+#alpMasses=( 0 1 2 3 4 5 6 7 8 9 )
 
 for i in "${alpMasses[@]}"
 do
