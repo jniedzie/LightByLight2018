@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Set those variables:
-exec_path=/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/caloNoiseStudy/getCaloNoiseHistograms
-input_path=/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/caloNoiseStudy/input_filelist.txt
-output_path=/eos/cms/store/cmst3/group/lightbylight/EmptyBx_HIForest/noiseStudyOutput/
+exec_path=/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/caloNoiseStudy/getCaloNoiseHistograms
+input_path=/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/caloNoiseStudy/input_filelist.txt
+output_path=/eos/cms/store/group/phys_diffraction/lbyl_2018/HIEmptyBX/noiseStudyOutput/
 
 #----------------------------------------------------------------------------
 source /cvmfs/sft.cern.ch/lcg/releases/LCG_94/gcc/8.2.0/x86_64-slc6/setup.sh
