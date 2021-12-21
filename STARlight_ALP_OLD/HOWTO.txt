@@ -1,0 +1,45 @@
+
+------------------------------------------------------------------
+Download starlight:
+
+svn co http://starlight.hepforge.org/svn/trunk [localdir]
+
+mv starlight <pathtosource>
+cd <pathtosource>
+mkdir build
+cd build
+cmake ..
+make
+
+This creates an executable file, starlight, in the build directory. 
+
+To run starlight a configuration file, slight.in, is needed.
+
+> ./build/starlight  (directly)
+> /home/enterria/progs/starlight/starlight/build/starlight slight.in
+
+Examples of this file can be found in the config/ directory.
+For more details you can read: /home/enterria/progs/starlight/starlight/Readme
+
+------------------------------------------------------------------
+
+Running:
+
+Be careful with the following input:
+W_MAX = 10.   #Max value of w
+W_MIN = 3.554    #Min value of w
+W_N_BINS = 1000    #Bins i w
+
+If one increases W_MAX, W_N_BINS has to increase accordingly!!!
+
+------------------------------------------------------------------
+
+CONVERT Starligth --> LHE
+
+.L /home/enterria/progs/starlight/convert_starlight2lhe.C++
+
+CONVERT Starlight --> ROOT (histos)
+
+gSystem->Load("/home/enterria/progs/starlight/convert_starlight2root_C.so")
+.L /home/enterria/progs/starlight/convert_starlight2root.C++
+convert_starlight(1,"slight.out","slight_histos.root",sigma_mub)

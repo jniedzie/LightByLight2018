@@ -1,0 +1,5 @@
+/Users/Jeremi/Documents/Physics/Fellow/lightByLight2018/starlight_r313/build/CMakeFiles/rebuild_cache.dir
+/Users/Jeremi/Documents/Physics/Fellow/lightByLight2018/starlight_r313/build/CMakeFiles/edit_cache.dir
+/Users/Jeremi/Documents/Physics/Fellow/lightByLight2018/starlight_r313/build/CMakeFiles/starlight.dir
+/Users/Jeremi/Documents/Physics/Fellow/lightByLight2018/starlight_r313/build/CMakeFiles/Starlib.dir
+/Users/Jeremi/Documents/Physics/Fellow/lightByLight2018/starlight_r313/build/CMakeFiles/doxygen.dir

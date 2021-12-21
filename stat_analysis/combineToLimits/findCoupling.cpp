@@ -9,8 +9,8 @@
 
 using namespace std;
 
-string starlightPath = "../../STARlight_ALP/";
-string sourceFilePath = "trunk/src/gammagammasingle.cpp";
+string starlightPath = "../../starlight_r313/build/";
+string sourceFilePath = "../src/gammagammasingle.cpp";
 string resultsPath = "results.txt";
 
 vector<string> tokenize(istream &str, string &line, char token)
@@ -58,8 +58,16 @@ void setOption(string fileName, string option, int value)
 double getCrossSection(double coupling)
 {
   setOption(starlightPath+sourceFilePath, "ax_lambda", coupling);
-  system(("cd "+starlightPath+";make -j8 > /dev/null").c_str());
-  system((starlightPath+"/starlight > "+resultsPath+" 2>&1").c_str());
+  
+  string command = "cd "+starlightPath+";make -j8 > /dev/null";
+//  cout<<command<<endl;
+  
+  system(command.c_str());
+  
+  command = starlightPath+"/starlight > "+resultsPath+" 2>&1";
+//  cout<<command<<endl;
+  
+  system(command.c_str());
   
   ifstream readFile(resultsPath.c_str()); // run_batch.sub
   
@@ -83,7 +91,9 @@ double getCrossSection(double coupling)
         if(line[4].find("picobarn")   != string::npos) multiplier = 1e-3;
         if(line[4].find("femtobarn")  != string::npos) multiplier = 1e-6;
         
-        return multiplier*stod(line[3]);
+        string xSec = line[3];
+        double xSecValue = stod(xSec);
+        return multiplier*xSecValue;
       }
     }
   }

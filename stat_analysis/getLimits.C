@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string>
 
-bool findCoupling = false;
+bool findCoupling = true;
 
 string suffix = "_test";
 vector<int> alpMasses = { 5, 6, 9, 11, 14, 16, 22, 30, 90 };
@@ -59,6 +59,8 @@ double getCoupling(double mass, double xsec)
   command += to_string(xsec);
   
   string outPath = "starlight_coupling.txt";
+  
+//  cout<<command<<endl;
   
   system((command+" > "+outPath).c_str());
   

@@ -1,0 +1,85 @@
+Compiling the C compiler identification source file "CMakeCCompilerId.c" failed.
+Compiler: /Users/Jeremi/opt/anaconda3/envs/ml/bin/x86_64-apple-darwin13.4.0-clang 
+Build flags: -march=core2;-mtune=haswell;-mssse3;-ftree-vectorize;-fPIC;-fPIE;-fstack-protector-strong;-O2;-pipe;-isystem;/Users/jeremi/opt/anaconda3/envs/ml/include
+Id flags:  
+
+The output was:
+1
+ld: unsupported tapi file type '!tapi-tbd' in YAML file '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libSystem.tbd' for architecture x86_64
+clang-9: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" failed.
+Compiler: /Users/Jeremi/opt/anaconda3/envs/ml/bin/x86_64-apple-darwin13.4.0-clang++ 
+Build flags: -march=core2;-mtune=haswell;-mssse3;-ftree-vectorize;-fPIC;-fPIE;-fstack-protector-strong;-O2;-pipe;-stdlib=libc++;-fvisibility-inlines-hidden;-std=c++14;-fmessage-length=0;-isystem;/Users/jeremi/opt/anaconda3/envs/ml/include
+Id flags:  
+
+The output was:
+1
+ld: unsupported tapi file type '!tapi-tbd' in YAML file '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libSystem.tbd' for architecture x86_64
+clang-9: error: linker command failed with exit code 1 (use -v to see invocation)
+
+
+Detecting C compiler ABI info failed to compile with the following output:
+Change Dir: /Users/Jeremi/Documents/Physics/Fellow/lightByLight2018/STARlight_ALP/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_8d041/fast && /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_8d041.dir/build.make CMakeFiles/cmTC_8d041.dir/build
+Building C object CMakeFiles/cmTC_8d041.dir/CMakeCCompilerABI.c.o
+/Users/Jeremi/opt/anaconda3/envs/ml/bin/x86_64-apple-darwin13.4.0-clang   -march=core2 -mtune=haswell -mssse3 -ftree-vectorize -fPIC -fPIE -fstack-protector-strong -O2 -pipe -isystem /Users/jeremi/opt/anaconda3/envs/ml/include  -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk   -v -Wl,-v -MD -MT CMakeFiles/cmTC_8d041.dir/CMakeCCompilerABI.c.o -MF CMakeFiles/cmTC_8d041.dir/CMakeCCompilerABI.c.o.d -o CMakeFiles/cmTC_8d041.dir/CMakeCCompilerABI.c.o -c /usr/local/Cellar/cmake/3.20.2/share/cmake/Modules/CMakeCCompilerABI.c
+clang version 9.0.1 
+Target: x86_64-apple-darwin13.4.0
+Thread model: posix
+InstalledDir: /Users/Jeremi/opt/anaconda3/envs/ml/bin
+clang-9: warning: -Wl,-v: 'linker' input unused [-Wunused-command-line-argument]
+ "/Users/jeremi/opt/anaconda3/envs/ml/bin/clang-9" -cc1 -triple x86_64-apple-macosx10.16.0 -Wdeprecated-objc-isa-usage -Werror=deprecated-objc-isa-usage -emit-obj -disable-free -disable-llvm-verifier -discard-value-names -main-file-name CMakeCCompilerABI.c -mrelocation-model pic -pic-level 2 -mthread-model posix -mdisable-fp-elim -masm-verbose -munwind-tables -target-sdk-version=11.1 -target-cpu core2 -target-feature +ssse3 -dwarf-column-info -debugger-tuning=lldb -ggnu-pubnames -target-linker-version 409.12 -v -coverage-notes-file /Users/jeremi/Documents/Physics/Fellow/lightByLight2018/STARlight_ALP/CMakeFiles/CMakeTmp/CMakeFiles/cmTC_8d041.dir/CMakeCCompilerABI.c.gcno -resource-dir /Users/jeremi/opt/anaconda3/envs/ml/lib/clang/9.0.1 -dependency-file CMakeFiles/cmTC_8d041.dir/CMakeCCompilerABI.c.o.d -sys-header-deps -MT CMakeFiles/cmTC_8d041.dir/CMakeCCompilerABI.c.o -isystem /Users/jeremi/opt/anaconda3/envs/ml/include -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk -internal-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/local/include -internal-isystem /Users/jeremi/opt/anaconda3/envs/ml/lib/clang/9.0.1/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include -O2 -fdebug-compilation-dir /Users/jeremi/Documents/Physics/Fellow/lightByLight2018/STARlight_ALP/CMakeFiles/CMakeTmp -ferror-limit 19 -fmessage-length 0 -stack-protector 2 -fblocks -fencode-extended-block-signature -fregister-global-dtors-with-atexit -fobjc-runtime=macosx-10.16.0 -fmax-type-align=16 -fdiagnostics-show-option -vectorize-loops -vectorize-slp -o CMakeFiles/cmTC_8d041.dir/CMakeCCompilerABI.c.o -x c /usr/local/Cellar/cmake/3.20.2/share/cmake/Modules/CMakeCCompilerABI.c
+clang -cc1 version 9.0.1 based upon LLVM 9.0.1 default target x86_64-apple-darwin20.6.0
+ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/local/include"
+ignoring nonexistent directory "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/Library/Frameworks"
+#include "..." search starts here:
+#include <...> search starts here:
+ /Users/jeremi/opt/anaconda3/envs/ml/include
+ /Users/jeremi/opt/anaconda3/envs/ml/lib/clang/9.0.1/include
+ /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/usr/include
+ /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk/System/Library/Frameworks (framework directory)
+End of search list.
+Linking C executable cmTC_8d041
+/usr/local/Cellar/cmake/3.20.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8d041.dir/link.txt --verbose=1
+/Users/Jeremi/opt/anaconda3/envs/ml/bin/x86_64-apple-darwin13.4.0-clang -march=core2 -mtune=haswell -mssse3 -ftree-vectorize -fPIC -fPIE -fstack-protector-strong -O2 -pipe -isystem /Users/jeremi/opt/anaconda3/envs/ml/include  -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names -Wl,-pie -Wl,-headerpad_max_install_names -Wl,-dead_strip_dylibs -Wl,-rpath,/Users/jeremi/opt/anaconda3/envs/ml/lib -L/Users/jeremi/opt/anaconda3/envs/ml/lib -v -Wl,-v CMakeFiles/cmTC_8d041.dir/CMakeCCompilerABI.c.o -o cmTC_8d041 
+clang version 9.0.1 
+Target: x86_64-apple-darwin13.4.0
+Thread model: posix
+InstalledDir: /Users/Jeremi/opt/anaconda3/envs/ml/bin
+ "/Users/Jeremi/opt/anaconda3/envs/ml/bin/x86_64-apple-darwin13.4.0-ld" -demangle -lto_library /Users/jeremi/opt/anaconda3/envs/ml/lib/libLTO.9.dylib -dynamic -arch x86_64 -macosx_version_min 10.16.0 -pie -syslibroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk -o cmTC_8d041 -L/Users/jeremi/opt/anaconda3/envs/ml/lib -search_paths_first -headerpad_max_install_names -pie -headerpad_max_install_names -dead_strip_dylibs -rpath /Users/jeremi/opt/anaconda3/envs/ml/lib -v CMakeFiles/cmTC_8d041.dir/CMakeCCompilerABI.c.o -lSystem /Users/jeremi/opt/anaconda3/envs/ml/lib/clang/9.0.1/lib/darwin/libclang_rt.osx.a
+@(#)PROGRAM:ld  PROJECT:ld64-530
+BUILD 18:43:29 Jul 12 2020
+configured to support archs: armv6 armv7 armv7s arm64 arm64e arm64_32 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em (tvOS)
+Library search paths:
+	/Users/jeremi/opt/anaconda3/envs/ml/lib
+	/Users/jeremi/opt/anaconda3/envs/ml/lib
+	/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib
+Framework search paths:
+	/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/
+ld: unsupported tapi file type '!tapi-tbd' in YAML file '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libSystem.tbd' for architecture x86_64
+clang-9: error: linker command failed with exit code 1 (use -v to see invocation)
+make[1]: *** [cmTC_8d041] Error 1
+make: *** [cmTC_8d041/fast] Error 2
+
+
+
+
+Determining if the C compiler works failed with the following output:
+Change Dir: /Users/Jeremi/Documents/Physics/Fellow/lightByLight2018/STARlight_ALP/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make -f Makefile cmTC_22fbf/fast && /Applications/Xcode.app/Contents/Developer/usr/bin/make  -f CMakeFiles/cmTC_22fbf.dir/build.make CMakeFiles/cmTC_22fbf.dir/build
+Building C object CMakeFiles/cmTC_22fbf.dir/testCCompiler.c.o
+/Users/Jeremi/opt/anaconda3/envs/ml/bin/x86_64-apple-darwin13.4.0-clang   -march=core2 -mtune=haswell -mssse3 -ftree-vectorize -fPIC -fPIE -fstack-protector-strong -O2 -pipe -isystem /Users/jeremi/opt/anaconda3/envs/ml/include  -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk -MD -MT CMakeFiles/cmTC_22fbf.dir/testCCompiler.c.o -MF CMakeFiles/cmTC_22fbf.dir/testCCompiler.c.o.d -o CMakeFiles/cmTC_22fbf.dir/testCCompiler.c.o -c /Users/Jeremi/Documents/Physics/Fellow/lightByLight2018/STARlight_ALP/CMakeFiles/CMakeTmp/testCCompiler.c
+Linking C executable cmTC_22fbf
+/usr/local/Cellar/cmake/3.20.2/bin/cmake -E cmake_link_script CMakeFiles/cmTC_22fbf.dir/link.txt --verbose=1
+/Users/Jeremi/opt/anaconda3/envs/ml/bin/x86_64-apple-darwin13.4.0-clang -march=core2 -mtune=haswell -mssse3 -ftree-vectorize -fPIC -fPIE -fstack-protector-strong -O2 -pipe -isystem /Users/jeremi/opt/anaconda3/envs/ml/include  -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.1.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names -Wl,-pie -Wl,-headerpad_max_install_names -Wl,-dead_strip_dylibs -Wl,-rpath,/Users/jeremi/opt/anaconda3/envs/ml/lib -L/Users/jeremi/opt/anaconda3/envs/ml/lib  CMakeFiles/cmTC_22fbf.dir/testCCompiler.c.o -o cmTC_22fbf 
+ld: unsupported tapi file type '!tapi-tbd' in YAML file '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libSystem.tbd' for architecture x86_64
+clang-9: error: linker command failed with exit code 1 (use -v to see invocation)
+make[1]: *** [cmTC_22fbf] Error 1
+make: *** [cmTC_22fbf/fast] Error 2
+
+
+

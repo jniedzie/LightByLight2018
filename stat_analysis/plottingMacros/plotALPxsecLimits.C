@@ -33,7 +33,7 @@ vector<TGraphAsymmErrors*> GetGraphFromTxt(const char *fileName, double scale=1.
 
 void plotALPxsecLimits()
 {
-  vector<TGraphAsymmErrors*> limits = GetGraphFromTxt("../results/xsecMassLimits.txt");
+  vector<TGraphAsymmErrors*> limits = GetGraphFromTxt("../results/xsecMassLimits_test.txt");
   TLegend *legend = new TLegend(0.5, 0.6, 0.9, 0.9);
   TCanvas *canvas = new TCanvas("canvas", "canvas", 800, 600);
   canvas->cd();
