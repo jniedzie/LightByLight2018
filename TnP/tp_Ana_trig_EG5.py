@@ -28,7 +28,8 @@ EFFICIENCYSET =cms.PSet(
                 # L1Et = cms.vdouble(2, 20),
                 SCEt = cms.vdouble(2, 20),
                 # abseta = cms.vdouble(0, 2.4),
-                SCeta = cms.vdouble(-2.4, 2.4),
+                SCeta = cms.vdouble(-2.2, 2.2),
+                #SCeta = cms.vdouble(-2.4, 2.4),
                 pair_mass = cms.vdouble(4.0, 100.0),
                 pair_pt   = cms.vdouble(0.0, 2.0),
 
@@ -45,7 +46,8 @@ EFFICIENCYSET =cms.PSet(
                 SCEt = cms.vdouble(2, 20),
                 # L1Et = cms.vdouble(2, 20),
                 # abseta = cms.vdouble(0, 1.5, 2.4),
-                SCeta = cms.vdouble(0, 1.5, 2.4),
+                SCeta = cms.vdouble(0, 1.5, 2.2),
+                #SCeta = cms.vdouble(0, 1.5, 2.4),
                 pair_mass = cms.vdouble(4.0, 100.0),
                 pair_pt   = cms.vdouble(0.0, 2.0),
 
@@ -63,7 +65,8 @@ EFFICIENCYSET =cms.PSet(
                 # L1Et = cms.vdouble(2, 20),
                 # abseta = cms.vdouble(0, 0.5, 1, 1.5, 2, 2.4),
                 #eta = cms.vdouble(-2.4, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.4),
-                SCeta = cms.vdouble(-2.4,-2.35, -2.3,-2.25,-2.2,-2.15,-2.1,-2.05, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2,2.05, 2.1, 2.15, 2.2, 2.25, 2.3, 2.35, 2.4),
+                #SCeta = cms.vdouble(-2.4,-2.35, -2.3,-2.25,-2.2,-2.15,-2.1,-2.05, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2,2.05, 2.1, 2.15, 2.2, 2.25, 2.3, 2.35, 2.4),
+                SCeta = cms.vdouble(-2.2, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2,2.2),
                 pair_mass = cms.vdouble(4.0, 100.0),
                 pair_pt   = cms.vdouble(0.0, 2.0),
 
@@ -97,7 +100,8 @@ EFFICIENCYSET =cms.PSet(
                 SCEt = cms.vdouble(2, 3, 4, 5, 6, 7, 10, 14, 20),
                 # L1Et = cms.vdouble(2, 3.5, 5, 7, 12, 20),
                 # abseta = cms.vdouble(1.5, 2.4),
-                SCeta = cms.vdouble(1.5, 2.4),
+                #SCeta = cms.vdouble(1.5, 2.4),
+                SCeta = cms.vdouble(1.5, 2.2),
                 pair_mass = cms.vdouble(4.0, 100.0),
                 pair_pt   = cms.vdouble(0.0, 2.0),
 
@@ -118,15 +122,15 @@ else:
    #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sl_eleRecoIDTrigger_tnpEC_20210118_SingleEG3orEG5_SCEtadded/efficienciesQED_MCSL.root" #starlight file
    #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sc_eleRecoIDTrigger_tnpEC_20210121_SingleEG3orEG5_eta2p1/efficienciesQED_MCSC.root" #superchic eta 2.1 file
   # inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sl_eleRecoIDTrigger_tnpEC_20210121_SingleEG3orEG5_eta2p1/efficienciesQED_MCSL.root" #starlight eta 2.1 file
-    inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sl_eleRecoIDTrigger_tnpEC_22Nov21_OliversThreshold_efficiencies_eleNoIsolation_newThresholds/QEDSL_eleRecoIDTrigger_OliveThresholds_eta2p4.root" #starlight eta 2.1 file crack from probe removed
-   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sc_eleRecoIDTrigger_tnpEC_22Nov21_OliversThreshold_efficiencies_eleNoIsolation_newThresholds/QEDSC_eleRecoIDTrigger_OliveThresholds_eta2p4.root"
+    #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sl_eleRecoIDTrigger_tnpEC_22Nov21_OliversThreshold_efficiencies_eleNoIsolation_newThresholds/QEDSL_eleRecoIDTrigger_OliveThresholds_eta2p4.root" #starlight eta 2.1 file crack from probe removed
+   inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sc_eleRecoIDTrigger_tnpEC_22Nov21_OliversThreshold_efficiencies_eleNoIsolation_newThresholds/QEDSC_eleRecoIDTrigger_OliveThresholds_eta2p4.root"
  
 process.tagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     # IO parameters:
     InputFileNames = cms.vstring(inputfiles),
     InputDirectoryName = cms.string("tnpQED"),
     InputTreeName = cms.string("fitter_tree"),
-    OutputFileName = cms.string("tnp_Ana_%s_trig_EG5_eta2p4_OliverThresholds.root" % ( dataOrMC)),
+    OutputFileName = cms.string("tnp_Ana_%s_trig_EG5_eta2p2_OliverThresholds.root" % ( dataOrMC)),
     #numbrer of CPUs to use for fitting
     NumCPU = cms.uint32(4),
     # specifies whether to save the RooWorkspace containing the data for each bin and

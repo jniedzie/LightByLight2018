@@ -48,7 +48,8 @@ analysis/prepareCaloPlots
 analysis/prepareCastorPlots
 analysis/selectAnomalousEventsWCastorVeto
 analysis/runDumpEvent
-
+analysis/commands.txt
+analysis/condor/'
 analysis/condor/*.root
 analysis/condor/*.cc
 

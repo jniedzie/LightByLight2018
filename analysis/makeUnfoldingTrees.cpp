@@ -85,17 +85,7 @@ float pho_deta;
 float pho_dphi;
 float pho_acop;
 int ok_neuexcl;
-int ok_zdcexcl_1n_pos;
-int ok_zdcexcl_1n_neg;
-int ok_zdcexcl_3n_pos;
-int ok_zdcexcl_3n_neg;
-int ok_zdcexcl_4n_pos;
-int ok_zdcexcl_4n_neg;
-int ok_zdcexcl_5n_pos;
-int ok_zdcexcl_5n_neg;
-
-int ok_zdcexcl;
-int ok_castorexcl;
+int ok_trigger;
 
 int ok_chexcl;
 int ok_chexcl_tracks;
@@ -127,6 +117,18 @@ void InitGenTree(TTree *genTree) {
 
 /// initialise tree
 void InitTree(TTree *tr) {
+  tr->Branch("gen_Pt1",  &gen_Pt1, "gen_Pt1/F");
+  tr->Branch("gen_Eta1", &gen_Eta1, "gen_Eta1/F");
+  tr->Branch("gen_Phi1", &gen_Phi1, "gen_Phi1/F");
+
+  tr->Branch("gen_Pt2",  &gen_Pt2, "gen_Pt2/F");
+  tr->Branch("gen_Eta2", &gen_Eta2, "gen_Eta2/F");
+  tr->Branch("gen_Phi2", &gen_Phi2, "gen_Phi2/F");
+
+  tr->Branch("gen_diPho_M",  &gen_diPho_M,  "gen_diPho_M/F");
+  tr->Branch("gen_diPho_Pt", &gen_diPho_Pt, "gen_diPho_Pt/F");
+  tr->Branch("gen_diPho_Rapidity", &gen_diPho_Rapidity, "gen_diPho_Rapidity/F");
+ 
   tr->Branch("run",                 &run,           "run/I");
   tr->Branch("ls",                  &ls,            "ls/I");
   tr->Branch("evtnb",               &evtnb,         "evtnb/I");
@@ -177,22 +179,8 @@ void InitTree(TTree *tr) {
   tr->Branch("pho_deta",            &pho_deta,        "pho_deta/F");
   tr->Branch("pho_dphi",            &pho_dphi,        "pho_dphi/F");
   tr->Branch("pho_acop",            &pho_acop,        "pho_acop/F");
+  tr->Branch("ok_trigger",          &ok_trigger,      "ok_trigger/I");
   tr->Branch("ok_neuexcl",          &ok_neuexcl,      "ok_neuexcl/I");
-  
-  tr->Branch("ok_zdcexcl_1n_pos",          &ok_zdcexcl_1n_pos,      "ok_zdcexcl_1n_pos/I");
-  tr->Branch("ok_zdcexcl_1n_neg",          &ok_zdcexcl_1n_neg,      "ok_zdcexcl_1n_neg/I");
-
-  tr->Branch("ok_zdcexcl_3n_pos",          &ok_zdcexcl_3n_pos,      "ok_zdcexcl_3n_pos/I");
-  tr->Branch("ok_zdcexcl_3n_neg",          &ok_zdcexcl_3n_neg,      "ok_zdcexcl_3n_neg/I");
-  
-  tr->Branch("ok_zdcexcl_4n_pos",          &ok_zdcexcl_4n_pos,      "ok_zdcexcl_4n_pos/I");
-  tr->Branch("ok_zdcexcl_4n_neg",          &ok_zdcexcl_4n_neg,      "ok_zdcexcl_4n_neg/I");
-
-  tr->Branch("ok_zdcexcl_5n_pos",          &ok_zdcexcl_5n_pos,      "ok_zdcexcl_5n_pos/I");
-  tr->Branch("ok_zdcexcl_5n_neg",          &ok_zdcexcl_5n_neg,      "ok_zdcexcl_5n_neg/I");
-
-  tr->Branch("ok_zdcexcl",          &ok_zdcexcl,      "ok_zdcexcl/I");
-  tr->Branch("ok_castorexcl",       &ok_castorexcl,   "ok_castorexcl/I");
 
   tr->Branch("ok_chexcl",           &ok_chexcl,       "ok_chexcl/I");
   tr->Branch("ok_chexcl_tracks",           &ok_chexcl_tracks,       "ok_chexcl_tracks/I");
@@ -225,6 +213,7 @@ void ResetGenVars() {
 
 // reset all variables
 void ResetVars() {
+
   run =0;
   ls=0;
   evtnb =0;
@@ -273,18 +262,9 @@ void ResetVars() {
   pho_deta = 0;
   pho_dphi = 0;
   pho_acop = 0;
+  ok_trigger = 0;
   ok_neuexcl = 0;
-  ok_zdcexcl_1n_pos = 0;
-  ok_zdcexcl_1n_neg = 0;
-  ok_zdcexcl_3n_pos = 0;
-  ok_zdcexcl_3n_neg = 0;
-  ok_zdcexcl_4n_pos = 0;
-  ok_zdcexcl_4n_neg = 0;
-  ok_zdcexcl_5n_pos = 0;
-  ok_zdcexcl_5n_neg = 0;
-  ok_zdcexcl = 0;
-  ok_castorexcl = 0;
-
+ 
   ok_chexcl = 0;
   ok_chexcl_tracks = 0;
   ok_chexcl_electrons = 0;
@@ -328,10 +308,10 @@ int main(int argc, char* argv[])
   TH1D *hist_wozdc = new TH1D("hist_wozdc","",9,1,10);
  
   TFile *outFile = TFile::Open(outputPath.c_str(), "recreate");
-  TTree *genTree = new TTree("gen_tree","");
+
   TTree *tr = new TTree("output_tree","");
   InitTree(tr);
-  InitGenTree(genTree);
+
   
   auto events = make_unique<EventProcessor>(inputPath, dataset);
   
@@ -350,11 +330,12 @@ int main(int argc, char* argv[])
     ResetVars();  
     
     if(sampleName == "QED_SC" || sampleName == "QED_SL" || sampleName == "LbL" || sampleName == "CEP"){
-	//first two gen particle in event has weird PDG ID, its PbPb ion I guess. Therefore I am using 3 and 4th particle which is photon. 
+      
+      //first two gen particle in event has weird PDG ID, its PbPb ion I guess. Therefore I am using 3 and 4th particle which is photon. 
       auto genP1 = event->GetPhysObjects(EPhysObjType::kGenParticle)[2];  
       auto genP2 = event->GetPhysObjects(EPhysObjType::kGenParticle)[3];
       
-       //Log(0) << iEvent << " PID:" << genP1->GetPID() << "   Particle2: " << genP2->GetPID() << "\n"; 
+      
       ResetGenVars();
       if(genP1->GetPID()== 22 && genP2->GetPID()==22){
         //Log(0) << "coming in PID loop :" <<"\n"; 
@@ -369,187 +350,120 @@ int main(int argc, char* argv[])
 	TLorentzVector pho1, pho2, dipho;
 	pho1.SetPtEtaPhiM(gen_Pt1, gen_Eta1, gen_Phi1, 0);
 	pho2.SetPtEtaPhiM(gen_Pt2, gen_Eta2, gen_Phi2, 0);
-
+	
 	dipho = pho1 + pho2;
 	gen_diPho_M   = dipho.M();
 	gen_diPho_Pt  = dipho.Pt();
 	gen_diPho_Rapidity = dipho.Rapidity();
 	
-	genTree->Fill();
       } // PID
+      
+      
+      
+      ok_trigger = (event->HasTrigger(kDoubleEG2noHF));
+      
+      trigger_passed++;
+      hist->SetBinContent(1,trigger_passed);
+      hist_wozdc->SetBinContent(1,trigger_passed);
+      
+      run = event->GetRunNumber();
+      ls = event->GetLumiSection();
+      evtnb = event->GetEventNumber();
+      
+      
+      twoPho++;
+      hist->SetBinContent(2,twoPho);     hist_wozdc->SetBinContent(2,twoPho);
+      
+      
+      // now require two photons passing ID only
+      if(event->GetPhysObjects(EPhysObjType::kGoodPhoton).size() == 2){
+	twoGoodPho++;
+	hist->SetBinContent(3,twoGoodPho);     hist_wozdc->SetBinContent(3,twoGoodPho);
+	
+	auto genTracks = event->GetPhysObjects(EPhysObjType::kGeneralTrack);
+	auto electrons = event->GetPhysObjects(EPhysObjType::kElectron);
+	auto goodGenTracks = event->GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
+	auto goodElectrons = event->GetPhysObjects(EPhysObjType::kGoodElectron);
+	auto muons     = event->GetPhysObjects(EPhysObjType::kMuon);
+	auto photon1   = event->GetPhysObjects(EPhysObjType::kGoodPhoton)[0];
+	auto photon2   = event->GetPhysObjects(EPhysObjType::kGoodPhoton)[1];
+	auto caloTower = event->GetPhysObjects(EPhysObjType::kCaloTower);
+	
+	// event variables
+	ok_neuexcl = (!event->HasAdditionalTowers());
+	
+	ok_chexcl  = (genTracks.size()==0 && electrons.size()==0 && muons.size()==0 );
+	ok_chexcl_tracks = (genTracks.size()==0);
+	ok_chexcl_electrons = (electrons.size()==0);
+	ok_chexcl_muons = (muons.size()==0);
+	ok_chexcl_goodtracks = (goodGenTracks.size()==0);
+	ok_chexcl_goodelectrons = (goodElectrons.size()==0);
+
+	
+	// start filling photon information here ........................................
+	
+	phoEt_1      = photon1->GetEt();
+	phoEta_1     = photon1->GetEta();
+	phoPhi_1     = photon1->GetPhi();
+	phoSCEt_1    = photon1->GetEnergySC()*sin(2.*atan(exp(-photon1->GetEtaSC())));
+	phoSCEta_1   = photon1->GetEtaSC();
+	phoSCPhi_1   = photon1->GetPhiSC();
+	phoEtaWidth_1      = photon1->GetEtaWidth();
+	phoHoverE_1        = photon1->GetHoverE();
+	phoEnergyTop_1     = photon1->GetEnergyCrystalTop();
+	phoEnergyBottom_1  = photon1->GetEnergyCrystalBottom();
+	phoEnergyLeft_1    = photon1->GetEnergyCrystalLeft();
+	phoEnergyRight_1   = photon1->GetEnergyCrystalRight();
+	phoEnergyCrysMax_1 = photon1->GetEnergyCrystalMax();
+	phoSeedTime_1      = photon1->GetSeedTime();
+	phoSigmaIEta_1     = photon1->GetSigmaEta2012();
+	
+	double E4 = phoEnergyTop_1 + phoEnergyBottom_1 +  phoEnergyLeft_1 + phoEnergyRight_1;
+	phoSwissCross_1 = 1 - (E4/phoEnergyCrysMax_1);
+	
+	
+	phoEt_2      = photon2->GetEt();
+	phoEta_2     = photon2->GetEta();
+	phoPhi_2     = photon2->GetPhi();
+	phoSCEt_2    = photon2->GetEnergySC()*sin(2.*atan(exp(-photon2->GetEtaSC())));
+	phoSCEta_2   = photon2->GetEtaSC();
+	phoSCPhi_2   = photon2->GetPhiSC();
+	phoEtaWidth_2      = photon2->GetEtaWidth();
+	phoHoverE_2        = photon2->GetHoverE();
+	phoEnergyTop_2     = photon2->GetEnergyCrystalTop();
+	phoEnergyBottom_2  = photon2->GetEnergyCrystalBottom();
+	phoEnergyLeft_2    = photon2->GetEnergyCrystalLeft();
+	phoEnergyRight_2   = photon2->GetEnergyCrystalRight();
+	phoEnergyCrysMax_2 = photon2->GetEnergyCrystalMax();
+	phoSeedTime_2      = photon2->GetSeedTime();
+	phoSigmaIEta_2     = photon2->GetSigmaEta2012();
+	
+	double E4_2 = phoEnergyTop_2 + phoEnergyBottom_2 +  phoEnergyLeft_2 + phoEnergyRight_2;
+	phoSwissCross_2 = 1 - (E4_2/phoEnergyCrysMax_2);
+	
+	TLorentzVector pho1, pho2, dipho;
+	pho1.SetPtEtaPhiE(phoEt_1,phoEta_1,phoPhi_1,photon1->GetEnergy());
+	pho2.SetPtEtaPhiE(phoEt_2,phoEta_2,phoPhi_2,photon2->GetEnergy());
+	
+	dipho = pho1 + pho2;
+	vSum_diPho_M = dipho.M();
+	vSum_diPho_Energy = dipho.Energy();
+	vSum_diPho_Pt  = dipho.Pt();
+	vSum_diPho_Eta = dipho.Eta();
+	vSum_diPho_Phi = dipho.Phi();
+	vSum_diPho_Rapidity = dipho.Rapidity();
+	
+	pho_dpt  = fabs(phoEt_1  - phoEt_2);
+	pho_deta = fabs(phoEta_1 - phoEta_2);
+	pho_dphi = getDPHI(phoPhi_1,phoPhi_2);
+	pho_acop = 1 - (pho_dphi/3.141592653589);  
+	
+	nPixelCluster = event->GetNpixelClusters();
+	nPixelRecHits =  event->GetNpixelRecHits();
+      } // if two good photons
+           
+      tr->Fill(); 
     } //samplename
-    
-    
-    // Check trigger
-    //if(sampleName != "Data"){
-    if(!event->HasTrigger(kDoubleEG2noHF)) continue;
-    //}
-
-    trigger_passed++;
-    hist->SetBinContent(1,trigger_passed);
-    hist_wozdc->SetBinContent(1,trigger_passed);
-
-    run = event->GetRunNumber();
-    ls = event->GetLumiSection();
-    evtnb = event->GetEventNumber();
-    
-    // select two exclusive photons 
-    //if(event->GetPhysObjects(EPhysObjType::kGoodPhoton).size() != 2) continue; applying cut on good photon ==2  retains photons with pT less than 2 GeV and there can be more than 2 photons passing the criteria and others not passing... 
-
-    //if(event->GetPhysObjects(EPhysObjType::kPhoton).size() != 2) continue;
-
-    // use normal photon size 2
-    /*int nPhoNotEE = 0; // number of photons with |eta| < 2.1
-    for(auto photon : event->GetPhysObjects(EPhysObjType::kPhoton)){
-      if(fabs(photon->GetEta()) < 2.1)
-        nPhoNotEE++;
-    }
-
-    if(nPhoNotEE != 2) continue;*/
-    twoPho++;
-    hist->SetBinContent(2,twoPho);     hist_wozdc->SetBinContent(2,twoPho);
-    // now require two photons passing ID only
-    if(event->GetPhysObjects(EPhysObjType::kGoodPhoton).size() != 2) continue;
-    twoGoodPho++;
-    hist->SetBinContent(3,twoGoodPho);     hist_wozdc->SetBinContent(3,twoGoodPho);
-
-    auto genTracks = event->GetPhysObjects(EPhysObjType::kGeneralTrack);
-    auto electrons = event->GetPhysObjects(EPhysObjType::kElectron);
-    auto goodGenTracks = event->GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
-    auto goodElectrons = event->GetPhysObjects(EPhysObjType::kGoodElectron);
-    auto muons     = event->GetPhysObjects(EPhysObjType::kMuon);
-    auto photon1   = event->GetPhysObjects(EPhysObjType::kGoodPhoton)[0];
-    auto photon2   = event->GetPhysObjects(EPhysObjType::kGoodPhoton)[1];
-    auto caloTower = event->GetPhysObjects(EPhysObjType::kCaloTower);
-
-       // event variables
-    ok_neuexcl = (!event->HasAdditionalTowers());
-    ok_castorexcl = (!event->HasCastorTowers());
-    
-    ok_chexcl  = (genTracks.size()==0 && electrons.size()==0 && muons.size()==0 );
-    ok_chexcl_tracks = (genTracks.size()==0);
-    ok_chexcl_electrons = (electrons.size()==0);
-    ok_chexcl_muons = (muons.size()==0);
-    ok_chexcl_goodtracks = (goodGenTracks.size()==0);
-    ok_chexcl_goodelectrons = (goodElectrons.size()==0);
-
-
-    if(sampleName == "Data"){
-      ok_zdcexcl = event->GetTotalZDCenergyPos() < 10000 && event->GetTotalZDCenergyNeg() < 10000;
-      ok_zdcexcl_1n_pos = event->GetTotalZDCenergyPos() < 1500;
-      ok_zdcexcl_1n_neg = event->GetTotalZDCenergyNeg() < 1500;
-      ok_zdcexcl_3n_pos = event->GetTotalZDCenergyPos() < 8000;
-      ok_zdcexcl_3n_neg = event->GetTotalZDCenergyNeg() < 8000;
-      ok_zdcexcl_4n_pos = event->GetTotalZDCenergyPos() < 10000;
-      ok_zdcexcl_4n_neg = event->GetTotalZDCenergyNeg() < 10000;
-      ok_zdcexcl_5n_pos = event->GetTotalZDCenergyPos() < 12000;
-      ok_zdcexcl_5n_neg = event->GetTotalZDCenergyNeg() < 12000;
-
-    }
-    
-    // start filling photon information here ........................................
-    
-    phoEt_1      = photon1->GetEt();
-    phoEta_1     = photon1->GetEta();
-    phoPhi_1     = photon1->GetPhi();
-    phoSCEt_1    = photon1->GetEnergySC()*sin(2.*atan(exp(-photon1->GetEtaSC())));
-    phoSCEta_1   = photon1->GetEtaSC();
-    phoSCPhi_1   = photon1->GetPhiSC();
-    phoEtaWidth_1      = photon1->GetEtaWidth();
-    phoHoverE_1        = photon1->GetHoverE();
-    phoEnergyTop_1     = photon1->GetEnergyCrystalTop();
-    phoEnergyBottom_1  = photon1->GetEnergyCrystalBottom();
-    phoEnergyLeft_1    = photon1->GetEnergyCrystalLeft();
-    phoEnergyRight_1   = photon1->GetEnergyCrystalRight();
-    phoEnergyCrysMax_1 = photon1->GetEnergyCrystalMax();
-    phoSeedTime_1      = photon1->GetSeedTime();
-    phoSigmaIEta_1     = photon1->GetSigmaEta2012();
-
-    double E4 = phoEnergyTop_1 + phoEnergyBottom_1 +  phoEnergyLeft_1 + phoEnergyRight_1;
-    phoSwissCross_1 = 1 - (E4/phoEnergyCrysMax_1);
-
-       
-    phoEt_2      = photon2->GetEt();
-    phoEta_2     = photon2->GetEta();
-    phoPhi_2     = photon2->GetPhi();
-    phoSCEt_2    = photon2->GetEnergySC()*sin(2.*atan(exp(-photon2->GetEtaSC())));
-    phoSCEta_2   = photon2->GetEtaSC();
-    phoSCPhi_2   = photon2->GetPhiSC();
-    phoEtaWidth_2      = photon2->GetEtaWidth();
-    phoHoverE_2        = photon2->GetHoverE();
-    phoEnergyTop_2     = photon2->GetEnergyCrystalTop();
-    phoEnergyBottom_2  = photon2->GetEnergyCrystalBottom();
-    phoEnergyLeft_2    = photon2->GetEnergyCrystalLeft();
-    phoEnergyRight_2   = photon2->GetEnergyCrystalRight();
-    phoEnergyCrysMax_2 = photon2->GetEnergyCrystalMax();
-    phoSeedTime_2      = photon2->GetSeedTime();
-    phoSigmaIEta_2     = photon2->GetSigmaEta2012();
-
-    double E4_2 = phoEnergyTop_2 + phoEnergyBottom_2 +  phoEnergyLeft_2 + phoEnergyRight_2;
-    phoSwissCross_2 = 1 - (E4_2/phoEnergyCrysMax_2);
-    
-    TLorentzVector pho1, pho2, dipho;
-    pho1.SetPtEtaPhiE(phoEt_1,phoEta_1,phoPhi_1,photon1->GetEnergy());
-    pho2.SetPtEtaPhiE(phoEt_2,phoEta_2,phoPhi_2,photon2->GetEnergy());
-    
-    dipho = pho1 + pho2;
-    vSum_diPho_M = dipho.M();
-    vSum_diPho_Energy = dipho.Energy();
-    vSum_diPho_Pt  = dipho.Pt();
-    vSum_diPho_Eta = dipho.Eta();
-    vSum_diPho_Phi = dipho.Phi();
-    vSum_diPho_Rapidity = dipho.Rapidity();
-    
-    pho_dpt  = fabs(phoEt_1  - phoEt_2);
-    pho_deta = fabs(phoEta_1 - phoEta_2);
-    pho_dphi = getDPHI(phoPhi_1,phoPhi_2);
-    pho_acop = 1 - (pho_dphi/3.141592653589);  
-
-   nPixelCluster = event->GetNpixelClusters();
-   nPixelRecHits =  event->GetNpixelRecHits();
-
-     
-    if(ok_chexcl==1){
-      charged_excl++;
-      hist->SetBinContent(4,charged_excl);
-      hist_wozdc->SetBinContent(4,charged_excl);
-      if(ok_neuexcl==1){
-	neutral_excl++;
-	hist->SetBinContent(5,neutral_excl);
-	hist_wozdc->SetBinContent(5,neutral_excl);
-	if(vSum_diPho_M>5){
-	  diphomass_wozdc++;
-	  hist_wozdc->SetBinContent(6,diphomass_wozdc);
-	  if(vSum_diPho_Pt<1){
-	    diphopt_wozdc++;
-	    hist_wozdc->SetBinContent(7,diphopt_wozdc);
-	    if(pho_acop<0.01){
-	      acop_cut_wozdc++;
-	      hist_wozdc->SetBinContent(8,acop_cut_wozdc);
-	    } //acop cut
-	  }//dipho pt
-	}//mass
-      }// neutral excl
-    }//charged excl
-    
-    if(ok_chexcl==1 && ok_neuexcl==1 && ok_zdcexcl==1){
-      zdc_excl++;
-      hist->SetBinContent(6,zdc_excl);
-      if(vSum_diPho_M>5){
-	diphomass++;
-	hist->SetBinContent(7,diphomass);
-	if(vSum_diPho_Pt<1){
-	  diphopt++;
-	  hist->SetBinContent(8,diphopt);
-	  if(pho_acop<0.01){
-	    acop_cut++;
-	    hist->SetBinContent(9,acop_cut);
-	  } //acop cut
-	}//dipho pt
-      }//mass
-    }//zdc cut
-    
-    tr->Fill(); 
   } //nevents
   Log(0) << "Number of events triggered:" << trigger_passed << "\n" ;
   Log(0) << "Number of events with two photons:" << twoPho << "\n" ;

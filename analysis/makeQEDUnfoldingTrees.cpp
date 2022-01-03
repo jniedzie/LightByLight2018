@@ -72,15 +72,8 @@ int ok_zdcexcl;
 int ok_chexcl;
 int ok_chexcl_extrk;
 int nExtrk;
-float SFweight_reco[16];
-float SFweight_trig[16];
+int ok_trigger;
 
-float  leadingEmEnergy_EB;
-float  leadingEmEnergy_EE;
-float  leadingHadEnergy_HB; 
-float  leadingHadEnergy_HE;
-float  leadingHadEnergy_HF_Plus;
-float  leadingHadEnergy_HF_Minus;
 
 /// initialise gen tree
 void InitGenTree(TTree *genTree) {
@@ -95,13 +88,24 @@ void InitGenTree(TTree *genTree) {
   genTree->Branch("gen_diEle_M",  &gen_diEle_M,  "gen_diEle_M/F");
   genTree->Branch("gen_diEle_Pt", &gen_diEle_Pt, "gen_diEle_Pt/F");
   genTree->Branch("gen_diEle_Rapidity", &gen_diEle_Rapidity, "gen_diEle_Rapidity/F");
-
-
 }
 
 
 /// initialise tree
 void InitTree(TTree *tr) {
+
+  tr->Branch("gen_Pt1",  &gen_Pt1, "gen_Pt1/F");
+  tr->Branch("gen_Eta1", &gen_Eta1, "gen_Eta1/F");
+  tr->Branch("gen_Phi1", &gen_Phi1, "gen_Phi1/F");
+  
+  tr->Branch("gen_Pt2",  &gen_Pt2, "gen_Pt2/F");
+  tr->Branch("gen_Eta2", &gen_Eta2, "gen_Eta2/F");
+  tr->Branch("gen_Phi2", &gen_Phi2, "gen_Phi2/F");
+  
+  tr->Branch("gen_diEle_M",  &gen_diEle_M,  "gen_diEle_M/F");
+  tr->Branch("gen_diEle_Pt", &gen_diEle_Pt, "gen_diEle_Pt/F");
+  tr->Branch("gen_diEle_Rapidity", &gen_diEle_Rapidity, "gen_diEle_Rapidity/F");
+  
   tr->Branch("run",                 &run,           "run/I");
   tr->Branch("ls",                  &ls,            "ls/I");
   tr->Branch("evtnb",               &evtnb,         "evtnb/I");
@@ -139,14 +143,7 @@ void InitTree(TTree *tr) {
   tr->Branch("ok_chexcl",           &ok_chexcl,       "ok_chexcl/I");
   tr->Branch("ok_chexcl_extrk",     &ok_chexcl_extrk, "ok_chexcl_extrk/I");
   tr->Branch("nExtrk",              &nExtrk,          "nExtrk/I");
-  tr->Branch("SFweight_reco",       SFweight_reco,    "SFweight_reco[16]/F");
-  tr->Branch("SFweight_trig",       SFweight_trig,    "SFweight_trig[16]/F");
-  tr->Branch("leadingEmEnergy_EB",  &leadingEmEnergy_EB,"leadingEmEnergy_EB/F");
-  tr->Branch("leadingEmEnergy_EE",  &leadingEmEnergy_EE,"leadingEmEnergy_EE/F");
-  tr->Branch("leadingHadEnergy_HB",  &leadingHadEnergy_HB,"leadingHadEnergy_HB/F");
-  tr->Branch("leadingHadEnergy_HE",  &leadingHadEnergy_HE,"leadingHadEnergy_HE/F");
-  tr->Branch("leadingHadEnergy_HF_Plus",  &leadingHadEnergy_HF_Plus,"leadingHadEnergy_HF_Plus/F");
-  tr->Branch("leadingHadEnergy_HF_Minus",  &leadingHadEnergy_HF_Minus,"leadingHadEnergy_HF_Minus/F");
+  tr->Branch("ok_trigger",          &ok_trigger,      "ok_trigger/I");
 }
 
 // reset gen variables
@@ -202,13 +199,7 @@ void ResetVars() {
   ok_chexcl = 0;
   ok_chexcl_extrk = 0;
   nExtrk = 0;
-
-  leadingEmEnergy_EB = 0;
-  leadingEmEnergy_EE = 0;
-  leadingHadEnergy_HB = 0; 
-  leadingHadEnergy_HE = 0;
-  leadingHadEnergy_HF_Plus = 0;
-  leadingHadEnergy_HF_Minus = 0;
+  ok_trigger = 0;
 }
 
 
@@ -242,10 +233,9 @@ int main(int argc, char* argv[])
   TH1D *hist_wozdc = new TH1D("hist_wozdc","",9,1,10);
  
   TFile *outFile = TFile::Open(outputPath.c_str(), "recreate");
-  TTree *genTree = new TTree("gen_tree","");
   TTree *tr = new TTree("output_tree","");
   InitTree(tr);
-  InitGenTree(genTree);
+
   
   auto events = make_unique<EventProcessor>(inputPath, dataset);
   
@@ -254,7 +244,7 @@ int main(int argc, char* argv[])
   
   // Loop over events
   for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
-  //for(int iEvent=0; iEvent<50000; iEvent++){
+  //for(int iEvent=0; iEvent<10000; iEvent++){
     if(iEvent%1000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
     //if(iEvent >= config.params("maxEvents")) break;
     
@@ -263,14 +253,15 @@ int main(int argc, char* argv[])
     ResetGenVars();  
     ResetVars();  
     
-      auto genP1 = event->GetPhysObjects(EPhysObjType::kGenParticle)[2]; 
-      auto genP2 = event->GetPhysObjects(EPhysObjType::kGenParticle)[3];
-    
-    if(sampleName == "QED_SL" ){
+    if(sampleName == "QED_SC"  || sampleName == "QED_SL" ){   
       auto genP1 = event->GetPhysObjects(EPhysObjType::kGenParticle)[0]; 
       auto genP2 = event->GetPhysObjects(EPhysObjType::kGenParticle)[1];
-     }
-    if(sampleName == "QED_SC"  || sampleName == "QED_SL" ){
+      
+      //if(sampleName == "QED_SC" ){
+//	auto genP1 = event->GetPhysObjects(EPhysObjType::kGenParticle)[2]; 
+//	auto genP2 = event->GetPhysObjects(EPhysObjType::kGenParticle)[3];
+ //     }
+      
       ResetGenVars();
       if(abs(genP1->GetPID())== 11 && abs(genP2->GetPID())== 11 ){
 	//Log(0) << " PID 1:" << genP1->GetPID() << "  two:" << genP2->GetPID() << "\n";
@@ -291,154 +282,88 @@ int main(int argc, char* argv[])
 	gen_diEle_Pt  = diele.Pt();
 	gen_diEle_Rapidity = diele.Rapidity();
 	
-	genTree->Fill();
       } // PID
-    } //samplename
-    
-    
-    // Check trigger
-    //if(sampleName != "Data"){
-    if(!event->HasTrigger(kDoubleEG2noHF)) continue;
-    //}
-    
-    trigger_passed++;
-    hist->SetBinContent(1,trigger_passed);
-    hist_wozdc->SetBinContent(1,trigger_passed);
-    
-    run = event->GetRunNumber();
-    ls = event->GetLumiSection();
-    evtnb = event->GetEventNumber();
-    
-    // select two exclusive electrons for QED event selection
-    if(event->GetPhysObjects(EPhysObjType::kGoodElectron).size() != 2) continue;
-    twoGoodEle++;
-    hist->SetBinContent(2,twoGoodEle);     hist_wozdc->SetBinContent(2,twoGoodEle);
-    
-    auto genTracks = event->GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
-    auto electron1 = event->GetPhysObjects(EPhysObjType::kGoodElectron)[0];
-    auto electron2 = event->GetPhysObjects(EPhysObjType::kGoodElectron)[1];
-    auto caloTower = event->GetPhysObjects(EPhysObjType::kCaloTower);
 
-    if(electron1->GetCharge() == electron2->GetCharge()) continue;
-    oppCharge++;
-    hist->SetBinContent(3,oppCharge);      hist_wozdc->SetBinContent(3,oppCharge);
-    
-    // event variables
-    ok_neuexcl = (!event->HasAdditionalTowers());
-    ok_chexcl  = (genTracks.size()==2);
-    if(sampleName == "Data")ok_zdcexcl = event->GetTotalZDCenergyPos() < 10000 && event->GetTotalZDCenergyNeg() < 10000;
-    
-    // start filling extra track information here ........................................
-    int nextratracks =0;
-    //Log(0) << "Event:" << iEvent << " track size:" << genTracks.size() << "\n";
+        // Check trigger
+      ok_trigger = (event->HasTrigger(kDoubleEG2noHF));
+      
+      trigger_passed++;
+      hist->SetBinContent(1,trigger_passed);
+      hist_wozdc->SetBinContent(1,trigger_passed);
+      
+      run = event->GetRunNumber();
+      ls = event->GetLumiSection();
+      evtnb = event->GetEventNumber();
+      
+      // select two exclusive electrons for QED event selection
+      if(event->GetPhysObjects(EPhysObjType::kGoodElectron).size() == 2){
+	twoGoodEle++;
+	hist->SetBinContent(2,twoGoodEle);     hist_wozdc->SetBinContent(2,twoGoodEle);
+	
+	auto genTracks = event->GetPhysObjects(EPhysObjType::kGoodGeneralTrack);
+	auto electron1 = event->GetPhysObjects(EPhysObjType::kGoodElectron)[0];
+	auto electron2 = event->GetPhysObjects(EPhysObjType::kGoodElectron)[1];
+	auto caloTower = event->GetPhysObjects(EPhysObjType::kCaloTower);
+	
+	if(electron1->GetCharge() != electron2->GetCharge()) {
+	oppCharge++;
+	hist->SetBinContent(3,oppCharge);      hist_wozdc->SetBinContent(3,oppCharge);
+	
+	// event variables
+	ok_neuexcl = (!event->HasAdditionalTowers());
+	ok_chexcl  = (genTracks.size()==2);
+	if(sampleName == "Data")ok_zdcexcl = event->GetTotalZDCenergyPos() < 10000 && event->GetTotalZDCenergyNeg() < 10000;
+	
+	// start filling extra track information here ........................................
+	int nextratracks =0;
     for (auto trk : genTracks) {
       if (getDPHI(trk->GetPhi(), electron1->GetPhi())<0.7 && getDETA(trk->GetEta(), electron1->GetEta())<0.15) continue;
       if (getDPHI(trk->GetPhi(), electron2->GetPhi())<0.7 && getDETA(trk->GetEta(), electron2->GetEta())<0.15) continue;
       nextratracks++;
     }
-    if(nextratracks>0)Log(0) << "Event :" << iEvent << " extra tracks:" << nextratracks << "\n";    
-    nExtrk = nextratracks ;
-    ok_chexcl_extrk = (nExtrk==0);
-    
-    eleCharge_1  = electron1->GetCharge();
-    elePt_1      = electron1->GetPt();
-    eleEta_1     = electron1->GetEta();
-    elePhi_1     = electron1->GetPhi();
-    eleSCEt_1    = electron1->GetEnergySC()*sin(2.*atan(exp(-electron1->GetEtaSC())));
-    eleSCEta_1   = electron1->GetEtaSC();
-    eleSCPhi_1   = electron1->GetPhiSC();
-    eleEoverP_1  = electron1->GetEoverP();
-   
-    eleCharge_2  = electron2->GetCharge();
-    elePt_2      = electron2->GetPt();
-    eleEta_2     = electron2->GetEta();
-    elePhi_2     = electron2->GetPhi();
-    eleSCEt_2    = electron2->GetEnergySC()*sin(2.*atan(exp(-electron2->GetEtaSC())));
-    eleSCEta_2   = electron2->GetEtaSC();
-    eleSCPhi_2   = electron2->GetPhiSC();
-    eleEoverP_2  = electron2->GetEoverP(); 
- 
-    // reco+ID scale factor   
-    double sf1_reco = SF_reco(elePt_1,eleEta_1);
-    double sf2_reco = SF_reco(elePt_2,eleEta_2);
-    SFweight_reco[0] = sf1_reco*sf2_reco;
-    
-    for (int ivar=1; ivar<16; ivar++) {
-      double sf1p_reco=sf1_reco, sf2p_reco=sf2_reco;
-      if (ireg(elePt_1,eleEta_1)==ivar) sf1p_reco += SF_uncert_reco(elePt_1,eleEta_1);
-      if (ireg(elePt_2,eleEta_2)==ivar) sf2p_reco += SF_uncert_reco(elePt_2,eleEta_2);
-      SFweight_reco[ivar] = sf1p_reco*sf2p_reco;
-    }
 
-    // trigger scale factor
-    double sf1 = SF_trig(eleSCEt_1,eleSCEta_1);
-    double sf2 = SF_trig(eleSCEt_2,eleSCEta_2);
-    SFweight_trig[0] = sf1*sf2;
-    
-    for (int ivar=1; ivar<16; ivar++) {
-      double sf1p=sf1, sf2p=sf2;
-      if (ireg(eleSCEt_1,eleSCEta_1)==ivar) sf1p += SF_uncert_trig(eleSCEt_1,eleSCEta_1);
-      if (ireg(eleSCEt_2,eleSCEta_2)==ivar) sf2p += SF_uncert_trig(eleSCEt_2,eleSCEta_2);
-      SFweight_trig[ivar] = sf1p*sf2p;
-    }
-    
-    TLorentzVector ele1, ele2, diele;
-    ele1.SetPtEtaPhiM(elePt_1,eleEta_1,elePhi_1,eleMass);
-    ele2.SetPtEtaPhiM(elePt_2,eleEta_2,elePhi_2,eleMass);
-    
-    diele = ele1 + ele2;
-    vSum_ee_M = diele.M();
-    vSum_ee_Energy = diele.Energy();
-    vSum_ee_Pt  = diele.Pt();
-    vSum_ee_Eta = diele.Eta();
-    vSum_ee_Phi = diele.Phi();
-    vSum_ee_Rapidity = diele.Rapidity();
-    
-    ele_dpt  = fabs(elePt_1  - elePt_2);
-    ele_deta = fabs(eleEta_1 - eleEta_2);
-    ele_dphi = getDPHI(elePhi_1,elePhi_2);
-    ele_acop = 1- (ele_dphi/3.141592653589);  
-
-    
-    if(ok_chexcl_extrk==1){
-      charged_excl++;
-      hist->SetBinContent(4,charged_excl);
-      hist_wozdc->SetBinContent(4,charged_excl);
-      if(ok_neuexcl==1){
-	neutral_excl++;
-	hist->SetBinContent(5,neutral_excl);
-	hist_wozdc->SetBinContent(5,neutral_excl);
-	if(vSum_ee_M>5){
-	  dielemass_wozdc++;
-	  hist_wozdc->SetBinContent(6,dielemass_wozdc);
-	  if(vSum_ee_Pt<1){
-	    dielept_wozdc++;
-	    hist_wozdc->SetBinContent(7,dielept_wozdc);
-	    if(ele_acop<0.01){
-	      acop_cut_wozdc++;
-	      hist_wozdc->SetBinContent(8,acop_cut_wozdc);
-	    } //acop cut
-	  }//diele pt
-	}//mass
-      }// neutral excl
-    }//charged excl
-    
-    if(ok_chexcl_extrk==1 && ok_neuexcl==1 && ok_zdcexcl==1){
-      zdc_excl++;
-      hist->SetBinContent(6,zdc_excl);
-      if(vSum_ee_M>5){
-	dielemass++;
-	hist->SetBinContent(7,dielemass);
-	if(vSum_ee_Pt<1){
-	  dielept++;
-	  hist->SetBinContent(8,dielept);
-	  if(ele_acop<0.01){
-	    acop_cut++;
-	    hist->SetBinContent(9,acop_cut);
-	  } //acop cut
-	}//diele pt
-      }//mass
-    }//zdc cut
+        if(nextratracks>0)Log(0) << "Event :" << iEvent << " extra tracks:" << nextratracks << "\n";
+	
+	nExtrk = nextratracks ;
+	ok_chexcl_extrk = (nExtrk==0);
+	
+	eleCharge_1  = electron1->GetCharge();
+	elePt_1      = electron1->GetPt();
+	eleEta_1     = electron1->GetEta();
+	elePhi_1     = electron1->GetPhi();
+	eleSCEt_1    = electron1->GetEnergySC()*sin(2.*atan(exp(-electron1->GetEtaSC())));
+	eleSCEta_1   = electron1->GetEtaSC();
+	eleSCPhi_1   = electron1->GetPhiSC();
+	eleEoverP_1  = electron1->GetEoverP();
+	
+	eleCharge_2  = electron2->GetCharge();
+	elePt_2      = electron2->GetPt();
+	eleEta_2     = electron2->GetEta();
+	elePhi_2     = electron2->GetPhi();
+	eleSCEt_2    = electron2->GetEnergySC()*sin(2.*atan(exp(-electron2->GetEtaSC())));
+	eleSCEta_2   = electron2->GetEtaSC();
+	eleSCPhi_2   = electron2->GetPhiSC();
+	eleEoverP_2  = electron2->GetEoverP(); 
+	
+	TLorentzVector ele1, ele2, diele;
+	ele1.SetPtEtaPhiM(elePt_1,eleEta_1,elePhi_1,eleMass);
+	ele2.SetPtEtaPhiM(elePt_2,eleEta_2,elePhi_2,eleMass);
+	
+	diele = ele1 + ele2;
+	vSum_ee_M = diele.M();
+	vSum_ee_Energy = diele.Energy();
+	vSum_ee_Pt  = diele.Pt();
+	vSum_ee_Eta = diele.Eta();
+	vSum_ee_Phi = diele.Phi();
+	vSum_ee_Rapidity = diele.Rapidity();
+	
+	ele_dpt  = fabs(elePt_1  - elePt_2);
+	ele_deta = fabs(eleEta_1 - eleEta_2);
+	ele_dphi = getDPHI(elePhi_1,elePhi_2);
+	ele_acop = 1- (ele_dphi/3.141592653589);  
+	} //electron charge
+      } //if two good electrons
+    } //samplename
     
     tr->Fill(); 
   } //nevents

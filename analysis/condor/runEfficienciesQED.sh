@@ -3,7 +3,8 @@
 userBasePath="/afs/cern.ch/work/r/rchudasa/private"
 #configPath="${userBasePath}/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation.md"
 #configPath="${userBasePath}/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation_newThresholds.md"
-configPath="${userBasePath}/LightByLight2018/analysis/configs/efficiencies_HFVeto_withEleIsolatioNewThresholds.md"
+#configPath="${userBasePath}/LightByLight2018/analysis/configs/efficiencies_HFVeto_withEleIsolatioNewThresholds.md"
+configPath="${userBasePath}/LightByLight2018/analysis/configs/efficiencies_HFVeto_withEleIsolatioNewThresholdsEta2p2.md"
 
 inputPath=""
 outputPath=""
@@ -12,8 +13,12 @@ sampleName=""
 inbasePath="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018"
 basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
 
+<<<<<<< Updated upstream
 suffix=""
 #suffix="_noElectronIDcuts"
+=======
+suffix="_HFvetoEff_v11"
+>>>>>>> Stashed changes
 
 if [ $2 -eq 0 ]
 then

@@ -1,6 +1,7 @@
 #!/bin/bash
 
-configPath="/afs/cern.ch/work/o/osuranyi/public/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation_newThresholds.md"
+#configPath="/afs/cern.ch/work/o/osuranyi/public/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation_newThresholds.md"
+configPath="/afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation_newThresholdsEta2p2.md"
 
 inputPath=""
 outputPath=""
@@ -8,7 +9,7 @@ sampleName=""
 
 basePath="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018"
 #basePath="/eos/cms/store/group/phys_diffraction/lbyl_2018"
-suffix="_03Oct_newThresholds"
+suffix="_OliverCaloThresholds_Eta2p2"
 
 if [ $2 -eq 0 ]
 then

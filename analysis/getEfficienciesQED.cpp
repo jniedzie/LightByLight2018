@@ -414,7 +414,7 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
   
   // Check trigger with no HF veto
   //if(!event.HasTrigger(kSingleEG3singleTrack) && !event.HasTrigger(kSingleEG5singleTrack) ) return;
-  if(!event.HasTrigger(kSingleEG5singleTrack)) return;
+  if(!event.HasTrigger(kSingleEG3singleTrack)) return;
   hists[cutThouthName]->Fill(cutLevel++); // 1
   
   // Neutral exclusivity
@@ -473,10 +473,10 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
   if(dielectron.M() < 5.0) return;
   hists[cutThouthName]->Fill(cutLevel++); // 7
   
-  if(dielectron.Pt() > 1.0) return;
+  if(dielectron.Pt() > 2.0) return;
   hists[cutThouthName]->Fill(cutLevel++); // 8
   
-  if(fabs(dielectron.Rapidity()) > 2.4) return;
+  if(fabs(dielectron.Rapidity()) > 2.2) return;
   hists[cutThouthName]->Fill(cutLevel++); // 9
 
   hists["trigger_HFveto_eff_den_"+datasetName]->Fill(1);
