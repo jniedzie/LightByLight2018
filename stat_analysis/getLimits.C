@@ -9,9 +9,10 @@
 #include <string>
 
 bool findCoupling = true;
+bool useObservedForCoupling = true;
 
-string suffix = "_test";
-vector<int> alpMasses = { 5, 6, 9, 11, 14, 16, 22, 30, 90 };
+string suffix = "_2018";
+vector<int> alpMasses = { 5, 6, 9, 11, 14, 16, 22, 30, 50, 90 };
 
 string inputPath        = "combineOutput"+suffix+".txt";
 string couplingOutPath  = "results/couplingMassLimits"+suffix+".txt";
@@ -100,21 +101,19 @@ void getLimits()
   double value = -1;
   
   while(getline(inFile, line)){
+//    cout<<"\tline:"<<line<<endl;
+    
     if(line.find("processing mass:") != string::npos){
       mass = findValue(line, "processing mass:");
+      
+//      cout<<"mass: "<<mass<<endl;
+      
       if(suffix=="_old") mass = alpMasses[mass];
     
       if(first){
         first = false;
         continue;
       }
-      
-      // fill in values for previous mass
-      if(findCoupling){
-        cout<<"Searching coupling for mass: "<<mass<<"\txsec: "<<r50<<endl;
-        couplingExpected = getCoupling(mass, r50);
-      }
-      massRcoupling.push_back(make_tuple(mass, rObserved, r2p5, r16, r50, r84, r97p5, couplingExpected));
     }
     
     value = findValue(line, "Observed Limit: r < "); if(value >= 0) rObserved = rScale * value;
@@ -123,15 +122,18 @@ void getLimits()
     value = findValue(line, "Expected 50.0%: r < "); if(value >= 0) r50       = rScale * value;
     value = findValue(line, "Expected 84.0%: r < "); if(value >= 0) r84       = rScale * value;
     value = findValue(line, "Expected 97.5%: r < "); if(value >= 0) r97p5     = rScale * value;
+    
+    if(value >= 0){
+      
+      // fill in values for previous mass
+      if(findCoupling){
+        cout<<"Searching coupling for mass: "<<mass<<"\txsec: "<<(useObservedForCoupling ? rObserved : r50)<<endl;
+        couplingExpected = getCoupling(mass, (useObservedForCoupling ? rObserved : r50));
+      }
+      massRcoupling.push_back(make_tuple(mass, rObserved, r2p5, r16, r50, r84, r97p5, couplingExpected));
+    }
+    
   }
-  
-  // fill in values for the last mass point
-  if(findCoupling){
-    cout<<"Searching coupling for mass: "<<mass<<"\txsec: "<<r50<<endl;
-    couplingExpected = getCoupling(mass, r50);
-  }
-  massRcoupling.push_back(make_tuple(mass, rObserved, r2p5, r16, r50, r84, r97p5, couplingExpected));
-  
   
   // save results to files
   ofstream outFileXsec(xsecOutPath);

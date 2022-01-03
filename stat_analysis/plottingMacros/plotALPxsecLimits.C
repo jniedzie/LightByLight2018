@@ -33,7 +33,7 @@ vector<TGraphAsymmErrors*> GetGraphFromTxt(const char *fileName, double scale=1.
 
 void plotALPxsecLimits()
 {
-  vector<TGraphAsymmErrors*> limits = GetGraphFromTxt("../results/xsecMassLimits_test.txt");
+  vector<TGraphAsymmErrors*> limits = GetGraphFromTxt("../results/xsecMassLimits_2018.txt");
   TLegend *legend = new TLegend(0.5, 0.6, 0.9, 0.9);
   TCanvas *canvas = new TCanvas("canvas", "canvas", 800, 600);
   canvas->cd();
@@ -45,7 +45,7 @@ void plotALPxsecLimits()
   limits[3]->GetXaxis()->SetRangeUser(4, 100);
   gPad->SetLogx(true);
   gPad->SetLogy(true);
-  limits[3]->GetYaxis()->SetRangeUser(0.05, 100.0);
+  limits[3]->GetYaxis()->SetRangeUser(0.7, 300);
   
   limits[3]->GetXaxis()->SetTitle("m_{a} (GeV)");
   limits[3]->GetYaxis()->SetTitle("95% CL upp. lim. on #sigma(#gamma#gamma #rightarrow a #rightarrow #gamma#gamma) (nb)");

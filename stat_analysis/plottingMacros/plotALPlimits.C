@@ -1,5 +1,5 @@
 
-double yAxisMin = 7E-6; // 7e-6
+double yAxisMin = 4E-5; // 7e-6
 double yAxisMax = 0.0025;
 
 double logLabelSize = 0.10;
@@ -34,11 +34,15 @@ vector<tuple<string, int, int, int, double, bool, bool, string, bool, bool>> gra
   {"atlas_3g_data"          , kGreen+4  , 2     , 1     , 0.2     , true  , false , "FL"  , false  , false },
   {"atlas_2g_data"          , kGreen+2  , 2     , 1     , 0.1     , true  , false , "FL"  , false  , false },
 //  {"cms_data"               , kRed      , 3     , 1     , 0.2     , true  , false , "L"   , false  , false },
-//  {"jer_observed_data"      , kOrange+1 , 3     , 1     , 0.2     , true  , false , "L"   , false  , false },
-  {"jer_expected_data"      , kGreen    , 5     , 2     , 0.2     , true  , false , "L"   , false  , false },
+//  {"jer_observed_data"      , kGreen    , 2     , 2     , 0.2     , true  , false , "L"   , false  , false },
+//  {"jer_expected_data"      , kGreen    , 2     , 1     , 0.2     , true  , false , "L"   , false  , false },
 //  {"prediction_20nb_data"   , kRed      , 3     , 1     , 0.2     , true  , false , "L"   , false  , false },
 //  {"cms_2015_reproduced"    , kRed      , 5     , 3     , 0.2     , true  , false , "L"   , false  , false },
-  {"cms_2018_gen_level"     , kOrange+1 , 2     , 1     , 0.2     , true  , false , "L"   , false  , false },
+//  {"cms_2018_gen_level"     , kOrange+1 , 2     , 1     , 0.2     , true  , false , "L"   , false  , false },
+  {"cms_2018_expected"      , kRed      , 2     , 1     , 0.2     , true  , false , "L"   , false  , false },
+  {"cms_2018_observed"      , kRed      , 2     , 2     , 0.2     , true  , false , "L"   , false  , false },
+  {"atlas_2020"             , kGreen+3   , 2     , 1     , 0.2     , true  , false , "L"   , false  , false },
+  {"atlas_2020_observed"    , kGreen+3   , 2     , 2     , 0.2     , true  , false , "L"   , false  , false },
 //  {"cms_2018_gen_level_3p0" , kRed      , 2     , 1     , 0.2     , true  , false , "L"   , false  , false },
 //  {"cms_2018_gen_level_4p0" , kViolet   , 2     , 1     , 0.2     , true  , false , "L"   , false  , false },
 //  {"cms_2018_gen_level_4p5" , kBlue     , 5     , 1     , 0.2     , true  , false , "L"   , false  , false },
@@ -167,7 +171,7 @@ void plotALPlimits(bool drawBB=false)
   
   linPad->cd();
   
-  TLegend *leg = new TLegend(0.45,0.13,0.86,0.30);
+  TLegend *leg = new TLegend(0.55,0.13,0.90,0.38);
   leg->SetFillStyle(0);
   leg->SetBorderSize(0);
 //  leg->AddEntry(graph_prediction_1nb,"Pb-Pb #sqrt{s_{NN}} = 5.5 TeV","l");
@@ -176,12 +180,17 @@ void plotALPlimits(bool drawBB=false)
 //  leg->AddEntry(graphs["prediction_20nb_data"],"PbPb (5.52 TeV) #rightarrow #gamma#gamma, 20^{-1} nb projection","lp");
 //  leg->AddEntry(graph_jer_expected,"PbPb (5.02 TeV) #rightarrow #gamma#gamma, expected","lp");
   
-  leg->AddEntry(graphs["jer_expected_data"]     , "original 2015 (expected)"    , "l");
+//  leg->AddEntry(graphs["jer_observed_data"]     , "CMS 2015 (observed)"    , "l");
+//  leg->AddEntry(graphs["jer_expected_data"]     , "CMS 2015 (expected)"    , "l");
 //  leg->AddEntry(graphs["prediction_20nb_data"]  , "20 nb^{-1} projection"       , "l");
 //  leg->AddEntry(graphs["cms_2015_reproduced"]   , "reproduced 2015 (expected)"  , "l");
-  leg->AddEntry(graphs["cms_2018_gen_level"]    , "new expected (|#eta| < 2.4)" , "l");
-  leg->AddEntry(graphs["cms_2018_gen_level_3p0"], "new expected (|#eta| < 3.0)" , "l");
-  leg->AddEntry(graphs["cms_2018_gen_level_4p0"], "new expected (|#eta| < 4.0)" , "l");
+//  leg->AddEntry(graphs["cms_2018_gen_level"]    , "2018 gen-level (expected) (|#eta| < 2.4)" , "l");
+  leg->AddEntry(graphs["cms_2018_expected"]     , "CMS 2018 (expected)" , "l");
+  leg->AddEntry(graphs["cms_2018_observed"]     , "CMS 2018 (observed)" , "l");
+  leg->AddEntry(graphs["atlas_2020"]            , "ATLAS (expected)" , "l");
+  leg->AddEntry(graphs["atlas_2020_observed"]   , "ATLAS (observed)" , "l");
+//  leg->AddEntry(graphs["cms_2018_gen_level_3p0"], "new expected (|#eta| < 3.0)" , "l");
+//  leg->AddEntry(graphs["cms_2018_gen_level_4p0"], "new expected (|#eta| < 4.0)" , "l");
 //  leg->AddEntry(graphs["cms_2018_gen_level_4p5"], "new expected (|#eta| < 4.5)" , "l");
   
   
@@ -199,8 +208,9 @@ void plotALPlimits(bool drawBB=false)
   leg_energy->SetTextColor(kBlack);
   leg_energy->SetFillStyle(0);
   leg_energy->SetBorderSize(0);
-  leg_energy->AddEntry(new TGraph(),"PbPb 390 #mub^{-1}, #sqrt{s}_{NN} = 5.02 TeV","");
-//  leg_energy->Draw();
+//  leg_energy->AddEntry(new TGraph(),"PbPb 390 #mub^{-1}, #sqrt{s}_{NN} = 5.02 TeV","");
+  leg_energy->AddEntry(new TGraph(),"PbPb 1639 #mub^{-1}, #sqrt{s}_{NN} = 5.02 TeV","");
+  leg_energy->Draw();
   
   
   logPad->cd();
@@ -211,7 +221,7 @@ void plotALPlimits(bool drawBB=false)
   leg_cms_logo->SetBorderSize(0);
   leg_cms_logo->SetTextFont(62);
   leg_cms_logo->AddEntry(new TGraph(),"CMS","");
-//  leg_cms_logo->Draw();
+  leg_cms_logo->Draw();
   
   TLegend *leg_linlog2 = new TLegend(0.5,0.803,1.63,1.053);
   leg_linlog2->SetTextColor(kBlack);

@@ -1,6 +1,7 @@
 string alpsFilePath = "input_files/histos_axions_2018.root";
-string backgroundFilePath = "input_files/histos_diphoton_2018.root";
-string outputFilePath = "input_hinvmass_2018.root";
+//string backgroundFilePath = "input_files/histos_diphoton_2018.root";
+string backgroundFilePath = "input_files/diphoton_histos_allSfsApplied.root";
+string outputFilePath = "input_hinvmass_2018_withSFs.root";
 
 string backgroundBaseName = "hinvmass_";
 
