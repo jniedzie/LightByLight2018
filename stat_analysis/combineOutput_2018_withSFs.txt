@@ -1,0 +1,180 @@
+processing mass: 5 GeV
+combine -M AsymptoticLimits datacards/datacard_axion_5GeV_2018_withSFs.txt 
+ <<< Combine >>> 
+>>> method used is AsymptoticLimits
+>>> random number generator seed is 123456
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+
+ -- AsymptoticLimits ( CLs ) --
+Observed Limit: r < 8.6060
+Expected  2.5%: r < 3.1689
+Expected 16.0%: r < 4.6476
+Expected 50.0%: r < 7.3750
+Expected 84.0%: r < 12.3725
+Expected 97.5%: r < 20.1485
+
+Done in 0.00 min (cpu), 0.00 min (real)
+processing mass: 6 GeV
+combine -M AsymptoticLimits datacards/datacard_axion_6GeV_2018_withSFs.txt 
+ <<< Combine >>> 
+>>> method used is AsymptoticLimits
+>>> random number generator seed is 123456
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+
+ -- AsymptoticLimits ( CLs ) --
+Observed Limit: r < 3.3406
+Expected  2.5%: r < 1.3587
+Expected 16.0%: r < 1.9632
+Expected 50.0%: r < 3.0781
+Expected 84.0%: r < 5.0658
+Expected 97.5%: r < 8.1188
+
+Done in 0.00 min (cpu), 0.00 min (real)
+processing mass: 9 GeV
+combine -M AsymptoticLimits datacards/datacard_axion_9GeV_2018_withSFs.txt 
+ <<< Combine >>> 
+>>> method used is AsymptoticLimits
+>>> random number generator seed is 123456
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+
+ -- AsymptoticLimits ( CLs ) --
+Observed Limit: r < 0.8169
+Expected  2.5%: r < 0.4904
+Expected 16.0%: r < 0.7351
+Expected 50.0%: r < 1.2188
+Expected 84.0%: r < 2.1126
+Expected 97.5%: r < 3.5691
+
+Done in 0.00 min (cpu), 0.00 min (real)
+processing mass: 11 GeV
+combine -M AsymptoticLimits datacards/datacard_axion_11GeV_2018_withSFs.txt 
+ <<< Combine >>> 
+>>> method used is AsymptoticLimits
+>>> random number generator seed is 123456
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+
+ -- AsymptoticLimits ( CLs ) --
+Observed Limit: r < 0.6617
+Expected  2.5%: r < 0.3428
+Expected 16.0%: r < 0.5347
+Expected 50.0%: r < 0.9141
+Expected 84.0%: r < 1.6209
+Expected 97.5%: r < 2.7705
+
+Done in 0.00 min (cpu), 0.00 min (real)
+processing mass: 14 GeV
+combine -M AsymptoticLimits datacards/datacard_axion_14GeV_2018_withSFs.txt 
+ <<< Combine >>> 
+>>> method used is AsymptoticLimits
+>>> random number generator seed is 123456
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+
+ -- AsymptoticLimits ( CLs ) --
+Observed Limit: r < 0.5551
+Expected  2.5%: r < 0.2541
+Expected 16.0%: r < 0.4115
+Expected 50.0%: r < 0.7227
+Expected 84.0%: r < 1.3160
+Expected 97.5%: r < 2.1906
+
+Done in 0.00 min (cpu), 0.00 min (real)
+processing mass: 16 GeV
+combine -M AsymptoticLimits datacards/datacard_axion_16GeV_2018_withSFs.txt 
+ <<< Combine >>> 
+>>> method used is AsymptoticLimits
+>>> random number generator seed is 123456
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+
+ -- AsymptoticLimits ( CLs ) --
+Observed Limit: r < 0.4984
+Expected  2.5%: r < 0.1971
+Expected 16.0%: r < 0.3273
+Expected 50.0%: r < 0.5938
+Expected 84.0%: r < 1.1144
+Expected 97.5%: r < 1.8001
+
+Done in 0.00 min (cpu), 0.00 min (real)
+processing mass: 22 GeV
+combine -M AsymptoticLimits datacards/datacard_axion_22GeV_2018_withSFs.txt 
+ <<< Combine >>> 
+>>> method used is AsymptoticLimits
+>>> random number generator seed is 123456
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+
+ -- AsymptoticLimits ( CLs ) --
+Observed Limit: r < 0.4980
+Expected  2.5%: r < 0.3348
+Expected 16.0%: r < 0.4977
+Expected 50.0%: r < 0.8086
+Expected 84.0%: r < 1.3759
+Expected 97.5%: r < 2.2642
+
+Done in 0.00 min (cpu), 0.00 min (real)
+processing mass: 30 GeV
+combine -M AsymptoticLimits datacards/datacard_axion_30GeV_2018_withSFs.txt 
+ <<< Combine >>> 
+>>> method used is AsymptoticLimits
+>>> random number generator seed is 123456
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+
+ -- AsymptoticLimits ( CLs ) --
+Observed Limit: r < 0.4269
+Expected  2.5%: r < 0.2625
+Expected 16.0%: r < 0.3965
+Expected 50.0%: r < 0.6523
+Expected 84.0%: r < 1.1204
+Expected 97.5%: r < 1.8690
+
+Done in 0.00 min (cpu), 0.00 min (real)
+processing mass: 50 GeV
+combine -M AsymptoticLimits datacards/datacard_axion_50GeV_2018_withSFs.txt 
+ <<< Combine >>> 
+>>> method used is AsymptoticLimits
+>>> random number generator seed is 123456
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+
+ -- AsymptoticLimits ( CLs ) --
+Observed Limit: r < 0.6792
+Expected  2.5%: r < 0.3200
+Expected 16.0%: r < 0.5205
+Expected 50.0%: r < 0.9102
+Expected 84.0%: r < 1.6430
+Expected 97.5%: r < 2.7589
+
+Done in 0.00 min (cpu), 0.00 min (real)
+processing mass: 90 GeV
+combine -M AsymptoticLimits datacards/datacard_axion_90GeV_2018_withSFs.txt 
+ <<< Combine >>> 
+>>> method used is AsymptoticLimits
+>>> random number generator seed is 123456
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+SimNLL created with 1 channels, 0 generic constraints, 5 fast gaussian constraints, 0 fast poisson constraints, 0 fast group constraints, 
+
+ -- AsymptoticLimits ( CLs ) --
+Observed Limit: r < 0.2890
+Expected  2.5%: r < 0.0836
+Expected 16.0%: r < 0.1478
+Expected 50.0%: r < 0.2891
+Expected 84.0%: r < 0.5725
+Expected 97.5%: r < 0.8766
+
+Done in 0.00 min (cpu), 0.00 min (real)
