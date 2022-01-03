@@ -19,45 +19,49 @@
 #include "TAxis.h"
 #include "TChain.h"
 
-
-const double luminosity       = 1635.123139823; // μb^-1
-const double nEventsGeneratedSL = 63957000; // older number with less files 63398400; //starlight
+const double luminosity       = 1639.207543; // μb^-1
+const double nEventsGeneratedSL = 66750000; // older number with less files 63398400; //starlight
 const double xsecGeneratedSL    = 7920; // μb, starlight
 
-const double nEventsGeneratedSC = 67536400; // older number with less files 67262800 superchic 
+const double nEventsGeneratedSC = 67810000; // older number with less files 67262800 superchic 
 const double xsecGeneratedSC    = 8827.220; // μb
 const double purity = 0.96; 
-double scaleFactorsSC = 0.848 *  // NEE
-                       // 0.971 *      // CHE  13.01.2021
-                         0.932 *      // CHE    22.11.2021
-                        pow(0.98, 2)* // electron reco+ID
-                        0.67 *      // HF veto
-                        0.99;       // L1 EG trigger
+double scaleFactorsSC = 0.85 *  // NEE    21.12.2021
+                        0.93 *      // CHE  21.12.2021
+                        pow(0.976, 2)* // electron reco+ID 21.12.2021
+                        0.866 *      // HF veto
+                       1.008;       // L1 EG trigger
 
-double scaleFactorsSL =0.848 *  // NEE
-                       // 0.971 *      // CHE  13.01.2021
-                         0.932 *      // CHE    22.11.2021
-                        pow(0.98, 2)* // electron reco+ID
-                        0.67 *      // HF veto
-                        0.99;       // L1 EG trigger
+double scaleFactorsSL = 0.85 *  // NEE    21.12.2021
+  0.93 *      // CHE  21.12.2021
+  pow(0.976, 2)* // electron reco+ID 21.12.2021
+  0.866 *      // HF veto
+  1.008;       // L1 EG trigger
 
 
 double lumiNormSC = xsecGeneratedSC*luminosity*purity*scaleFactorsSC/nEventsGeneratedSC;
 double lumiNormSL = xsecGeneratedSL*luminosity*purity*scaleFactorsSL/nEventsGeneratedSL;
 
+double scaleFactorPhoton = 0.85 *  // NEE    21.12.2021
+  0.93 *      // CHE  21.12.2021
+  pow(1.048, 2)* // electron reco+ID 21.12.2021
+  0.866 *      // HF veto
+  1.008;       // L1 EG trigger
+
 
 const double xsecGeneratedLbL    = 2.59; // μb
 const double nEventsGeneratedLbL = 466000; 
-double norm_exgg = 0.83*0.99*xsecGeneratedLbL*luminosity/nEventsGeneratedLbL; 
+//double norm_exgg = 0.83*0.99*xsecGeneratedLbL*luminosity/nEventsGeneratedLbL; 
+double norm_exgg = scaleFactorPhoton*xsecGeneratedLbL*luminosity/nEventsGeneratedLbL;  //31.12.21 (SF = 1.048, took the square here). 
 
 
 const double xsecGeneratedCEP    = 0.0058; // μb
 const double nEventsGeneratedCEP = 668000; 
-double norm_cep = xsecGeneratedCEP*luminosity/nEventsGeneratedCEP; 
+double norm_cep = scaleFactorPhoton*xsecGeneratedCEP*luminosity/nEventsGeneratedCEP; 
 
 const double xsecGeneratedCEPIncoh    = 0.001431; // μb
 const double nEventsGeneratedCEPIncoh = 500000; 
-double norm_cepIncoh = xsecGeneratedCEPIncoh*luminosity/nEventsGeneratedCEPIncoh; 
+double norm_cepIncoh = scaleFactorPhoton*xsecGeneratedCEPIncoh*luminosity/nEventsGeneratedCEPIncoh; 
 
 void count_events(){
  
@@ -66,25 +70,27 @@ void count_events(){
   TH1::SetDefaultSumw2();
    gStyle->SetOptStat(0);
 
-  TChain *data = new TChain("output_tree");
-  data->Add("diphoton_data13.root");
- 
- 
-  TChain *lbl = new TChain("output_tree");
-  lbl->Add("diphoton_lbl12.root");
-lumiNormSC = lumiNormSL;
 
+  TChain *data = new TChain("output_tree");
+  data->Add("data_eta2p2.root");
+
+  TChain *lbl = new TChain("output_tree");
+  //lbyl->Add("../oliver_thresholds/diphoton_lbl12.root");
+  lbl->Add("lbyl_diphoton_genInfo.root");
+
+ 
   TChain *mcsl = new TChain("output_tree");
-  mcsl->Add("diphoton_qed12.root");
+  mcsl->Add("../oliver_thresholds/diphoton_qed12.root");
 
   TChain *cep = new TChain("output_tree");
-  cep->Add("diphoton_cep12.root");
+  cep->Add("../oliver_thresholds/diphoton_cep12.root");
+
 
   TChain *cepIncoh = new TChain("output_tree");
-  cepIncoh->Add("CEPIncoh_diphoton.root");
+  cepIncoh->Add("../oliver_thresholds/CEPIncoh_diphoton.root");
 
  
-   const TCut swiss_cross  = "phoSwissCross_1 < 0.95 && phoSwissCross_2 < 0.95";
+   const TCut swiss_cross  = "phoSwissCross_1 < 0.95 && phoSwissCross_2 < 0.95 && abs(phoEta_1) < 2.2 && abs(phoEta_2) < 2.2";
    const TCut no_addittional_tower  = " ok_neuexcl==1";
    const TCut no_extrk  = " ok_chexcl_goodtracks == 1 && ok_chexcl_goodelectrons==1" && swiss_cross;
    const TCut zdc_cut  = " ok_zdcexcl_4n_pos == 1 && ok_zdcexcl_4n_neg == 1";
@@ -114,15 +120,15 @@ lumiNormSC = lumiNormSL;
   TH1D* hmass_lbl_pt  = new TH1D("hmass_lbl_pt","",75,0,150);
   TH1D* hmass_lbl_acop  = new TH1D("hmass_lbl_acop","",75,0,150);
 
-  lbl->Project(hmass_lbl_goodPho->GetName(), "vSum_M",swiss_cross);
-  lbl->Project(hmass_lbl_inv->GetName(), "vSum_M","vSum_M>5"  && swiss_cross );
-  lbl->Project(hmass_lbl_ch->GetName(), "vSum_M",no_extrk && "vSum_M>5");
-  lbl->Project(hmass_lbl_neu->GetName(), "vSum_M",no_extrk && no_addittional_tower && "vSum_M>5" );
-  lbl->Project(hmass_lbl_zdc->GetName(), "vSum_M",no_extrk && no_addittional_tower && "vSum_M>5" );
-  lbl->Project(hmass_lbl_pt->GetName(), "vSum_M", no_extrk && no_addittional_tower && "vSum_M>5 && vSum_Pt<2" );
-  lbl->Project(hmass_lbl_acop->GetName(), "vSum_M",no_extrk && no_addittional_tower &&  "vSum_M>5 && vSum_Pt<2 && pho_acop<0.01" );
+  lbl->Project(hmass_lbl_goodPho->GetName(), "vSum_M",swiss_cross && "ok_trigger==1");
+  lbl->Project(hmass_lbl_inv->GetName(), "vSum_M","vSum_M>5"  && swiss_cross && "ok_trigger==1");
+  lbl->Project(hmass_lbl_ch->GetName(), "vSum_M",no_extrk && "vSum_M>5"&& "ok_trigger==1");
+  lbl->Project(hmass_lbl_neu->GetName(), "vSum_M",no_extrk && no_addittional_tower && "vSum_M>5" && "ok_trigger==1");
+  lbl->Project(hmass_lbl_zdc->GetName(), "vSum_M",no_extrk && no_addittional_tower && "vSum_M>5"&& "ok_trigger==1");
+  lbl->Project(hmass_lbl_pt->GetName(), "vSum_M", no_extrk && no_addittional_tower && "vSum_M>5 && vSum_Pt<2" && "ok_trigger==1");
+  lbl->Project(hmass_lbl_acop->GetName(), "vSum_M",no_extrk && no_addittional_tower &&  "vSum_M>5 && vSum_Pt<2 && pho_acop<0.01" && "ok_trigger==1");
 
-
+  cout << norm_exgg << endl;
   hmass_lbl_ch->Scale(norm_exgg);  hmass_lbl_neu->Scale(norm_exgg); hmass_lbl_inv->Scale(norm_exgg);  hmass_lbl_goodPho->Scale(norm_exgg); 
   hmass_lbl_pt->Scale(norm_exgg);   hmass_lbl_acop->Scale(norm_exgg); hmass_lbl_zdc->Scale(norm_exgg);
 

@@ -19,8 +19,12 @@
 #include "THStack.h"
 
 int xlo = 1;
-int xhi = 2;
+int xhi = 150;
 int nbin = 8;
+
+const int nMassbins=4;
+double Massbin[nMassbins]={5.0,7.0,10.0,16.0};
+const int nMassbin= sizeof(Massbin)/sizeof(double) - 1;
 
 
 
@@ -52,29 +56,23 @@ double scaleFactorsSL = 0.85 *  // NEE    21.12.2021
   1.008;       // L1 EG trigger
 
 
-double lumiNormSC = xsecGeneratedSC*luminosity*purity*scaleFactorsSC/nEventsGeneratedSC;
-double lumiNormSL = xsecGeneratedSL*luminosity*purity*scaleFactorsSL/nEventsGeneratedSL;
-
-double scaleFactorPhoton = 0.85 *  // NEE    21.12.2021
-  0.93 *      // CHE  21.12.2021
-  pow(1.048, 2)* // electron reco+ID 21.12.2021
-  0.866 *      // HF veto
-  1.008;       // L1 EG trigger
+double lumiNormSC = xsecGeneratedSC*luminosity*scaleFactorsSC/nEventsGeneratedSC;
+double lumiNormSL = xsecGeneratedSL*luminosity*scaleFactorsSL/nEventsGeneratedSL;
 
 
 const double xsecGeneratedLbL    = 2.59; // μb
 const double nEventsGeneratedLbL = 466000; 
 //double norm_exgg = 0.83*0.99*xsecGeneratedLbL*luminosity/nEventsGeneratedLbL; 
-double norm_exgg = scaleFactorPhoton*xsecGeneratedLbL*luminosity/nEventsGeneratedLbL;  //31.12.21 (SF = 1.048, took the square here). 
+double norm_exgg = 1.09*xsecGeneratedLbL*luminosity/nEventsGeneratedLbL;  //31.12.21 (SF = 1.048, took the square here). 
 
 
 const double xsecGeneratedCEP    = 0.0058; // μb
 const double nEventsGeneratedCEP = 668000; 
-double norm_cep = scaleFactorPhoton*xsecGeneratedCEP*luminosity/nEventsGeneratedCEP; 
+double norm_cep = xsecGeneratedCEP*luminosity/nEventsGeneratedCEP; 
 
 const double xsecGeneratedCEPIncoh    = 0.001431; // μb
 const double nEventsGeneratedCEPIncoh = 500000; 
-double norm_cepIncoh = scaleFactorPhoton*xsecGeneratedCEPIncoh*luminosity/nEventsGeneratedCEPIncoh; 
+double norm_cepIncoh = xsecGeneratedCEPIncoh*luminosity/nEventsGeneratedCEPIncoh; 
 
 void BinLogX(TH1* h);
 
@@ -88,15 +86,15 @@ void plot_data_mc_comp(){
 
 
 
-  TFile *outf= new TFile("diphoton_histos.root","recreate");  
+  TFile *outf= new TFile("diphoton_histos_etaChecks.root","recreate");  
 
 
   TChain *data = new TChain("output_tree");
-  data->Add("data_eta2p2.root");
+  data->Add("../eta2p2/data_eta2p2.root");
 
   TChain *lbyl = new TChain("output_tree");
   //lbyl->Add("../oliver_thresholds/diphoton_lbl12.root");
-  lbyl->Add("lbyl_diphoton_genInfo.root");
+  lbyl->Add("../eta2p2/lbyl_diphoton_genInfo.root");
 
  
   TChain *qed = new TChain("output_tree");
@@ -123,7 +121,7 @@ lumiNormSC = lumiNormSL;
    const TCut no_trk  = "ok_chexcl_goodtracks == 1 && ok_chexcl_goodelectrons==1"; //&& ok_chexcl_muons == 1"; //" ok_chexcl==1";
    //const TCut swiss_cross  = "phoSwissCross_1 < 0.95 && phoSwissCross_2 < 0.95";
 
-   const TCut swiss_cross  = "phoSwissCross_1 < 0.95 && phoSwissCross_2 < 0.95 && abs(phoEta_1) < 2.2 && abs(phoEta_2) < 2.2";// && abs(phoSeedTime_1) < 5 && abs(phoSeedTime_2) < 5";
+   const TCut swiss_cross  = "phoSwissCross_1 < 0.95 && phoSwissCross_2 < 0.95";// && abs(phoEta_1) < 2.2 && abs(phoEta_2) < 2.2 && abs(phoSeedTime_1) < 5 && abs(phoSeedTime_2) < 5";
 
    //const TCut apply_cut =  "vSum_M > 5 && vSum_Pt<1" && no_trk && no_addittional_tower;
   const TCut zdc_cut = "ok_zdcexcl_4n_pos == 1 && ok_zdcexcl_4n_neg == 1";
@@ -139,16 +137,16 @@ lumiNormSC = lumiNormSL;
   //// data histogram
 
   TH1D* hpho_pt_data   = new TH1D("hpho_pt_data","",8,2,10);
-  TH1D* hpho_eta_data  = new TH1D("hpho_eta_data","",11,-2.2,2.2);
+  TH1D* hpho_eta_data  = new TH1D("hpho_eta_data","",2,0,1.6);
   TH1D* hpho_phi_data  = new TH1D("hpho_phi_data","",12,-PI,PI);
 
   TH1D* hpho_pt2_data   = new TH1D("hpho_pt2_data","",8,2,10);
-  TH1D* hpho_eta2_data  = new TH1D("hpho_eta2_data","",11,-2.2,2.2);
+  TH1D* hpho_eta2_data  = new TH1D("hpho_eta2_data","",2,0,1.6);
   TH1D* hpho_phi2_data  = new TH1D("hpho_phi2_data","",12,-PI,PI);
     
   TH1D* hdiphoton_pt_data         = new TH1D("hdiphoton_pt_data","",10,0,2);
-  TH1D* hdiphoton_rapidity_data   = new TH1D("hdiphoton_rapidity_data","",11,-2.2,2.2);
-  TH1D* hinvmass_data             = new TH1D("hinvmass_data","",12,0,30);
+  TH1D* hdiphoton_rapidity_data   = new TH1D("hdiphoton_rapidity_data","",2,0,1.6);
+  TH1D* hinvmass_data             = new TH1D("hinvmass_data","",nMassbin, Massbin);
   TH1D* hacoplanarity_data   = new TH1D("hacoplanarity_data","",20,0,0.1);
   
   TH1D* hNPixelCluster = new TH1D("hNPixelCluster","",100,0,500);
@@ -165,7 +163,7 @@ lumiNormSC = lumiNormSL;
   hpho_phi_data->Add(hpho_phi2_data);
   
   data->Project(hdiphoton_pt_data->GetName(), "vSum_Pt",apply_cut  );
-  data->Project(hdiphoton_rapidity_data->GetName(), "vSum_Rapidity",apply_cut  );
+  data->Project(hdiphoton_rapidity_data->GetName(), "abs(vSum_Rapidity)",apply_cut  );
   data->Project(hinvmass_data->GetName(), "vSum_M",apply_cut  );
   data->Project(hacoplanarity_data->GetName(),  "pho_acop", aco_cut );
 
@@ -177,17 +175,17 @@ lumiNormSC = lumiNormSL;
 
 
   TH1D* hpho_pt_lbyl   = new TH1D("hpho_pt_lbyl","",8,2,10);
-  TH1D* hpho_eta_lbyl  = new TH1D("hpho_eta_lbyl","",11,-2.2,2.2);
+  TH1D* hpho_eta_lbyl  = new TH1D("hpho_eta_lbyl","",2,0,1.6);
   TH1D* hpho_phi_lbyl  = new TH1D("hpho_phi_lbyl","",12,-PI,PI);
 
   TH1D* hpho_pt2_lbyl   = new TH1D("hpho_pt2_lbyl","",8,2,10);
-  TH1D* hpho_eta2_lbyl  = new TH1D("hpho_eta2_lbyl","",11,-2.2,2.2);
+  TH1D* hpho_eta2_lbyl  = new TH1D("hpho_eta2_lbyl","",2,0,1.6);
   TH1D* hpho_phi2_lbyl  = new TH1D("hpho_phi2_lbyl","",12,-PI,PI);
   
  
   TH1D* hdiphoton_pt_lbyl         = new TH1D("hdiphoton_pt_lbyl","",10,0,2);
-  TH1D* hdiphoton_rapidity_lbyl   = new TH1D("hdiphoton_rapidity_lbyl","",11,-2.2,2.2);
-  TH1D* hinvmass_lbyl    = new TH1D("hinvmass_lbyl","",12,0,30);
+  TH1D* hdiphoton_rapidity_lbyl   = new TH1D("hdiphoton_rapidity_lbyl","",2,0,1.6);
+  TH1D* hinvmass_lbyl    = new TH1D("hinvmass_lbyl","",nMassbin, Massbin);
   TH1D* hacoplanarity_lbyl   = new TH1D("hacoplanarity_lbyl","",20,0,0.1);
 
 
@@ -206,7 +204,7 @@ lumiNormSC = lumiNormSL;
   
 
   lbyl->Project(hdiphoton_pt_lbyl->GetName(), "vSum_Pt",apply_cut_mc && "ok_trigger==1" );
-  lbyl->Project(hdiphoton_rapidity_lbyl->GetName(), "vSum_Rapidity",apply_cut_mc && "ok_trigger==1" );
+  lbyl->Project(hdiphoton_rapidity_lbyl->GetName(), "abs(vSum_Rapidity)",apply_cut_mc && "ok_trigger==1" );
   lbyl->Project(hinvmass_lbyl->GetName(), "vSum_M",apply_cut_mc&& "ok_trigger==1" );
   lbyl->Project(hacoplanarity_lbyl->GetName(),  "pho_acop", aco_cut_mc && "ok_trigger==1" );
 
@@ -221,16 +219,16 @@ lumiNormSC = lumiNormSL;
   // get qed file
 
   TH1D* hpho_pt_qed   = new TH1D("hpho_pt_qed","",8,2,10);
-  TH1D* hpho_eta_qed  = new TH1D("hpho_eta_qed","",11,-2.2,2.2);
+  TH1D* hpho_eta_qed  = new TH1D("hpho_eta_qed","",2,0,1.6);
   TH1D* hpho_phi_qed  = new TH1D("hpho_phi_qed","",12,-PI,PI);
 
   TH1D* hpho_pt2_qed   = new TH1D("hpho_pt2_qed","",8,2,10);
-  TH1D* hpho_eta2_qed  = new TH1D("hpho_eta2_qed","",11,-2.2,2.2);
+  TH1D* hpho_eta2_qed  = new TH1D("hpho_eta2_qed","",2,0,1.6);
   TH1D* hpho_phi2_qed  = new TH1D("hpho_phi2_qed","",12,-PI,PI);
   
   TH1D* hdiphoton_pt_qed         = new TH1D("hdiphoton_pt_qed","",10,0,2);
-  TH1D* hdiphoton_rapidity_qed   = new TH1D("hdiphoton_rapidity_qed","",11,-2.2,2.2);
-  TH1D* hinvmass_qed    = new TH1D("hinvmass_qed","",12,0,30);
+  TH1D* hdiphoton_rapidity_qed   = new TH1D("hdiphoton_rapidity_qed","",2,0,1.6);
+  TH1D* hinvmass_qed    = new TH1D("hinvmass_qed","",nMassbin, Massbin);
   TH1D* hacoplanarity_qed   = new TH1D("hacoplanarity_qed","",20,0,0.1);
 
   cout << "qed project ongoing" << endl;
@@ -248,7 +246,7 @@ lumiNormSC = lumiNormSL;
 
 
   qed->Project(hdiphoton_pt_qed->GetName(), "vSum_Pt",apply_cut_mc );
-  qed->Project(hdiphoton_rapidity_qed->GetName(), "vSum_Rapidity",apply_cut_mc );
+  qed->Project(hdiphoton_rapidity_qed->GetName(), "abs(vSum_Rapidity)",apply_cut_mc );
   qed->Project(hinvmass_qed->GetName(), "vSum_M",apply_cut_mc );
   qed->Project(hacoplanarity_qed->GetName(), "pho_acop", aco_cut_mc);
   
@@ -269,17 +267,17 @@ lumiNormSC = lumiNormSL;
 
 
   TH1D* hpho_pt_cep   = new TH1D("hpho_pt_cep","",8,2,10);
-  TH1D* hpho_eta_cep  = new TH1D("hpho_eta_cep","",11,-2.2,2.2);
+  TH1D* hpho_eta_cep  = new TH1D("hpho_eta_cep","",2,0,1.6);
   TH1D* hpho_phi_cep  = new TH1D("hpho_phi_cep","",12,-PI,PI);
 
   TH1D* hpho_pt2_cep   = new TH1D("hpho_pt2_cep","",8,2,10);
-  TH1D* hpho_eta2_cep  = new TH1D("hpho_eta2_cep","",11,-2.2,2.2);
+  TH1D* hpho_eta2_cep  = new TH1D("hpho_eta2_cep","",2,0,1.6);
   TH1D* hpho_phi2_cep  = new TH1D("hpho_phi2_cep","",12,-PI,PI);
   
   
   TH1D* hdiphoton_pt_cep         = new TH1D("hdiphoton_pt_cep","",10,0,2);
-  TH1D* hdiphoton_rapidity_cep   = new TH1D("hdiphoton_rapidity_cep","",11,-2.2,2.2);
-  TH1D* hinvmass_cep    = new TH1D("hinvmass_cep","",12,0,30);
+  TH1D* hdiphoton_rapidity_cep   = new TH1D("hdiphoton_rapidity_cep","",2,0,1.6);
+  TH1D* hinvmass_cep    = new TH1D("hinvmass_cep","",nMassbin, Massbin);
   TH1D* hacoplanarity_cep   = new TH1D("hacoplanarity_cep","",20,0,0.1);
 
   cout << "cep project ongoing" << endl;
@@ -297,7 +295,7 @@ lumiNormSC = lumiNormSL;
   
 
   cep->Project(hdiphoton_pt_cep->GetName(), "vSum_Pt",apply_cut_mc );
-  cep->Project(hdiphoton_rapidity_cep->GetName(), "vSum_Rapidity",apply_cut_mc );
+  cep->Project(hdiphoton_rapidity_cep->GetName(), "abs(vSum_Rapidity)",apply_cut_mc );
   cep->Project(hinvmass_cep->GetName(), "vSum_M",apply_cut_mc );
   cep->Project(hacoplanarity_cep->GetName(),  "pho_acop", aco_cut_mc );
   
@@ -316,17 +314,17 @@ lumiNormSC = lumiNormSL;
 
 
   TH1D* hpho_pt_cepIncoh   = new TH1D("hpho_pt_cepIncoh","",8,2,10);
-  TH1D* hpho_eta_cepIncoh  = new TH1D("hpho_eta_cepIncoh","",11,-2.2,2.2);
+  TH1D* hpho_eta_cepIncoh  = new TH1D("hpho_eta_cepIncoh","",2,0,1.6);
   TH1D* hpho_phi_cepIncoh  = new TH1D("hpho_phi_cepIncoh","",12,-PI,PI);
 
   TH1D* hpho_pt2_cepIncoh   = new TH1D("hpho_pt2_cepIncoh","",8,2,10);
-  TH1D* hpho_eta2_cepIncoh  = new TH1D("hpho_eta2_cepIncoh","",11,-2.2,2.2);
+  TH1D* hpho_eta2_cepIncoh  = new TH1D("hpho_eta2_cepIncoh","",2,0,1.6);
   TH1D* hpho_phi2_cepIncoh  = new TH1D("hpho_phi2_cepIncoh","",12,-PI,PI);
   
   
   TH1D* hdiphoton_pt_cepIncoh         = new TH1D("hdiphoton_pt_cepIncoh","",10,0,2);
-  TH1D* hdiphoton_rapidity_cepIncoh   = new TH1D("hdiphoton_rapidity_cepIncoh","",11,-2.2,2.2);
-  TH1D* hinvmass_cepIncoh    = new TH1D("hinvmass_cepIncoh","",12,0,30);
+  TH1D* hdiphoton_rapidity_cepIncoh   = new TH1D("hdiphoton_rapidity_cepIncoh","",2,0,1.6);
+  TH1D* hinvmass_cepIncoh    = new TH1D("hinvmass_cepIncoh","",nMassbin, Massbin);
   TH1D* hacoplanarity_cepIncoh   = new TH1D("hacoplanarity_cepIncoh","",20,0,0.1);
 
   cout << "cepIncoh project ongoing" << endl;
@@ -344,7 +342,7 @@ lumiNormSC = lumiNormSL;
   
 
   cepIncoh->Project(hdiphoton_pt_cepIncoh->GetName(), "vSum_Pt",apply_cut_mc );
-  cepIncoh->Project(hdiphoton_rapidity_cepIncoh->GetName(), "vSum_Rapidity",apply_cut_mc );
+  cepIncoh->Project(hdiphoton_rapidity_cepIncoh->GetName(), "abs(vSum_Rapidity)",apply_cut_mc );
   cepIncoh->Project(hinvmass_cepIncoh->GetName(), "vSum_M",apply_cut_mc );
   cepIncoh->Project(hacoplanarity_cepIncoh->GetName(),  "pho_acop", aco_cut_mc );
   
@@ -397,7 +395,7 @@ hacoplanarity_cep->Add(hacoplanarity_cepIncoh);
   leg2->AddEntry(hinvmass_qed,"QED #gamma #gamma #rightarrow e^{+}e^{-} (MC)","f");
 
   
-  TH1D* hinvmass_empty   = new TH1D("hinvmass_empty","",1,0,30);
+  TH1D* hinvmass_empty   = new TH1D("hinvmass_empty","",1,0,20);
   TH1D* hpho_pt_empty   = new TH1D("hpho_pt_empty","",1,0,10);
 hinvmass_lbyl->Draw("p");
     
@@ -554,7 +552,7 @@ hinvmass_lbyl->Draw("p");
 
   /// diphoton acoplanarity ...........................................
 
-  TLegend *leg1=new TLegend(0.23,0.65,0.95,0.91);
+ /* TLegend *leg1=new TLegend(0.23,0.65,0.95,0.91);
   leg1->SetFillColor(0);
   leg1->SetBorderSize(0);
   leg1->SetFillStyle(0);
@@ -750,7 +748,7 @@ hinvmass_lbyl->Draw("p");
   c7->Print(Form("./%s/single_phi.pdf",dir));
   c7->Print(Form("./%s/single_phi.C",dir));
 
- /* double err, err1,err2,err3 ; 
+  double err, err1,err2,err3 ; 
   hinvmass_data->IntegralAndError(xlo,xhi,err);
   cout << "Data Integral:   "  << hinvmass_data->Integral(xlo,xhi) << "  error " << err << endl;
   hinvmass_lbyl->IntegralAndError(xlo,xhi,err1);
@@ -758,9 +756,9 @@ hinvmass_lbyl->Draw("p");
   hinvmass_cep->IntegralAndError(xlo,xhi,err3);
   cout << "cep Integral:   "  << hinvmass_cep->Integral(xlo,xhi) << "  error " << err3 << endl;
   hinvmass_qed->IntegralAndError(xlo,xhi,err2);
-  cout << "qed Integral:   "  << hinvmass_qed->Integral(xlo,xhi) << "  error " << err2 << endl;*/
+  cout << "qed Integral:   "  << hinvmass_qed->Integral(xlo,xhi) << "  error " << err2 << endl;
 
-  double err, err1,err2,err3 ; 
+  /*double err, err1,err2,err3 ; 
   hacoplanarity_data->IntegralAndError(xlo,xhi,err);
   cout << "Data Integral:   "  << hacoplanarity_data->Integral(xlo,xhi) << "  error " << err << endl;
   hacoplanarity_lbyl->IntegralAndError(xlo,xhi,err1);
@@ -768,7 +766,7 @@ hinvmass_lbyl->Draw("p");
   hacoplanarity_cep->IntegralAndError(xlo,xhi,err3);
   cout << "cep Integral:   "  << hacoplanarity_cep->Integral(xlo,xhi) << "  error " << err3 << endl;
   hacoplanarity_qed->IntegralAndError(xlo,xhi,err2);
-  cout << "qed Integral:   "  << hacoplanarity_qed->Integral(xlo,xhi) << "  error " << err2 << endl;
+  cout << "qed Integral:   "  << hacoplanarity_qed->Integral(xlo,xhi) << "  error " << err2 << endl;*/
 
   outf->cd();
   hinvmass_data->Write();
