@@ -20,6 +20,10 @@ xLightByLight.xcodeproj/
 
 papers/
 
+starlight_r313/build/libStarlib.a
+starlight_r313/build/CMakeFiles/Starlib.dir/src/gammagammasingle.cpp.o
+starlight_r313/build/starlight
+
 analysis/runEventList
 analysis/getEfficienciesLbL
 analysis/getEfficienciesQED

@@ -8,10 +8,10 @@
 #include <iostream>
 #include <string>
 
-bool findCoupling = true;
-bool useObservedForCoupling = true;
+bool findCoupling = false;
+bool useObservedForCoupling = false;
 
-string suffix = "_2018";
+string suffix = "_2018_withSFs";
 vector<int> alpMasses = { 5, 6, 9, 11, 14, 16, 22, 30, 50, 90 };
 
 string inputPath        = "combineOutput"+suffix+".txt";
