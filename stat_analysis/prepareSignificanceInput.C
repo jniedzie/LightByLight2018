@@ -1,18 +1,19 @@
-string inputPath  = "../analysis/results/basicPlots_default.root";
-string outputPath = "input_hacoplanarity.root";
+string inputPath  = "input_files/diphoton_histos_allSfsApplied.root";
+string outputPath = "input_hacoplanarity_2018_withSFs.root";
 
-string histName = "lbl_acoplanarity_all_";
+string histName = "hacoplanarity_";
 
-double luminosity = 1609.910015010; // from brilcalc, 1/μb
+//double luminosity = 1609.910015010; // from brilcalc, 1/μb
+double luminosity = 1639.207543; // from Ruchi, 1/μb
 
-double referenceAlpXsec = 10e-3; // (μb)
+bool scaleBackgrounds = false;
 
 vector<tuple<string, string, int, double>> backgroundParams = {
 // input_name   output_name nGenEvents  xSec (μb)
-  {"Data"     , "data_obs"  , -1      , -1      },
-  {"LbL"      , "lbyl"      , 371000  , 2.59    },
-  {"CEP"      , "cep"       , 738000  , 0.0058  },
-  {"QED_SC"   , "qed"       , 950000  , 8830    },
+  {"data"         , "data_obs"  , -1      , -1      },
+  {"lbyl_stack_3" , "lbyl"      , 466000  , 2.59    },
+  {"cep_stack_2"  , "cep"       , 668000  , 0.0058  },
+  {"qed_stack_1"  , "qed"       , 66770000, 7920    },
 };
 
 void prepareSignificanceInput()
@@ -30,7 +31,7 @@ void prepareSignificanceInput()
       cout<<"ERROR - hist not found: "<<histName<<inputName<<endl;
     }
     
-    if(nEvents > 0){
+    if(nEvents > 0 && scaleBackgrounds){
       hist->Scale(luminosity*xSec/nEvents);
     }
     

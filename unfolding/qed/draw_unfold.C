@@ -39,13 +39,21 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 
+double syst_uncertainty = 0.11;
+double syst_uncertainty_mc = 0.10;
+
 void make_hist(TH1D *&, string, string, int, float, Color_t, int, int) ;
-TH1D* get_stat_uncertainty_hist(TH1D *input_hist);
+TH1D* get_stat_uncertainty_hist(TH1D *input_hist, double uncertainty = syst_uncertainty);
 const char *dir  = "fig_UnfoldingSL";
 void printBinCont(TH1D *hist);
 void prepare_canvas(TCanvas *canvas);
 
-double syst_uncertainty = 0.2;
+
+
+int mc_gen_color = kBlue;
+int data_unfold_color = kRed;
+int mc_reco_color = kBlack;
+int data_reco_color = kOrange+1;
 
 void draw_unfold(int method =1, string mc_name = "_QEDSL")
 {
@@ -143,13 +151,15 @@ void draw_unfold(int method =1, string mc_name = "_QEDSL")
   
   cout<<"pt bin width:" <<hMuMu_pt_unfodata->GetXaxis()->GetBinWidth(1)<<endl;
   
-  make_hist(hMuMu_pt_unfomc,x_title,y_title,20,1.0,kRed,1,1);
+  make_hist(hMuMu_pt_unfomc,x_title,y_title,20,1.0,data_unfold_color,1,1);
   hMuMu_pt_unfomc->Draw("p");
-  make_hist(hMuMu_pt_gen,x_title,y_title,20,1.0,kGreen,1,2);
+  make_hist(hMuMu_pt_gen,x_title,y_title,20,1.0,mc_gen_color,1,2);
+  auto hMuMu_pt_gen_syst = get_stat_uncertainty_hist(hMuMu_pt_gen, syst_uncertainty_mc);
   hMuMu_pt_gen->Draw("histsame");
+  hMuMu_pt_gen_syst->Draw("samee2");
   
-  make_hist(hMuMu_pt_recomc,x_title,y_title,20,1.0,kBlue,1,2);
-  hMuMu_pt_recomc->Draw("histsame");
+  make_hist(hMuMu_pt_recomc,x_title,y_title,20,1.0,mc_reco_color,1,2);
+  hMuMu_pt_recomc->Draw("ehistsamex0");
   
   //CMS_lumi( c1, 1, 10 );
   leg1->Draw();
@@ -165,7 +175,7 @@ void draw_unfold(int method =1, string mc_name = "_QEDSL")
   gPad->SetLogy();
   hMuMu_pt_unfodata->SetMaximum(2*pow(10.,4.));
   hMuMu_pt_unfodata->SetMinimum(5*pow(10.,-2.));
-  make_hist(hMuMu_pt_unfodata,x_title,y_title,20,1.0,kRed,1,2);
+  make_hist(hMuMu_pt_unfodata,x_title,y_title,20,1.0,data_unfold_color,1,2);
   auto hMuMu_pt_unfodata_syst = get_stat_uncertainty_hist(hMuMu_pt_unfodata);
   hMuMu_pt_unfodata_syst->Draw("e2");
   
@@ -174,8 +184,10 @@ void draw_unfold(int method =1, string mc_name = "_QEDSL")
   
   hMuMu_pt_unfodata->Draw("psamex0");
   hMuMu_pt_gen->Draw("histsamex0");
+  hMuMu_pt_gen_syst->Draw("samee2");
+  
   hMuMu_pt_recomc->Draw("ehistsamex0");
-  make_hist(hMuMu_pt_recodata,x_title,y_title,22,1.0,kBlack,1,2);
+  make_hist(hMuMu_pt_recodata,x_title,y_title,22,1.0,data_reco_color,1,2);
   hMuMu_pt_recodata->Draw("ehistsamex0");
   
   //CMS_lumi( c2, 1, 10 );
@@ -187,19 +199,21 @@ void draw_unfold(int method =1, string mc_name = "_QEDSL")
   prepare_canvas(c3);
   c3->cd();
   
-  x_title = "y_{ee}";
+  x_title = "|y_{ee}|";
   y_title = "d#sigma_{ee}/dy_{ee} (#mub)";
   
   hMuMu_rapidity_unfomc->SetMaximum(100);
   hMuMu_rapidity_unfomc->SetMinimum(0);
   //hMuMu_rapidity_unfomc->GetXaxis()->SetRangeUser(0,1.0);
-  make_hist(hMuMu_rapidity_unfomc,x_title,y_title,20,1.0,kRed,1,1);
+  make_hist(hMuMu_rapidity_unfomc,x_title,y_title,20,1.0,data_unfold_color,1,1);
   hMuMu_rapidity_unfomc->Draw("p");
-  make_hist(hMuMu_rapidity_gen,x_title,y_title,20,1.0,kGreen,1,2);
+  make_hist(hMuMu_rapidity_gen,x_title,y_title,20,1.0,mc_gen_color,1,2);
   hMuMu_rapidity_gen->Draw("histsame");
+  auto hMuMu_rapidity_gen_syst = get_stat_uncertainty_hist(hMuMu_rapidity_gen, syst_uncertainty_mc);
+  hMuMu_rapidity_gen_syst->Draw("samee2");
   
-  make_hist(hMuMu_rapidity_recomc,x_title,y_title,20,1.0,kBlue,1,2);
-  hMuMu_rapidity_recomc->Draw("histsame");
+  make_hist(hMuMu_rapidity_recomc,x_title,y_title,20,1.0,mc_reco_color,1,2);
+  hMuMu_rapidity_recomc->Draw("ehistsamex0");
   
   //CMS_lumi( c3, 1, 10 );
 //  leg1->Draw();
@@ -212,7 +226,7 @@ void draw_unfold(int method =1, string mc_name = "_QEDSL")
   
   hMuMu_rapidity_unfodata->SetMaximum(100);
   hMuMu_rapidity_unfodata->SetMinimum(0);
-  make_hist(hMuMu_rapidity_unfodata,x_title,y_title,20,1.0,kRed,1,2);
+  make_hist(hMuMu_rapidity_unfodata,x_title,y_title,20,1.0,data_unfold_color,1,2);
   auto hMuMu_rapidity_unfodata_syst = get_stat_uncertainty_hist(hMuMu_rapidity_unfodata);
   hMuMu_rapidity_unfodata_syst->Draw("e2");
   
@@ -220,8 +234,9 @@ void draw_unfold(int method =1, string mc_name = "_QEDSL")
   
   hMuMu_rapidity_unfodata->Draw("psameex0");
   hMuMu_rapidity_gen->Draw("histsamex0");
+  hMuMu_rapidity_gen_syst->Draw("samee2");
   hMuMu_rapidity_recomc->Draw("ehistsamex0");
-  make_hist(hMuMu_rapidity_recodata,x_title,y_title,22,1.0,kBlack,1,2);
+  make_hist(hMuMu_rapidity_recodata,x_title,y_title,22,1.0,data_reco_color,1,2);
   hMuMu_rapidity_recodata->Draw("ehistsamex0");
   
   //CMS_lumi( c4, 1, 10 );
@@ -242,12 +257,15 @@ void draw_unfold(int method =1, string mc_name = "_QEDSL")
   
   hMuMu_invmass_unfomc->SetMaximum(100);
   hMuMu_invmass_unfomc->SetMinimum(1E-5);
-  make_hist(hMuMu_invmass_unfomc,x_title,y_title,20,1.0,kRed,1,1);
+  make_hist(hMuMu_invmass_unfomc,x_title,y_title,20,1.0,data_unfold_color,1,1);
   hMuMu_invmass_unfomc->Draw("p");
-  make_hist(hMuMu_invmass_gen,x_title,y_title,20,1.0,kGreen,1,2);
+  make_hist(hMuMu_invmass_gen,x_title,y_title,20,1.0,mc_gen_color,1,2);
+  auto hMuMu_invmass_gen_syst = get_stat_uncertainty_hist(hMuMu_invmass_gen, syst_uncertainty_mc);
+  hMuMu_invmass_gen_syst->Draw("samee2");
+  
   hMuMu_invmass_gen->Draw("histsame");
-  make_hist(hMuMu_invmass_recomc,x_title,y_title,20,1.0,kBlue,1,2);
-  hMuMu_invmass_recomc->Draw("histsame");
+  make_hist(hMuMu_invmass_recomc,x_title,y_title,20,1.0,mc_reco_color,1,2);
+  hMuMu_invmass_recomc->Draw("ehistsamex0");
   
   //CMS_lumi( c5, 1, 10 );
 //  leg1->Draw();
@@ -262,7 +280,7 @@ void draw_unfold(int method =1, string mc_name = "_QEDSL")
   
   cout<<"m_inv bin width:" <<hMuMu_invmass_unfodata->GetXaxis()->GetBinWidth(1)<<endl;
   
-  make_hist(hMuMu_invmass_unfodata,x_title,y_title,20,1.0,kRed,1,2);
+  make_hist(hMuMu_invmass_unfodata,x_title,y_title,20,1.0,data_unfold_color,1,2);
   auto hMuMu_invmass_unfodata_syst = get_stat_uncertainty_hist(hMuMu_invmass_unfodata);
   hMuMu_invmass_unfodata_syst->Draw("e2");
   
@@ -270,8 +288,9 @@ void draw_unfold(int method =1, string mc_name = "_QEDSL")
   
   hMuMu_invmass_unfodata->Draw("psameex0");
   hMuMu_invmass_gen->Draw("histsamex0");
+  hMuMu_invmass_gen_syst->Draw("samee2");
   hMuMu_invmass_recomc->Draw("ehistsamex0");
-  make_hist(hMuMu_invmass_recodata,x_title,y_title,22,1.0,kBlack,1,2);
+  make_hist(hMuMu_invmass_recodata,x_title,y_title,22,1.0,data_reco_color,1,2);
   hMuMu_invmass_recodata->Draw("ehistsamex0");
   
   //CMS_lumi( c6, 1, 10 );
@@ -331,13 +350,13 @@ void make_hist(TH1D *& hist, string xtitle, string ytitle, int kstyle, float ksi
   
 }
 
-TH1D* get_stat_uncertainty_hist(TH1D *input_hist){
+TH1D* get_stat_uncertainty_hist(TH1D *input_hist, double uncertainty = syst_uncertainty){
   
   TH1D *output_hist = (TH1D*)input_hist->Clone();
   
   for(int iBin=1; iBin<=output_hist->GetNbinsX(); iBin++){
     double value = output_hist->GetBinContent(iBin);
-    output_hist->SetBinError(iBin, syst_uncertainty * value);
+    output_hist->SetBinError(iBin, uncertainty * value);
   }
   
   output_hist->SetFillColorAlpha(input_hist->GetLineColor(), 0.2);

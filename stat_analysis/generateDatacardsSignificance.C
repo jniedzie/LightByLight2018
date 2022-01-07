@@ -1,5 +1,6 @@
-string inputFileName = "input_hacoplanarity.root";
-string outputPath = "datacards/datacard_acoplanarity.txt";
+//string inputFileName = "input_hacoplanarity.root";
+string inputFileName = "input_hacoplanarity_2018_withSFs.root";
+string outputPath = "datacards/datacard_acoplanarity_2018_withSFs.txt";
 
 void addHeaderToFile(ofstream &file, int observedRate)
 {
@@ -32,12 +33,13 @@ void addRatesToFile(ofstream &file, double lblRate, double cepRate, double qedRa
 void addNuisancesToFile(ofstream &file)
 {
   file<<"------------"<<endl;
-  file<<"sig_syst     lnN    1.23  -   -    exp systs: efficiency, purity..."<<endl;
-  file<<"TH_signal    lnN    1.10  -   -    TH xsec"<<endl;
+  file<<"bck_syst     lnN    1.24  -   -    exp systs: efficiency, purity..."<<endl;
+  file<<"#sig_syst     lnN    1.23  -   -    exp systs: efficiency, purity..."<<endl;
+  file<<"#TH_signal    lnN    1.10  -   -    TH xsec"<<endl;
   file<<"# TH_qed_mc    lnN     -      -     1.21  QED MC stats: 21%"<<endl;
   file<<"# TH_cep_mc    lnN     -    1.08   -      CEP MC stats: 8%"<<endl;
   file<<"# TH_cep_norm  lnN     -    1.34   -      CEP data-driven norm: 34%"<<endl;
-  file<<"TH_cep_norm  lnN     -    100000000   -      CEP data-driven norm: inf%"<<endl;
+  file<<"#TH_cep_norm  lnN     -    100000000   -      CEP data-driven norm: inf%"<<endl;
   file<<"bin1   autoMCStats  10000"<<endl;
 }
 
