@@ -1,6 +1,6 @@
 Universe              = vanilla
 executable            = runSelectQEDEvents.sh
-arguments             = $(ProcId) 1 
+arguments             = $(ProcId) 2 
 GetEnv                = True
 output                = output/$(ClusterId).$(ProcId).out
 error                 = error/$(ClusterId).$(ProcId).err
@@ -13,7 +13,7 @@ requirements 	      = (OpSysAndVer =?= "CentOS7")
 #queue 110
 
 ## MC SC (1)
-queue 256
+#queue 256
 
 ## MC SL (2)
-#queue 242
+queue 242

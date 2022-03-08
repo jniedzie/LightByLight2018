@@ -10,7 +10,7 @@ sampleName=""
 
 basePath="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018"
 basePathOutput="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/analysis_ruchi/diphoton_data-MC_plots"
-suffix="_v2"
+suffix="_cosThetaStar_4March22_new"
 
 if [ $2 -eq 0 ]
 then
@@ -100,5 +100,5 @@ then
   echo "File already exists, skipping"
 else
   echo "File doesn't exist or is empty - running"
-  /afs/cern.ch/work/o/osuranyi/public/LightByLight2018/analysis/selectDiphotonEvents $configPath $inputPath $output $sampleName
+  /afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/selectDiphotonEvents $configPath $inputPath $output $sampleName
 fi

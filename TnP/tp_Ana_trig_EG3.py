@@ -22,7 +22,7 @@ EFFICIENCYSET =cms.PSet(
             EfficiencyCategoryAndState = cms.vstring("ok_trg2","true"),
             UnbinnedVariables = cms.vstring("pair_acop"),
             BinnedVariables = cms.PSet(
-                pass_EG5    = cms.vstring("true"),
+                pass_EG3    = cms.vstring("true"),
                 ok_elematch = cms.vstring("true"),
                 ok_ID = cms.vstring("true"),
                 # L1Et = cms.vdouble(2, 20),
@@ -40,7 +40,7 @@ EFFICIENCYSET =cms.PSet(
             EfficiencyCategoryAndState = cms.vstring("ok_trg2","true"),
             UnbinnedVariables = cms.vstring("pair_acop"),
             BinnedVariables = cms.PSet(
-                pass_EG5    = cms.vstring("true"),
+                pass_EG3    = cms.vstring("true"),
                 ok_elematch = cms.vstring("true"),
                 ok_ID = cms.vstring("true"),
                 SCEt = cms.vdouble(2, 20),
@@ -58,7 +58,7 @@ EFFICIENCYSET =cms.PSet(
             EfficiencyCategoryAndState = cms.vstring("ok_trg2","true"),
             UnbinnedVariables = cms.vstring("pair_acop"),
             BinnedVariables = cms.PSet(
-                pass_EG5    = cms.vstring("true"),
+                pass_EG3    = cms.vstring("true"),
                 ok_elematch = cms.vstring("true"),
                 ok_ID  = cms.vstring("true"),
                 SCEt = cms.vdouble(2, 20),
@@ -77,7 +77,7 @@ EFFICIENCYSET =cms.PSet(
             EfficiencyCategoryAndState = cms.vstring("ok_trg2","true"),
             UnbinnedVariables = cms.vstring("pair_acop"),
             BinnedVariables = cms.PSet(
-                pass_EG5    = cms.vstring("true"),
+                pass_EG3    = cms.vstring("true"),
                 ok_elematch = cms.vstring("true"),
                 ok_ID = cms.vstring("true"),
                 SCEt = cms.vdouble(2, 3, 4, 5, 6, 7, 10, 14, 20),
@@ -94,7 +94,7 @@ EFFICIENCYSET =cms.PSet(
             EfficiencyCategoryAndState = cms.vstring("ok_trg2","true"),
             UnbinnedVariables = cms.vstring("pair_acop"),
             BinnedVariables = cms.PSet(
-                pass_EG5    = cms.vstring("true"),
+                pass_EG3    = cms.vstring("true"),
                 ok_elematch = cms.vstring("true"),
                 ok_ID = cms.vstring("true"),
                 SCEt = cms.vdouble(2, 3, 4, 5, 6, 7, 10, 14, 20),
@@ -114,8 +114,8 @@ if dataOrMC == "Data":
    #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_20201208_SingleEG3orEG5/efficienciesQED_Data.root"
    #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_20210118_SingleEG3orEG5_SCEtadded/efficienciesQED_Data.root"
   # inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_20210121_SingleEG3orEG5_eta2p1/efficienciesQED_Data.root"
-   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_22Nov21_OliversThreshold_efficiencies_eleNoIsolation_newThresholds/data_merged.root"
-   inputfiles = "file:/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_singleEG3triggeronly_02March22/data_eleRecoIDTrigger_tnpEC_singleEG3triggeronly_02March22.root" #singleEG3TriggerOnly
+   inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_22Nov21_OliversThreshold_efficiencies_eleNoIsolation_newThresholds/data_merged.root"
+   #inputfiles = "file:/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_singleEG3triggeronly_02March22/data_eleRecoIDTrigger_tnpEC_singleEG3triggeronly_02March22.root" #singleEG3TriggerOnly
 else:
    #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sc_QED_tnpEC_20201123/efficienciesQED_all.root"
    #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sc_eleRecoIDTrigger_tnpEC_20210118_SingleEG3orEG5_SCEtadded/efficienciesQED_MCSC.root" #superchic file
@@ -132,8 +132,7 @@ process.tagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     InputFileNames = cms.vstring(inputfiles),
     InputDirectoryName = cms.string("tnpQED"),
     InputTreeName = cms.string("fitter_tree"),
-    #OutputFileName = cms.string("tnp_Ana_%s_trig_EG5_eta2p2_OliverThresholds_singleEG3TriggerOnly.root" % ( dataOrMC)),
-    OutputFileName = cms.string("check_%s_.root" % ( dataOrMC)),
+    OutputFileName = cms.string("tnp_Ana_%s_trig_EG3_eta2p2_OliverThresholds_singleEG3TriggerOnly.root" % ( dataOrMC)),
     #numbrer of CPUs to use for fitting
     NumCPU = cms.uint32(4),
     # specifies whether to save the RooWorkspace containing the data for each bin and
@@ -158,7 +157,7 @@ process.tagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     ),
     # defines all the discrete variables of the probes available in the input tree and intended for use in the efficiency calculations
     Categories = cms.PSet(
-                        pass_EG5    = cms.vstring("pass_EG5", "dummy[true=1,false=0]"),
+                        pass_EG3    = cms.vstring("pass_EG3", "dummy[true=1,false=0]"),
                         ok_trg2     = cms.vstring("ok_trg2", "dummy[true=1,false=0]"),
                         ok_elematch = cms.vstring("ok_elematch", "dummy[true=1,false=0]"),
                         ok_ID       = cms.vstring("ok_ID", "dummy[true=1,false=0]"),

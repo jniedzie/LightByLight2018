@@ -24,6 +24,9 @@ Double_t getDR  ( Double_t eta1, Double_t phi1, Double_t eta2, Double_t phi2);
 Double_t getDPHI( Double_t phi1, Double_t phi2);
 Double_t getDETA(Double_t eta1, Double_t eta2);
 
+double cosphotonpair(TLorentzVector p1, TLorentzVector pair, bool helicityFrame );
+double costhetastar_CS(TLorentzVector p1, TLorentzVector pair); 
+
 float gen_Pt1;
 float gen_Eta1;
 float gen_Phi1;
@@ -68,6 +71,15 @@ float ele_deta;
 float ele_dphi;
 float ele_acop;
 int ok_neuexcl;
+
+int ok_zdcexcl_1n_pos;
+int ok_zdcexcl_1n_neg;
+int ok_zdcexcl_3n_pos;
+int ok_zdcexcl_3n_neg;
+int ok_zdcexcl_4n_pos;
+int ok_zdcexcl_4n_neg;
+int ok_zdcexcl_5n_pos;
+int ok_zdcexcl_5n_neg;
 int ok_zdcexcl;
 int ok_chexcl;
 int ok_chexcl_extrk;
@@ -81,6 +93,10 @@ float  leadingHadEnergy_HB;
 float  leadingHadEnergy_HE;
 float  leadingHadEnergy_HF_Plus;
 float  leadingHadEnergy_HF_Minus;
+
+float costhetastar;
+float cos_photon_pair_helicity0;
+float cos_photon_pair_helicity1;
 
 /// initialise gen tree
 void InitGenTree(TTree *genTree) {
@@ -135,7 +151,20 @@ void InitTree(TTree *tr) {
   tr->Branch("ele_dphi",            &ele_dphi,        "ele_dphi/F");
   tr->Branch("ele_acop",            &ele_acop,        "ele_acop/F");
   tr->Branch("ok_neuexcl",          &ok_neuexcl,      "ok_neuexcl/I");
+
+  tr->Branch("ok_zdcexcl_1n_pos",          &ok_zdcexcl_1n_pos,      "ok_zdcexcl_1n_pos/I");
+  tr->Branch("ok_zdcexcl_1n_neg",          &ok_zdcexcl_1n_neg,      "ok_zdcexcl_1n_neg/I");
+
+  tr->Branch("ok_zdcexcl_3n_pos",          &ok_zdcexcl_3n_pos,      "ok_zdcexcl_3n_pos/I");
+  tr->Branch("ok_zdcexcl_3n_neg",          &ok_zdcexcl_3n_neg,      "ok_zdcexcl_3n_neg/I");
+  
+  tr->Branch("ok_zdcexcl_4n_pos",          &ok_zdcexcl_4n_pos,      "ok_zdcexcl_4n_pos/I");
+  tr->Branch("ok_zdcexcl_4n_neg",          &ok_zdcexcl_4n_neg,      "ok_zdcexcl_4n_neg/I");
+
+  tr->Branch("ok_zdcexcl_5n_pos",          &ok_zdcexcl_5n_pos,      "ok_zdcexcl_5n_pos/I");
+  tr->Branch("ok_zdcexcl_5n_neg",          &ok_zdcexcl_5n_neg,      "ok_zdcexcl_5n_neg/I");
   tr->Branch("ok_zdcexcl",          &ok_zdcexcl,      "ok_zdcexcl/I");
+
   tr->Branch("ok_chexcl",           &ok_chexcl,       "ok_chexcl/I");
   tr->Branch("ok_chexcl_extrk",     &ok_chexcl_extrk, "ok_chexcl_extrk/I");
   tr->Branch("nExtrk",              &nExtrk,          "nExtrk/I");
@@ -147,6 +176,11 @@ void InitTree(TTree *tr) {
   tr->Branch("leadingHadEnergy_HE",  &leadingHadEnergy_HE,"leadingHadEnergy_HE/F");
   tr->Branch("leadingHadEnergy_HF_Plus",  &leadingHadEnergy_HF_Plus,"leadingHadEnergy_HF_Plus/F");
   tr->Branch("leadingHadEnergy_HF_Minus",  &leadingHadEnergy_HF_Minus,"leadingHadEnergy_HF_Minus/F");
+
+  tr->Branch("costhetastar",        &costhetastar,        "costhetastar/F");
+  tr->Branch("cos_photon_pair_helicity0",     &cos_photon_pair_helicity0,     "cos_photon_pair_helicity0/F");
+  tr->Branch("cos_photon_pair_helicity1",     &cos_photon_pair_helicity1,     "cos_photon_pair_helicity1/F");
+
 }
 
 // reset gen variables
@@ -198,6 +232,14 @@ void ResetVars() {
   ele_dphi = 0;
   ele_acop = 0;
   ok_neuexcl = 0;
+  ok_zdcexcl_1n_pos = 0;
+  ok_zdcexcl_1n_neg = 0;
+  ok_zdcexcl_3n_pos = 0;
+  ok_zdcexcl_3n_neg = 0;
+  ok_zdcexcl_4n_pos = 0;
+  ok_zdcexcl_4n_neg = 0;
+  ok_zdcexcl_5n_pos = 0;
+  ok_zdcexcl_5n_neg = 0;
   ok_zdcexcl = 0;
   ok_chexcl = 0;
   ok_chexcl_extrk = 0;
@@ -209,6 +251,10 @@ void ResetVars() {
   leadingHadEnergy_HE = 0;
   leadingHadEnergy_HF_Plus = 0;
   leadingHadEnergy_HF_Minus = 0;
+
+  costhetastar = -999;
+  cos_photon_pair_helicity0 = -999;
+  cos_photon_pair_helicity1 = -999;
 }
 
 
@@ -257,21 +303,17 @@ int main(int argc, char* argv[])
   //for(int iEvent=0; iEvent<50000; iEvent++){
     if(iEvent%1000 == 0) Log(0)<<"Processing event "<<iEvent<<"\n";
     //if(iEvent >= config.params("maxEvents")) break;
-    
+   
     auto event = events->GetEvent(iEvent);
     
     ResetGenVars();  
     ResetVars();  
     
-      auto genP1 = event->GetPhysObjects(EPhysObjType::kGenParticle)[2]; 
-      auto genP2 = event->GetPhysObjects(EPhysObjType::kGenParticle)[3];
-    
-    if(sampleName == "QED_SL" ){
-      auto genP1 = event->GetPhysObjects(EPhysObjType::kGenParticle)[0]; 
-      auto genP2 = event->GetPhysObjects(EPhysObjType::kGenParticle)[1];
-     }
     if(sampleName == "QED_SC"  || sampleName == "QED_SL" ){
       ResetGenVars();
+      auto genP1 = event->GetPhysObjects(EPhysObjType::kGenParticle)[0];
+      auto genP2 = event->GetPhysObjects(EPhysObjType::kGenParticle)[1];
+
       if(abs(genP1->GetPID())== 11 && abs(genP2->GetPID())== 11 ){
 	//Log(0) << " PID 1:" << genP1->GetPID() << "  two:" << genP2->GetPID() << "\n";
 	gen_Pt1  = genP1->GetEt();
@@ -298,7 +340,7 @@ int main(int argc, char* argv[])
     
     // Check trigger
     //if(sampleName != "Data"){
-    if(!event->HasTrigger(kDoubleEG2noHF)) continue;
+    //if(!event->HasTrigger(kDoubleEG2noHF)) continue;
     //}
     
     trigger_passed++;
@@ -326,7 +368,20 @@ int main(int argc, char* argv[])
     // event variables
     ok_neuexcl = (!event->HasAdditionalTowers());
     ok_chexcl  = (genTracks.size()==2);
-    if(sampleName == "Data")ok_zdcexcl = event->GetTotalZDCenergyPos() < 10000 && event->GetTotalZDCenergyNeg() < 10000;
+
+    if(sampleName == "Data"){
+      ok_zdcexcl = event->GetTotalZDCenergyPos() < 10000 && event->GetTotalZDCenergyNeg() < 10000;
+      ok_zdcexcl_1n_pos = event->GetTotalZDCenergyPos() < 1500;
+      ok_zdcexcl_1n_neg = event->GetTotalZDCenergyNeg() < 1500;
+      ok_zdcexcl_3n_pos = event->GetTotalZDCenergyPos() < 8000;
+      ok_zdcexcl_3n_neg = event->GetTotalZDCenergyNeg() < 8000;
+      ok_zdcexcl_4n_pos = event->GetTotalZDCenergyPos() < 10000;
+      ok_zdcexcl_4n_neg = event->GetTotalZDCenergyNeg() < 10000;
+      ok_zdcexcl_5n_pos = event->GetTotalZDCenergyPos() < 12000;
+      ok_zdcexcl_5n_neg = event->GetTotalZDCenergyNeg() < 12000;
+
+    }
+
     
     // start filling extra track information here ........................................
     int nextratracks =0;
@@ -398,6 +453,11 @@ int main(int argc, char* argv[])
     ele_deta = fabs(eleEta_1 - eleEta_2);
     ele_dphi = getDPHI(elePhi_1,elePhi_2);
     ele_acop = 1- (ele_dphi/3.141592653589);  
+
+
+   cos_photon_pair_helicity0 = cosphotonpair(ele1, diele, 0); // Boost of one photon in the pair direction (in the rest frame of the pair). The other will be at pi rads from the 1st.
+   cos_photon_pair_helicity1 = cosphotonpair(ele1, diele, 1); 
+   costhetastar = costhetastar_CS(ele1,diele);
 
     
     if(ok_chexcl_extrk==1){
@@ -594,4 +654,69 @@ double SF_uncert_trig(double et, double eta) {
       else if (et<14) return 0.0718492;
       else return 0.12731;
    }
+}
+
+
+
+//_____________________________________________________________________________
+//     Angle between direction of P1 in the restframe of the pair (P1+P2)
+//    and the direction of the pair (P1+P2) in the labframe.
+/*
+
+• Collins‐Soper frame: Simplest anisotropy (purely polar)
+• Helicity frame: smallest polar and largest azimuthal anisotropies, indefinite tilt
+• Gottfried‐Jackson frame: midway between Collins‐Soper and helicity frames
+
+*/
+
+double cosphotonpair(TLorentzVector p1, TLorentzVector pair, bool helicityFrame )
+{
+
+  double cos = 0.;
+
+  // Boost of one photon in the pair direction (i.e. to the rest frame of the pair). The other will be at pi rads from the 1st.
+  //TVector3 vpair = pair.Vect();
+  TVector3 vpair = pair.BoostVector();
+  p1.Boost(-vpair);
+
+  // Angle of the boosted-vector with respect to the direction of the pair (Helicity frame)
+  cos = TMath::Cos( p1.Angle( pair.Vect() ));
+
+  if (helicityFrame) return cos;
+
+  // Angle of the boosted-vector with respect to the direction of the z-axis (Gottfrid-Jackson frame)
+  TVector3 zaxis = TVector3(0.,0.,1.);
+  cos = TMath::Cos( p1.Angle( zaxis ));
+
+  return cos;
+
+}
+
+//_____________________________________________________________________________
+//  costheta(angle) of the photon in the Collins-Soper frame
+/* 
+
+Eq. (2.54) of https://www-d0.fnal.gov/results/publications_talks/thesis/guo_feng/thesis.pdf (SUNY, 2010)
+Eq. page 8 of ATLAS paper: arXiv:2107.09330v1 [hep-ex]
+*/
+
+//double LbL_QED_lhe_analysis::costhetastar_CS(TLorentzVector p1, TLorentzVector p2, TLorentzVector pair)
+double costhetastar_CS(TLorentzVector p1, TLorentzVector pair)
+{
+
+  //double Q2 = pair*pair;
+  //double QT = pair.Pt();
+  //double pp1 = (p1.E()+p1.Pz())/TMath::Sqrt(2); //P^0 and P^3 represent the energy and z component
+  //double pm1 = (p1.E()-p1.Pz())/TMath::Sqrt(2);
+  //double pp2 = (p2.E()+p2.Pz())/TMath::Sqrt(2);
+  //double pm2 = (p2.E()-p2.Pz())/TMath::Sqrt(2);
+
+  //double costhetastarCS = 2.*(pp1*pm2-pm1*pp2)/TMath::Sqrt(Q2*(Q2+QT*QT));
+
+  //double costhetastarCS = 2.*(pair.E()*p1.Pz()-pair.Pz()*p1.E())/(pair.M()*pair.Mt());
+
+  double costhetastarCS = 2.*(pair.E()*p1.Pz()-pair.Pz()*p1.E())/(pair.M()*pair.Mt());
+
+  return costhetastarCS;
+
 }

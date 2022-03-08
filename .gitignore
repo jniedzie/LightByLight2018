@@ -41,6 +41,7 @@ analysis/getEfficienciesQED_tnpEC
 analysis/getRecoIDEfficienciesQED_MC
 analysis/selectQEDEvents
 analysis/getPhotonRecoIDEfficiencies
+analysis/makeUnfoldingTrees
 analysis/runDumpEvent
 analysis/selectAnomalousEvents
 analysis/selectDiphotonEvents

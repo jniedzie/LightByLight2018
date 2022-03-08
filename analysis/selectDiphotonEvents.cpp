@@ -24,16 +24,8 @@ Double_t getDR  ( Double_t eta1, Double_t phi1, Double_t eta2, Double_t phi2);
 Double_t getDPHI( Double_t phi1, Double_t phi2);
 Double_t getDETA(Double_t eta1, Double_t eta2);
 
-float gen_Pt1;
-float gen_Eta1;
-float gen_Phi1;
-float gen_Pt2;
-float gen_Eta2;
-float gen_Phi2;
-float gen_diPho_M;
-float gen_diPho_Pt;
-float gen_diPho_Rapidity;
-
+double cosphotonpair(TLorentzVector p1, TLorentzVector pair, bool helicityFrame );
+double costhetastar_CS(TLorentzVector p1, TLorentzVector pair); 
 
 int run;
 int ls;
@@ -108,21 +100,11 @@ float SFweight_reco[16];
 float SFweight_trig[16];
 int   nPixelCluster;
 int   nPixelRecHits;
+int   nTracks;
 
-/// initialise gen tree
-void InitGenTree(TTree *genTree) {
-  genTree->Branch("gen_Pt1",  &gen_Pt1, "gen_Pt1/F");
-  genTree->Branch("gen_Eta1", &gen_Eta1, "gen_Eta1/F");
-  genTree->Branch("gen_Phi1", &gen_Phi1, "gen_Phi1/F");
-
-  genTree->Branch("gen_Pt2",  &gen_Pt2, "gen_Pt2/F");
-  genTree->Branch("gen_Eta2", &gen_Eta2, "gen_Eta2/F");
-  genTree->Branch("gen_Phi2", &gen_Phi2, "gen_Phi2/F");
-
-  genTree->Branch("gen_diPho_M",  &gen_diPho_M,  "gen_diPho_M/F");
-  genTree->Branch("gen_diPho_Pt", &gen_diPho_Pt, "gen_diPho_Pt/F");
-  genTree->Branch("gen_diPho_Rapidity", &gen_diPho_Rapidity, "gen_diPho_Rapidity/F");
-}
+float costhetastar;
+float cos_photon_pair_helicity0;
+float cos_photon_pair_helicity1;
 
 
 /// initialise tree
@@ -206,20 +188,12 @@ void InitTree(TTree *tr) {
 
   tr->Branch("nPixelCluster",      &nPixelCluster,    "nPixelCluster/I");
   tr->Branch("nPixelRecHits",      &nPixelRecHits,    "nPixelRecHits/I");
+  tr->Branch("nTracks",            &nTracks,          "nTracks/I");
 
-}
+  tr->Branch("costhetastar",        &costhetastar,        "costhetastar/F");
+  tr->Branch("cos_photon_pair_helicity0",     &cos_photon_pair_helicity0,     "cos_photon_pair_helicity0/F");
+  tr->Branch("cos_photon_pair_helicity1",     &cos_photon_pair_helicity1,     "cos_photon_pair_helicity1/F");
 
-// reset gen variables
-void ResetGenVars() {
-  gen_Pt1 = 0;
-  gen_Eta1 = 0;
-  gen_Phi1 = 0;
-  gen_Pt2 = 0;
-  gen_Eta2 = 0;
-  gen_Phi2 = 0;
-  gen_diPho_M = 0;
-  gen_diPho_Pt = 0;
-  gen_diPho_Rapidity = 0;
 }
 
 
@@ -294,6 +268,12 @@ void ResetVars() {
  
   nPixelCluster = -999;
   nPixelRecHits = -999;
+  nTracks = -999;
+
+
+  costhetastar = -999;
+  cos_photon_pair_helicity0 = -999;
+  cos_photon_pair_helicity1 = -999;
 
 }
 
@@ -328,10 +308,9 @@ int main(int argc, char* argv[])
   TH1D *hist_wozdc = new TH1D("hist_wozdc","",9,1,10);
  
   TFile *outFile = TFile::Open(outputPath.c_str(), "recreate");
-  TTree *genTree = new TTree("gen_tree","");
   TTree *tr = new TTree("output_tree","");
   InitTree(tr);
-  InitGenTree(genTree);
+
   
   auto events = make_unique<EventProcessor>(inputPath, dataset);
   
@@ -346,45 +325,14 @@ int main(int argc, char* argv[])
     
     auto event = events->GetEvent(iEvent);
     
-    ResetGenVars();  
     ResetVars();  
-    
-    if(sampleName == "QED_SC" || sampleName == "QED_SL" || sampleName == "LbL" || sampleName == "CEP"){
-	//first two gen particle in event has weird PDG ID, its PbPb ion I guess. Therefore I am using 3 and 4th particle which is photon. 
-      auto genP1 = event->GetPhysObjects(EPhysObjType::kGenParticle)[2];  
-      auto genP2 = event->GetPhysObjects(EPhysObjType::kGenParticle)[3];
-      
-       //Log(0) << iEvent << " PID:" << genP1->GetPID() << "   Particle2: " << genP2->GetPID() << "\n"; 
-      ResetGenVars();
-      if(genP1->GetPID()== 22 && genP2->GetPID()==22){
-        //Log(0) << "coming in PID loop :" <<"\n"; 
-	gen_Pt1  = genP1->GetEt();
-	gen_Eta1 = genP1->GetEta();
-	gen_Phi1 = genP1->GetPhi();
-	
-	gen_Pt2  = genP2->GetEt();
-	gen_Eta2 = genP2->GetEta();
-	gen_Phi2 = genP2->GetPhi();
-	
-	TLorentzVector pho1, pho2, dipho;
-	pho1.SetPtEtaPhiM(gen_Pt1, gen_Eta1, gen_Phi1, 0);
-	pho2.SetPtEtaPhiM(gen_Pt2, gen_Eta2, gen_Phi2, 0);
-
-	dipho = pho1 + pho2;
-	gen_diPho_M   = dipho.M();
-	gen_diPho_Pt  = dipho.Pt();
-	gen_diPho_Rapidity = dipho.Rapidity();
-	
-	genTree->Fill();
-      } // PID
-    } //samplename
-    
     
     // Check trigger
     //if(sampleName != "Data"){
-    if(!event->HasTrigger(kDoubleEG2noHF)) continue;
+    //if(!event->HasTrigger(kDoubleEG2noHF)) continue;
     //}
 
+    //Log(0)<<"After trigger "<<iEvent<<"\n";
     trigger_passed++;
     hist->SetBinContent(1,trigger_passed);
     hist_wozdc->SetBinContent(1,trigger_passed);
@@ -432,7 +380,8 @@ int main(int argc, char* argv[])
     ok_chexcl_muons = (muons.size()==0);
     ok_chexcl_goodtracks = (goodGenTracks.size()==0);
     ok_chexcl_goodelectrons = (goodElectrons.size()==0);
-
+   
+    nTracks  = genTracks.size();
 
     if(sampleName == "Data"){
       ok_zdcexcl = event->GetTotalZDCenergyPos() < 10000 && event->GetTotalZDCenergyNeg() < 10000;
@@ -508,6 +457,11 @@ int main(int argc, char* argv[])
    nPixelCluster = event->GetNpixelClusters();
    nPixelRecHits =  event->GetNpixelRecHits();
 
+
+
+   cos_photon_pair_helicity0 = cosphotonpair(pho1, dipho, 0); // Boost of one photon in the pair direction (in the rest frame of the pair). The other will be at pi rads from the 1st.
+   cos_photon_pair_helicity1 = cosphotonpair(pho1, dipho, 1); 
+   costhetastar = costhetastar_CS(pho1,dipho);
      
     if(ok_chexcl==1){
       charged_excl++;
@@ -560,7 +514,7 @@ int main(int argc, char* argv[])
   outFile->Write();
   outFile->Close();
   
-  return 0;
+return 0;
 } // main loop 
 
 
@@ -596,3 +550,67 @@ bool outside_HEM(Double_t SCEta, Double_t SCPhi){
   return true;
 }
 
+
+
+//_____________________________________________________________________________
+//     Angle between direction of P1 in the restframe of the pair (P1+P2)
+//    and the direction of the pair (P1+P2) in the labframe.
+/*
+
+• Collins‐Soper frame: Simplest anisotropy (purely polar)
+• Helicity frame: smallest polar and largest azimuthal anisotropies, indefinite tilt
+• Gottfried‐Jackson frame: midway between Collins‐Soper and helicity frames
+
+*/
+
+double cosphotonpair(TLorentzVector p1, TLorentzVector pair, bool helicityFrame )
+{
+
+  double cos = 0.;
+
+  // Boost of one photon in the pair direction (i.e. to the rest frame of the pair). The other will be at pi rads from the 1st.
+  //TVector3 vpair = pair.Vect();
+  TVector3 vpair = pair.BoostVector();
+  p1.Boost(-vpair);
+
+  // Angle of the boosted-vector with respect to the direction of the pair (Helicity frame)
+  cos = TMath::Cos( p1.Angle( pair.Vect() ));
+
+  if (helicityFrame) return cos;
+
+  // Angle of the boosted-vector with respect to the direction of the z-axis (Gottfrid-Jackson frame)
+  TVector3 zaxis = TVector3(0.,0.,1.);
+  cos = TMath::Cos( p1.Angle( zaxis ));
+
+  return cos;
+
+}
+
+//_____________________________________________________________________________
+//  costheta(angle) of the photon in the Collins-Soper frame
+/* 
+
+Eq. (2.54) of https://www-d0.fnal.gov/results/publications_talks/thesis/guo_feng/thesis.pdf (SUNY, 2010)
+Eq. page 8 of ATLAS paper: arXiv:2107.09330v1 [hep-ex]
+*/
+
+//double LbL_QED_lhe_analysis::costhetastar_CS(TLorentzVector p1, TLorentzVector p2, TLorentzVector pair)
+double costhetastar_CS(TLorentzVector p1, TLorentzVector pair)
+{
+
+  //double Q2 = pair*pair;
+  //double QT = pair.Pt();
+  //double pp1 = (p1.E()+p1.Pz())/TMath::Sqrt(2); //P^0 and P^3 represent the energy and z component
+  //double pm1 = (p1.E()-p1.Pz())/TMath::Sqrt(2);
+  //double pp2 = (p2.E()+p2.Pz())/TMath::Sqrt(2);
+  //double pm2 = (p2.E()-p2.Pz())/TMath::Sqrt(2);
+
+  //double costhetastarCS = 2.*(pp1*pm2-pm1*pp2)/TMath::Sqrt(Q2*(Q2+QT*QT));
+
+  //double costhetastarCS = 2.*(pair.E()*p1.Pz()-pair.Pz()*p1.E())/(pair.M()*pair.Mt());
+
+  double costhetastarCS = 2.*(pair.E()*p1.Pz()-pair.Pz()*p1.E())/(pair.M()*pair.Mt());
+
+  return costhetastarCS;
+
+}

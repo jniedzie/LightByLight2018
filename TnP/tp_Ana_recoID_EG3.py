@@ -25,8 +25,9 @@ EFFICIENCYSET =cms.PSet(
                 pass_EG3 = cms.vstring("true"),
                 pt = cms.vdouble(2, 20),
                 #pt = cms.vdouble(3, 20),
-                # abseta = cms.vdouble(0, 2.4),
-                eta = cms.vdouble(-2.4, 2.4),
+                abseta = cms.vdouble(0, 2.2),
+                #eta = cms.vdouble(-2.2, 2.2),
+                #eta = cms.vdouble(-2.4, 2.4),
                 pair_mass = cms.vdouble(4.0, 100.0),
                 pair_pt   = cms.vdouble(0.0, 2.0),
 
@@ -40,8 +41,9 @@ EFFICIENCYSET =cms.PSet(
                 pass_EG3 = cms.vstring("true"),
                 pt = cms.vdouble(2, 20),
                 #pt = cms.vdouble(3, 20),
-                # abseta = cms.vdouble(0, 1.5, 2.4),
-                eta = cms.vdouble(0, 1.5, 2.4),
+                abseta = cms.vdouble(0, 1.5, 2.2),
+                #eta = cms.vdouble(0, 1.5, 2.2),
+                #eta = cms.vdouble(0, 1.5, 2.4),
                 pair_mass = cms.vdouble(4.0, 100.0),
                 pair_pt   = cms.vdouble(0.0, 2.0),
             ),
@@ -54,9 +56,11 @@ EFFICIENCYSET =cms.PSet(
                 pass_EG3 = cms.vstring("true"),
                 pt = cms.vdouble(2, 20),
                 #pt = cms.vdouble(3, 20),
-                # abseta = cms.vdouble(0, 0.5, 1, 1.5, 2, 2.4),
-                eta = cms.vdouble(-2.4, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.4),
-                pair_mass = cms.vdouble(4.0, 100.0),
+                abseta = cms.vdouble(0, 0.5, 1, 1.5, 2, 2.2),
+                #eta = cms.vdouble(-2.4, -2.3, -2.2, -2.1, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.1, 2.2, 2.3, 2.4),
+                #eta = cms.vdouble(-2.2, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.2),
+                #eta = cms.vdouble(-2.4, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.4),
+		pair_mass = cms.vdouble(4.0, 100.0),
                 pair_pt   = cms.vdouble(0.0, 2.0),
             ),
          BinToPDFmap = cms.vstring(PDFName)
@@ -68,8 +72,8 @@ EFFICIENCYSET =cms.PSet(
                 pass_EG3 = cms.vstring("true"),
                 pt = cms.vdouble(2, 3, 4, 5, 6, 7, 10, 14, 20),
                 #pt = cms.vdouble(3, 4, 5, 6, 7, 10, 14, 20),
-                # abseta = cms.vdouble(0, 1.5),
-                eta = cms.vdouble(-1.5, 1.5),
+                abseta = cms.vdouble(0, 1.5),
+                #eta = cms.vdouble(-1.5, 1.5),
                 pair_mass = cms.vdouble(4.0, 100.0),
                 pair_pt   = cms.vdouble(0.0, 2.0),
             ),
@@ -82,8 +86,9 @@ EFFICIENCYSET =cms.PSet(
                 pass_EG3 = cms.vstring("true"),
                 pt = cms.vdouble(2, 3, 4, 5, 6, 7, 10, 14, 20),
                 #pt = cms.vdouble(3, 4, 5, 6, 7, 10, 14, 20),
-                # abseta = cms.vdouble(1.5, 2.4),
-                eta = cms.vdouble(1.5, 2.4),
+                abseta = cms.vdouble(1.5, 2.2),
+                #eta = cms.vdouble(1.5, 2.2),
+                #eta = cms.vdouble(1.5, 2.4),
                 pair_mass = cms.vdouble(4.0, 100.0),
                 pair_pt   = cms.vdouble(0.0, 2.0),
             ),
@@ -91,18 +96,27 @@ EFFICIENCYSET =cms.PSet(
         )
 )
 if dataOrMC == "Data":
-   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_emilien/efficienciesQED/efficienciesQED_data_QED_tnpEC_20201028/efficienciesQED_all.root"
-   inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_QED_tnpEC_20201207_SingleEG3orEG5/efficienciesQED_all.root"
+   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_20201208_SingleEG3orEG5/efficienciesQED_Data.root"
+   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_20210121_SingleEG3orEG5_eta2p1/efficienciesQED_Data.root"
+   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_20210215_SingleEG3orEG5_eta2p1_removecrackHEM_probeEle/efficienciesQED_Data.root"
+   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_22Nov21_OliversThreshold_efficiencies_eleNoIsolation_newThresholds/data_merged.root"
+   inputfiles = "file:/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_singleEG3triggeronly_02March22/data_eleRecoIDTrigger_tnpEC_singleEG3triggeronly_02March22.root"
 else:
    #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sc_QED_tnpEC_20201123/efficienciesQED_all.root"
-   inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sc_QED_tnpEC_20201207_SingleEG3orEG5/efficienciesQED_all.root"
+   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sc_eleRecoIDTrigger_tnpEC_20201208_SingleEG3orEG5/efficienciesQED_QED_SC.root" #superchic file
+   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sl_eleRecoIDTrigger_tnpEC_20201208_SingleEG3orEG5/efficienciesQED_QED_SL.root" #starlight file
+   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sc_eleRecoIDTrigger_tnpEC_20210121_SingleEG3orEG5_eta2p1/efficienciesQED_MCSC.root" #superchic eta 2.1 file
+   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sl_eleRecoIDTrigger_tnpEC_20210215_SingleEG3orEG5_eta2p1_removecrackHEM_probeEle/efficienciesQED_MCSL.root" #starlight eta 2.1 file crack from probe removed
+   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sl_eleRecoIDTrigger_tnpEC_22Nov21_OliversThreshold_efficiencies_eleNoIsolation_newThresholds/QEDSL_eleRecoIDTrigger_OliveThresholds_eta2p4.root" #starlight eta 2.1 file crack from probe removed
+   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sc_eleRecoIDTrigger_tnpEC_22Nov21_OliversThreshold_efficiencies_eleNoIsolation_newThresholds/QEDSC_eleRecoIDTrigger_OliveThresholds_eta2p4.root" #starlight eta 2.1 file crack from probe removed
+   inputfiles = "file:/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sc_eleRecoIDTrigger_tnpEC_singleEG3triggeronly_02March22/QEDSC_eleRecoIDTrigger_tnpEC_singleEG3triggeronly_02March22.root" #singleEG3TriggerOnly
 
 process.tagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     # IO parameters:
     InputFileNames = cms.vstring(inputfiles),
     InputDirectoryName = cms.string("tnpQED"),
     InputTreeName = cms.string("fitter_tree"),
-    OutputFileName = cms.string("tnp_Ana_%s_recoID_singleEG3_allIDcuts.root" % ( dataOrMC)),
+    OutputFileName = cms.string("tnp_Ana_%s_EleRecoID_singleEG3_absEta_EmilienComments_singleEG3TriggerOnly.root" % ( dataOrMC)),
     #numbrer of CPUs to use for fitting
     NumCPU = cms.uint32(4),
     # specifies whether to save the RooWorkspace containing the data for each bin and
@@ -119,9 +133,10 @@ process.tagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
                          pair_y            = cms.vstring("diele y", "-3", "3", ""), 
                          pair_acop         = cms.vstring("diele acop", "0", "0.06", ""), 
                          pt                = cms.vstring("Probe p_{T}", "0.0", "20", "GeV/c"),
-                         eta               = cms.vstring("Probe #eta", "-2.4", "2.4", ""),
-                         # abseta          = cms.vstring("Probe |#eta|", "0", "2.4", ""),
+                         #eta               = cms.vstring("Probe #eta", "-2.4", "2.4", ""),
+                         abseta            = cms.vstring("Probe |#eta|", "0", "2.2", ""),
                          tag_pt            = cms.vstring("Tag p_{T}", "0", "20", "GeV/c^{2}"),
+                         NMissHits         = cms.vstring("NMissHits", "0", "1", ""),
     ),
     # defines all the discrete variables of the probes available in the input tree and intended for use in the efficiency calculations
     Categories = cms.PSet(

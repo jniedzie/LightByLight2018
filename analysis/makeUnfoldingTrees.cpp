@@ -332,10 +332,14 @@ int main(int argc, char* argv[])
     if(sampleName == "QED_SC" || sampleName == "QED_SL" || sampleName == "LbL" || sampleName == "CEP"){
       
       //first two gen particle in event has weird PDG ID, its PbPb ion I guess. Therefore I am using 3 and 4th particle which is photon. 
-      auto genP1 = event->GetPhysObjects(EPhysObjType::kGenParticle)[2];  
-      auto genP2 = event->GetPhysObjects(EPhysObjType::kGenParticle)[3];
+      // for superchic use 2 and 3rd particle 
+      //auto genP1 = event->GetPhysObjects(EPhysObjType::kGenParticle)[2];  
+      //auto genP2 = event->GetPhysObjects(EPhysObjType::kGenParticle)[3];
       
-      
+      // for starlight and madgraph use 0th and 1st particle
+      auto genP1 = event->GetPhysObjects(EPhysObjType::kGenParticle)[0];
+      auto genP2 = event->GetPhysObjects(EPhysObjType::kGenParticle)[1];
+   
       ResetGenVars();
       if(genP1->GetPID()== 22 && genP2->GetPID()==22){
         //Log(0) << "coming in PID loop :" <<"\n"; 

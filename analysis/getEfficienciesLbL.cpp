@@ -114,8 +114,11 @@ int main(int argc, char* argv[])
     //TLorentzVector diphoton = physObjectProcessor.GetDiphoton(*goodGenPhotons[0], *goodGenPhotons[1]);
     
     // Check properties of this event
-    bool hasLbLTrigger            = event->HasTrigger(kDoubleEG2noHF) || event->HasTrigger(kSingleEG3noHF) || event->HasTrigger(kSingleEG5noHF); 
-    bool hasTwoPhotonsPassingID   = photonsPassing.size() == 2;
+    bool hasTwoMachingPhotons     = HasTwoMatchingPhotons(goodGenPhotons, event->GetPhysObjects(EPhysObjType::kPhotonInAcceptance));
+    //bool hasLbLTrigger            = event->HasTrigger(kDoubleEG2noHF) || event->HasTrigger(kSingleEG3noHF) || event->HasTrigger(kSingleEG5noHF); 
+    bool hasLbLTrigger            = event->HasTrigger(kDoubleEG2noHF); 
+    //bool hasTwoPhotonsPassingID   = photonsPassing.size() == 2;
+    bool hasTwoPhotonsPassingID   = photonsPassing.size() == 2 && hasTwoMachingPhotons;
     bool passesNeutralExclusivity = ! event->HasAdditionalTowers();
     bool passesChargedExclusivity = event->GetPhysObjects(EPhysObjType::kGoodGeneralTrack).size() == 0;
     bool passesDiphotonCuts = false;
@@ -123,13 +126,13 @@ int main(int argc, char* argv[])
        diphoton                   = physObjectProcessor.GetDiphoton(*photonsPassing[0], *photonsPassing[1]);    
        passesDiphotonCuts         = diphoton.Pt() < config.params("diphotonMaxPt");
     }    
-    bool hasTwoMachingPhotons     = HasTwoMatchingPhotons(goodGenPhotons, event->GetPhysObjects(EPhysObjType::kPhotonInAcceptance));
     
     if(hasLbLTrigger &&
        hasTwoPhotonsPassingID &&
        passesNeutralExclusivity &&
-       passesChargedExclusivity &&
-       passesDiphotonCuts){
+       passesChargedExclusivity 
+       //passesDiphotonCuts){
+       ){
       nEventsPassingAll++;
     }
 
