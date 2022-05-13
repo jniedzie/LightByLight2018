@@ -8,7 +8,7 @@ outputPath=""
 sampleName=""
 
 basePath="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018"
-suffix="_cosThetaStar_ZDC"
+suffix="_12May22"
 
 if [ $2 -eq 0 ]
 then
@@ -22,8 +22,10 @@ then
 #  inputPath="${basePath}/mc_qed/ntuples_superchic_1034/ntuples_sc_1034/ntuples_sc_1034/191113_105005/0000/HiForestAOD_LbyL_full_sample_lbyl_reco_${1}.root"
   #inputPath="${basePath}/mc_qed/ntuples_sc_full_lumi/QEDGammaGamma_5p02TeV_SuperChic/reco_mc_qed_sc_full_lumi/200807_100412/0000/mc_HiForestAOD_${1}.root"
   #inputPath="${basePath}/mcForests/mc_qed/QEDGammaGamma_5p02TeV_SuperChic/reco_mc_qed_sc_CastorInfo/210906_102658/0000/mc_HiForestAOD_${1}.root"
-  inputPath="${basePath}/skimmed_ntuples/mc_qed_sc_doubleEG2_full_lumi/ntuples_loose_selections_${1}.root"
-  outputPath="${basePath}/analysis_ruchi/qed_data-MC_plots/mc_qed_sc${suffix}"
+  #inputPath="${basePath}/skimmed_ntuples/mc_qed_sc_FSR_doubleEG2_full_lumi/merged/merged_ntuples_${1}.root"
+  inputPath="${basePath}/skimmed_ntuples/mc_qedMG5_FSR_doubleEG2_full_lumi/merged/merged_ntuples_${1}.root"
+  #inputPath="${basePath}/skimmed_ntuples/mc_qed_sc_doubleEG2_full_lumi/ntuples_loose_selections_${1}.root"
+  outputPath="${basePath}/analysis_ruchi/qed_data-MC_plots/mc_qedMG5_FSR${suffix}"
 elif [ $2 -eq 2 ]
 then
   sampleName="QED_SL" # last chunk numer: 241

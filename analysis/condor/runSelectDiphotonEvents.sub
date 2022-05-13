@@ -1,6 +1,6 @@
 Universe              = vanilla
 executable            = runSelectDiphotonEvents.sh
-arguments             = $(ProcId) 4 
+arguments             = $(ProcId) 1 
 GetEnv                = True
 output                = output/$(ClusterId).$(ProcId).out
 error                 = error/$(ClusterId).$(ProcId).err
@@ -14,6 +14,10 @@ requirements 	      = (OpSysAndVer =?= "CentOS7")
 
 ## MC SC (1)
 #queue 256
+#queue 120
+
+## MC QED FSR
+queue 104
 
 ## MC SL (2)
 #queue 243
@@ -22,7 +26,7 @@ requirements 	      = (OpSysAndVer =?= "CentOS7")
 #queue 4
 
 ## MC CEP (4)
-queue 4
+#queue 4
 
 ## MC ALPS (5)
 #queue 6

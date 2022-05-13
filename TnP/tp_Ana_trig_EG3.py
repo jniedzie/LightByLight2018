@@ -63,7 +63,7 @@ EFFICIENCYSET =cms.PSet(
                 ok_ID  = cms.vstring("true"),
                 SCEt = cms.vdouble(2, 20),
                 # L1Et = cms.vdouble(2, 20),
-                abseta = cms.vdouble(0, 0.5, 1, 1.5, 2, 2.2, 2.4),
+                abseta = cms.vdouble(0, 0.5, 1, 1.5, 2, 2.2),
                 #eta = cms.vdouble(-2.4, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.4),
                 #SCeta = cms.vdouble(-2.4,-2.35, -2.3,-2.25,-2.2,-2.15,-2.1,-2.05, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2,2.05, 2.1, 2.15, 2.2, 2.25, 2.3, 2.35, 2.4),
                 #SCeta = cms.vdouble(-2.2, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2,2.2),
@@ -114,8 +114,8 @@ if dataOrMC == "Data":
    #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_20201208_SingleEG3orEG5/efficienciesQED_Data.root"
    #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_20210118_SingleEG3orEG5_SCEtadded/efficienciesQED_Data.root"
   # inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_20210121_SingleEG3orEG5_eta2p1/efficienciesQED_Data.root"
-   inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_22Nov21_OliversThreshold_efficiencies_eleNoIsolation_newThresholds/data_merged.root"
-   #inputfiles = "file:/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_singleEG3triggeronly_02March22/data_eleRecoIDTrigger_tnpEC_singleEG3triggeronly_02March22.root" #singleEG3TriggerOnly
+   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_22Nov21_OliversThreshold_efficiencies_eleNoIsolation_newThresholds/data_merged.root"
+   inputfiles = "file:/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_data_eleRecoIDTrigger_tnpEC_singleEG3triggeronly_02March22/data_eleRecoIDTrigger_tnpEC_singleEG3triggeronly_02March22.root" #singleEG3TriggerOnly
 else:
    #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sc_QED_tnpEC_20201123/efficienciesQED_all.root"
    #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/efficienciesQED_mc_qed_sc_eleRecoIDTrigger_tnpEC_20210118_SingleEG3orEG5_SCEtadded/efficienciesQED_MCSC.root" #superchic file

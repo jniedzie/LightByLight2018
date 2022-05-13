@@ -9,7 +9,7 @@ sampleName=""
 
 basePath="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018"
 
-suffix="_eleRecoIDTrigger_tnpEC_singleEG3triggeronly_02March22"
+suffix="_eleRecoIDTrigger_tnpEC_singleEG5triggeronly_08March22"
 
 if [ $2 -eq 0 ]
 then

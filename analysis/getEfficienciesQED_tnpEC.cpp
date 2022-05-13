@@ -275,7 +275,8 @@ int main(int argc, char* argv[])
 
     // Check trigger
     //if(!event->HasTrigger(kSingleEG3noHF) && !event->HasTrigger(kSingleEG5noHF)) continue;
-    if(!event->HasTrigger(kSingleEG3noHF)) continue;
+    //if(!event->HasTrigger(kSingleEG3noHF)) continue;
+    if(!event->HasTrigger(kSingleEG5noHF)) continue;
 
     ResetEventVars();
     run = event->GetRunNumber();

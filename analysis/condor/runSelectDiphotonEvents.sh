@@ -10,7 +10,7 @@ sampleName=""
 
 basePath="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018"
 basePathOutput="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/analysis_ruchi/diphoton_data-MC_plots"
-suffix="_cosThetaStar_4March22_new"
+suffix="_12May22"
 
 if [ $2 -eq 0 ]
 then
@@ -21,8 +21,10 @@ then
 elif [ $2 -eq 1 ]
 then
   sampleName="QED_SC" # last chunk numer: 255
-  inputPath="${basePath}/skimmed_ntuples/mc_qed_sc_doubleEG2_full_lumi/ntuples_loose_selections_${1}.root"
-  outputPath="${basePathOutput}/mc_qed_sc${suffix}"
+  #inputPath="${basePath}/skimmed_ntuples/mc_qed_sc_doubleEG2_full_lumi/ntuples_loose_selections_${1}.root"
+  #inputPath="${basePath}/skimmed_ntuples/mc_qed_sc_FSR_doubleEG2_full_lumi/merged/merged_ntuples_${1}.root"
+  inputPath="${basePath}/skimmed_ntuples/mc_qedMG5_FSR_doubleEG2_full_lumi/merged/merged_ntuples_${1}.root"
+  outputPath="${basePathOutput}/mc_qedMG5_FSR${suffix}"
 elif [ $2 -eq 2 ]
 then
   sampleName="QED_SL" # last chunk numer: 253
