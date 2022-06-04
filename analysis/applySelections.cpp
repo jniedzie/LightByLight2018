@@ -152,18 +152,20 @@ bool IsGoodForSingleMuon(Event &event)
   // Check trigger
   if(!event.HasTrigger(kSingleMuOpenNoHF)) return false;
   
-  return false;
+  return true;
 }
 
 /// checks if event has muon and electron (opposite sign)
 bool IsGoodForMuEle(Event &event)
 {
   // Check trigger
-  if(!event.HasTrigger(kSingleMuOpenNoHF)) return false;
-  // Check Electrons
+  //if(!event.HasTrigger(kSingleEG3noHF) && !event.HasTrigger(kSingleMuOpenNoHF)) return false;
+ // if(!event.HasTrigger(kSingleMuOpenNoHF)) return false;
+  if(!(event.HasTrigger(kSingleMuOpenNoHF) or event.HasTrigger(kSingleEG3noHF))) return false;  
+// Check Electrons
   if(event.GetPhysObjects(EPhysObjType::kElectron).size() != 1) return false;
   if(event.GetPhysObjects(EPhysObjType::kMuon).size() != 1) return false;
-  if(event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack).size() != 2) return false;
+  if(event.GetPhysObjects(EPhysObjType::kGeneralTrack).size() != 2) return false;
   if(event.GetPhysObjects(EPhysObjType::kMuon)[0]->GetCharge() ==
      event.GetPhysObjects(EPhysObjType::kElectron)[0]->GetCharge()) return false;
   
@@ -175,6 +177,7 @@ bool IsGoodForMuMu(Event &event)
 {
   // Check trigger
   if(!event.HasTrigger(kSingleMuOpenNoHF)) return false;
+  if(event.GetPhysObjects(EPhysObjType::kElectron).size() != 1) return false;
   if(event.GetPhysObjects(EPhysObjType::kMuon).size() != 2) return false;
   if(event.GetPhysObjects(EPhysObjType::kGeneralTrack).size() != 2 ) return false;
   if(event.GetPhysObjects(EPhysObjType::kMuon)[0]->GetCharge() ==
@@ -251,6 +254,7 @@ int main(int argc, char* argv[])
       outFilePaths.push_back(argList[2]); // single mu
       outFilePaths.push_back(argList[3]); // muon electron
       outFilePaths.push_back(argList[4]); // dimuon
+   //   cout<<"test1"<<endl;
     }
   }
   
@@ -294,13 +298,15 @@ int main(int argc, char* argv[])
       if(flag == "TauTau"){
         if(IsGoodForSingleMuon(*event))       events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
         if(IsGoodForMuEle(*event))            events->AddEventToOutputTree(iEvent, outFilePaths[1], storeHLTtrees);
+       // cout<<"test3"<<endl;
         if(IsGoodForMuMu(*event))             events->AddEventToOutputTree(iEvent, outFilePaths[2], storeHLTtrees);
+       // cout<<"test2"<<endl;
       }
     }
   }
   
   cout<<"Saving output trees"<<endl;
   for(string outFilePath : outFilePaths) events->SaveOutputTree(outFilePath);
-  
+  cout<<"test4"<<endl; 
   return 0;
 }
