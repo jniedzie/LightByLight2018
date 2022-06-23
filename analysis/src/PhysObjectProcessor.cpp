@@ -71,6 +71,18 @@ TLorentzVector PhysObjectProcessor::GetDimuon(const PhysObject &a, const PhysObj
 
   return aVec + bVec;
 }
+//Date-16/06/2022
+TLorentzVector PhysObjectProcessor::GetEleMu(const PhysObject &a, const PhysObject &b)
+{
+  TLorentzVector aVec, bVec;
+
+  double muMass = 105.6583755e-3;
+  double eleMass = 0.5109989461e-3;
+  aVec.SetPtEtaPhiM(a.pt, a.eta, a.phi, muMass);
+  bVec.SetPtEtaPhiM(b.pt, b.eta, b.phi, eleMass);
+
+  return aVec + bVec;
+}
 
 
 double PhysObjectProcessor::GetAcoplanarity(const PhysObject &a, const PhysObject &b)
