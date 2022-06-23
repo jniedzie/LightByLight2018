@@ -14,7 +14,7 @@ sampleName=""
 #inbasePath="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018"
 basePath="/eos/user/p/pjana/Other/Data"
 
-suffix="_EleMu_9thJune_noEG5_3trk"
+suffix="_EleMu_15thJune_noEG5_AT3"
 
 if [ $2 -eq 0 ]
 then
