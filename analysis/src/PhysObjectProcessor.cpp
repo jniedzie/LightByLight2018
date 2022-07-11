@@ -18,6 +18,22 @@ PhysObjectProcessor::~PhysObjectProcessor()
   
 }
 
+double PhysObjectProcessor::GetdeltaPhi(const PhysObject &a, const PhysObject &b)
+{
+  double phi1 = a.GetPhi();
+  double phi2 = b.GetPhi();
+
+    // Make sure that angles are in range [0, 2π)
+  while(phi1 < 0)               phi1 += 2*TMath::Pi();
+  while(phi1 >= 2*TMath::Pi())  phi1 -= 2*TMath::Pi();
+  
+  while(phi2 < 0)               phi2 += 2*TMath::Pi();
+  while(phi2 >= 2*TMath::Pi())  phi2 -= 2*TMath::Pi();
+  double deltaPhi = fabs(phi2-phi1);
+  if(deltaPhi > TMath::Pi()) deltaPhi = 2*TMath::Pi() - deltaPhi;
+  return deltaPhi;
+
+}
 
 double PhysObjectProcessor::GetDeltaR(const PhysObject &a, const PhysObject &b)
 {
