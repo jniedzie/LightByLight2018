@@ -1,10 +1,12 @@
+//Based on applySelections.cpp
+
 #include "Helpers.hpp"
 #include "EventProcessor.hpp"
 #include "PhysObjectProcessor.hpp"
 #include "ConfigManager.hpp"
 #include "EventDisplay.hpp"
 
-string configPath = "configs/applySelections.md";
+string configPath = "configs/efficiencies_eleNoIsolation_newThresholdsEta2p2.md";
 bool storeHLTtrees = false;
 
 /// checks if event has muon and electron (opposite sign)
@@ -14,14 +16,24 @@ bool IsGoodForMuEle(Event &event)
   //if(!(event.HasTrigger(kSingleMuOpenNoHF) or event.HasTrigger(kSingleEG3noHF) or event.HasTrigger(kDoubleEG2noHF) or event.HasTrigger(kSingleEG5noHF))) return false;
   if(!(event.HasTrigger(kSingleMuOpenNoHF) or event.HasTrigger(kSingleEG3noHF) or event.HasTrigger(kDoubleEG2noHF))) return false;
   if(event.GetPhysObjects(EPhysObjType::kElectron).size() != 1) return false;
-  //if(event.GetPhysObjects(EPhysObjType::kElectron)[0]->GetPt() <2) return false;
 
+  //Check one muon and two track should be in an event
   if(event.GetPhysObjects(EPhysObjType::kMuon).size() != 1) return false;
-  if(event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack).size() !=2) return false;
+  if(event.GetPhysObjects(EPhysObjType::kGeneralTrack).size() !=2) return false;
   if(event.GetPhysObjects(EPhysObjType::kMuon)[0]->GetCharge() ==
-     event.GetPhysObjects(EPhysObjType::kElectron)[0]->GetCharge()) return false;
+    event.GetPhysObjects(EPhysObjType::kElectron)[0]->GetCharge()) return false;
+  //Pt cut(3/08/2022)
+  if(event.GetPhysObjects(EPhysObjType::kMuon)[0]->GetPt() < 2) return false;
+  if(event.GetPhysObjects(EPhysObjType::kElectron)[0]->GetPt() < 2) return false;
 
-
+  //Exclusivity criteria
+  if(event.HasAdditionalTowers()) return false;
+   
+  //Adding acoplanarity cut
+  double aco = physObjectProcessor.GetAcoplanarity(*event.GetPhysObjects(EPhysObjType::kMuon)[0],
+                                                   *event.GetPhysObjects(EPhysObjType::kElectron)[0]);
+  if(aco > 0.4) return false;
+  
   return true;
 }
   
