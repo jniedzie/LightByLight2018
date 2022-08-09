@@ -276,7 +276,7 @@ PhysObjects Event::GetGoodMuons(TH1D *cutFlowHist)
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 0
     
     // Check pt
-//    if(muon->GetPt() < config.params("muonMinPt")) continue;
+    if(muon->GetPt() < config.params("muonMinPt")) continue;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 1
     
     // Check eta
@@ -316,6 +316,23 @@ PhysObjects Event::GetGoodMuons(TH1D *cutFlowHist)
     
 //    if(muon->GetNeutralIso() >= config.params("muonMaxNeutralIso"+subdet)) continue;
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
+
+   //OneMuonStation tight   
+   if(config.params("muonOnestationTight") && muon->IsGood()) continue;
+   //Min innertracker layers
+   if(muon->GetTrkLayers() < config.params("muonMinTrkInnLayers")) continue; 
+   //Min. PixelLayers
+   if(muon->GetPixelLayers() < config.params("muonMinTrkPixelLayers")) continue;
+   //InnerTrack Quality
+   if(config.params("muonTrkQuality") && muon->TrkQuality()) continue;
+   // max dxy
+   if(muon->GetInnerD0() > config.params("muonMaxDxy")) continue;
+   //Max dz
+   if(muon->GetInnerDz() > config.params("muonMaxDz")) continue;
+
+
+
+
 
     physObjects.at(EPhysObjType::kGoodMuon).push_back(muon);
   }
