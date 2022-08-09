@@ -70,6 +70,7 @@ public:
   double GetPhotonIso()  const;
   double GetNeutralIso() const;
   
+
   double GetRelIsoWithEA()  const;
   double GetDetaSeed()      const;
   
@@ -81,6 +82,15 @@ public:
   int  GetZside()     const;
   double GetSeedTime()      const;
   
+  //For soft muons
+  bool IsGood()     const;
+  int  GetTrkLayers() const;
+  int  GetPixelLayers() const;
+  bool TrkQuality() const;
+  double GetInnerD0() const;
+  double GetInnerDz() const;   
+
+   
 private:
   double eta;       ///< Pseudorapidity
   double phi;       ///< Azimuthal angle
@@ -134,6 +144,14 @@ private:
   
   int zSide;          ///< z-side for ZDC
   
+  ///For soft muon
+  bool isGood;
+  int  trkLayers;
+  int  pixelLayers;
+  bool trkQuality;
+  double innD0;
+  double innDz;
+
   friend class EventProcessor;
   friend class PhysObjectProcessor;
 };
