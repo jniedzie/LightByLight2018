@@ -57,7 +57,14 @@ dEtaSeed(-9999),
 
 hasConversionTracks(false),
 seedTime(-9999),
-zSide(-9999)
+zSide(-9999),
+
+isGood(false),
+trkLayers(-9999),
+pixelLayers(-9999),
+trkQuality(false),
+innD0(-9999),
+innDz(-9999)
 {
   
 }
@@ -381,4 +388,40 @@ int PhysObject::GetZside() const
   if(zSide < -999) Log(1)<<"WARNING - carefull, zSide probably not set\n";
   return zSide;
 }
+/****************************************/
+//Soft muon
 
+bool PhysObject::IsGood() const
+{
+  return isGood;
+}
+
+int PhysObject::GetTrkLayers() const
+{
+  if(trkLayers < -999) Log(1)<<"WARNING - carefull, TrkLayers probably not set\n";
+  return trkLayers;
+}
+
+int PhysObject::GetPixelLayers() const
+{
+  if(pixelLayers < -999) Log(1)<<"WARNING - carefull, PixelLayers probably not set\n";
+  return pixelLayers;
+}
+
+bool PhysObject::TrkQuality() const
+{
+  return trkQuality;
+}
+
+double PhysObject::GetInnerD0() const
+{
+  if(innD0 < -999) Log(1)<<"WARNING - carefull, innerdxy probably not set\n";
+  return innD0;
+}
+
+double PhysObject::GetInnerDz() const
+{
+  if(innDz < -999) Log(1)<<"WARNING - carefull, innerdz probably not set\n";
+  return innDz;
+}
+/*******************************************************/
