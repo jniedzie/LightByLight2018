@@ -72,6 +72,8 @@ float ele_dphi;
 float ele_acop;
 int ok_neuexcl;
 
+float zdc_energy_pos;
+float zdc_energy_neg;
 int ok_zdcexcl_1n_pos;
 int ok_zdcexcl_1n_neg;
 int ok_zdcexcl_3n_pos;
@@ -152,6 +154,8 @@ void InitTree(TTree *tr) {
   tr->Branch("ele_acop",            &ele_acop,        "ele_acop/F");
   tr->Branch("ok_neuexcl",          &ok_neuexcl,      "ok_neuexcl/I");
 
+  tr->Branch("zdc_energy_pos",             &zdc_energy_pos,         "zdc_energy_pos/F");
+  tr->Branch("zdc_energy_neg",             &zdc_energy_neg,         "zdc_energy_neg/F");
   tr->Branch("ok_zdcexcl_1n_pos",          &ok_zdcexcl_1n_pos,      "ok_zdcexcl_1n_pos/I");
   tr->Branch("ok_zdcexcl_1n_neg",          &ok_zdcexcl_1n_neg,      "ok_zdcexcl_1n_neg/I");
 
@@ -232,6 +236,8 @@ void ResetVars() {
   ele_dphi = 0;
   ele_acop = 0;
   ok_neuexcl = 0;
+  zdc_energy_pos = 0;
+  zdc_energy_neg = 0;
   ok_zdcexcl_1n_pos = 0;
   ok_zdcexcl_1n_neg = 0;
   ok_zdcexcl_3n_pos = 0;
@@ -370,6 +376,7 @@ int main(int argc, char* argv[])
     ok_chexcl  = (genTracks.size()==2);
 
     if(sampleName == "Data"){
+      zdc_energy_pos = event->GetTotalZDCenergyPos(); zdc_energy_neg = event->GetTotalZDCenergyNeg();
       ok_zdcexcl = event->GetTotalZDCenergyPos() < 10000 && event->GetTotalZDCenergyNeg() < 10000;
       ok_zdcexcl_1n_pos = event->GetTotalZDCenergyPos() < 1500;
       ok_zdcexcl_1n_neg = event->GetTotalZDCenergyNeg() < 1500;

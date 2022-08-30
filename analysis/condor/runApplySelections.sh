@@ -88,9 +88,10 @@ then
     #inputPath="${basePath}/mc_qed/QEDGammaGamma_5p02TeV_SuperChic/reco_mc_qed_sc_full_lumi/210417_081453/0000/mc_HiForestAOD_${1}.root"
     #inputPath="${basePath}/mcForests/mc_qed/QEDGammaGamma_5p02TeV_SuperChic/reco_mc_qed_sc_CastorInfo/210906_102658/0000/mc_HiForestAOD_${1}.root"
     #inputPath=`sed "${1}q;d" ${userBasePath}/LightByLight2018/analysis/input_qed_fsr.txt`
-    inputPath=`sed "${1}q;d" ${userBasePath}/LightByLight2018/analysis/qedMG5.txt`
+    #inputPath=`sed "${1}q;d" ${userBasePath}/LightByLight2018/analysis/qedMG5.txt`
+    inputPath=`sed "${1}q;d" ${userBasePath}/LightByLight2018/analysis/qedMG5_2FSR.txt`
     #outputPath="${basePath}/skimmed_ntuples/mc_qed_sc_FSR_doubleEG2_full_lumi"
-    outputPath="${basePath}/skimmed_ntuples/mc_qedMG5_FSR_doubleEG2_full_lumi"
+    outputPath="${basePath}/skimmed_ntuples/mc_qedMG5_2FSR_doubleEG2_full_lumi"
   elif [ ${3} -eq 2 ] # CEP SC, 3 chunks, max chunk number: 3
   then
     echo "QED SL"
