@@ -401,7 +401,20 @@ int main(int argc, char* argv[])
       ok_zdcexcl_4n_neg = event->GetTotalZDCenergyNeg() < 10000;
       ok_zdcexcl_5n_pos = event->GetTotalZDCenergyPos() < 12000;
       ok_zdcexcl_5n_neg = event->GetTotalZDCenergyNeg() < 12000;
-
+      
+//      Check that the event is not within a run range where ZDC had issues
+      auto run = event->GetRunNumber();
+      bool ok_zdc_run = (run < 326571) || (run > 326676);
+      
+      ok_zdcexcl &= ok_zdc_run;
+      ok_zdcexcl_1n_pos &= ok_zdc_run;
+      ok_zdcexcl_1n_neg &= ok_zdc_run;
+      ok_zdcexcl_3n_pos &= ok_zdc_run;
+      ok_zdcexcl_3n_neg &= ok_zdc_run;
+      ok_zdcexcl_4n_pos &= ok_zdc_run;
+      ok_zdcexcl_4n_neg &= ok_zdc_run;
+      ok_zdcexcl_5n_pos &= ok_zdc_run;
+      ok_zdcexcl_5n_neg &= ok_zdc_run;
     }
     
     // start filling photon information here ........................................
