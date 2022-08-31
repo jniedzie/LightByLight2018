@@ -1,21 +1,23 @@
 #!/bin/bash
 #configPath="/afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation.md"
 #configPath="/afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation_newThresholds.md"
-configPath="/afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation_newThresholdsEta2p2.md"
+configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation_newThresholdsEta2p2.md"
 
 inputPath=""
 outputPath=""
 sampleName=""
 
 basePath="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018"
-suffix="_30June22"
+baseOutputPath="/eos/cms/store/cmst3/group/lightbylight/analysis_jeremi"
+suffix="_31August22"
 
 if [ $2 -eq 0 ]
 then
   sampleName="Data" # 10400 files
   inputPath="${basePath}/skimmed_ntuples/data_doubleEG2_full_lumi/merged/merged_ntuples_${1}.root"
   #inputPath=`sed "${1}q;d" /afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/input_list.txt`
-  outputPath="${basePath}/analysis_ruchi/qed_data-MC_plots/data${suffix}"
+#  outputPath="${basePath}/analysis_ruchi/qed_data-MC_plots/data${suffix}"
+  outputPath="${baseOutputPath}/qed_data-MC_plots/data${suffix}"
 elif [ $2 -eq 1 ]
 then
   sampleName="QED_SC" # last chunk numer: 255
@@ -25,14 +27,14 @@ then
   #inputPath="${basePath}/skimmed_ntuples/mc_qedMG5_FSR_doubleEG2_full_lumi/merged/merged_ntuples_${1}.root"
   #inputPath="${basePath}/skimmed_ntuples/mc_qed_sc_doubleEG2_full_lumi/ntuples_loose_selections_${1}.root"
   inputPath="${basePath}/skimmed_ntuples/mc_qedMG5_2FSR_doubleEG2_full_lumi/merged/merged_ntuples_${1}.root"
-  outputPath="${basePath}/analysis_ruchi/qed_data-MC_plots/mc_qedMG5_2FSR${suffix}"
+  outputPath="${baseOutputPath}/qed_data-MC_plots/mc_qedMG5_2FSR${suffix}"
 elif [ $2 -eq 2 ]
 then
   sampleName="QED_SL" # last chunk numer: 241
   #inputPath="${basePath}/mc_qed/ntuples_sl_full_lumi_v5/QEDGammaGamma_5p02TeV_STARlight/reco_mc_qed_sl_full_lumi_v5/200929_094304/0000/mc_HiForestAOD_${1}.root"
   #inputPath="${basePath}/mcForests/mc_qed/QEDGammaGamma_5p02TeV_STARlight/reco_mc_qed_sl_CastorInfo/210906_102343/0000/mc_HiForestAOD_${1}.root"
   inputPath="${basePath}/skimmed_ntuples/mc_qed_sl_doubleEG2_full_lumi/ntuples_loose_selections_${1}.root"
-  outputPath="${basePath}/analysis_ruchi/qed_data-MC_plots/mc_qed_sl${suffix}"
+  outputPath="${baseOutputPath}/qed_data-MC_plots/mc_qed_sl${suffix}"
 fi
 
 
@@ -45,5 +47,5 @@ then
 else
   echo $inputPath 
   echo "Output File doesn't exist or is empty - running"
-  /afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/selectQEDEvents $configPath $inputPath $output $sampleName
+  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/selectQEDEvents $configPath $inputPath $output $sampleName
 fi

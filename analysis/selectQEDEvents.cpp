@@ -377,6 +377,7 @@ int main(int argc, char* argv[])
 
     if(sampleName == "Data"){
       zdc_energy_pos = event->GetTotalZDCenergyPos(); zdc_energy_neg = event->GetTotalZDCenergyNeg();
+      
       ok_zdcexcl = event->GetTotalZDCenergyPos() < 10000 && event->GetTotalZDCenergyNeg() < 10000;
       ok_zdcexcl_1n_pos = event->GetTotalZDCenergyPos() < 1500;
       ok_zdcexcl_1n_neg = event->GetTotalZDCenergyNeg() < 1500;
@@ -387,6 +388,19 @@ int main(int argc, char* argv[])
       ok_zdcexcl_5n_pos = event->GetTotalZDCenergyPos() < 12000;
       ok_zdcexcl_5n_neg = event->GetTotalZDCenergyNeg() < 12000;
 
+//      Check that the event is not within a run range where ZDC had issues
+      auto run = event->GetRunNumber();
+      bool ok_zdc_run = (run < 326571) || (run > 326676);
+      
+      ok_zdcexcl &= ok_zdc_run;
+      ok_zdcexcl_1n_pos &= ok_zdc_run;
+      ok_zdcexcl_1n_neg &= ok_zdc_run;
+      ok_zdcexcl_3n_pos &= ok_zdc_run;
+      ok_zdcexcl_3n_neg &= ok_zdc_run;
+      ok_zdcexcl_4n_pos &= ok_zdc_run;
+      ok_zdcexcl_4n_neg &= ok_zdc_run;
+      ok_zdcexcl_5n_pos &= ok_zdc_run;
+      ok_zdcexcl_5n_neg &= ok_zdc_run;
     }
 
     
