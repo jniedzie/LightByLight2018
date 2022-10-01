@@ -35,11 +35,14 @@ const char *dir = "figures_eta2p2";
 
 #define PI 3.141592653589
 
-const double LumiLossHotZDCneg = 0.047433369; // 1034./21799 from QED number LbyL 5Aug 2022 slides
+//const double LumiLossHotZDCneg = 0.047433369; // 1034./21799 from QED number LbyL 5Aug 2022 slides
+const double LumiLossHotZDCneg = 0;
 
 //const double luminosity       = 1635.123139823; // μb^-1
 //const double luminosity       = 1639.207543; // μb^-1
-const double luminosity       = 1642.797392; // μb^-1 from Gabi
+//const double luminosity       = 1642.797392; // μb^-1 from Gabi Feb 13, 2022
+const double luminosity       = 1557.517392; // μb^-1 from Gabi Aug, 2022, removing ZDC neg hot region 85.28 mub
+
 
 
 const double nEventsGeneratedSC = 67810000; // older number with less files 67262800 superchic 
@@ -77,11 +80,11 @@ double scaleFactorPhoton = 0.85 *  // NEE    21.12.2021
 
 const double xsecGeneratedLbLSC    = 2.59; // μb Superchic
 const double nEventsGeneratedLbLSC = 466000;  //Superchic
-double norm_LbLSC = scaleFactorPhoton*xsecGeneratedLbLSC*luminosity*(1-LumiLossHotZDCneg)/nEventsGeneratedLbLSC;  //31.12.21 (SF = 1.048, took the square here). 
+double norm_LbLSC = scaleFactorPhoton*xsecGeneratedLbLSC*luminosity*(1-LumiLossHotZDCneg)/nEventsGeneratedLbLSC;   
 
 const double xsecGeneratedLbLMG    = 0.1406; // μb Madgraph David
 const double nEventsGeneratedLbLMG = 788069; //Madgraph David
-double norm_LbLMG = scaleFactorPhoton*xsecGeneratedLbLMG*luminosity*(1-LumiLossHotZDCneg)/nEventsGeneratedLbLMG;  //31.12.21 (SF = 1.048, took the square here). 
+double norm_LbLMG = scaleFactorPhoton*xsecGeneratedLbLMG*luminosity*(1-LumiLossHotZDCneg)/nEventsGeneratedLbLMG;  
 
 
 const double xsecGeneratedCEP    = 0.0058; // μb
@@ -180,6 +183,8 @@ void plot_diphotonAcop(bool QEDNorm, bool CEPNorm, bool QEDNormMG5){
       if(treeR.vSum_Pt > 2) continue; //diele pt
       if(abs(treeR.phoEta_1) > 2.2) continue;
       if(abs(treeR.phoEta_2) > 2.2) continue;
+      if(treeR.phoEt_1 < 2.5) continue;
+      if(treeR.phoEt_2 < 2.5) continue;
       //if(abs(treeR.phoSeedTime_1) > 5) continue;
       //if(abs(treeR.phoSeedTime_2) > 5) continue;
       
@@ -304,14 +309,9 @@ void plot_diphotonAcop(bool QEDNorm, bool CEPNorm, bool QEDNormMG5){
   PlotHistsAndRatio(c7, hAcoplanarity[0], hAcoplanarity[1], hAcoplanarity[2], hAcoplanarity[3], hAcoplanarity[5], hAcoplanarity[6], hAcoplanarity[7], 0,0.16,0,25,0.,2.5,"A_{#phi}", 0);
  
 
-  cout << " invariant mass " << sample[0] <<  " :" << hInvmass[0]->Integral() << endl;  
-  cout << " invariant mass " << sample[1] <<  " :" << hInvmass[1]->Integral() << endl;  
-  cout << " invariant mass " << sample[2] <<  " :" << hInvmass[2]->Integral() << endl;  
-  cout << " invariant mass " << sample[3] <<  " :" << hInvmass[3]->Integral() << endl;  
-  cout << " invariant mass " << sample[5] <<  " :" << hInvmass[5]->Integral() << endl;  
-  cout << " invariant mass " << sample[6] <<  " :" << hInvmass[6]->Integral() << endl;  
-  cout << " invariant mass " << sample[7] <<  " :" << hInvmass[7]->Integral() << endl;  
-  cout << " invariant mass " << sample[7] <<  " :" << hInvmass[8]->Integral() << endl;  
+  for (int i = 0; i < nSample; i++){
+  cout << " Acop < 0.01 " << sample[i] <<  " :" << hAcoplanarity[i]->Integral(1,2) << endl;  
+ }
   
  //outf->cd();
 // outf->Write();

@@ -10,6 +10,7 @@
 #include <TLegend.h>
 #include <TLatex.h>
 #include <TROOT.h>
+#include "ReadTree.C"
 #include "../CMS_lumi.C"
 #include "TStyle.h"
 #include "TPaveStats.h"
@@ -23,384 +24,272 @@ int xhi = 2;
 int nbin = 8;
 
 
+void make_canvas(TCanvas *&);
+void make_hist(TH1D *&, Color_t , int );
+TCanvas* PlotHistsAndRatio(TCanvas* , TH1D* , TH1D* , TH1D*, TH1D*, TH1D*, double , double , double , double , double , double , const char *, bool); 
 
+//TCanvas* PlotHistsAndRatio(TCanvas* , TH1D* , TH1D* , TH1D*, TH1D*, TH1D*, TH1D*, TH1D*, double , double , double , double , double , double , const char *, bool); 
 
-const char *dir = "figures_eta2p2_finalPhotonSF";
+const int nSample = 9;
+const char *sample[nSample]={"data","LbyL", "QEDSC" , "CEP", "CEPIncoh","QEDSCFSR", "QEDMG5-FSROnePhoton", "QEDMG5-FSRTwoPhoton","QEDSL"};
+
+const char *dir = "figures_eta2p2";
 
 #define PI 3.141592653589
 
-void make_hist(TH1D *&, Color_t , int );
+//const double LumiLossHotZDCneg = 0.047433369; // 1034./21799 from QED number LbyL 5Aug 2022 slides
+const double LumiLossHotZDCneg = 0;
 
 //const double luminosity       = 1635.123139823; // μb^-1
-const double luminosity       = 1639.207543; // μb^-1
-const double nEventsGeneratedSL = 66750000; // older number with less files 63398400; //starlight
-const double xsecGeneratedSL    = 7920; // μb, starlight
+//const double luminosity       = 1639.207543; // μb^-1
+//const double luminosity       = 1642.797392; // μb^-1 from Gabi Feb 13, 2022
+const double luminosity       = 1557.517392; // μb^-1 from Gabi Aug, 2022, removing ZDC neg hot region 85.28 mub
+
+
 
 const double nEventsGeneratedSC = 67810000; // older number with less files 67262800 superchic 
 const double xsecGeneratedSC    = 8827.220; // μb
 const double purity = 0.96; 
+
+//estimate superchic QED normalisation factors
 double scaleFactorsSC = 0.85 *  // NEE    21.12.2021
                         0.93 *      // CHE  21.12.2021
                         pow(0.976, 2)* // electron reco+ID 21.12.2021
                         0.866 *      // HF veto
                        1.008;       // L1 EG trigger
+                       
+double lumiNormSC = xsecGeneratedSC*luminosity*scaleFactorsSC*(1-LumiLossHotZDCneg)/nEventsGeneratedSC;
+const double nEventsGeneratedSCFSR = 59260000; //photos superchic from oliver
+double lumiNormSCFSR = xsecGeneratedSC*luminosity*scaleFactorsSC*(1-LumiLossHotZDCneg)/nEventsGeneratedSCFSR;
 
+
+//estimate starlight QED normalisation factors
+const double nEventsGeneratedSL = 66750000; // older number with less files 63398400; //starlight
+const double xsecGeneratedSL    = 7920; // μb, starlight
 double scaleFactorsSL = 0.85 *  // NEE    21.12.2021
   0.93 *      // CHE  21.12.2021
   pow(0.976, 2)* // electron reco+ID 21.12.2021
   0.866 *      // HF veto
   1.008;       // L1 EG trigger
+double lumiNormSL = xsecGeneratedSL*luminosity*scaleFactorsSL*(1-LumiLossHotZDCneg)/nEventsGeneratedSL;
 
-
-double lumiNormSC = xsecGeneratedSC*luminosity*purity*scaleFactorsSC/nEventsGeneratedSC;
-double lumiNormSL = xsecGeneratedSL*luminosity*purity*scaleFactorsSL/nEventsGeneratedSL;
 
 double scaleFactorPhoton = 0.85 *  // NEE    21.12.2021
   0.93 *      // CHE  21.12.2021
-  pow(1.048, 2)* // electron reco+ID 21.12.2021
+  pow(1.048, 2)* // photon reco+ID 21.12.2021
   0.866 *      // HF veto
   1.008;       // L1 EG trigger
 
+const double xsecGeneratedLbLSC    = 2.59; // μb Superchic
+const double nEventsGeneratedLbLSC = 466000;  //Superchic
+double norm_LbLSC = scaleFactorPhoton*xsecGeneratedLbLSC*luminosity*(1-LumiLossHotZDCneg)/nEventsGeneratedLbLSC;   
 
-const double xsecGeneratedLbL    = 2.59; // μb
-const double nEventsGeneratedLbL = 466000; 
-//double norm_exgg = 0.83*0.99*xsecGeneratedLbL*luminosity/nEventsGeneratedLbL; 
-double norm_exgg = scaleFactorPhoton*xsecGeneratedLbL*luminosity/nEventsGeneratedLbL;  //31.12.21 (SF = 1.048, took the square here). 
+const double xsecGeneratedLbLMG    = 0.1406; // μb Madgraph David
+const double nEventsGeneratedLbLMG = 788069; //Madgraph David
+double norm_LbLMG = scaleFactorPhoton*xsecGeneratedLbLMG*luminosity*(1-LumiLossHotZDCneg)/nEventsGeneratedLbLMG;  
 
 
 const double xsecGeneratedCEP    = 0.0058; // μb
 const double nEventsGeneratedCEP = 668000; 
-double norm_cep = scaleFactorPhoton*xsecGeneratedCEP*luminosity/nEventsGeneratedCEP; 
+double norm_cep = scaleFactorPhoton*xsecGeneratedCEP*luminosity*(1-LumiLossHotZDCneg)/nEventsGeneratedCEP; 
 
 const double xsecGeneratedCEPIncoh    = 0.001431; // μb
 const double nEventsGeneratedCEPIncoh = 500000; 
-double norm_cepIncoh = scaleFactorPhoton*xsecGeneratedCEPIncoh*luminosity/nEventsGeneratedCEPIncoh; 
+double norm_cepIncoh = scaleFactorPhoton*xsecGeneratedCEPIncoh*luminosity*(1-LumiLossHotZDCneg)/nEventsGeneratedCEPIncoh; 
+
+//estimate Madgraph QED 1 FSR normalisation factors
+const double nEventsGeneratedQEDMG_1FSR = 10000000; // older number with less files 67262800 superchic 
+const double xsecGeneratedQEDMG_1FSR    = 13.45; // μb
+double lumiNormQEDMG_1FSR = xsecGeneratedQEDMG_1FSR*luminosity*scaleFactorsSC*(1-LumiLossHotZDCneg)/nEventsGeneratedQEDMG_1FSR;
+
+//estimate Madgraph QED 2 FSR normalisation factors
+const double nEventsGeneratedQEDMG_2FSR = 6600000; // older number with less files 67262800 superchic 
+const double xsecGeneratedQEDMG_2FSR    = 0.194; // μb
+double lumiNormQEDMG_2FSR = xsecGeneratedQEDMG_2FSR*luminosity*scaleFactorsSC*(1-LumiLossHotZDCneg)/nEventsGeneratedQEDMG_2FSR;
+
+//const double wt[nSample] = {1, norm_LbLSC, 1, norm_cep, norm_cepIncoh};
 
 void BinLogX(TH1* h);
 
 
-void plot_data_mc_comp(){
- 
-  //gROOT->LoadMacro("CMS_lumi.C");
-  bool outOfFrame    = false;
-  TH1::SetDefaultSumw2();
-   gStyle->SetOptStat(0);
+void plot_data_mc_comp(bool QEDNorm, bool CEPNorm, bool QEDNormMG5){
+   if(CEPNorm) {norm_cep = 1; norm_cepIncoh = 1;}
+   if(QEDNormMG5){lumiNormQEDMG_1FSR = 1;}
+  
+   const double wt[nSample] = {1, norm_LbLSC, lumiNormSC, norm_cep, norm_cepIncoh, lumiNormSCFSR, lumiNormQEDMG_1FSR, lumiNormQEDMG_2FSR, lumiNormSL};
 
+  cout << "FSR normalization is:" << lumiNormSC << endl;
+ 
+  TH1::SetDefaultSumw2();
+  gStyle->SetOptStat(0);
+
+  string mc_name = "SC";
 
 
   TFile *outf= new TFile("diphoton_histos.root","recreate");  
 
+  TChain *tree[nSample];
 
-  TChain *data = new TChain("output_tree");
-  data->Add("data_eta2p2.root");
+  //// histograms
+  TH1D* hpho_pt[nSample], *hpho_eta[nSample], *hpho_phi[nSample], *hpho_pt2[nSample], *hpho_eta2[nSample], *hpho_phi2[nSample]; 
+  TH1D* hdipho_pt[nSample], *hdipho_Rapidity[nSample], *hInvmass[nSample], *hAcoplanarity[nSample], *hdipho_cosThetaStar[nSample];
 
-  TChain *lbyl = new TChain("output_tree");
-  //lbyl->Add("../oliver_thresholds/diphoton_lbl12.root");
-  lbyl->Add("lbyl_diphoton_genInfo.root");
+  for (int i = 0; i < nSample; i++){
+    tree[i] = new TChain("output_tree");
+    tree[i]->Add(Form("%s_diphoton.root",sample[i]));
+    //if(i==2)tree[i]->Add("diphoton_qed_with_photos3.root");
+    /*if(i==1)tree[i]->Add("lbylSC_diphoton_genInfo.root");
 
+    if(i==3)tree[i]->Add("../oliver_thresholds/diphoton_cep12.root");
+    if(i==4)tree[i]->Add("../oliver_thresholds/CEPIncoh_diphoton.root");*/
+
+
+    hpho_pt[i]    = new TH1D(Form("hpho_pt%s", sample[i]),"",16,2,10);
+    hpho_eta[i]   = new TH1D(Form("hpho_eta%s",sample[i]),"",11,-2.2,2.2);
+    hpho_phi[i]   = new TH1D(Form("hpho_phi%s",sample[i]),"",12,-PI,PI);
+
+    hpho_pt2[i]    = new TH1D(Form("hpho_pt2%s", sample[i]),"",16,2,10);
+    hpho_eta2[i]   = new TH1D(Form("hpho_eta2%s",sample[i]),"",11,-2.2,2.2);
+    hpho_phi2[i]   = new TH1D(Form("hpho_phi2%s",sample[i]),"",12,-PI,PI);
  
-  TChain *qed = new TChain("output_tree");
-  qed->Add("../oliver_thresholds/diphoton_qed12.root");
-lumiNormSC = lumiNormSL;
-
-  TChain *cep = new TChain("output_tree");
-  cep->Add("../oliver_thresholds/diphoton_cep12.root");
+    hdipho_pt[i]    = new TH1D(Form("hdipho_pt%s", sample[i]),"",10,0,2);
+    hdipho_Rapidity[i]   = new TH1D(Form("hdipho_Rapidity%s",sample[i]),"",11,-2.2,2.2);
+    hInvmass[i]   = new TH1D(Form("hInvmass%s",sample[i]),"",12,0,50);
+    hAcoplanarity[i]   = new TH1D(Form("hAcoplanarity%s",sample[i]),"",20,0,0.1);
 
 
-  TChain *cepIncoh = new TChain("output_tree");
-  cepIncoh->Add("../oliver_thresholds/CEPIncoh_diphoton.root");
+    hdipho_cosThetaStar[i]   = new TH1D(Form("hdipho_cosThetaStar%s",sample[i]),"",5,-1,1);
+
+    cout << "file " << sample[i] << ":" << tree[i]->GetEntries()  << endl;
+    ReadTree  treeR(tree[i]);
+    treeR.fChain->SetBranchStatus("*",1);
 
 
-
-  cout << "norm Exgg " << norm_exgg << endl;
-
- // const TCut excl = " ngenTrk==0 && nEle==0 ";
-
-
- // const TCut calocut = "leadingEmEnergy_EB< 0.55 && leadingEmEnergy_EE < 3.16 && leadingHadEnergy_HB < 2.0 && leadingHadEnergy_HE < 3.0 && leadingHadEnergy_HF_Plus < 4.85 && leadingHadEnergy_HF_Minus < 4.12 ";
-
-   const TCut no_addittional_tower  = " ok_neuexcl==1 ";
-   const TCut no_trk  = "ok_chexcl_goodtracks == 1 && ok_chexcl_goodelectrons==1"; //&& ok_chexcl_muons == 1"; //" ok_chexcl==1";
-   //const TCut swiss_cross  = "phoSwissCross_1 < 0.95 && phoSwissCross_2 < 0.95";
-
-   const TCut swiss_cross  = "phoSwissCross_1 < 0.95 && phoSwissCross_2 < 0.95 && abs(phoEta_1) < 2.2 && abs(phoEta_2) < 2.2";// && abs(phoSeedTime_1) < 5 && abs(phoSeedTime_2) < 5";
-
-   //const TCut apply_cut =  "vSum_M > 5 && vSum_Pt<1" && no_trk && no_addittional_tower;
-  const TCut zdc_cut = "ok_zdcexcl_4n_pos == 1 && ok_zdcexcl_4n_neg == 1";
-
-   const TCut apply_cut =  "vSum_M > 5 && vSum_Pt<2 && pho_acop<0.01" && swiss_cross && no_trk && no_addittional_tower && zdc_cut;
-   const TCut apply_cut_mc =  "vSum_M > 5 && vSum_Pt<2 && pho_acop<0.01" && swiss_cross && no_trk && no_addittional_tower;
-
-   //const TCut apply_cut_mc =   swiss_cross;// && no_trk && no_addittional_tower;
-
-  const TCut aco_cut   = "vSum_M > 5 && vSum_Pt<2 " && no_trk && no_addittional_tower && swiss_cross && zdc_cut ;
-  const TCut aco_cut_mc   = "vSum_M > 5 && vSum_Pt<2 " && no_trk && no_addittional_tower && swiss_cross;
-
-  //// data histogram
-
-  TH1D* hpho_pt_data   = new TH1D("hpho_pt_data","",8,2,10);
-  TH1D* hpho_eta_data  = new TH1D("hpho_eta_data","",11,-2.2,2.2);
-  TH1D* hpho_phi_data  = new TH1D("hpho_phi_data","",12,-PI,PI);
-
-  TH1D* hpho_pt2_data   = new TH1D("hpho_pt2_data","",8,2,10);
-  TH1D* hpho_eta2_data  = new TH1D("hpho_eta2_data","",11,-2.2,2.2);
-  TH1D* hpho_phi2_data  = new TH1D("hpho_phi2_data","",12,-PI,PI);
-    
-  TH1D* hdiphoton_pt_data         = new TH1D("hdiphoton_pt_data","",10,0,2);
-  TH1D* hdiphoton_rapidity_data   = new TH1D("hdiphoton_rapidity_data","",11,-2.2,2.2);
-  TH1D* hinvmass_data             = new TH1D("hinvmass_data","",12,0,30);
-  TH1D* hacoplanarity_data   = new TH1D("hacoplanarity_data","",20,0,0.1);
+    if (treeR.fChain == 0) return;
   
-  TH1D* hNPixelCluster = new TH1D("hNPixelCluster","",100,0,500);
-  cout << " data project ongoing" << endl;
-  data->Project(hpho_pt_data->GetName(), "phoEt_1",apply_cut );
-  data->Project(hpho_eta_data->GetName(), "phoEta_1",apply_cut  );
-  data->Project(hpho_phi_data->GetName(), "phoPhi_1",apply_cut  );
-  data->Project(hpho_pt2_data->GetName(), "phoEt_2",apply_cut );
-  data->Project(hpho_eta2_data->GetName(), "phoEta_2",apply_cut  );
-  data->Project(hpho_phi2_data->GetName(), "phoPhi_2",apply_cut  );
-
-  hpho_pt_data->Add(hpho_pt2_data);
-  hpho_eta_data->Add(hpho_eta2_data);
-  hpho_phi_data->Add(hpho_phi2_data);
+    Long64_t nentries = treeR.fChain->GetEntriesFast();
+    cout << tree[i]->GetName() << "    " << nentries << endl;
   
-  data->Project(hdiphoton_pt_data->GetName(), "vSum_Pt",apply_cut  );
-  data->Project(hdiphoton_rapidity_data->GetName(), "vSum_Rapidity",apply_cut  );
-  data->Project(hinvmass_data->GetName(), "vSum_M",apply_cut  );
-  data->Project(hacoplanarity_data->GetName(),  "pho_acop", aco_cut );
+    Long64_t nbytes = 0, nb = 0;
+    //for (Long64_t jentry=0; jentry<10;jentry++) {
+    for (Long64_t jentry=0; jentry<nentries;jentry++) {
+      Long64_t ientry_evt = treeR.LoadTree(jentry);
+      if (ientry_evt < 0) break;
+      nb = treeR.fChain->GetEntry(jentry);   nbytes += nb;
 
-  data->Project(hNPixelCluster->GetName(), "nPixelCluster",apply_cut  );
-
-  cout << " data project finished" << endl;
- 
-  // get exclusive gg file
-
-
-  TH1D* hpho_pt_lbyl   = new TH1D("hpho_pt_lbyl","",8,2,10);
-  TH1D* hpho_eta_lbyl  = new TH1D("hpho_eta_lbyl","",11,-2.2,2.2);
-  TH1D* hpho_phi_lbyl  = new TH1D("hpho_phi_lbyl","",12,-PI,PI);
-
-  TH1D* hpho_pt2_lbyl   = new TH1D("hpho_pt2_lbyl","",8,2,10);
-  TH1D* hpho_eta2_lbyl  = new TH1D("hpho_eta2_lbyl","",11,-2.2,2.2);
-  TH1D* hpho_phi2_lbyl  = new TH1D("hpho_phi2_lbyl","",12,-PI,PI);
+      if(treeR.phoSwissCross_1 > 0.95) continue;
+      if(treeR.phoSwissCross_2 > 0.95) continue;
+      if(treeR.ok_neuexcl != 1) continue; //neutral exclusivity
+      if(treeR.ok_chexcl_goodtracks != 1 || treeR.ok_chexcl_goodelectrons !=1 ) continue; //charged exclusivity
+      if(treeR.vSum_M < 5) continue; //invmass
+      if(treeR.vSum_Pt > 2) continue; //diele pt
+      if(abs(treeR.phoEta_1) > 2.2) continue;
+      if(abs(treeR.phoEta_2) > 2.2) continue;
+      if(treeR.phoEt_1 < 2.5) continue;
+      if(treeR.phoEt_2 < 2.5) continue;
+      //if(abs(treeR.phoSeedTime_1) > 5) continue;
+      //if(abs(treeR.phoSeedTime_2) > 5) continue;
+      
+      if(i==0) {
+      //if(treeR.ok_zdcexcl_4n_pos != 1 || treeR.ok_zdcexcl_4n_neg != 1) continue;
+       //if(treeR.zdc_energy_pos > 10000 || (treeR.zdc_energy_neg > 10000 && treeR.zdc_energy_neg < 750000 )) continue;
+        //if(treeR.zdc_energy_pos > 1400 || (treeR.zdc_energy_neg > 1400 && treeR.zdc_energy_neg < 750000 )) continue;
+        if(treeR.zdc_energy_pos > 10000 || treeR.zdc_energy_neg > 10000)continue;
+       }
   
- 
-  TH1D* hdiphoton_pt_lbyl         = new TH1D("hdiphoton_pt_lbyl","",10,0,2);
-  TH1D* hdiphoton_rapidity_lbyl   = new TH1D("hdiphoton_rapidity_lbyl","",11,-2.2,2.2);
-  TH1D* hinvmass_lbyl    = new TH1D("hinvmass_lbyl","",12,0,30);
-  TH1D* hacoplanarity_lbyl   = new TH1D("hacoplanarity_lbyl","",20,0,0.1);
+      //if(i==1)
+      //{  if(treeR.ok_trigger!=1) continue; }
 
 
-  cout << " signal project ongoing" << endl;
-  lbyl->Project(hpho_pt_lbyl->GetName(), "phoEt_1",apply_cut_mc && "ok_trigger==1" );
-  lbyl->Project(hpho_eta_lbyl->GetName(), "phoEta_1",apply_cut_mc && "ok_trigger==1" );
-  lbyl->Project(hpho_phi_lbyl->GetName(), "phoPhi_1",apply_cut_mc && "ok_trigger==1" );
-  lbyl->Project(hpho_pt2_lbyl->GetName(), "phoEt_2",apply_cut_mc && "ok_trigger==1" );
-  lbyl->Project(hpho_eta2_lbyl->GetName(), "phoEta_2",apply_cut_mc && "ok_trigger==1" );
-  lbyl->Project(hpho_phi2_lbyl->GetName(), "phoPhi_2",apply_cut_mc&& "ok_trigger==1" );
+      hAcoplanarity[i]->Fill(treeR.pho_acop,wt[i]);
 
+
+
+      if(treeR.pho_acop > 0.01) continue; //acop
+         
+      	
+	hpho_pt[i]->Fill(treeR.phoEt_1,wt[i]);
+	hpho_eta[i]->Fill(treeR.phoEta_1,wt[i]);
+	hpho_phi[i]->Fill(treeR.phoPhi_1,wt[i]);
+	
+	hpho_pt2[i]->Fill(treeR.phoEt_2,wt[i]);
+	hpho_eta2[i]->Fill(treeR.phoEta_2,wt[i]);
+	hpho_phi2[i]->Fill(treeR.phoPhi_2,wt[i]);
+	
+	hdipho_pt[i]->Fill(treeR.vSum_Pt,wt[i]);
+	hdipho_Rapidity[i]->Fill(treeR.vSum_Rapidity,wt[i]);
+	hInvmass[i]->Fill(treeR.vSum_M,wt[i]);
+
+	hdipho_cosThetaStar[i]->Fill(treeR.costhetastar,wt[i]);
+
+      
+    } //entry
+  } // for 4 files
   
-  hpho_pt_lbyl->Add(hpho_pt2_lbyl);
-  hpho_eta_lbyl->Add(hpho_eta2_lbyl);
-  hpho_phi_lbyl->Add(hpho_phi2_lbyl);
-  
-
-  lbyl->Project(hdiphoton_pt_lbyl->GetName(), "vSum_Pt",apply_cut_mc && "ok_trigger==1" );
-  lbyl->Project(hdiphoton_rapidity_lbyl->GetName(), "vSum_Rapidity",apply_cut_mc && "ok_trigger==1" );
-  lbyl->Project(hinvmass_lbyl->GetName(), "vSum_M",apply_cut_mc&& "ok_trigger==1" );
-  lbyl->Project(hacoplanarity_lbyl->GetName(),  "pho_acop", aco_cut_mc && "ok_trigger==1" );
-
-
-  hpho_pt_lbyl->Scale(norm_exgg);   hpho_eta_lbyl->Scale(norm_exgg);   hpho_phi_lbyl->Scale(norm_exgg);       
-  hacoplanarity_lbyl->Scale(norm_exgg);
-  hdiphoton_pt_lbyl->Scale(norm_exgg);   hdiphoton_rapidity_lbyl->Scale(norm_exgg);     hinvmass_lbyl->Scale(norm_exgg);      
-  cout << " signal project finished" << endl;
-
-
-
-  // get qed file
-
-  TH1D* hpho_pt_qed   = new TH1D("hpho_pt_qed","",8,2,10);
-  TH1D* hpho_eta_qed  = new TH1D("hpho_eta_qed","",11,-2.2,2.2);
-  TH1D* hpho_phi_qed  = new TH1D("hpho_phi_qed","",12,-PI,PI);
-
-  TH1D* hpho_pt2_qed   = new TH1D("hpho_pt2_qed","",8,2,10);
-  TH1D* hpho_eta2_qed  = new TH1D("hpho_eta2_qed","",11,-2.2,2.2);
-  TH1D* hpho_phi2_qed  = new TH1D("hpho_phi2_qed","",12,-PI,PI);
-  
-  TH1D* hdiphoton_pt_qed         = new TH1D("hdiphoton_pt_qed","",10,0,2);
-  TH1D* hdiphoton_rapidity_qed   = new TH1D("hdiphoton_rapidity_qed","",11,-2.2,2.2);
-  TH1D* hinvmass_qed    = new TH1D("hinvmass_qed","",12,0,30);
-  TH1D* hacoplanarity_qed   = new TH1D("hacoplanarity_qed","",20,0,0.1);
-
-  cout << "qed project ongoing" << endl;
-
-  qed->Project(hpho_pt_qed->GetName(), "phoEt_1",apply_cut_mc );
-  qed->Project(hpho_eta_qed->GetName(), "phoEta_1",apply_cut_mc );
-  qed->Project(hpho_phi_qed->GetName(), "phoPhi_1",apply_cut_mc );
-  qed->Project(hpho_pt2_qed->GetName(), "phoEt_2",apply_cut_mc );
-  qed->Project(hpho_eta2_qed->GetName(), "phoEta_2",apply_cut_mc );
-  qed->Project(hpho_phi2_qed->GetName(), "phoPhi_2",apply_cut_mc );
-
-  hpho_pt_qed->Add(hpho_pt2_qed);
-  hpho_eta_qed->Add(hpho_eta2_qed);
-  hpho_phi_qed->Add(hpho_phi2_qed);
-
-
-  qed->Project(hdiphoton_pt_qed->GetName(), "vSum_Pt",apply_cut_mc );
-  qed->Project(hdiphoton_rapidity_qed->GetName(), "vSum_Rapidity",apply_cut_mc );
-  qed->Project(hinvmass_qed->GetName(), "vSum_M",apply_cut_mc );
-  qed->Project(hacoplanarity_qed->GetName(), "pho_acop", aco_cut_mc);
-  
-  double old_norm = lumiNormSC;
-  std::cout << "lumiNorm " << old_norm << std::endl;
-  lumiNormSC = (hacoplanarity_data->Integral(5,20) - hacoplanarity_lbyl->Integral(5,20)) / hacoplanarity_qed->Integral(5,20);
-  std::cout << "lumiNorm " << lumiNormSC << std::endl;
-  std::cout << "new lumi Norm   " << lumiNormSC/old_norm << std::endl;
-  std::cout << "lumiNorm " << lumiNormSC << std::endl;
-
-  hpho_pt_qed->Scale(lumiNormSC);   hpho_eta_qed->Scale(lumiNormSC);   hpho_phi_qed->Scale(lumiNormSC);     
-  hacoplanarity_qed ->Scale(lumiNormSC);   
-  hdiphoton_pt_qed->Scale(lumiNormSC);   hdiphoton_rapidity_qed->Scale(lumiNormSC);     hinvmass_qed->Scale(lumiNormSC);    
-  cout << "qed project finished" << endl;
-
-
- // get cep file
-
-
-  TH1D* hpho_pt_cep   = new TH1D("hpho_pt_cep","",8,2,10);
-  TH1D* hpho_eta_cep  = new TH1D("hpho_eta_cep","",11,-2.2,2.2);
-  TH1D* hpho_phi_cep  = new TH1D("hpho_phi_cep","",12,-PI,PI);
-
-  TH1D* hpho_pt2_cep   = new TH1D("hpho_pt2_cep","",8,2,10);
-  TH1D* hpho_eta2_cep  = new TH1D("hpho_eta2_cep","",11,-2.2,2.2);
-  TH1D* hpho_phi2_cep  = new TH1D("hpho_phi2_cep","",12,-PI,PI);
-  
-  
-  TH1D* hdiphoton_pt_cep         = new TH1D("hdiphoton_pt_cep","",10,0,2);
-  TH1D* hdiphoton_rapidity_cep   = new TH1D("hdiphoton_rapidity_cep","",11,-2.2,2.2);
-  TH1D* hinvmass_cep    = new TH1D("hinvmass_cep","",12,0,30);
-  TH1D* hacoplanarity_cep   = new TH1D("hacoplanarity_cep","",20,0,0.1);
-
-  cout << "cep project ongoing" << endl;
-
-  cep->Project(hpho_pt_cep->GetName(), "phoEt_1",apply_cut_mc );
-  cep->Project(hpho_eta_cep->GetName(), "phoEta_1",apply_cut_mc );
-  cep->Project(hpho_phi_cep->GetName(), "phoPhi_1",apply_cut_mc );
-  cep->Project(hpho_pt2_cep->GetName(), "phoEt_2",apply_cut_mc );
-  cep->Project(hpho_eta2_cep->GetName(), "phoEta_2",apply_cut_mc );
-  cep->Project(hpho_phi2_cep->GetName(), "phoPhi_2",apply_cut_mc );
-
-  hpho_pt_cep->Add(hpho_pt2_cep);
-  hpho_eta_cep->Add(hpho_eta2_cep);
-  hpho_phi_cep->Add(hpho_phi2_cep);
-  
-
-  cep->Project(hdiphoton_pt_cep->GetName(), "vSum_Pt",apply_cut_mc );
-  cep->Project(hdiphoton_rapidity_cep->GetName(), "vSum_Rapidity",apply_cut_mc );
-  cep->Project(hinvmass_cep->GetName(), "vSum_M",apply_cut_mc );
-  cep->Project(hacoplanarity_cep->GetName(),  "pho_acop", aco_cut_mc );
-  
-  // Normalizing CEP xsec to tail
-  //norm_cep = 0;(hacoplanarity_data->Integral(1,5) - hacoplanarity_lbyl->Integral(1,5) - hacoplanarity_qed->Integral(1,5)) / hacoplanarity_cep->Integral(1,5);
-  //std::cout << hacoplanarity_data->Integral(1,1) << "\t" << hacoplanarity_lbyl->Integral(1,1) << "\t" << hacoplanarity_qed->Integral(1,1) << std::endl;
-
-  hpho_pt_cep->Scale(norm_cep);   hpho_eta_cep->Scale(norm_cep);   hpho_phi_cep->Scale(norm_cep);     
-  hacoplanarity_cep ->Scale(norm_cep);  
-  hdiphoton_pt_cep->Scale(norm_cep);   hdiphoton_rapidity_cep->Scale(norm_cep);     hinvmass_cep->Scale(norm_cep);      
-  cout << "cep project finished" << endl;
-
-  
-
- // get cepIncoh file
-
-
-  TH1D* hpho_pt_cepIncoh   = new TH1D("hpho_pt_cepIncoh","",8,2,10);
-  TH1D* hpho_eta_cepIncoh  = new TH1D("hpho_eta_cepIncoh","",11,-2.2,2.2);
-  TH1D* hpho_phi_cepIncoh  = new TH1D("hpho_phi_cepIncoh","",12,-PI,PI);
-
-  TH1D* hpho_pt2_cepIncoh   = new TH1D("hpho_pt2_cepIncoh","",8,2,10);
-  TH1D* hpho_eta2_cepIncoh  = new TH1D("hpho_eta2_cepIncoh","",11,-2.2,2.2);
-  TH1D* hpho_phi2_cepIncoh  = new TH1D("hpho_phi2_cepIncoh","",12,-PI,PI);
-  
-  
-  TH1D* hdiphoton_pt_cepIncoh         = new TH1D("hdiphoton_pt_cepIncoh","",10,0,2);
-  TH1D* hdiphoton_rapidity_cepIncoh   = new TH1D("hdiphoton_rapidity_cepIncoh","",11,-2.2,2.2);
-  TH1D* hinvmass_cepIncoh    = new TH1D("hinvmass_cepIncoh","",12,0,30);
-  TH1D* hacoplanarity_cepIncoh   = new TH1D("hacoplanarity_cepIncoh","",20,0,0.1);
-
-  cout << "cepIncoh project ongoing" << endl;
-
-  cepIncoh->Project(hpho_pt_cepIncoh->GetName(), "phoEt_1",apply_cut_mc );
-  cepIncoh->Project(hpho_eta_cepIncoh->GetName(), "phoEta_1",apply_cut_mc );
-  cepIncoh->Project(hpho_phi_cepIncoh->GetName(), "phoPhi_1",apply_cut_mc );
-  cepIncoh->Project(hpho_pt2_cepIncoh->GetName(), "phoEt_2",apply_cut_mc );
-  cepIncoh->Project(hpho_eta2_cepIncoh->GetName(), "phoEta_2",apply_cut_mc );
-  cepIncoh->Project(hpho_phi2_cepIncoh->GetName(), "phoPhi_2",apply_cut_mc );
-
-  hpho_pt_cepIncoh->Add(hpho_pt2_cepIncoh);
-  hpho_eta_cepIncoh->Add(hpho_eta2_cepIncoh);
-  hpho_phi_cepIncoh->Add(hpho_phi2_cepIncoh);
-  
-
-  cepIncoh->Project(hdiphoton_pt_cepIncoh->GetName(), "vSum_Pt",apply_cut_mc );
-  cepIncoh->Project(hdiphoton_rapidity_cepIncoh->GetName(), "vSum_Rapidity",apply_cut_mc );
-  cepIncoh->Project(hinvmass_cepIncoh->GetName(), "vSum_M",apply_cut_mc );
-  cepIncoh->Project(hacoplanarity_cepIncoh->GetName(),  "pho_acop", aco_cut_mc );
-  
-  // Normalizing cepIncoh xsec to tail
-  //norm_cepIncoh = 0;(hacoplanarity_data->Integral(1,5) - hacoplanarity_lbyl->Integral(1,5) - hacoplanarity_qed->Integral(1,5)) / hacoplanarity_cepIncoh->Integral(1,5);
-  //std::cout << hacoplanarity_data->Integral(1,1) << "\t" << hacoplanarity_lbyl->Integral(1,1) << "\t" << hacoplanarity_qed->Integral(1,1) << std::endl;
-
-  hpho_pt_cepIncoh->Scale(norm_cepIncoh);   hpho_eta_cepIncoh->Scale(norm_cepIncoh);   hpho_phi_cepIncoh->Scale(norm_cepIncoh);     
-  hacoplanarity_cepIncoh ->Scale(norm_cepIncoh);  
-  hdiphoton_pt_cepIncoh->Scale(norm_cepIncoh);   hdiphoton_rapidity_cepIncoh->Scale(norm_cepIncoh);     hinvmass_cepIncoh->Scale(norm_cepIncoh);      
-  cout << "cepIncoh project finished" << endl;
-  
-  cout << "CEP :" << norm_cep << endl;
-  cout << "CEP Incoh :" << norm_cepIncoh << endl;
+  for (int i = 0; i < nSample; i++){    
+    hpho_pt[i]->Add(hpho_pt2[i]);
+    hpho_eta[i]->Add(hpho_eta2[i]);
+    hpho_phi[i]->Add(hpho_phi2[i]);
+  }
 
 
  //add cep coh and Incoh contribution
+  hpho_pt[3]->Add(hpho_pt[4]);   hpho_eta[3]->Add(hpho_eta[4]);   hpho_phi[3]->Add(hpho_phi[4]);
+  hdipho_pt[3]->Add(hdipho_pt[4]);   hdipho_Rapidity[3]->Add(hdipho_Rapidity[4]);   hInvmass[3]->Add(hInvmass[4]);
+  hAcoplanarity[3]->Add(hAcoplanarity[4]); 
 
-  hpho_pt_cep->Add(hpho_pt_cepIncoh);   hpho_eta_cep->Add(hpho_eta_cepIncoh);   hpho_phi_cep->Add(hpho_phi_cepIncoh);
-  hdiphoton_pt_cep->Add(hdiphoton_pt_cepIncoh);   hdiphoton_rapidity_cep->Add(hdiphoton_rapidity_cepIncoh);   hinvmass_cep->Add(hinvmass_cepIncoh);
-hacoplanarity_cep->Add(hacoplanarity_cepIncoh); 
+  cout << "data:"<< hAcoplanarity[0]->Integral(6,20) << endl;
+  cout << "Lbyl:"<< hAcoplanarity[1]->Integral(6,20) << endl;
+  cout << "CEP:"<< hAcoplanarity[3]->Integral(6,20) << endl;
+  cout << "QED:"<< hAcoplanarity[5]->Integral(6,20) << endl;
 
-    //int ibin = 20;
-    hinvmass_data->SetBinErrorOption(TH1::EBinErrorOpt::kPoisson);
-    hdiphoton_pt_data->SetBinErrorOption(TH1::EBinErrorOpt::kPoisson);
-    hdiphoton_rapidity_data->SetBinErrorOption(TH1::EBinErrorOpt::kPoisson);
-    hpho_pt_data->SetBinErrorOption(TH1::EBinErrorOpt::kPoisson);
-    //hpho_eta_data->SetBinErrorOption(TH1::EBinErrorOpt::kPoisson);
-    hpho_phi_data->SetBinErrorOption(TH1::EBinErrorOpt::kPoisson);
-    hacoplanarity_data->SetBinErrorOption(TH1::EBinErrorOpt::kPoisson);
-    //hinvmass_data->SetBinError(1,0);
-    //hinvmass_data->SetBinError(2,0);
 
-    double err_low = hinvmass_data->GetBinErrorLow(3);
-    double err_up = hinvmass_data->GetBinErrorUp(3);
+  // Normalizing QED xsec to tail 
+ if(QEDNorm){
+  double old_norm = lumiNormSC;
+  lumiNormSC = (hAcoplanarity[0]->Integral(5,20) - hAcoplanarity[1]->Integral(5,20) - hAcoplanarity[3]->Integral(5,20) ) / hAcoplanarity[2]->Integral(5,20);
+ 
 
-   cout << " low error: " << err_low << " up error:" << err_up << endl;
+  std::cout << "new lumi Norm   " << lumiNormSC << std::endl;
+  //std::cout << "Scale factor " << lumiNormSC/old_norm << std::endl;
+
+  hpho_pt[2]->Scale(lumiNormSC);   hpho_eta[2]->Scale(lumiNormSC);   hpho_phi[2]->Scale(lumiNormSC);     
+  hAcoplanarity[2] ->Scale(lumiNormSC);   
+  hdipho_pt[2]->Scale(lumiNormSC);   hdipho_Rapidity[2]->Scale(lumiNormSC);     hInvmass[2]->Scale(lumiNormSC);   
+  }
+  
+ if(QEDNormMG5){
+  double old_norm = lumiNormQEDMG_1FSR;
+  lumiNormQEDMG_1FSR = (hAcoplanarity[0]->Integral(5,20) - hAcoplanarity[1]->Integral(5,20) - hAcoplanarity[3]->Integral(5,20) ) / hAcoplanarity[6]->Integral(5,20);
+ 
+
+  std::cout << "new lumi Norm   " << lumiNormQEDMG_1FSR << std::endl;
+  //std::cout << "Scale factor " << lumiNormSC/old_norm << std::endl;
+
+  hpho_pt[6]->Scale(lumiNormQEDMG_1FSR);   hpho_eta[6]->Scale(lumiNormQEDMG_1FSR);   hpho_phi[6]->Scale(lumiNormQEDMG_1FSR);     
+  hAcoplanarity[6] ->Scale(lumiNormQEDMG_1FSR);   
+  hdipho_pt[6]->Scale(lumiNormQEDMG_1FSR);   hdipho_Rapidity[6]->Scale(lumiNormQEDMG_1FSR);     hInvmass[6]->Scale(lumiNormQEDMG_1FSR);   
+  }
+
+  // Normalizing CEP xsec to tail 
+ if(CEPNorm){
+  double old_norm = norm_cep;
+  //double norm_cep2 = (hAcoplanarity[0]->Integral(5,20) - hAcoplanarity[1]->Integral(5,20) - hAcoplanarity[5]->Integral(5,20) ) / hAcoplanarity[3]->Integral(5,20);
+  double norm_cep2 = (hAcoplanarity[0]->Integral(6,20) - hAcoplanarity[1]->Integral(6,20) - hAcoplanarity[5]->Integral(6,20) ) / hAcoplanarity[3]->Integral(6,20);
+  //double norm_cep2 = (hAcoplanarity[0]->Integral(7,20) - hAcoplanarity[1]->Integral(7,20) - hAcoplanarity[5]->Integral(7,20) ) / hAcoplanarity[3]->Integral(7,20);
+ 
+
+  std::cout << "new lumi Norm   " << norm_cep2 << std::endl;
+  //std::cout << "Scale factor " << norm_cep2/old_norm << std::endl;
+
+  hpho_pt[3]->Scale(norm_cep2);   hpho_eta[3]->Scale(norm_cep2);   hpho_phi[3]->Scale(norm_cep2);     
+  hAcoplanarity[3] ->Scale(norm_cep2);   
+  hdipho_pt[3]->Scale(norm_cep2);   hdipho_Rapidity[3]->Scale(norm_cep2);     hInvmass[3]->Scale(norm_cep2);   
+  }
+
+  cout << "CEP integral after normalizing :"<< hAcoplanarity[3]->Integral(6,20) << endl;
   
 
-  hNPixelCluster->Draw("p");
-  TLegend *leg2=new TLegend(0.18,0.65,0.60,0.91);
-  leg2->SetFillColor(0);
-  leg2->SetBorderSize(0);
-  leg2->SetFillStyle(0);
-  leg2->SetTextFont(43);
-  leg2->SetTextSize(24);
-  leg2->AddEntry(hinvmass_data,"Data ","pl");
-  leg2->AddEntry(hinvmass_lbyl,"LbyL #gamma #gamma #rightarrow #gamma #gamma (MC)","f");
-  leg2->AddEntry(hinvmass_cep,"CEP (gg #rightarrow #gamma #gamma) + other bkg","f");
-  leg2->AddEntry(hinvmass_qed,"QED #gamma #gamma #rightarrow e^{+}e^{-} (MC)","f");
-
-  
-  TH1D* hinvmass_empty   = new TH1D("hinvmass_empty","",1,0,30);
-  TH1D* hpho_pt_empty   = new TH1D("hpho_pt_empty","",1,0,10);
-hinvmass_lbyl->Draw("p");
-    
   int W = 700;
   int H = 600;
   
@@ -409,391 +298,232 @@ hinvmass_lbyl->Draw("p");
   float L = 0.14;
   float R = 0.04;
 
-
-  //// Diphoton invmass......................
-  THStack *hs = new THStack("hs","Diphoton invariant mass");
-  TCanvas* c1 = new TCanvas("c1","Dimuon invmass",50,50,W,H);
-  c1->SetFillColor(0);
-  c1->SetBorderMode(0);
-  c1->SetFrameFillStyle(0);
-  c1->SetFrameBorderMode(0);
-  c1->SetLeftMargin( L );
-  c1->SetRightMargin( R );
-  c1->SetTopMargin( T );
-  c1->SetBottomMargin( B );
-  c1->SetTickx(0);
-  c1->SetTicky(0);
-  c1->cd();
-
-  hinvmass_empty->SetMaximum(30);
-  hinvmass_empty->SetMinimum(0);
+  //hInvmass[0]->Draw("p");
  
-  make_hist(hinvmass_empty, kBlack, 21);
-  hinvmass_empty->SetLineColor(kBlack);
+ //(TCanvas* c1, TH1D* hdata, TH1D* hmc, TH1D* hmc2, double hxmin, double hxmax, double hymin, double hymax, double rymin , double rymax, const char *ytitle, bool iflogy)
+ 
+  TCanvas* cc1 = new TCanvas("Sum_pt","diphoton pT",254,411,639,592);
+  make_canvas(cc1);
+  PlotHistsAndRatio(cc1, hdipho_pt[0], hdipho_pt[1], hdipho_pt[2], hdipho_pt[3], hdipho_pt[5], 0.0,2.0,0,30,0.7,1.8,"Diphoton p_{T}", 0);
 
-  hinvmass_empty->GetXaxis()->SetTitle("Diphoton Invariant Mass (GeV)");//,"dN/dp_{T}^{2} (1/GeV)^{2} 
-  hinvmass_empty->GetYaxis()->SetTitle("# events");
-  hinvmass_empty->Draw("p");
+  TCanvas* c2 = new TCanvas("Inv_mass","Invmass",254,411,639,592);
+  make_canvas(c2);
+  PlotHistsAndRatio(c2, hInvmass[0], hInvmass[1], hInvmass[2], hInvmass[3], hInvmass[5], 0,120,0.1,30,0.6,1.4,"Invariant Mass", 0);
 
+  TCanvas* c3 = new TCanvas("Rapidity","Rapidity",254,411,639,592);
+  make_canvas(c3);
+  PlotHistsAndRatio(c3, hdipho_Rapidity[0], hdipho_Rapidity[1], hdipho_Rapidity[2], hdipho_Rapidity[3], hdipho_Rapidity[5],  -3,3,0,20,0.7,1.3,"Rapidity", 0);
 
-  make_hist(hinvmass_qed, kYellow, 21);
-  //hinvmass_qed->Draw("psames");
-  hs->Add(hinvmass_qed);
+  TCanvas* c4 = new TCanvas("Photon_pt","Photon pT",254,411,639,592);
+  make_canvas(c4);
+  PlotHistsAndRatio(c4, hpho_pt[0], hpho_pt[1], hpho_pt[2], hpho_pt[3], hpho_pt[5], 0,50,0.1,50,0.1,1.8,"Photon p_{T}", 0);
 
-  make_hist(hinvmass_cep, 51, 21);
-  hinvmass_cep->SetFillStyle(3001);
-  //hinvmass_cep->Draw("psames");
-  hs->Add(hinvmass_cep);
+  TCanvas* c5 = new TCanvas("Photon_eta","Photon eta",254,411,639,592);
+  make_canvas(c5);
+  PlotHistsAndRatio(c5, hpho_eta[0], hpho_eta[1], hpho_eta[2],  hpho_eta[3],hpho_eta[5], -3,3,0,20,0.7,1.3,"Photon #eta", 0);
 
-  make_hist(hinvmass_lbyl, 95, 21);
-  //hinvmass_lbyl->Draw("p");
-  hs->Add(hinvmass_lbyl);
-  hs->Draw("histsame");   hs->GetXaxis()->SetTitle("Diphoton Invariant Mass (GeV)");//,"dN/dp_{T}^{2} (1/GeV)^{2} 
-  //hs->GetXaxis()->SetRangeUser(5,20);
+  TCanvas* c6 = new TCanvas("Photon_phi","Photon phi",254,411,639,592);
+  make_canvas(c6);
+  PlotHistsAndRatio(c6, hpho_phi[0], hpho_phi[1], hpho_phi[2], hpho_phi[3], hpho_phi[5], -4,4,0,20,0.7,1.3,"Photon #phi", 0);
+
+  TCanvas* c7 = new TCanvas("Acoplanarity","Acoplanarity",254,411,639,592);
+  make_canvas(c7);
+  PlotHistsAndRatio(c7, hAcoplanarity[0], hAcoplanarity[1], hAcoplanarity[2], hAcoplanarity[3], hAcoplanarity[5], 0,0.16,0,25,0.,2.5,"A_{#phi}", 0);
+
+//  PlotHistsAndRatio(c7, hAcoplanarity[0], hAcoplanarity[1], hAcoplanarity[2], hAcoplanarity[3], hAcoplanarity[5], hAcoplanarity[6], hAcoplanarity[7], 0,0.16,0,25,0.,2.5,"A_{#phi}", 0);
+ 
+  for (int i = 0; i < nSample; i++){
+  cout << " Acop < 0.01 " << sample[i] <<  " :" << hAcoplanarity[i]->Integral(1,2) << endl;  
+ }
+  
+  /*cout << " invariant mass " << sample[1] <<  " :" << hInvmass[1]->Integral() << endl;  
+  cout << " invariant mass " << sample[2] <<  " :" << hInvmass[2]->Integral() << endl;  
+  cout << " invariant mass " << sample[3] <<  " :" << hInvmass[3]->Integral() << endl;  
+  cout << " invariant mass " << sample[5] <<  " :" << hInvmass[5]->Integral() << endl;  
+  cout << " invariant mass " << sample[6] <<  " :" << hInvmass[6]->Integral() << endl;  
+  cout << " invariant mass " << sample[7] <<  " :" << hInvmass[7]->Integral() << endl;  
+  cout << " invariant mass " << sample[7] <<  " :" << hInvmass[8]->Integral() << endl;  */
+  
+ //outf->cd();
+// outf->Write();
+// outf->Close();
+  
+}
+
+TCanvas* PlotHistsAndRatio(TCanvas* c1, TH1D* hdata, TH1D* hlbyl, TH1D* hqed, TH1D* hcep,TH1D *hfsr, double hxmin, double hxmax, double hymin, double hymax, double rymin , double rymax, const char *ytitle, bool iflogy){
+//TCanvas* PlotHistsAndRatio(TCanvas* c1, TH1D* hdata, TH1D* hlbyl, TH1D* hqed, TH1D* hcep,TH1D *hfsr, TH1D *hMG5, TH1D *hMG5_2FSR, double hxmin, double hxmax, double hymin, double hymax, double rymin , double rymax, const char *ytitle, bool iflogy){
+  
+  float T = 0.08;
+  float B = 0.14; 
+  float L = 0.14;
+  float R = 0.04;
+
+  /*c1->Divide(1,2);
+  TPad* pad1 = (TPad*)c1->GetPad(1);
+  TPad* pad2 = (TPad*)c1->GetPad(2);
+  pad1->SetPad(0,0.3,1.0,1.0);
+  pad2->SetPad(0,0,  1.0,0.28);
+  pad1->SetLeftMargin(0.18);
+  pad1->SetTopMargin(0.08);
+  pad1->SetRightMargin(0.07);
+  pad1->SetBottomMargin(0.01); // All X axis labels and titles are thus cut off
+  pad2->SetLeftMargin(0.18);
+  pad2->SetTopMargin(0.01);
+  pad2->SetRightMargin(0.07);
+  pad2->SetBottomMargin(0.45);
+  
+  pad1->cd();*/
+
+  //hdata->Add(hlbyl,-1); 
+  //hdata->Add(hfsr,-1); 
+ 
+  THStack *hs = new THStack("hs"," ");
+  if(iflogy)gPad->SetLogy();
+
+  hs->SetMaximum(hymax);
+  hs->SetMinimum(hymin);
+  //hs->GetXaxis()->SetMinimum(hxmin);
+ 
+  make_hist(hfsr, kYellow, 21);
+  hs->Add(hfsr);
+
+  //make_hist(hMG5, kBlue, 21);
+  //hs->Add(hMG5);
+
+  //make_hist(hMG5_2FSR, 30, 21);
+  //hs->Add(hMG5_2FSR);
+
+  make_hist(hcep, 51, 21);
+  hcep->SetFillStyle(3001);
+  hs->Add(hcep);
+
+  make_hist(hlbyl, 95, 21);
+  hs->Add(hlbyl);
+ 
+  hs->Draw("hist");   
+  hs->GetXaxis()->SetTitle(ytitle);//,"dN/dp_{T}^{2} (1/GeV)^{2} 
   hs->GetYaxis()->SetTitle("# events");
 
-  make_hist(hinvmass_data, kBlack, 21);
-  hinvmass_data->SetLineColor(kBlack);
-  hinvmass_data->Draw("psames");
+  make_hist(hdata, kBlack, 21);
+  hdata->SetLineColor(kBlack);
+  hdata->Draw("psame");
+
+
+  make_hist(hqed, kRed, 21);
+  hqed->SetLineColor(kRed);
+  //hqed->Draw("psame");
+
+  //make_hist(hMG5, kBlue, 21);
+  //hMG5->SetLineColor(kBlue);
+  //hMG5->Draw("psame");
+  
+  TLegend *leg2=new TLegend(0.38,0.60,0.60,0.91);
+  leg2->SetFillColor(0);
+  leg2->SetBorderSize(0);
+  leg2->SetFillStyle(0);
+  leg2->SetTextFont(43);
+  leg2->SetTextSize(20); 
+  leg2->AddEntry(hdata,"Data","pl");
+  leg2->AddEntry(hlbyl,"LbyL #gamma #gamma #rightarrow #gamma #gamma (MC)","f");
+  leg2->AddEntry(hcep,"CEP (gg #rightarrow #gamma #gamma) + other bkg","f");
+  //leg2->AddEntry(hqed,"QED #gamma #gamma #rightarrow e^{+}e^{-} (without FSR)","f");
+  leg2->AddEntry(hfsr,"QED SC +Photos","f");
+  //leg2->AddEntry(hMG5,"QED Madgraph 1 FSR","f");
+  //leg2->AddEntry(hMG5_2FSR,"QED Madgraph 2 FSR","f");
   
   leg2->Draw();
-  CMS_lumi( c1, 104, 33,lumi_PbPb2015 );
-  c1->Print(Form("./%s/diphoton_invmass.gif",dir));
-  c1->Print(Form("./%s/diphoton_invmass.pdf",dir));
-  c1->Print(Form("./%s/diphoton_invmass.C",dir));
-
-
-
-  //// Diphoton pT....................
-  THStack *hs_pt = new THStack("hs_pt","Diphoton pt");
-  TCanvas* c2 = new TCanvas("c2","Dimuon pT",50,50,W,H);
-  c2->SetFillColor(0);
-  c2->SetBorderMode(0);
-  c2->SetFrameFillStyle(0);
-  c2->SetFrameBorderMode(0);
-  c2->SetLeftMargin( L );
-  c2->SetRightMargin( R );
-  c2->SetTopMargin( T );
-  c2->SetBottomMargin( B );
-  c2->SetTickx(0);
-  c2->SetTicky(0);
-  c2->cd();
-  //gPad->SetLogy();
-  hs_pt->SetMaximum(30);
-  hs_pt->SetMinimum(0);
- 
-  make_hist(hdiphoton_pt_qed, kYellow, 21);
-  hs_pt->Add(hdiphoton_pt_qed);
-
-  make_hist(hdiphoton_pt_cep, 51, 21);
-  hdiphoton_pt_cep->SetFillStyle(3001);
-  hs_pt->Add(hdiphoton_pt_cep);
-
-  make_hist(hdiphoton_pt_lbyl, 95, 21);
-  //hdiphoton_pt_lbyl->Draw("p");
-  hs_pt->Add(hdiphoton_pt_lbyl);
- 
-  hs_pt->Draw("hist");   hs_pt->GetXaxis()->SetTitle("Diphoton p_{T} (GeV)");//,"dN/dp_{T}^{2} (1/GeV)^{2} 
-  //hs_pt->GetXaxis()->SetRangeUser(0,2);
-  hs_pt->GetYaxis()->SetTitle("# events");
-
-  make_hist(hdiphoton_pt_data, kBlack, 21);
-  hdiphoton_pt_data->SetLineColor(kBlack);
-  hdiphoton_pt_data->Draw("psame");
   
-  leg2->Draw();
-  CMS_lumi( c2, 104, 33,lumi_PbPb2015 );
-  c2->Print(Form("./%s/diphoton_pt.gif",dir));
-  c2->Print(Form("./%s/diphoton_pt.pdf",dir));
-  c2->Print(Form("./%s/diphoton_pt.C",dir));
 
-
-  //// Diphoton rapidity....................
-  THStack *hs_rapidity = new THStack("hs_rapidity","Diphoton rapidity");
-  TCanvas* c3 = new TCanvas("c3","Dimuon rapidity",50,50,W,H);
-  c3->SetFillColor(0);
-  c3->SetBorderMode(0);
-  c3->SetFrameFillStyle(0);
-  c3->SetFrameBorderMode(0);
-  c3->SetLeftMargin( L );
-  c3->SetRightMargin( R );
-  c3->SetTopMargin( T );
-  c3->SetBottomMargin( B );
-  c3->SetTickx(0);
-  c3->SetTicky(0);
-  c3->cd();
-  //gPad->SetLogy();
-  hs_rapidity->SetMaximum(20);
-  hs_rapidity->SetMinimum(0);
+  TString strRatio=hqed->GetName();
+  strRatio+="_over_";
+  strRatio+=hqed->GetName();
   
-  make_hist(hdiphoton_rapidity_qed, kYellow, 21);
-  hs_rapidity->Add(hdiphoton_rapidity_qed);
-
-  make_hist(hdiphoton_rapidity_cep, 51, 21);
-  hdiphoton_rapidity_cep->SetFillStyle(3001);
-  hs_rapidity->Add(hdiphoton_rapidity_cep);
-
-  make_hist(hdiphoton_rapidity_lbyl, 95, 21);
-  //hdiphoton_rapidity_lbyl->Draw("p");
-  hs_rapidity->Add(hdiphoton_rapidity_lbyl);
-
-  hs_rapidity->Draw("hist");   hs_rapidity->GetXaxis()->SetTitle("Diphoton y");//,"dN/dp_{T}^{2} (1/GeV)^{2} 
-  //hs_rapidity->GetXaxis()->SetRangeUser(0,2);
-  hs_rapidity->GetYaxis()->SetTitle("# events");
- 
-  make_hist(hdiphoton_rapidity_data, kBlack, 21);
-  hdiphoton_rapidity_data->SetLineColor(kBlack);
-  hdiphoton_rapidity_data->Draw("psame");
+  TH1D* hratio=(TH1D*)hfsr->Clone(strRatio);
+  hratio->Sumw2();  
   
-  leg2->Draw();
-  CMS_lumi( c3, 104, 33,lumi_PbPb2015 );
-  c3->Print(Form("./%s/diphoton_rap.gif",dir));
-  c3->Print(Form("./%s/diphoton_rap.pdf",dir));
-  c3->Print(Form("./%s/diphoton_rap.C",dir));
+  hratio->Divide(hqed);
 
+  /*pad2->cd();
+  pad2->SetGridy(1);
+  hratio->SetLineWidth(2);
+  //hratio->SetStats(0);
+  hratio->GetXaxis()->SetRangeUser(hxmin,hxmax);
+  hratio->GetYaxis()->SetRangeUser(rymin,rymax);
+  //hratio->GetXaxis()->SetTitle("Dielectron p_{T}");
+  hratio->GetXaxis()->SetTitle(ytitle);
+  hratio->GetYaxis()->SetTitle("QED+FSR/QED");
+  hratio->GetYaxis()->SetNdivisions(504);
+  hratio->GetYaxis()->SetLabelSize(0.11);
+  hratio->GetXaxis()->SetLabelSize(0.15);
+  hratio->GetXaxis()->SetTitleSize(0.18);
+  hratio->GetYaxis()->SetTitleSize(0.15);
+  hratio->GetXaxis()->SetTitleOffset(1.1);
+  hratio->GetYaxis()->SetTitleOffset(0.31);
+  hratio->GetXaxis()->SetTickLength(0.09);
+  //hratio->SetMarkerColor(33);
+  hratio->SetMarkerColor(kBlack);
+  //hratio->SetMarkerStyle(23);
+  hratio->SetLineColor(kBlack);
+  //hratio->Fit("pol0","W");
+ // hratio->Draw("p");*/
 
-  /// diphoton acoplanarity ...........................................
+  //CMS_lumi( c1, 104, 33,lumi_PbPb2018 );
 
-  TLegend *leg1=new TLegend(0.23,0.65,0.95,0.91);
-  leg1->SetFillColor(0);
-  leg1->SetBorderSize(0);
-  leg1->SetFillStyle(0);
-  leg1->SetTextFont(43);
-  leg1->SetTextSize(24);
-  leg1->AddEntry(hinvmass_data,"Data ","pl");
-  leg1->AddEntry(hinvmass_lbyl,"LbyL #gamma #gamma #rightarrow #gamma #gamma (MC)","f");
-  leg1->AddEntry(hinvmass_cep,"CEP (gg #rightarrow #gamma #gamma) + other bkg","f");
-  leg1->AddEntry(hinvmass_qed,"QED #gamma #gamma #rightarrow e^{+}e^{-} (MC)","f");
-
-
-  THStack *hs_aco = new THStack("hs_aco","");
-  TCanvas* c4 = new TCanvas("c4","Dimuon rapidity",50,50,W,H);
-  c4->SetFillColor(0);
-  c4->SetBorderMode(0);
-  c4->SetFrameFillStyle(0);
-  c4->SetFrameBorderMode(0);
-  c4->SetLeftMargin( L );
-  c4->SetRightMargin( R );
-  c4->SetTopMargin( T );
-  c4->SetBottomMargin( B );
-  c4->SetTickx(0);
-  c4->SetTicky(0);
-  c4->cd();
-  //gPad->SetLogy();
-  hs_aco->SetMaximum(50);
-  hs_aco->SetMinimum(0);
-  
-  make_hist(hacoplanarity_qed, kYellow, 21);
-  hs_aco->Add(hacoplanarity_qed);
-
-  make_hist(hacoplanarity_cep, 51, 21);
-  hacoplanarity_cep->SetFillStyle(3001);
-  hs_aco->Add(hacoplanarity_cep);
-
-  make_hist(hacoplanarity_lbyl, 95, 21);
-  hacoplanarity_lbyl->Draw("p");
-  hs_aco->Add(hacoplanarity_lbyl);
-  
-  hs_aco->Draw("hist"); hs_aco->GetXaxis()->SetTitle("Diphoton A_{#phi}");//,"dN/dp_{T}^{2} (1/GeV)^{2} 
-  //hs_aco->GetXaxis()->SetRangeUser(0,0.2);   
-  hs_aco->GetXaxis()->SetNdivisions(509);
-  //hs_aco->GetXaxis()->SetRangeUser(0,2);
-  hs_aco->GetYaxis()->SetTitle("Events / (0.005)");
-  
-  make_hist(hacoplanarity_data, kBlack, 21);
-  hacoplanarity_data->SetLineColor(kBlack);
-  hacoplanarity_data->Draw("p same"); //"p same"
-  
-  leg1->Draw();
-  CMS_lumi( c4, 104, 33,lumi_PbPb2015 );
-  c4->Print(Form("./%s/acoplanarity_ged.gif",dir));
-  c4->Print(Form("./%s/acoplanarity_ged.pdf",dir));
-  c4->Print(Form("./%s/acoplanarity_ged.C",dir));
- 
-
-
-  /// single photon pT ...............................................
-  THStack *hs_spt  = new THStack("hs_spt","photon pt");
-  TCanvas* c5 = new TCanvas("c5","Single pt",50,50,W,H);
-  c5->SetFillColor(0);
-  c5->SetBorderMode(0);
-  c5->SetFrameFillStyle(0);
-  c5->SetFrameBorderMode(0);
-  c5->SetLeftMargin( L );
-  c5->SetRightMargin( R );
-  c5->SetTopMargin( T );
-  c5->SetBottomMargin( B );
-  c5->SetTickx(0);
-  c5->SetTicky(0);
-  c5->cd();
-
-
-  hpho_pt_empty->SetMaximum(50);
-  hpho_pt_empty->SetMinimum(0);
- 
-  make_hist(hpho_pt_empty, kBlack, 21);
-  hpho_pt_empty->SetLineColor(kBlack);
-
-  hpho_pt_empty->GetXaxis()->SetTitle("Photon E_{T} (GeV)");//,"dN/dp_{T}^{2} (1/GeV)^{2} 
-  hpho_pt_empty->GetYaxis()->SetTitle("# events");
-  hpho_pt_empty->Draw("p");
-
-
-  //gPad->SetLogy();
-  //hs_spt->SetMaximum(25);
-  //hs_spt->SetMinimum(0);
-  
-  make_hist(hpho_pt_qed, kYellow, 21);
-  hs_spt->Add(hpho_pt_qed);
-
-  make_hist(hpho_pt_cep, 51, 21);
-  hpho_pt_cep->SetFillStyle(3001);
-  hs_spt->Add(hpho_pt_cep);
-
-  make_hist(hpho_pt_lbyl, 95, 21);
-  //hpho_pt_lbyl->Draw("p");
-  hs_spt->Add(hpho_pt_lbyl);
-
-  hs_spt->Draw("histsame");   hs_spt->GetXaxis()->SetTitle("Photon E_{T} (GeV)");//,"dN/dp_{T}^{2} (1/GeV)^{2} 
-  hs_spt->GetXaxis()->SetRangeUser(0,20);
-  hs_spt->GetYaxis()->SetTitle("# events");
-  make_hist(hpho_pt_data, kBlack, 21);
-  hpho_pt_data->SetLineColor(kBlack);
-  hpho_pt_data->Draw("psame");
-  leg2->Draw();
-  CMS_lumi( c5, 104, 33,lumi_PbPb2015 );
-  c5->Print(Form("./%s/single_pt.gif",dir));
-  c5->Print(Form("./%s/single_pt.pdf",dir));
-  c5->Print(Form("./%s/single_pt.C",dir));
-
-  /// single photon eta ...............................................
-  THStack *hs_eta = new THStack("hs_eta","photon eta");
-  TCanvas* c6 = new TCanvas("c6","Single pt",50,50,W,H);
-  c6->SetFillColor(0);
-  c6->SetBorderMode(0);
-  c6->SetFrameFillStyle(0);
-  c6->SetFrameBorderMode(0);
-  c6->SetLeftMargin( L );
-  c6->SetRightMargin( R );
-  c6->SetTopMargin( T );
-  c6->SetBottomMargin( B );
-  c6->SetTickx(0);
-  c6->SetTicky(0);
-  c6->cd();
-  //gPad->SetLogy();
-  hs_eta->SetMaximum(20);
-  hs_eta->SetMinimum(0);
-  
-  make_hist(hpho_eta_qed, kYellow, 21);
-  hs_eta->Add(hpho_eta_qed);
-
-  make_hist(hpho_eta_cep, 51, 21);
-  hpho_eta_cep->SetFillStyle(3001);
-  hs_eta->Add(hpho_eta_cep);
-
-  make_hist(hpho_eta_lbyl, 95, 21);
-  //hpho_eta_lbyl->Draw("p");
-  hs_eta->Add(hpho_eta_lbyl);
-
-  hs_eta->Draw("hist");   hs_eta->GetXaxis()->SetTitle("Photon #eta");//,"dN/dp_{T}^{2} (1/GeV)^{2} 
-  //hs_eta->GetXaxis()->SetRangeUser(0,2);
-  hs_eta->GetYaxis()->SetTitle("# events");
-  make_hist(hpho_eta_data, kBlack, 21);
-  hpho_eta_data->SetLineColor(kBlack);
-  hpho_eta_data->Draw("psame");
-  leg2->Draw();
-  CMS_lumi( c6, 104, 33,lumi_PbPb2015 );
-  c6->Print(Form("./%s/single_eta.gif",dir));
-  c6->Print(Form("./%s/single_eta.pdf",dir));
-  c6->Print(Form("./%s/single_eta.C",dir));
-
-  /// single photon phi ...............................................
-  THStack *hs_phi = new THStack("hs_phi","photon phi");
-  TCanvas* c7 = new TCanvas("c7","Single phi",50,50,W,H);
-  c7->SetFillColor(0);
-  c7->SetBorderMode(0);
-  c7->SetFrameFillStyle(0);
-  c7->SetFrameBorderMode(0);
-  c7->SetLeftMargin( L );
-  c7->SetRightMargin( R );
-  c7->SetTopMargin( T );
-  c7->SetBottomMargin( B );
-  c7->SetTickx(0);
-  c7->SetTicky(0);
-  c7->cd();
-  //gPad->SetLogy();
-  hs_phi->SetMaximum(20);
-  hs_phi->SetMinimum(0);
-  
-  make_hist(hpho_phi_qed, kYellow, 21);
-  //hpho_phi_qed->Draw("p");
-  hs_phi->Add(hpho_phi_qed);
-
-  make_hist(hpho_phi_cep, 51, 21);
-  hpho_phi_cep->SetFillStyle(3001);
-  //hpho_phi_qed->Draw("psames");
-  hs_phi->Add(hpho_phi_cep);
-
-  make_hist(hpho_phi_lbyl, 95, 21);
-  //hpho_phi_lbyl->Draw("psames");
-  hs_phi->Add(hpho_phi_lbyl);
-
-  hs_phi->Draw("hist");   hs_phi->GetXaxis()->SetTitle("Photon #phi");//,"dN/dp_{T}^{2} (1/GeV)^{2} 
-  //hs_phi->GetXaxis()->SetRangeUser(0,2);
-  hs_phi->GetYaxis()->SetTitle("# events");
-  make_hist(hpho_phi_data, kBlack, 21);
-  hpho_phi_data->SetLineColor(kBlack);
-  hpho_phi_data->Draw("psames");
-  leg2->Draw();
-  CMS_lumi( c7, 104, 33,lumi_PbPb2015 );
-  c7->Print(Form("./%s/single_phi.gif",dir));
-  c7->Print(Form("./%s/single_phi.pdf",dir));
-  c7->Print(Form("./%s/single_phi.C",dir));
-
- /* double err, err1,err2,err3 ; 
-  hinvmass_data->IntegralAndError(xlo,xhi,err);
-  cout << "Data Integral:   "  << hinvmass_data->Integral(xlo,xhi) << "  error " << err << endl;
-  hinvmass_lbyl->IntegralAndError(xlo,xhi,err1);
-  cout << "Light by light Integral:   "  << hinvmass_lbyl->Integral() << "  error " << err1 << endl;
-  hinvmass_cep->IntegralAndError(xlo,xhi,err3);
-  cout << "cep Integral:   "  << hinvmass_cep->Integral(xlo,xhi) << "  error " << err3 << endl;
-  hinvmass_qed->IntegralAndError(xlo,xhi,err2);
-  cout << "qed Integral:   "  << hinvmass_qed->Integral(xlo,xhi) << "  error " << err2 << endl;*/
-
-  double err, err1,err2,err3 ; 
-  hacoplanarity_data->IntegralAndError(xlo,xhi,err);
-  cout << "Data Integral:   "  << hacoplanarity_data->Integral(xlo,xhi) << "  error " << err << endl;
-  hacoplanarity_lbyl->IntegralAndError(xlo,xhi,err1);
-  cout << "Light by light Integral:   "  << hacoplanarity_lbyl->Integral(xlo,xhi) << "  error " << err1 << endl;
-  hacoplanarity_cep->IntegralAndError(xlo,xhi,err3);
-  cout << "cep Integral:   "  << hacoplanarity_cep->Integral(xlo,xhi) << "  error " << err3 << endl;
-  hacoplanarity_qed->IntegralAndError(xlo,xhi,err2);
-  cout << "qed Integral:   "  << hacoplanarity_qed->Integral(xlo,xhi) << "  error " << err2 << endl;
-
-  outf->cd();
-  hinvmass_data->Write();
-  hinvmass_lbyl->Write();
-  hinvmass_qed->Write();
-  hinvmass_cep->Write();
-
-  hdiphoton_pt_data->Write();
-  hdiphoton_pt_lbyl->Write();
-  hdiphoton_pt_qed->Write();
-  hdiphoton_pt_cep->Write();
-
-  hdiphoton_rapidity_data->Write();
-  hdiphoton_rapidity_lbyl->Write();
-  hdiphoton_rapidity_qed->Write();
-  hdiphoton_rapidity_cep->Write();
-
-  hacoplanarity_data->Write();
-  hacoplanarity_lbyl->Write();
-  hacoplanarity_qed->Write();
-  hacoplanarity_cep->Write();
- 
-
- 
+  c1->Update();
+  TString cName=c1->GetName();
+  cName+=".png";
+  //c1->SaveAs("figures_photos_qedScaleTail/"+cName);
+  //c1->SaveAs("figures_photos/"+cName);
+  TString c2Name=c1->GetName();
+  c2Name+=".pdf";
+  //c1->SaveAs("figures_photos_qedScaleTail/"+c2Name);
+  //c1->SaveAs("figures_photos/"+c2Name);
+  return c1;
 }
+  
+
+void make_canvas(TCanvas *& canvas){
+
+  int W = 600;
+  int H = 670;
+  float T = 0.08;
+  float B = 0.14; 
+  float L = 0.18;
+  float R = 0.04;
+
+  canvas->SetFillColor(0);
+  canvas->SetBorderMode(0);
+  canvas->SetFrameFillStyle(0);
+  canvas->SetFrameBorderMode(0);
+  canvas->SetLeftMargin( L );
+  canvas->SetRightMargin( R );
+  canvas->SetTopMargin( T );
+  canvas->SetBottomMargin( B );
+  canvas->SetTickx(0);
+  canvas->SetTicky(0);
+}
+
+void make_canvas_ratio(TCanvas *& can){
+
+  int W = 700;
+  int H = 600;
+  float T = 0.08;
+  float B = 0.14; 
+  float L = 0.14;
+  float R = 0.04;
+
+  can->SetFillColor(0);
+  can->SetBorderMode(0);
+  can->SetFrameFillStyle(0);
+  can->SetFrameBorderMode(0);
+  can->SetLeftMargin( L );
+  can->SetRightMargin( R );
+  can->SetTopMargin( T );
+  can->SetBottomMargin( B );
+  can->SetTickx(0);
+  can->SetTicky(0);
+}
+
 
 void make_hist(TH1D *& hist, Color_t kcolor, int kstyle){
   // For the axis labels:
@@ -803,25 +533,27 @@ void make_hist(TH1D *& hist, Color_t kcolor, int kstyle){
   hist->SetLabelSize(0.05, "XYZ");
  
   hist->SetMarkerColor(kcolor);
-  hist->SetMarkerSize(1.5);
+  hist->SetFillColor(kcolor);
+  hist->SetLineColor(kBlack);
+  hist->SetMarkerStyle(kstyle);
+ 
+}
+
+void make_hist_ratio(TH1D *& hist, Color_t kcolor, int kstyle){
+  // For the axis labels:
+  hist->SetLabelColor(1, "XYZ");
+  hist->SetLabelFont(42, "XYZ");
+  hist->SetLabelOffset(0.007, "XYZ");
+  hist->SetLabelSize(0.1, "XYZ");
+
+  // For the axis titles:
+  hist->SetTitleFont(42, "XYZ");
+  hist->SetTitleSize(0.11, "XYZ");
+  hist->GetXaxis()->SetTitleOffset(1.1);
+  hist->GetYaxis()->SetTitleOffset(0.4);
+  hist->SetMarkerColor(kcolor);
   hist->SetFillColor(kcolor);
   hist->SetMarkerStyle(kstyle);
-  
-  //hist->SetTitle("");
+ 
 }
 
-void BinLogX(TH1* h){
-  TAxis *axis = h->GetXaxis();
-  int bins = axis->GetNbins();
-
-  Axis_t from = axis->GetXmin();
-  Axis_t to = axis->GetXmax();
-  Axis_t width = (to - from) / bins;
-  Axis_t *new_bins = new Axis_t[bins + 1];
-
-  for (int i = 0; i <= bins; i++){
-    new_bins[i] = TMath::Power(10, from + i * width);
-  }
-  axis->Set(bins, new_bins);
-  delete new_bins;
-}
