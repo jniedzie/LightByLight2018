@@ -155,6 +155,8 @@ void addSFs_QEDMC(){
       if(qedR.vSum_Pt > 2) continue; //diele pt
       if(abs(qedR.eleEta_1) > 2.2) continue;
       if(abs(qedR.eleEta_2) > 2.2) continue;
+      if(qedR.elePt_1 < 2.5) continue;
+      if(qedR.elePt_2 < 2.5) continue;
 
       ok_acop = qedR.ele_acop < 0.01 ;
 

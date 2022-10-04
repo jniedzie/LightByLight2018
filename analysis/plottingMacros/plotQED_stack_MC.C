@@ -21,10 +21,13 @@
 #include "TChain.h"
 //#include "../eta2p2/CMS_lumi.C"
 
-const double LumiLossHotZDCneg = 0.047433369; // 1034./21799 from QED number LbyL 5Aug 2022 slides
-//const double LumiLossHotZDCneg = 0; // 1034./21799 from QED number LbyL 5Aug 2022 slides
+//const double LumiLossHotZDCneg = 0.047433369; // 1034./21799 from QED number LbyL 5Aug 2022 slides
+const double LumiLossHotZDCneg = 0;
 
-
+//const double luminosity       = 1635.123139823; // μb^-1
+//const double luminosity       = 1639.207543; // μb^-1
+const double luminosity       = 1647.228136; // μb^-1 from Gabi Feb 13, 2022
+//const double luminosity       = 1561.948136; // μb^-1 from Gabi Aug, 2022, removing ZDC neg hot region 85.28 mub
 
 const int nSample = 5;
 const char *sample[nSample]={"Data","QEDSCFSR","QEDSL","QEDMG5FSROnePhton","QEDMG5FSRTwoPhton"};
@@ -35,14 +38,8 @@ void make_canvas_ratio(TCanvas *&);
 void make_hist(TH1D *&, Color_t , int );
 void make_hist_ratio(TH1D *&,Color_t, int) ;
 
-//const double luminosity       = 1635.123139823; // μb^-1
-//const double luminosity       = 1639.207543; // μb^-1
-const double luminosity       = 1647.228136; // μb^-1 //update from Gabi on 12 Feb 2022
 const double nEventsGeneratedSL = 66750000; // older number with less files 63398400; //starlight
 const double xsecGeneratedSL    = 7920; // μb, starlight
-
-//const double zdcFraction       = 0.838; 
-const double zdcFraction       = 1; 
 
 //const double nEventsGeneratedSC = 67810000; //Superchic
 const double nEventsGeneratedSC = 59260000;//Superchic + photos
@@ -84,7 +81,7 @@ double SFReco(double et, double eta);
 double SFReco_uncert(double et, double eta);
 double SFTrig(double et, double eta);
 
-TCanvas* PlotHistsAndRatio(TCanvas* , TH1D* , TH1D*, TH1D*, TH1D*, double , double , double , double , double , double , const char *, bool); 
+TCanvas* PlotHistsAndRatio(TCanvas* , TH1D* , TH1D*, TH1D*, TH1D*, TH1D*, double , double , double , double , double , double , const char *, bool); 
 TH1D* SFuncert(TTree *tr, const char* name, const char* var, const char* cut, int nbins, double binmin, double binmax);
 
 void drawText(const char *text, float xp, float yp, int size){
@@ -98,7 +95,7 @@ void drawText(const char *text, float xp, float yp, int size){
 }
 
 
-void plotQED_doReweighting_MC(){
+void plotQED_stack_MC(){
  
   //gROOT->LoadMacro("CMS_lumi.C");
   bool outOfFrame    = false;
@@ -163,15 +160,16 @@ void plotQED_doReweighting_MC(){
       if(qedR.vSum_Pt > 2) continue; //diele pt
       if(abs(qedR.eleEta_1) > 2.2) continue;
       if(abs(qedR.eleEta_2) > 2.2) continue;
+      if(qedR.elePt_1 < 2.5) continue;
+      if(qedR.elePt_2 < 2.5) continue;
+
 
      // float acoSF = getAcoBinSF(qedR.ele_acop); 
       float acoSF = 1; 
       //if(i==0 && qedR.ok_zdcexcl_4n_pos == 1 && qedR.ok_zdcexcl_4n_neg == 1) hAcop[i]->Fill(qedR.ele_acop,acoSF);
-      //if(i==0 && qedR.ok_zdcexcl_4n_pos == 1 ) hAcop[i]->Fill(qedR.ele_acop,acoSF);
-      //if(i==0 && qedR.zdc_energy_pos < 10000 && (qedR.zdc_energy_neg < 10000 || qedR.zdc_energy_neg > 750000 ) ) hAcop[i]->Fill(qedR.ele_acop,acoSF);      
-      //if(i==0 && qedR.zdc_energy_pos < 10000 && qedR.zdc_energy_neg > 750000 ) hAcop[i]->Fill(qedR.ele_acop,acoSF);
-      
-      if(i==0 && qedR.zdc_energy_pos < 10000 && qedR.zdc_energy_neg < 10000 ) hAcop[i]->Fill(qedR.ele_acop,acoSF);
+      //if(i==0 && qedR.zdc_energy_pos < 10000 && qedR.zdc_energy_neg < 10000 ) hAcop[i]->Fill(qedR.ele_acop,acoSF);
+        if(i==0 ) hAcop[i]->Fill(qedR.ele_acop,acoSF); 
+        //if(i==0 && qedR.ok_zdcexcl == 1 ) hAcop[i]->Fill(qedR.ele_acop,acoSF); //bad ZDC negative runs removed in ok_zdcexcl variable
             
      // if(i==0) hAcop[i]->Fill(qedR.ele_acop,acoSF);
       if(i>0) 	hAcop[i]->Fill(qedR.ele_acop,wt[i]);
@@ -183,9 +181,8 @@ void plotQED_doReweighting_MC(){
       
       if(i==0){
         //if(qedR.ok_zdcexcl_4n_pos == 1 && qedR.ok_zdcexcl_4n_neg == 1){
-        //if(qedR.zdc_energy_pos < 10000 && (qedR.zdc_energy_neg < 10000 || qedR.zdc_energy_neg > 750000) ){
-        //if(qedR.zdc_energy_pos < 10000 && qedR.zdc_energy_neg > 750000){
-        if(qedR.zdc_energy_pos < 10000 && qedR.zdc_energy_neg < 10000 ){
+        //if(qedR.zdc_energy_pos < 10000 && qedR.zdc_energy_neg < 10000 ){
+        //if(qedR.ok_zdcexcl == 1 ){ //bad ZDC negative runs removed in ok_zdcexcl variable
 
 
 	//cout << "Entry:" << jentry << "  " << qedR.ele_acop << "   " << acoSF << endl;
@@ -204,7 +201,7 @@ void plotQED_doReweighting_MC(){
 	hCosThetaStar[i]->Fill(abs(qedR.costhetastar),acoSF);
 	hZDCPos[i]->Fill(qedR.zdc_energy_pos,acoSF);
 	hZDCNeg[i]->Fill(qedR.zdc_energy_neg,acoSF);
-       } //zdc cut
+       //} //zdc cut
       }
       
     } //entry
@@ -252,44 +249,35 @@ void plotQED_doReweighting_MC(){
     
 
 
-  
-   int W = 700;
-   int H = 600;
-
-   float T = 0.08;
-   float B = 0.14;
-   float L = 0.14;
-   float R = 0.04;
-
   TCanvas* cc1 = new TCanvas("Sum_pt","dielectron pT",254,411,639,592);
   make_canvas(cc1);
-  PlotHistsAndRatio(cc1, hSumPt[0], hSumPt[1], hSumPt[3],hSumPt[4], 0.0,2.0,0.1,8000,0.5,2.0,"Dielectron p_{T}", 1);
+  PlotHistsAndRatio(cc1, hSumPt[0], hSumPt[1],hSumPt[2], hSumPt[3],hSumPt[4], 0.0,2.0,0.1,8000,0.5,2.0,"Dielectron p_{T}", 1);
 
 
 
   TCanvas* c3 = new TCanvas("Rapidity","Rapidity",254,411,639,592);
   make_canvas(c3);
-  PlotHistsAndRatio(c3, hRap[0], hRap[1], hRap[3], hRap[4],-3,3,0,7000,0.7,1.3,"Rapidity", 0);
+  PlotHistsAndRatio(c3, hRap[0], hRap[1],hRap[2], hRap[3], hRap[4],-3,3,0,7000,0.7,1.3,"Rapidity", 0);
 
   TCanvas* c4 = new TCanvas("Electron_pt","Electron pT",254,411,639,592);
   make_canvas(c4);
-  PlotHistsAndRatio(c4, hElePt1[0], hElePt1[1], hElePt1[3], hElePt1[4], 0,50,0.1,40000,0.1,1.8,"Electron p_{T}", 1);
+  PlotHistsAndRatio(c4, hElePt1[0], hElePt1[1],hElePt1[2], hElePt1[3], hElePt1[4], 0,50,0.1,40000,0.1,1.8,"Electron p_{T}", 1);
 
   TCanvas* c5 = new TCanvas("Electron_eta","Electron eta",254,411,639,592);
   make_canvas(c5);
-  PlotHistsAndRatio(c5, hEleEta1[0], hEleEta1[1], hEleEta1[3], hEleEta1[4], -3,3,0,7000,0.7,1.3,"Electron #eta", 0);
+  PlotHistsAndRatio(c5, hEleEta1[0], hEleEta1[1],hEleEta1[2], hEleEta1[3], hEleEta1[4], -3,3,0,7000,0.7,1.3,"Electron #eta", 0);
 
   TCanvas* c6 = new TCanvas("Electron_phi","Electron phi",254,411,639,592);
   make_canvas(c6);
-  PlotHistsAndRatio(c6, hElePhi1[0], hElePhi1[1], hElePhi1[3],hElePhi1[4], -4,4,0,7000,0.7,1.3,"Electron #phi", 0);
+  PlotHistsAndRatio(c6, hElePhi1[0], hElePhi1[1],hElePhi1[2], hElePhi1[3],hElePhi1[4], -4,4,0,7000,0.7,1.3,"Electron #phi", 0);
 
   TCanvas* c2 = new TCanvas("Inv_mass","Invmass",254,411,639,592);
   make_canvas(c2);
-  PlotHistsAndRatio(c2, hInvmass[0], hInvmass[1], hInvmass[3],hInvmass[4], 0,120,0.1,20000,0.6,1.4,"Invariant Mass", 1);
+  PlotHistsAndRatio(c2, hInvmass[0], hInvmass[1],hInvmass[2], hInvmass[3],hInvmass[4], 0,120,0.1,20000,0.6,1.4,"Invariant Mass", 1);
   
   TCanvas* c7 = new TCanvas("Acoplanarity","Acoplanarity",254,411,639,592);
   make_canvas(c7);
-  PlotHistsAndRatio(c7, hAcop[0], hAcop[1], hAcop[3], hAcop[4], 0,0.1,0.01,100000,0.7,1.3,"A_{#phi}", 1);
+  PlotHistsAndRatio(c7, hAcop[0], hAcop[1],hAcop[2], hAcop[3], hAcop[4], 0,0.06,0.01,100000,0.7,1.3,"A_{#phi}", 1);
 
  new TCanvas();
  make_hist(hZDCPos[0], kBlack, 20);
@@ -299,20 +287,16 @@ void plotQED_doReweighting_MC(){
   make_hist(hZDCNeg[0], kBlack, 20);
   hZDCNeg[0]->Draw("p");
 
-  cout << "count for acop < 0.01 = " << sample[0] <<  " :" << hAcop[0]->Integral(1,10) << endl;  
-  cout << "count for acop < 0.01 = " <<  sample[1] << " :" << hAcop[1]->Integral(1,10) << endl;  
-  cout << "count for acop < 0.01 = " <<  sample[2] << " :" << hAcop[2]->Integral(1,10) << endl;  
-  cout << "count for acop < 0.01 = " <<  sample[3] << " :" << hAcop[3]->Integral(1,10) << endl;  
-  cout << "count for acop < 0.01 = " <<  sample[4] << " :" << hAcop[4]->Integral(1,10) << endl;  
-
-
+  for (int i = 0; i < nSample; i++){
+  cout << " Acop < 0.01 " << sample[i] <<  " :" << hAcop[i]->Integral(1,10) << endl;  
+ }
 
   
 }
 
 
 
-TCanvas* PlotHistsAndRatio(TCanvas* c1, TH1D* hdata, TH1D* hmc, TH1D* hmc2, TH1D* hmc3, double hxmin, double hxmax, double hymin, double hymax, double rymin , double rymax, const char *ytitle, bool iflogy){
+TCanvas* PlotHistsAndRatio(TCanvas* c1, TH1D* hdata, TH1D* hmc, TH1D* hmc_SL, TH1D* hmc2, TH1D* hmc3, double hxmin, double hxmax, double hymin, double hymax, double rymin , double rymax, const char *ytitle, bool iflogy){
   
   float T = 0.08;
   float B = 0.14; 
@@ -359,13 +343,18 @@ TCanvas* PlotHistsAndRatio(TCanvas* c1, TH1D* hdata, TH1D* hmc, TH1D* hmc2, TH1D
   hs->SetMinimum(hymin);
 
   make_hist(hmc3, 30, 21);
-  //hs->Add(hmc3);
+  hs->Add(hmc3);
 
-  make_hist(hmc2, kRed, 21);
-  //hs->Add(hmc2);
+  make_hist(hmc2, kYellow, 21);
+  hs->Add(hmc2);
 
   make_hist(hmc, kBlue, 21);
+  hmc->SetFillColorAlpha(kBlue,0.464);
   hs->Add(hmc);
+  
+  //make_hist(hmc_SL, kRed, 21);
+  //hmc_SL->SetFillColorAlpha(kRed,0.464);
+  //hs->Add(hmc_SL);
 
 
   //hs->SetTitle("# events");
@@ -405,8 +394,8 @@ TCanvas* PlotHistsAndRatio(TCanvas* c1, TH1D* hdata, TH1D* hmc, TH1D* hmc2, TH1D
   hdata->GetYaxis()->SetTitle("Events");
   hdata->SetMarkerColor(kBlack);
   hdata->SetLineColor(kBlack);
-  hdata->SetMarkerStyle(23);
-  hdata->Draw("psame");
+  hdata->SetMarkerStyle(20);
+  hdata->Draw("EP SAME");
 
  // CMS_lumi( pad1, 104, 33,lumi_PbPb2018 );
 
@@ -419,9 +408,9 @@ TCanvas* PlotHistsAndRatio(TCanvas* c1, TH1D* hdata, TH1D* hmc, TH1D* hmc2, TH1D
   leg2->SetTextSize(20);
   leg2->AddEntry(hdata,"Data ","pl");
   leg2->AddEntry(hmc,"Superchic + Photos","f");
-  //leg2->AddEntry(hmc,"Starlight","f");
-  //leg2->AddEntry(hmc2,"MG5 1 FSR","f");
-  //leg2->AddEntry(hmc3,"MG5 2 FSR","f");
+  //leg2->AddEntry(hmc_SL,"Starlight","f");
+  leg2->AddEntry(hmc2,"MG5 1 FSR","f");
+  leg2->AddEntry(hmc3,"MG5 2 FSR","f");
   
   leg2->Draw();
   
@@ -465,11 +454,11 @@ TCanvas* PlotHistsAndRatio(TCanvas* c1, TH1D* hdata, TH1D* hmc, TH1D* hmc2, TH1D
   c1->Update();
   TString cName=c1->GetName();
   cName+=".png";
-  c1->SaveAs("figures/stack_SCPhotos_LumiLossHotZDCneg/"+cName);
+  c1->SaveAs("figures/stack_SCPhotos_MG5FSR_ElePt2p5_noZDCCut/"+cName);
 
   TString c2Name=c1->GetName();
   c2Name+=".pdf";
-  c1->SaveAs("figures/stack_SCPhotos_LumiLossHotZDCneg/"+c2Name);
+  c1->SaveAs("figures/stack_SCPhotos_MG5FSR_ElePt2p5_noZDCCut/"+c2Name);
   return c1;
 }
 
@@ -555,7 +544,7 @@ void make_hist_ratio(TH1D *& hist, Color_t kcolor, int kstyle){
 
 TH1D* SFuncert(TTree *tr, const char* name, const char* var, const char* cut, int nbins, double binmin, double binmax) {
 
-   bool dorew  =1;
+   bool dorew  =0;
    TH1D *hvari[7];
    for (int ibin=0; ibin<7; ibin++) {
       TString namei = Form("Reco%s_%d",name,ibin);
