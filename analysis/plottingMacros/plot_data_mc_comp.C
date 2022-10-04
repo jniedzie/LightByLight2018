@@ -302,7 +302,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
  
  //(TCanvas* c1, TH1D* hdata, TH1D* hmc, TH1D* hmc2, double hxmin, double hxmax, double hymin, double hymax, double rymin , double rymax, const char *ytitle, bool iflogy)
  
-  TCanvas* cc1 = new TCanvas("Sum_pt","diphoton pT",254,411,639,592);
+/*  TCanvas* cc1 = new TCanvas("Sum_pt","diphoton pT",254,411,639,592);
   make_canvas(cc1);
   PlotStackHists(cc1, hdipho_pt[0], hdipho_pt[1], hdipho_pt[2], hdipho_pt[4], hdipho_pt[5], 0.0,2.0,0,30,0.7,1.8,"Diphoton p_{T}", 0);
 
@@ -330,14 +330,26 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
   make_canvas(c7);
   PlotStackHists(c7, hAcoplanarity[0], hAcoplanarity[1], hAcoplanarity[2], hAcoplanarity[4], hAcoplanarity[5], 0,0.16,0,30,0.,2.5,"A_{#phi}", 0);
 
-//  PlotStackHists(c7, hAcoplanarity[0], hAcoplanarity[1], hAcoplanarity[2], hAcoplanarity[3], hAcoplanarity[5], hAcoplanarity[6], hAcoplanarity[7], 0,0.16,0,25,0.,2.5,"A_{#phi}", 0);
- 
+//  PlotStackHists(c7, hAcoplanarity[0], hAcoplanarity[1], hAcoplanarity[2], hAcoplanarity[3], hAcoplanarity[5], hAcoplanarity[6], hAcoplanarity[7], 0,0.16,0,25,0.,2.5,"A_{#phi}", 0);*/
+
+
+  TLegend *leg2=new TLegend(0.55,0.60,0.90,0.91);
+  leg2->SetFillColor(0);
+  leg2->SetBorderSize(0);
+  leg2->SetFillStyle(0);
+  leg2->SetTextFont(43);
+  leg2->SetTextSize(20); 
+  leg2->AddEntry(hAcoplanarity[4],"CEP Incoh (gg #rightarrow #gamma #gamma)","pl");
+  leg2->AddEntry(hAcoplanarity[3],"CEP coh (gg #rightarrow #gamma #gamma)","pl");
+   
  new TCanvas();
  make_hist(hAcoplanarity[4], kAzure+1, 21);
+ hAcoplanarity[4]->GetXaxis()->SetTitle("Acop");//,"dN/dp_{T}^{2} (1/GeV)^{2} 
+ hAcoplanarity[4]->GetYaxis()->SetTitle("# events");
  hAcoplanarity[4]->Draw("p");  
  make_hist(hAcoplanarity[3], kOrange, 21);
  hAcoplanarity[3]->Draw("psame");  
- 
+ leg2->Draw();
  
   for (int i = 0; i < nSample; i++){
   cout << " Acop < 0.01 " << sample[i] <<  " :" << hAcoplanarity[i]->Integral(1,2) << endl;  
@@ -417,7 +429,7 @@ TCanvas* PlotStackHists(TCanvas* c1, TH1D* hdata, TH1D* hlbyl, TH1D* hqed, TH1D*
   //hMG5->SetLineColor(kBlue);
   //hMG5->Draw("psame");
   
-  TLegend *leg2=new TLegend(0.55,0.60,0.90,0.91);
+   TLegend *leg2=new TLegend(0.55,0.60,0.90,0.91);
   leg2->SetFillColor(0);
   leg2->SetBorderSize(0);
   leg2->SetFillStyle(0);
@@ -429,8 +441,7 @@ TCanvas* PlotStackHists(TCanvas* c1, TH1D* hdata, TH1D* hlbyl, TH1D* hqed, TH1D*
   //leg2->AddEntry(hqed,"QED #gamma #gamma #rightarrow e^{+}e^{-} (without FSR)","f");
   leg2->AddEntry(hfsr,"QED SC +Photos","f");
   //leg2->AddEntry(hMG5,"QED Madgraph 1 FSR","f");
-  //leg2->AddEntry(hMG5_2FSR,"QED Madgraph 2 FSR","f");
-  
+  //leg2->AddEntry(hMG5_2FSR,"QED Madgraph 2 FSR","f"); 
   leg2->Draw();
   
 
