@@ -52,11 +52,12 @@ const double xsecGeneratedSC    = 8827.220; // μb
 const double purity = 0.96; 
 
 //estimate superchic QED normalisation factors
-double scaleFactorsSC = 0.85 *  // NEE    21.12.2021
-                        0.93 *      // CHE  21.12.2021
-                        pow(0.976, 2)* // electron reco+ID 21.12.2021
-                        0.866 *      // HF veto
-                       1.008;       // L1 EG trigger
+double scaleFactorsSC = 0.85 *  // NEE    31.12.2021
+                        0.93 *      // CHE  31.12.2021
+                        pow(0.952, 2)* // electron reco+ID 05 Oct 2022 from singleEG3 only
+                        1.008 *       // L1 EG trigger 05 Oct 2022 from singleEG5 only
+                        0.866;  // HF veto
+
                        
 double lumiNormSC = xsecGeneratedSC*luminosity*scaleFactorsSC*(1-LumiLossHotZDCneg)/nEventsGeneratedSC;
 const double nEventsGeneratedSCFSR = 59260000; //photos superchic from oliver
@@ -302,7 +303,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
  
  //(TCanvas* c1, TH1D* hdata, TH1D* hmc, TH1D* hmc2, double hxmin, double hxmax, double hymin, double hymax, double rymin , double rymax, const char *ytitle, bool iflogy)
  
-/*  TCanvas* cc1 = new TCanvas("Sum_pt","diphoton pT",254,411,639,592);
+  TCanvas* cc1 = new TCanvas("Sum_pt","diphoton pT",254,411,639,592);
   make_canvas(cc1);
   PlotStackHists(cc1, hdipho_pt[0], hdipho_pt[1], hdipho_pt[2], hdipho_pt[4], hdipho_pt[5], 0.0,2.0,0,30,0.7,1.8,"Diphoton p_{T}", 0);
 

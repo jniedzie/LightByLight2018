@@ -47,15 +47,15 @@ const double xsecGeneratedSC    = 8827.220; // μb
 
 double scaleFactorsSC = 0.85 *  // NEE    31.12.2021
                         0.93 *      // CHE  31.12.2021
-                        //pow(0.976, 2)* // electron reco+ID 31.12.2021
-                        //1.037 *       // L1 EG trigger
+                        pow(0.952, 2)* // electron reco+ID 05 Oct 2022 from singleEG3 only
+                        1.008 *       // L1 EG trigger 05 Oct 2022 from singleEG5 only
                         0.866;  // HF veto
 
 
 double scaleFactorsSL = 0.85 *  // NEE    31.12.2021
                         0.93 *      // CHE  31.12.2021
-                        //pow(0.976, 2)* // electron reco+ID 31.12.2021
-                        //1.037 *       // L1 EG trigger
+                        pow(0.952, 2)* // electron reco+ID 05 Oct 2022 from singleEG3 only
+                        1.008 *       // L1 EG trigger 05 Oct 2022 from singleEG5 only
                         0.866;  // HF veto
 
 
@@ -168,10 +168,10 @@ void plotQED_stack_MC(){
       float acoSF = 1; 
       //if(i==0 && qedR.ok_zdcexcl_4n_pos == 1 && qedR.ok_zdcexcl_4n_neg == 1) hAcop[i]->Fill(qedR.ele_acop,acoSF);
       //if(i==0 && qedR.zdc_energy_pos < 10000 && qedR.zdc_energy_neg < 10000 ) hAcop[i]->Fill(qedR.ele_acop,acoSF);
-        if(i==0 ) hAcop[i]->Fill(qedR.ele_acop,acoSF); 
+        //if(i==0 ) hAcop[i]->Fill(qedR.ele_acop,acoSF); 
         //if(i==0 && qedR.ok_zdcexcl == 1 ) hAcop[i]->Fill(qedR.ele_acop,acoSF); //bad ZDC negative runs removed in ok_zdcexcl variable
             
-     // if(i==0) hAcop[i]->Fill(qedR.ele_acop,acoSF);
+      if(i==0) hAcop[i]->Fill(qedR.ele_acop,acoSF);
       if(i>0) 	hAcop[i]->Fill(qedR.ele_acop,wt[i]);
 
 
@@ -201,7 +201,7 @@ void plotQED_stack_MC(){
 	hCosThetaStar[i]->Fill(abs(qedR.costhetastar),acoSF);
 	hZDCPos[i]->Fill(qedR.zdc_energy_pos,acoSF);
 	hZDCNeg[i]->Fill(qedR.zdc_energy_neg,acoSF);
-       //} //zdc cut
+      // } //zdc cut
       }
       
     } //entry
@@ -454,11 +454,11 @@ TCanvas* PlotHistsAndRatio(TCanvas* c1, TH1D* hdata, TH1D* hmc, TH1D* hmc_SL, TH
   c1->Update();
   TString cName=c1->GetName();
   cName+=".png";
-  c1->SaveAs("figures/stack_SCPhotos_MG5FSR_ElePt2p5_noZDCCut/"+cName);
+  c1->SaveAs("figures/stack_SCPhotos_MG5FSR_ElePt2p5_IntSF/"+cName);
 
   TString c2Name=c1->GetName();
   c2Name+=".pdf";
-  c1->SaveAs("figures/stack_SCPhotos_MG5FSR_ElePt2p5_noZDCCut/"+c2Name);
+  c1->SaveAs("figures/stack_SCPhotos_MG5FSR_ElePt2p5_IntSF/"+c2Name);
   return c1;
 }
 

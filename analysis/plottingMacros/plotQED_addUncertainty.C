@@ -48,15 +48,15 @@ const double xsecGeneratedSC    = 8827.220; // μb
 
 double scaleFactorsSC = 0.85 *  // NEE    31.12.2021
                         0.93 *      // CHE  31.12.2021
-                        //pow(0.976, 2)* // electron reco+ID 31.12.2021
-                        //1.037 *       // L1 EG trigger
+                        pow(0.952, 2)* // electron reco+ID 05 Oct 2022 from singleEG3 only
+                        1.008 *       // L1 EG trigger 05 Oct 2022 from singleEG5 only
                         0.866;  // HF veto
 
 
 double scaleFactorsSL = 0.85 *  // NEE    31.12.2021
                         0.93 *      // CHE  31.12.2021
-                        //pow(0.976, 2)* // electron reco+ID 31.12.2021
-                        //1.037 *       // L1 EG trigger
+                        pow(0.952, 2)* // electron reco+ID 05 Oct 2022 from singleEG3 only
+                        1.008 *       // L1 EG trigger 05 Oct 2022 from singleEG5 only
                         0.866;  // HF veto
 
 
