@@ -27,8 +27,8 @@ const double LumiLossHotZDCneg = 0;
 
 //const double luminosity       = 1635.123139823; // μb^-1
 //const double luminosity       = 1639.207543; // μb^-1
-const double luminosity       = 1647.228136; // μb^-1 from Gabi Feb 13, 2022
-//const double luminosity       = 1561.948136; // μb^-1 from Gabi Aug, 2022, removing ZDC neg hot region 85.28 mub
+//const double luminosity       = 1647.228136; // μb^-1 from Gabi Feb 13, 2022
+const double luminosity       = 1561.948136; // μb^-1 from Gabi Aug, 2022, removing ZDC neg hot region 85.28 mub
 
 const int nSample = 5;
 const char *sample[nSample]={"Data","QEDSCFSR","QEDSL","QEDMG5FSROnePhton","QEDMG5FSRTwoPhton"};
@@ -158,7 +158,7 @@ void plotQED_addUncertainty(){
       if(qedR.ok_neuexcl != 1) continue; //neutral exclusivity
       if(qedR.ok_chexcl_extrk != 1) continue; //charged exclusivity
       if(qedR.vSum_M < 5) continue; //invmass
-      if(qedR.vSum_Pt > 2) continue; //diele pt
+      if(qedR.vSum_Pt > 1) continue; //diele pt
       if(abs(qedR.eleEta_1) > 2.2) continue;
       if(abs(qedR.eleEta_2) > 2.2) continue;
       if(qedR.elePt_1 < 2.5) continue;
@@ -166,25 +166,18 @@ void plotQED_addUncertainty(){
 
      // float acoSF = getAcoBinSF(qedR.ele_acop); 
       float acoSF = 1; 
-      //if(i==0 && qedR.ok_zdcexcl_4n_pos == 1 && qedR.ok_zdcexcl_4n_neg == 1) hAcop[i]->Fill(qedR.ele_acop,acoSF);
-      //if(i==0 && qedR.zdc_energy_pos < 10000 && qedR.zdc_energy_neg < 10000 ) hAcop[i]->Fill(qedR.ele_acop,acoSF);
-        if(i==0 ) hAcop[i]->Fill(qedR.ele_acop,acoSF); 
-        //if(i==0 && qedR.ok_zdcexcl == 1 ) hAcop[i]->Fill(qedR.ele_acop,acoSF); //bad ZDC negative runs removed in ok_zdcexcl variable
+       if(i==0 ){  
+        //if(i==0 && qedR.ok_zdcexcl_4n_pos == 1 && qedR.ok_zdcexcl_4n_neg == 1) 
+        //if(i==0 && qedR.zdc_energy_pos < 10000 && qedR.zdc_energy_neg < 10000 ) 
+        if(qedR.ok_zdcexcl != 1 ) continue;  //bad ZDC negative runs removed in ok_zdcexcl variable
+        }
             
-     // if(i==0) hAcop[i]->Fill(qedR.ele_acop,acoSF);
-      if(i>0) 	hAcop[i]->Fill(qedR.ele_acop,wt[i]);
 
-
-
+      hAcop[i]->Fill(qedR.ele_acop,acoSF); 
+      
       if(qedR.ele_acop > 0.01) continue; //acop
 
-      
-      if(i==0){
-        //if(qedR.ok_zdcexcl_4n_pos == 1 && qedR.ok_zdcexcl_4n_neg == 1){
-        //if(qedR.zdc_energy_pos < 10000 && qedR.zdc_energy_neg < 10000 ){
-        //if(qedR.ok_zdcexcl == 1 ){ //bad ZDC negative runs removed in ok_zdcexcl variable
-
-
+ 
 	//cout << "Entry:" << jentry << "  " << qedR.ele_acop << "   " << acoSF << endl;
 	hElePt1[i]->Fill(qedR.elePt_1,acoSF);
 	hEleEta1[i]->Fill(qedR.eleEta_1,acoSF);
@@ -201,8 +194,6 @@ void plotQED_addUncertainty(){
 	hCosThetaStar[i]->Fill(abs(qedR.costhetastar),acoSF);
 	hZDCPos[i]->Fill(qedR.zdc_energy_pos,acoSF);
 	hZDCNeg[i]->Fill(qedR.zdc_energy_neg,acoSF);
-       //} //zdc cut
-      }
       
     } //entry
   } // for 4 files
@@ -225,18 +216,19 @@ void plotQED_addUncertainty(){
 
   cout << " file is opened: " << sample[i] << endl;
 
+  const TCut acop_cut    = "ele_acop<0.01 && vSum_Pt < 1";
+  
+  hInvmass[i] = SFuncert(tr[i],Form("hInvmass%s",sample[i]),"vSum_M",acop_cut,50,0,100);
+  hSumPt[i]   = SFuncert(tr[i],Form("hSumPt%s",sample[i]),"vSum_Pt",acop_cut,40,0,2);
+  hRap[i]     = SFuncert(tr[i],Form("hRap%s",sample[i]),"vSum_Rapidity",acop_cut,24,-2.4,2.4);
+  hAcop[i]    = SFuncert(tr[i],Form("hAcop%s",sample[i]),"ele_acop","vSum_Pt < 1",100,0,0.1);
 
-  hInvmass[i] = SFuncert(tr[i],Form("hInvmass%s",sample[i]),"vSum_M","ele_acop<0.01",50,0,100);
-  hSumPt[i]   = SFuncert(tr[i],Form("hSumPt%s",sample[i]),"vSum_Pt","ele_acop<0.01",40,0,2);
-  hRap[i]     = SFuncert(tr[i],Form("hRap%s",sample[i]),"vSum_Rapidity","ele_acop<0.01",24,-2.4,2.4);
-  hAcop[i]    = SFuncert(tr[i],Form("hAcop%s",sample[i]),"ele_acop","ele_acop<0.1",100,0,0.1);
-
-  hElePt1[i]   = SFuncert(tr[i],Form("hElePt1%s",sample[i]),"elePt1","ele_acop<0.01",50,0,50);
-  hElePt2[i]   = SFuncert(tr[i],Form("hElePt2%s",sample[i]),"elePt2","ele_acop<0.01",50,0,50);
-  hEleEta1[i]   = SFuncert(tr[i],Form("hEleEta1%s",sample[i]),"eleEta1","ele_acop<0.01",24,-2.4,2.4);
-  hEleEta2[i]   = SFuncert(tr[i],Form("hEleEta2%s",sample[i]),"eleEta2","ele_acop<0.01",24,-2.4,2.4);
-  hElePhi1[i]   = SFuncert(tr[i],Form("hElePhi1%s",sample[i]),"elePhi1","ele_acop<0.01",16,-4,4);
-  hElePhi2[i]   = SFuncert(tr[i],Form("hElePhi2%s",sample[i]),"elePhi2","ele_acop<0.01",16,-4,4);
+  hElePt1[i]   = SFuncert(tr[i],Form("hElePt1%s",sample[i]),"elePt1",acop_cut,50,0,50);
+  hElePt2[i]   = SFuncert(tr[i],Form("hElePt2%s",sample[i]),"elePt2",acop_cut,50,0,50);
+  hEleEta1[i]   = SFuncert(tr[i],Form("hEleEta1%s",sample[i]),"eleEta1",acop_cut,24,-2.4,2.4);
+  hEleEta2[i]   = SFuncert(tr[i],Form("hEleEta2%s",sample[i]),"eleEta2",acop_cut,24,-2.4,2.4);
+  hElePhi1[i]   = SFuncert(tr[i],Form("hElePhi1%s",sample[i]),"elePhi1",acop_cut,16,-4,4);
+  hElePhi2[i]   = SFuncert(tr[i],Form("hElePhi2%s",sample[i]),"elePhi2",acop_cut,16,-4,4);
   
   hInvmass[i]->Scale(wt[i]);    hSumPt[i]->Scale(wt[i]);  hRap[i]->Scale(wt[i]); hAcop[i]->Scale(wt[i]);
   hElePt1[i]->Scale(wt[i]);    hElePt2[i]->Scale(wt[i]); hElePt1[i]->Add(hElePt2[i]);
@@ -266,6 +258,7 @@ void plotQED_addUncertainty(){
    MyCanvas mc2("pt","Dielectron p_{T} (GeV)", "Entries / (0.5 GeV)", W, H);
    mc2.SetLogy(true);
    mc2.SetYRange(0.1,8000);
+   mc2.SetXRange(0,1);
    mc2.SetRatioRange(0.1,1.9);
    mc2.SetLegendPosition(0.6,0.68,0.9,0.85);
    mc2.CanvasWithThreeHistogramsRatioPlot(hSumPt[0],hSumPt[1],hSumPt[2],"Data","Superchic+photos","Starlight","Data/MC",kBlack,kBlue,kRed,kFALSE,kTRUE,kTRUE,"EP","hist SAME", "hist SAME");
@@ -317,6 +310,7 @@ void plotQED_addUncertainty(){
 
   for (int i = 0; i < nSample; i++){
   cout << " Acop < 0.01 " << sample[i] <<  " :" << hAcop[i]->Integral(1,10) << endl;  
+  cout << " sum pt: " << sample[i] <<  " :" << hSumPt[i]->Integral() << endl;  
  }
 
   

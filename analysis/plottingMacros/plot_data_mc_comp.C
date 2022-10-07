@@ -42,8 +42,8 @@ const double LumiLossHotZDCneg = 0;
 
 //const double luminosity       = 1635.123139823; // μb^-1
 //const double luminosity       = 1639.207543; // μb^-1
-const double luminosity       = 1647.228136; // μb^-1 from Gabi Feb 13, 2022
-//const double luminosity       = 1561.948136; // μb^-1 from Gabi Aug, 2022, removing ZDC neg hot region 85.28 mub
+//const double luminosity       = 1647.228136; // μb^-1 from Gabi Feb 13, 2022
+const double luminosity       = 1561.948136; // μb^-1 from Gabi Aug, 2022, removing ZDC neg hot region 85.28 mub
 
 
 
@@ -114,7 +114,7 @@ void BinLogX(TH1* h);
 
 
 void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPIncohNorm){
-   if(CEPNorm) {norm_cep = 1; norm_cepIncoh = 1;}
+   if(CEPNorm) {norm_cep = 1;}
    if(CEPIncohNorm) {norm_cepIncoh = 1;}
    if(QEDNormMG5){lumiNormQEDMG_1FSR = 1;}
   
@@ -123,7 +123,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
   cout << "FSR normalization is:" << lumiNormSC << endl;
  
   TH1::SetDefaultSumw2();
-  gStyle->SetOptStat(0);
+  //gStyle->SetOptStat(1);
 
   string mc_name = "SC";
 
@@ -135,6 +135,9 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
   //// histograms
   TH1D* hpho_pt[nSample], *hpho_eta[nSample], *hpho_phi[nSample], *hpho_pt2[nSample], *hpho_eta2[nSample], *hpho_phi2[nSample]; 
   TH1D* hdipho_pt[nSample], *hdipho_Rapidity[nSample], *hInvmass[nSample], *hAcoplanarity[nSample], *hdipho_cosThetaStar[nSample];
+  TH2D* hpho_EtaPhi[nSample], * hpho_EtaPhi2[nSample];
+  
+
 
   for (int i = 0; i < nSample; i++){
     tree[i] = new TChain("output_tree");
@@ -152,6 +155,9 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
     hdipho_Rapidity[i]   = new TH1D(Form("hdipho_Rapidity%s",sample[i]),"",11,-2.2,2.2);
     hInvmass[i]   = new TH1D(Form("hInvmass%s",sample[i]),"",12,0,50);
     hAcoplanarity[i]   = new TH1D(Form("hAcoplanarity%s",sample[i]),"",20,0,0.1);
+    
+    hpho_EtaPhi[i]    = new TH2D(Form("hpho_EtaPhi%s", sample[i]),"",44,-2.2,2.2,48,-PI,PI);
+    hpho_EtaPhi2[i]   = new TH2D(Form("hpho_EtaPhi2%s", sample[i]),"",44,-2.2,2.2,48,-PI,PI);
 
 
     hdipho_cosThetaStar[i]   = new TH1D(Form("hdipho_cosThetaStar%s",sample[i]),"",5,-1,1);
@@ -178,7 +184,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
       if(treeR.ok_neuexcl != 1) continue; //neutral exclusivity
       if(treeR.ok_chexcl_goodtracks != 1 || treeR.ok_chexcl_goodelectrons !=1 ) continue; //charged exclusivity
       if(treeR.vSum_M < 5) continue; //invmass
-      if(treeR.vSum_Pt > 2) continue; //diele pt
+      if(treeR.vSum_Pt > 1) continue; //diphoton pt
       if(abs(treeR.phoEta_1) > 2.2) continue;
       if(abs(treeR.phoEta_2) > 2.2) continue;
       if(treeR.phoEt_1 < 2.5) continue;
@@ -186,11 +192,11 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
       //if(abs(treeR.phoSeedTime_1) > 5) continue;
       //if(abs(treeR.phoSeedTime_2) > 5) continue;
       
-     // if(i==0) {
+      if(i==0) {
       //if(treeR.ok_zdcexcl_4n_pos != 1 || treeR.ok_zdcexcl_4n_neg != 1) continue;
         //if(treeR.zdc_energy_pos > 10000 || treeR.zdc_energy_neg > 10000)continue;
-       //  if(treeR.ok_zdcexcl!= 1) continue; //bad ZDC negative runs removed in ok_zdcexcl variable
-      // }
+         if(treeR.ok_zdcexcl!= 1) continue; //bad ZDC negative runs removed in ok_zdcexcl variable
+       }
   
       //if(i==1)
       //{  if(treeR.ok_trigger!=1) continue; }
@@ -198,9 +204,12 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
 
       hAcoplanarity[i]->Fill(treeR.pho_acop,wt[i]);
 
-
-
-      if(treeR.pho_acop > 0.01) continue; //acop
+      if(treeR.pho_acop > 0.1) {
+	hpho_EtaPhi[i]->Fill(treeR.phoEta_1,treeR.phoPhi_1,wt[i]);
+        hpho_EtaPhi2[i]->Fill(treeR.phoEta_2,treeR.phoPhi_2,wt[i]);
+        }
+        
+      if(treeR.pho_acop >  0.01) continue; //acop
          
       	
 	hpho_pt[i]->Fill(treeR.phoEt_1,wt[i]);
@@ -216,8 +225,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
 	hInvmass[i]->Fill(treeR.vSum_M,wt[i]);
 
 	hdipho_cosThetaStar[i]->Fill(treeR.costhetastar,wt[i]);
-
-      
+	     
     } //entry
   } // for 4 files
   
@@ -225,6 +233,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
     hpho_pt[i]->Add(hpho_pt2[i]);
     hpho_eta[i]->Add(hpho_eta2[i]);
     hpho_phi[i]->Add(hpho_phi2[i]);
+    hpho_EtaPhi[i]->Add(hpho_EtaPhi2[i]);
   }
 
 
@@ -261,7 +270,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
   hdipho_pt[6]->Scale(lumiNormQEDMG_1FSR);   hdipho_Rapidity[6]->Scale(lumiNormQEDMG_1FSR);     hInvmass[6]->Scale(lumiNormQEDMG_1FSR);   
   }
 
-  cout << "CEP integral before normalizing :"<< hAcoplanarity[3]->Integral() << endl;
+
   // Normalizing CEP xsec to tail 
  if(CEPNorm){
   double old_norm = norm_cep;
@@ -276,11 +285,29 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
   hAcoplanarity[3] ->Scale(norm_cep2);   
   hdipho_pt[3]->Scale(norm_cep2);   hdipho_Rapidity[3]->Scale(norm_cep2);     hInvmass[3]->Scale(norm_cep2);   
   }
+
+  // subtract the unphysical grass background from data
   
+ /*TH1D *hAcoplanarity_grass = new TH1D("hAcoplanarity_grass","",20,0,0.1);
+  for (int i = 1; i <= hAcoplanarity_grass->GetNbinsX(); i++){
+     hAcoplanarity_grass->SetBinContent(i,1.248);
+     hAcoplanarity_grass->SetBinError(i,0.181);
+   }
+  hAcoplanarity_grass->Draw("p"); 
+  
+  hAcoplanarity[0]->Add(hAcoplanarity_grass,-1); */
+    
    if(CEPIncohNorm){
   double old_norm = norm_cepIncoh;
   double norm_cep2 = (hAcoplanarity[0]->Integral(5,20) - hAcoplanarity[1]->Integral(5,20) - hAcoplanarity[5]->Integral(5,20) ) / hAcoplanarity[4]->Integral(5,20);
-
+ 
+  std::cout << "------------ Scaling CEP Incoherent to tail -----------------------------------------" << std::endl; 
+    
+  for (int i = 1; i <= hAcoplanarity[0]->GetNbinsX(); i++) std::cout << i << "  " << hAcoplanarity[0]->Integral(i,i)  << std::endl;
+  std::cout << "data   " << hAcoplanarity[0]->Integral(5,20)  << std::endl;
+  std::cout << "LbyL MC   " << hAcoplanarity[1]->Integral(5,20)  << std::endl;
+  std::cout << "QED SC FSR  " << hAcoplanarity[5]->Integral(5,20)  << std::endl;
+  std::cout << "CEP incoh  " << hAcoplanarity[4]->Integral(5,20)  << std::endl;
   std::cout << "new lumi Norm   " << norm_cep2 << std::endl;
   //std::cout << "Scale factor " << norm_cep2/old_norm << std::endl;
 
@@ -288,9 +315,14 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
   hAcoplanarity[4] ->Scale(norm_cep2);   
   hdipho_pt[4]->Scale(norm_cep2);   hdipho_Rapidity[4]->Scale(norm_cep2);     hInvmass[4]->Scale(norm_cep2);   
   }
-  cout << "CEP integral after normalizing :"<< hAcoplanarity[3]->Integral() << endl;
-  
 
+  
+   //add cep coh and Incoh contribution
+  /*hpho_pt[3]->Add(hpho_pt[4]);   hpho_eta[3]->Add(hpho_eta[4]);   hpho_phi[3]->Add(hpho_phi[4]);
+  hdipho_pt[3]->Add(hdipho_pt[4]);   hdipho_Rapidity[3]->Add(hdipho_Rapidity[4]);   hInvmass[3]->Add(hInvmass[4]);
+  hAcoplanarity[3]->Add(hAcoplanarity[4]); */
+  
+  
   /*int W = 700;
   int H = 600;
   
@@ -327,14 +359,17 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
   make_canvas(c6);
   PlotStackHists(c6, hpho_phi[0], hpho_phi[1], hpho_phi[2], hpho_phi[4], hpho_phi[5], -4,4,0,20,0.7,1.3,"Photon #phi", 0);
 
+
+  
   TCanvas* c7 = new TCanvas("Acoplanarity","Acoplanarity",2563,306,777,575);
   make_canvas(c7);
   PlotStackHists(c7, hAcoplanarity[0], hAcoplanarity[1], hAcoplanarity[2], hAcoplanarity[4], hAcoplanarity[5], 0,0.16,0,30,0.,2.5,"A_{#phi}", 0);
 
-//  PlotStackHists(c7, hAcoplanarity[0], hAcoplanarity[1], hAcoplanarity[2], hAcoplanarity[3], hAcoplanarity[5], hAcoplanarity[6], hAcoplanarity[7], 0,0.16,0,25,0.,2.5,"A_{#phi}", 0);*/
-
-
-  TLegend *leg2=new TLegend(0.55,0.60,0.90,0.91);
+  for (int i = 0; i < nSample; i++){
+  cout << " Acop < 0.01 " << sample[i] <<  " :" << hAcoplanarity[i]->Integral(1,2) << endl;  
+ }
+ 
+/*  TLegend *leg2=new TLegend(0.55,0.60,0.90,0.91);
   leg2->SetFillColor(0);
   leg2->SetBorderSize(0);
   leg2->SetFillStyle(0);
@@ -352,11 +387,12 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
  hAcoplanarity[3]->Draw("psame");  
  leg2->Draw();
  
-  for (int i = 0; i < nSample; i++){
-  cout << " Acop < 0.01 " << sample[i] <<  " :" << hAcoplanarity[i]->Integral(1,2) << endl;  
- }
+ new TCanvas();
+ hpho_EtaPhi[0]->Draw("colz");
+ 
+
   
-  
+  */
  //outf->cd();
 // outf->Write();
 // outf->Close();
@@ -420,6 +456,9 @@ TCanvas* PlotStackHists(TCanvas* c1, TH1D* hdata, TH1D* hlbyl, TH1D* hqed, TH1D*
   make_hist(hdata, kBlack, 21);
   hdata->SetLineColor(kBlack);
   hdata->Draw("e1same");
+  
+  //TF1 *flatbckgd = new TF1("flatbckgd","1.25",0,0.1); flatbckgd->Draw("e1same"); //pol0 fit
+  //TF1 *pol1bckgd = new TF1("pol1bckgd","1.49383-0.674854*x",0,0.1); pol1bckgd->Draw("e1same"); //pol1 fit
 
 
   make_hist(hqed, kRed, 21);
@@ -484,10 +523,10 @@ TCanvas* PlotStackHists(TCanvas* c1, TH1D* hdata, TH1D* hlbyl, TH1D* hqed, TH1D*
   c1->Update();
   TString cName=c1->GetName();
   cName+=".png";
-  c1->SaveAs("figures_QEDSCPhotos_CEPIncohScaleTail_photonPt2p5_noZDCCut/"+cName);
+  c1->SaveAs("figures_photonPt2p5_withZDCCut_DiPhoPtCut1_CEPInCohScale/"+cName);
   TString c2Name=c1->GetName();
   c2Name+=".pdf";
-  c1->SaveAs("figures_QEDSCPhotos_CEPIncohScaleTail_photonPt2p5_noZDCCut/"+c2Name);
+  c1->SaveAs("figures_photonPt2p5_withZDCCut_DiPhoPtCut1_CEPInCohScale/"+c2Name);
   return c1;
 }
   
