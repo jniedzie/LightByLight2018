@@ -3,6 +3,10 @@
 
 #include "CMS_lumi.h"
 
+#include <iostream>
+
+using namespace std;
+
 void 
 CMS_lumi( TPad* pad, int iPeriod, int iPosX, TString label )
 {            
@@ -157,43 +161,43 @@ CMS_lumi( TPad* pad, int iPeriod, int iPosX, TString label )
   if( !outOfFrame )
     {
       if( drawLogo )
-  {
-    posX_ =   l + 0.045*(1-l-r)*W/H;
-    posY_ = 1-t - 0.045*(1-t-b);
-    float xl_0 = posX_;
-    float yl_0 = posY_ - 0.15;
-    float xl_1 = posX_ + 0.15*H/W;
-    float yl_1 = posY_;
-    TASImage* CMS_logo = new TASImage("CMS-BW-label.png");
-    TPad* pad_logo = new TPad("logo","logo", xl_0, yl_0, xl_1, yl_1 );
-    pad_logo->Draw();
-    pad_logo->cd();
-    CMS_logo->Draw("X");
-    pad_logo->Modified();
-    pad->cd();
-  }
+	{
+	  posX_ =   l + 0.045*(1-l-r)*W/H;
+	  posY_ = 1-t - 0.045*(1-t-b);
+	  float xl_0 = posX_;
+	  float yl_0 = posY_ - 0.15;
+	  float xl_1 = posX_ + 0.15*H/W;
+	  float yl_1 = posY_;
+	  TASImage* CMS_logo = new TASImage("CMS-BW-label.png");
+	  TPad* pad_logo = new TPad("logo","logo", xl_0, yl_0, xl_1, yl_1 );
+	  pad_logo->Draw();
+	  pad_logo->cd();
+	  CMS_logo->Draw("X");
+	  pad_logo->Modified();
+	  pad->cd();
+	}
       else
-  {
-    latex.SetTextFont(cmsTextFont);
-    latex.SetTextSize(cmsTextSize*t);
-    latex.SetTextAlign(align_);
-    latex.DrawLatex(posX_, posY_, cmsText);
-    if( writeExtraText ) 
-      {
-        latex.SetTextFont(extraTextFont);
-        latex.SetTextAlign(align_);
-        latex.SetTextSize(extraTextSize*t);
-        latex.DrawLatex(posX_, posY_- relExtraDY*cmsTextSize*t, extraText);
-      }
-  }
+	{
+	  latex.SetTextFont(cmsTextFont);
+	  latex.SetTextSize(cmsTextSize*t);
+	  latex.SetTextAlign(align_);
+	  latex.DrawLatex(posX_, posY_, cmsText);
+	  if( writeExtraText ) 
+	    {
+	      latex.SetTextFont(extraTextFont);
+	      latex.SetTextAlign(align_);
+	      latex.SetTextSize(extraTextSize*t);
+	      latex.DrawLatex(posX_, posY_- relExtraDY*cmsTextSize*t, extraText);
+	    }
+	}
     }
   else if( writeExtraText )
     {
       if( iPosX==0) 
-  {
-    posX_ =   l +  relPosX*(1-l-r);
-    posY_ =   1-t+lumiTextOffset*t;
-  }
+	{
+	  posX_ =   l +  relPosX*(1-l-r);
+	  posY_ =   1-t+lumiTextOffset*t;
+	}
       latex.SetTextFont(extraTextFont);
       latex.SetTextSize(extraTextSize*t);
       latex.SetTextAlign(align_);

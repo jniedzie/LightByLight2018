@@ -2,15 +2,16 @@
 
 #configPath="/afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation.md"
 #configPath="/afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation_newThresholds.md"
-configPath="/afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation_newThresholdsEta2p2.md"
+configPath="/afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/configs/efficiencies_eleNoIsolation_newThresholdsEta2p2.md"
 
 inputPath=""
 outputPath=""
 sampleName=""
 
 basePath="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018"
-basePathOutput="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/analysis_ruchi/diphoton_data-MC_plots"
-suffix="_12May22"
+#basePathOutput="/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/analysis_ruchi/diphoton_data-MC_plots"
+basePathOutput="/eos/cms/store/cmst3/group/lightbylight/analysis_jeremi/diphoton_data-MC_plots"
+suffix="_31August22"
 
 if [ $2 -eq 0 ]
 then
@@ -23,8 +24,9 @@ then
   sampleName="QED_SC" # last chunk numer: 255
   #inputPath="${basePath}/skimmed_ntuples/mc_qed_sc_doubleEG2_full_lumi/ntuples_loose_selections_${1}.root"
   #inputPath="${basePath}/skimmed_ntuples/mc_qed_sc_FSR_doubleEG2_full_lumi/merged/merged_ntuples_${1}.root"
-  inputPath="${basePath}/skimmed_ntuples/mc_qedMG5_FSR_doubleEG2_full_lumi/merged/merged_ntuples_${1}.root"
-  outputPath="${basePathOutput}/mc_qedMG5_FSR${suffix}"
+  #inputPath="${basePath}/skimmed_ntuples/mc_qedMG5_FSR_doubleEG2_full_lumi/merged/merged_ntuples_${1}.root"
+  inputPath="${basePath}/skimmed_ntuples/mc_qedMG5_2FSR_doubleEG2_full_lumi/merged/merged_ntuples_${1}.root"
+  outputPath="${basePathOutput}/mc_qedMG5_2FSR${suffix}"
 elif [ $2 -eq 2 ]
 then
   sampleName="QED_SL" # last chunk numer: 253
@@ -102,5 +104,5 @@ then
   echo "File already exists, skipping"
 else
   echo "File doesn't exist or is empty - running"
-  /afs/cern.ch/work/r/rchudasa/private/LightByLight2018/analysis/selectDiphotonEvents $configPath $inputPath $output $sampleName
+  /afs/cern.ch/work/j/jniedzie/private/LightByLight2018/analysis/selectDiphotonEvents $configPath $inputPath $output $sampleName
 fi

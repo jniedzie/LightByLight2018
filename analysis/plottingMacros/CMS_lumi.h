@@ -15,8 +15,8 @@
 TString cmsText     = "CMS";
 float cmsTextFont   = 61;  // default is helvetic-bold
 
-bool writeExtraText = false;//false;
-TString extraText   = "Preliminary";
+bool writeExtraText = true;//false;
+TString extraText   = "";
 float extraTextFont = 52;  // default is helvetica-italics
 
 // text sizes and text offsets with respect to the top frame
@@ -38,7 +38,7 @@ TString lumi_8TeV  = "19.7 fb^{-1}";
 TString lumi_7TeV  = "5.1 fb^{-1}";
 TString lumi_5TeV  = "pPb 34.6 nb^{-1}";
 TString lumi_PbPb2011  = "PbPb 166 #mub^{-1}";
-TString lumi_PbPb2015  = "PbPb 1635 #mub^{-1}";
+TString lumi_PbPb2015  = "PbPb 390 #mub^{-1}";
 TString lumi_pp2013  = "pp 5.4 pb^{-1}";
 TString lumi_pp2015  = "pp [Express 262163-262277]";
 

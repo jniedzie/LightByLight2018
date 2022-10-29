@@ -76,10 +76,11 @@ enum EDataset{
   kMCqedSL,
   kMClbl,
   kMCcep,
+  kMCqedFSR,
   nDatasets
 };
 
-const vector<EDataset> datasets = { kData, kMCqedSC, kMCcep, kMCqedSL, kMClbl };
+const vector<EDataset> datasets = { kData, kMCqedSC, kMCcep, kMCqedSL, kMClbl, kMCqedFSR };
 
 enum class EPhysObjType {
   kGenParticle,
@@ -133,6 +134,7 @@ const map<EDataset, int> datasetColor = {
   {kMCqedSL             , kOrange+2 },
   {kMClbl               , kViolet+2 },
   {kMCcep               , kGreen+2  },
+  {kMCqedFSR            , kMagenta  },
 };
 
 const map<EDataset, string> datasetName = {
@@ -141,6 +143,7 @@ const map<EDataset, string> datasetName = {
   {kMCqedSL             , "QED_SL"  },
   {kMClbl               , "LbL"     },
   {kMCcep               , "CEP"     },
+  {kMCqedFSR            , "QED_FSR" },
 };
 
 const map<EDataset, string> datasetDescription = {
@@ -149,6 +152,7 @@ const map<EDataset, string> datasetDescription = {
   {kMCqedSL             , "QED MC (SL)"   },
   {kMClbl               , "LbL MC"        },
   {kMCcep               , "CEP MC"        },
+  {kMCqedFSR            , "QED MC (FSR)"  },
 };
 
 const map<string, EDataset> datasetForName = {
@@ -157,6 +161,7 @@ const map<string, EDataset> datasetForName = {
   {"QED_SL" , kMCqedSL  },
   {"LbL"    , kMClbl    },
   {"CEP"    , kMCcep    },
+  {"QED_FSR", kMCqedFSR },
 };
 
 inline tuple<double, double, double> GetBeamSpot(EDataset dataset)

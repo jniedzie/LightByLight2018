@@ -1,10 +1,10 @@
-<<<<<<< HEAD
+
 *.swp
-=======
+aco_plotting/*.root
+
 stat_analysis/results/*
 analysis/caloNoiseStudy/*.pdf
 
->>>>>>> Cleanup and update of code
 *.pyc
 crab.log
 */jniedzie.cc

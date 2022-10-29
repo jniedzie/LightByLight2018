@@ -77,6 +77,9 @@ float pho_deta;
 float pho_dphi;
 float pho_acop;
 int ok_neuexcl;
+
+float zdc_energy_pos;
+float zdc_energy_neg;
 int ok_zdcexcl_1n_pos;
 int ok_zdcexcl_1n_neg;
 int ok_zdcexcl_3n_pos;
@@ -160,7 +163,9 @@ void InitTree(TTree *tr) {
   tr->Branch("pho_dphi",            &pho_dphi,        "pho_dphi/F");
   tr->Branch("pho_acop",            &pho_acop,        "pho_acop/F");
   tr->Branch("ok_neuexcl",          &ok_neuexcl,      "ok_neuexcl/I");
-  
+
+  tr->Branch("zdc_energy_pos",             &zdc_energy_pos,         "zdc_energy_pos/F");
+  tr->Branch("zdc_energy_neg",             &zdc_energy_neg,         "zdc_energy_neg/F");  
   tr->Branch("ok_zdcexcl_1n_pos",          &ok_zdcexcl_1n_pos,      "ok_zdcexcl_1n_pos/I");
   tr->Branch("ok_zdcexcl_1n_neg",          &ok_zdcexcl_1n_neg,      "ok_zdcexcl_1n_neg/I");
 
@@ -248,6 +253,8 @@ void ResetVars() {
   pho_dphi = 0;
   pho_acop = 0;
   ok_neuexcl = 0;
+  zdc_energy_pos = 0;
+  zdc_energy_neg = 0;
   ok_zdcexcl_1n_pos = 0;
   ok_zdcexcl_1n_neg = 0;
   ok_zdcexcl_3n_pos = 0;
@@ -384,6 +391,7 @@ int main(int argc, char* argv[])
     nTracks  = genTracks.size();
 
     if(sampleName == "Data"){
+      zdc_energy_pos = event->GetTotalZDCenergyPos(); zdc_energy_neg = event->GetTotalZDCenergyNeg();
       ok_zdcexcl = event->GetTotalZDCenergyPos() < 10000 && event->GetTotalZDCenergyNeg() < 10000;
       ok_zdcexcl_1n_pos = event->GetTotalZDCenergyPos() < 1500;
       ok_zdcexcl_1n_neg = event->GetTotalZDCenergyNeg() < 1500;
@@ -393,7 +401,20 @@ int main(int argc, char* argv[])
       ok_zdcexcl_4n_neg = event->GetTotalZDCenergyNeg() < 10000;
       ok_zdcexcl_5n_pos = event->GetTotalZDCenergyPos() < 12000;
       ok_zdcexcl_5n_neg = event->GetTotalZDCenergyNeg() < 12000;
-
+      
+//      Check that the event is not within a run range where ZDC had issues
+      auto run = event->GetRunNumber();
+      bool ok_zdc_run = (run < 326571) || (run > 326676);
+      
+      ok_zdcexcl &= ok_zdc_run;
+      ok_zdcexcl_1n_pos &= ok_zdc_run;
+      ok_zdcexcl_1n_neg &= ok_zdc_run;
+      ok_zdcexcl_3n_pos &= ok_zdc_run;
+      ok_zdcexcl_3n_neg &= ok_zdc_run;
+      ok_zdcexcl_4n_pos &= ok_zdc_run;
+      ok_zdcexcl_4n_neg &= ok_zdc_run;
+      ok_zdcexcl_5n_pos &= ok_zdc_run;
+      ok_zdcexcl_5n_neg &= ok_zdc_run;
     }
     
     // start filling photon information here ........................................

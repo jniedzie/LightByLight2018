@@ -14,10 +14,10 @@ requirements 	      = (OpSysAndVer =?= "CentOS7")
 
 ## MC SC (1)
 #queue 256
-#queue 120
+queue 162
 
 ## MC SL (2)
 #queue 242
 
 ## MC QED FSR
-queue 104
+#queue 104

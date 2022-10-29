@@ -10,26 +10,27 @@ map<EDataset, string> inputPaths = {
   { kMCqedSC  , "raw_plots_qed_sc.root" },
   { kMCqedSL  , "raw_plots_qed_sl.root" },
   { kMClbl    , "raw_plots_lbl_sc.root" },
+  { kMCqedFSR , "starlight_qed_fsr.root" },
 };
 
 //            name    x label y label logX  logY  xMin    xMax    yMax   rebin
 typedef tuple<string, string, string, bool, bool, double, double, double, int> histParams;
 
 vector<histParams> pairHistParams = {
-// name          x label           y label    logX    logY     xMin    xMax    yMax
-  {"pair_m"     , "m (GeV/c)"     , "Entries", true , true   , 0.0 ,  90.  , 1.0   , 1 },
-  {"pair_pt"    , "p_{T} (GeV/c)" , "Entries", true , false  , 0.001 , 0.4   , 0.2   , 1 },
-  {"pair_pz"    , "p_{z} (GeV/c)" , "Entries", true , true   , 0.0   , 1000  , 1.0   , 1 },
-  {"pair_y"     , "y"             , "Entries", false, false  , -10.0 , 10.0  , 0.09  , 1 },
-  {"pair_aco"   , "A_{#phi}"      , "Entries", true , true   , 0.0   , 1.0   , 0.5   , 1 },
+// name          x label           y label    logX    logY     xMin    xMax    yMax  rebin
+  {"pair_m"     , "m (GeV/c)"     , "Entries", false, true   , 0.0  ,  90.  , 1.0   , 1 },
+  {"pair_pt"    , "p_{T} (GeV/c)" , "Entries", true , false  , 1e-3 , 2.0   , 0.21   , 1 },
+  {"pair_pz"    , "p_{z} (GeV/c)" , "Entries", true , true   , 1e-3 , 1000  , 1.0   , 1 },
+  {"pair_y"     , "y"             , "Entries", false, false  ,-10.0 , 10.0  , 0.11  , 1 },
+  {"pair_aco"   , "A_{#phi}"      , "Entries", false, true   , 0.0  , 1.0   , 0.5   , 1 },
 };
 
 vector<histParams> singleHistParams = {
-// name          x label           y label    logX    logY     xMin    xMax    yMax
+// name          x label           y label    logX    logY     xMin    xMax    yMax  rebin
   {"single_pt"  , "p_{T} (GeV/c)" , "Entries", true , true   , 0.1   , 50    , 0.5   , 5 },
-  {"single_pz"  , "p_{z} (GeV/c)" , "Entries", false, true   , 0.0   , 1000  , 1.0   , 5 },
-  {"single_y"   , "y"             , "Entries", false, false  , -10.0 , 10.0  , 0.04  , 1 },
-  {"single_eta" , "#eta"          , "Entries", false, false  , -10.0 , 10.0  , 0.04  , 1 },
+  {"single_pz"  , "p_{z} (GeV/c)" , "Entries", true , true   , 0.1   , 1000  , 1.0   , 5 },
+  {"single_y"   , "y"             , "Entries", false, false  , -10.0 , 10.0  , 0.06  , 1 },
+  {"single_eta" , "#eta"          , "Entries", false, false  , -10.0 , 10.0  , 0.06  , 1 },
   {"single_phi" , "#phi"          , "Entries", false, false  , -4.0  , -4.0  , 0.02  , 1 },
 };
 
@@ -38,6 +39,12 @@ TH1D* DrawPlot(TFile *inFile, histParams params, int color, bool firstFile)
   auto &[histName, xTitle, yTitle, logX, logY, xMin, xMax, yMax, rebin] = params;
   
   TH1D *hist = (TH1D*)inFile->Get(histName.c_str());
+  
+  if(!hist){
+    cout<<"Histogram \""<<histName<<"\" not found!"<<endl;
+    return nullptr;
+  }
+  
   hist->SetLineColor(color);
   hist->GetXaxis()->SetTitle(xTitle.c_str());
   hist->GetYaxis()->SetTitle(yTitle.c_str());
@@ -49,6 +56,9 @@ TH1D* DrawPlot(TFile *inFile, histParams params, int color, bool firstFile)
   hist->SetMaximum(yMax);
   
   hist->Sumw2(false);
+  
+  hist->GetXaxis()->SetRangeUser(xMin, xMax);
+  
   hist->Draw(firstFile ? "" : "same");
   
   hist->GetXaxis()->SetRangeUser(xMin, xMax);
