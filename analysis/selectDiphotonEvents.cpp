@@ -108,6 +108,12 @@ int   nTracks;
 float costhetastar;
 float cos_photon_pair_helicity0;
 float cos_photon_pair_helicity1;
+///Add Muon , Date:29/10/2022
+int nMu;
+int muCharge;
+float muPt;
+float muEta;
+float muPhi;
 
 
 /// initialise tree
@@ -198,7 +204,14 @@ void InitTree(TTree *tr) {
   tr->Branch("costhetastar",        &costhetastar,        "costhetastar/F");
   tr->Branch("cos_photon_pair_helicity0",     &cos_photon_pair_helicity0,     "cos_photon_pair_helicity0/F");
   tr->Branch("cos_photon_pair_helicity1",     &cos_photon_pair_helicity1,     "cos_photon_pair_helicity1/F");
-
+  ////Muon info, Date:29/10/2022
+  tr->Branch("nMu",                  &nMu,                          "nMu/I");
+  tr->Branch("muCharge",             &muCharge,                     "muCharge/I");
+  tr->Branch("muPt",                 &muPt,                         "muPt/F");
+  tr->Branch("muEta",                &muEta,                        "muEta/F");
+  tr->Branch("muPhi",                &muPhi,                        "muPhi/F");
+/// 
+//
 }
 
 
@@ -281,7 +294,13 @@ void ResetVars() {
   costhetastar = -999;
   cos_photon_pair_helicity0 = -999;
   cos_photon_pair_helicity1 = -999;
-
+  //Add muon, Date:29/10/2022
+  nMu = 0;
+  muCharge = 0;
+  muPt = 999;
+  muEta = 999;
+  muPhi = 999;
+/////////////
 }
 
 
@@ -454,7 +473,12 @@ int main(int argc, char* argv[])
     phoEnergyCrysMax_2 = photon2->GetEnergyCrystalMax();
     phoSeedTime_2      = photon2->GetSeedTime();
     phoSigmaIEta_2     = photon2->GetSigmaEta2012();
+    ///Add Muon info, Date:29/10/2022
+     muPt = muons->GetPt();
+     muEta = muons->GetEta();
+     muPhi = muons->GetPhi();
 
+/////////////////////////
     double E4_2 = phoEnergyTop_2 + phoEnergyBottom_2 +  phoEnergyLeft_2 + phoEnergyRight_2;
     phoSwissCross_2 = 1 - (E4_2/phoEnergyCrysMax_2);
     
