@@ -297,9 +297,9 @@ void ResetVars() {
   //Add muon, Date:29/10/2022
   nMu = 0;
   muCharge = 0;
-  muPt = 999;
-  muEta = 999;
-  muPhi = 999;
+  muPt = -999;
+  muEta = -999;
+  muPhi = -999;
 /////////////
 }
 
@@ -401,6 +401,8 @@ int main(int argc, char* argv[])
     ok_castorexcl = (!event->HasCastorTowers());
     
     ok_chexcl  = (genTracks.size()==0 && electrons.size()==0 && muons.size()==0 );
+    //Remove muons size
+   // ok_chexcl  = (genTracks.size()==0 && electrons.size()==0);
     ok_chexcl_tracks = (genTracks.size()==0);
     ok_chexcl_electrons = (electrons.size()==0);
     ok_chexcl_muons = (muons.size()==0);
@@ -408,6 +410,8 @@ int main(int argc, char* argv[])
     ok_chexcl_goodelectrons = (goodElectrons.size()==0);
    
     nTracks  = genTracks.size();
+   // nMu = muons.size();
+//     muPt = muons->GetPt();
 
     if(sampleName == "Data"){
       zdc_energy_pos = event->GetTotalZDCenergyPos(); zdc_energy_neg = event->GetTotalZDCenergyNeg();
@@ -474,10 +478,13 @@ int main(int argc, char* argv[])
     phoSeedTime_2      = photon2->GetSeedTime();
     phoSigmaIEta_2     = photon2->GetSigmaEta2012();
     ///Add Muon info, Date:29/10/2022
-     muPt = muons->GetPt();
-     muEta = muons->GetEta();
-     muPhi = muons->GetPhi();
-
+    // nMu = muons.size();
+    for (auto muon : muons) {
+    cout << "MuonPt = " << muon->GetPt() << endl;
+     muPt = muon->GetPt();
+     muEta = muon->GetEta();
+     muPhi = muon->GetPhi();
+   }
 /////////////////////////
     double E4_2 = phoEnergyTop_2 + phoEnergyBottom_2 +  phoEnergyLeft_2 + phoEnergyRight_2;
     phoSwissCross_2 = 1 - (E4_2/phoEnergyCrysMax_2);
