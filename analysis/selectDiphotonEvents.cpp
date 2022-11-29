@@ -114,7 +114,10 @@ int muCharge;
 float muPt;
 float muEta;
 float muPhi;
-
+//Date:3/11/2022
+//int convertTrack;
+//float deltaR1;
+//float deltaR2;
 
 /// initialise tree
 void InitTree(TTree *tr) {
@@ -210,7 +213,9 @@ void InitTree(TTree *tr) {
   tr->Branch("muPt",                 &muPt,                         "muPt/F");
   tr->Branch("muEta",                &muEta,                        "muEta/F");
   tr->Branch("muPhi",                &muPhi,                        "muPhi/F");
-/// 
+ // tr->Branch("convertTrack",   &convertTrack,    "converTrack/I"); 
+ // tr->Branch("deltaR1",   &deltaR1,    "deltaR1/F"); 
+ // tr->Branch("deltaR2",   &deltaR2,    "deltaR2/F"); 
 //
 }
 
@@ -300,7 +305,11 @@ void ResetVars() {
   muPt = -999;
   muEta = -999;
   muPhi = -999;
-/////////////
+  //Date:3/11/2022
+ // deltaR1 = 999;
+ // deltaR2 = 999;
+ // convertTrack = 0;
+/////////////i
 }
 
 
@@ -395,22 +404,28 @@ int main(int argc, char* argv[])
     auto photon1   = event->GetPhysObjects(EPhysObjType::kGoodPhoton)[0];
     auto photon2   = event->GetPhysObjects(EPhysObjType::kGoodPhoton)[1];
     auto caloTower = event->GetPhysObjects(EPhysObjType::kCaloTower);
-
+     //date: 3/11/2022
+ //   float deltaR1 = physObjectProcessor.GetDeltaR(*event.GetPhysObjects(EPhysObjType::kGeneralTrack)[0],
+   //                                             *event.GetPhysObjects(EPhysObjType::kGoodPhoton)[0]);
+   // float deltaR2 = physObjectProcessor.GetDeltaR(*event.GetPhysObjects(EPhysObjType::kGeneralTrack)[0],
+     //                                           *event.GetPhysObjects(EPhysObjType::kGoodPhoton)[1]);
+   // int convertTrack = (deltaR1 < 0.1 || deltaR2 < 0.1);
+    ////////////////////////////
        // event variables
     ok_neuexcl = (!event->HasAdditionalTowers());
     ok_castorexcl = (!event->HasCastorTowers());
     
     ok_chexcl  = (genTracks.size()==0 && electrons.size()==0 && muons.size()==0 );
-    //Remove muons size
-   // ok_chexcl  = (genTracks.size()==0 && electrons.size()==0);
+   // Change for converted photon
+   // ok_chexcl  = (electrons.size()==0 && muons.size()==0 );
     ok_chexcl_tracks = (genTracks.size()==0);
     ok_chexcl_electrons = (electrons.size()==0);
     ok_chexcl_muons = (muons.size()==0);
-    ok_chexcl_goodtracks = (goodGenTracks.size()==0);
+   ok_chexcl_goodtracks = (goodGenTracks.size()==0);
     ok_chexcl_goodelectrons = (goodElectrons.size()==0);
    
     nTracks  = genTracks.size();
-   // nMu = muons.size();
+ //   nMu = muons.size();
 //     muPt = muons->GetPt();
 
     if(sampleName == "Data"){
@@ -438,6 +453,7 @@ int main(int argc, char* argv[])
       ok_zdcexcl_4n_neg &= ok_zdc_run;
       ok_zdcexcl_5n_pos &= ok_zdc_run;
       ok_zdcexcl_5n_neg &= ok_zdc_run;
+      
     }
     
     // start filling photon information here ........................................
@@ -478,9 +494,9 @@ int main(int argc, char* argv[])
     phoSeedTime_2      = photon2->GetSeedTime();
     phoSigmaIEta_2     = photon2->GetSigmaEta2012();
     ///Add Muon info, Date:29/10/2022
-    // nMu = muons.size();
+     nMu = muons.size();
     for (auto muon : muons) {
-    cout << "MuonPt = " << muon->GetPt() << endl;
+     cout << "MuonPt = " << muon->GetPt() << endl;
      muPt = muon->GetPt();
      muEta = muon->GetEta();
      muPhi = muon->GetPhi();
