@@ -32,6 +32,7 @@ TCanvas* PlotStackHists(TCanvas* , TH1D* , TH1D* , TH1D*, TH1D*, TH1D*, double ,
 
 const int nSample = 9;
 const char *sample[nSample]={"Data","LbyL", "QEDSC" , "CEP", "CEPIncoh","QEDSCFSR", "QEDMG5-FSROnePhoton", "QEDMG5-FSRTwoPhoton","QEDSL"};
+//const char *sample[nSample]={"Data"};
 
 const char *dir = "figures_eta2p2";
 
@@ -119,6 +120,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
    if(QEDNormMG5){lumiNormQEDMG_1FSR = 1;}
   
    const double wt[nSample] = {1, norm_LbLSC, lumiNormSC, norm_cep, norm_cepIncoh, lumiNormSCFSR, lumiNormQEDMG_1FSR, lumiNormQEDMG_2FSR, lumiNormSL};
+  // const double wt[nSample] = {1};
 
   cout << "FSR normalization is:" << lumiNormSC << endl;
  
@@ -136,8 +138,8 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
   TH1D* hpho_pt[nSample], *hpho_eta[nSample], *hpho_phi[nSample], *hpho_pt2[nSample], *hpho_eta2[nSample], *hpho_phi2[nSample]; 
   TH1D* hdipho_pt[nSample], *hdipho_Rapidity[nSample], *hInvmass[nSample], *hAcoplanarity[nSample], *hdipho_cosThetaStar[nSample];
   TH2D* hpho_EtaPhi[nSample], * hpho_EtaPhi2[nSample];
-  
-
+  //TH1D* hnMu[nSample];  
+ // TH1D* hmuPt[nSample];
 
   for (int i = 0; i < nSample; i++){
     tree[i] = new TChain("output_tree");
@@ -158,8 +160,12 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
     
     hpho_EtaPhi[i]    = new TH2D(Form("hpho_EtaPhi%s", sample[i]),"",44,-2.2,2.2,48,-PI,PI);
     hpho_EtaPhi2[i]   = new TH2D(Form("hpho_EtaPhi2%s", sample[i]),"",44,-2.2,2.2,48,-PI,PI);
-
-
+    //Muon
+  //  hnMu[i]  = new TH1D(Form("hnMu%s", sample[i]),"",5,0,5);
+   // hmuPt[i] = new TH1D(Form("hmuPt%s", sample[i]),"",20,-1100,20);
+    //
+    cout << "nSample:" << i  << endl;
+//    cout << "nMu:" << hnMu[i] << endl;
     hdipho_cosThetaStar[i]   = new TH1D(Form("hdipho_cosThetaStar%s",sample[i]),"",5,-1,1);
 
     cout << "file " << sample[i] << ":" << tree[i]->GetEntries()  << endl;
@@ -184,7 +190,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
       if(treeR.ok_neuexcl != 1) continue; //neutral exclusivity
       if(treeR.ok_chexcl_goodtracks != 1 || treeR.ok_chexcl_goodelectrons !=1 ) continue; //charged exclusivity
       if(treeR.vSum_M < 5) continue; //invmass
-    //  if(treeR.vSum_Pt > 1) continue; //diphoton pt// Only remove to check EmptyBX
+      if(treeR.vSum_Pt > 1) continue; //diphoton pt
       if(abs(treeR.phoEta_1) > 2.2) continue;
       if(abs(treeR.phoEta_2) > 2.2) continue;
       if(treeR.phoEt_1 < 2.5) continue;
@@ -193,8 +199,9 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
       //if(abs(treeR.phoSeedTime_2) > 5) continue;
       
       if(i==0) {
-      //if(treeR.ok_zdcexcl_4n_pos != 1 || treeR.ok_zdcexcl_4n_neg != 1) continue;
-         if(treeR.zdc_energy_pos > 10000 || treeR.zdc_energy_neg > 10000)continue;
+         //if(treeR.ok_zdcexcl_4n_pos != 1 || treeR.ok_zdcexcl_4n_neg != 1) continue;
+         //if(treeR.zdc_energy_pos > 1500 || treeR.zdc_energy_neg > 1500)continue;
+         //if(treeR.zdc_energy_pos >10000  || treeR.zdc_energy_neg > 10000)continue;
          if(treeR.ok_zdcexcl!= 1) continue; //bad ZDC negative runs removed in ok_zdcexcl variable
        }
   
@@ -208,8 +215,11 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
 	hpho_EtaPhi[i]->Fill(treeR.phoEta_1,treeR.phoPhi_1,wt[i]);
         hpho_EtaPhi2[i]->Fill(treeR.phoEta_2,treeR.phoPhi_2,wt[i]);
         }
-      //Date: 7/11/2022, Remove Aco cut
-      //if(treeR.pho_acop >  0.01) continue; //acop
+      //Date:8/12/2022
+      //No ST Muon is passing
+   //   if(treeR.nMu > 0)continue;
+              
+      if(treeR.pho_acop >  0.01) continue; //acop
          
       	
 	hpho_pt[i]->Fill(treeR.phoEt_1,wt[i]);
@@ -225,7 +235,9 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
 	hInvmass[i]->Fill(treeR.vSum_M,wt[i]);
 
 	hdipho_cosThetaStar[i]->Fill(treeR.costhetastar,wt[i]);
-	     
+        //Muon
+     //   hnMu[i]->Fill(treeR.nMu);	     
+      //  hmuPt[i]->Fill(treeR.muPt);
     } //entry
   } // for 4 files
   
@@ -332,7 +344,13 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
   float R = 0.04;*/
 
   //hInvmass[0]->Draw("p");
- 
+  //Muon passing
+   //TCanvas*c = new TCanvas();
+   //hnMu[0]->Draw("HIST"); 
+  // c->Print("nMu.png");
+  // TCanvas*c10 = new TCanvas();
+  // hmuPt[0]->Draw("p");
+  // c10->Print("muPt.png");
  //(TCanvas* c1, TH1D* hdata, TH1D* hmc, TH1D* hmc2, double hxmin, double hxmax, double hymin, double hymax, double rymin , double rymax, const char *ytitle, bool iflogy)
  
   TCanvas* cc1 = new TCanvas("Sum_pt","diphoton pT",254,411,639,592);
@@ -364,9 +382,13 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
   TCanvas* c7 = new TCanvas("Acoplanarity","Acoplanarity",2563,306,777,575);
   make_canvas(c7);
   PlotStackHists(c7, hAcoplanarity[0], hAcoplanarity[1], hAcoplanarity[2], hAcoplanarity[4], hAcoplanarity[5], 0,0.16,0,30,0.,2.5,"A_{#phi}", 0);
-
+  //Muon
+  //TCanvas* c8 = new TCanvas("nMu","nMu",2563,306,777,575);
+ // make_canvas(c8);
+ // PlotStackHists(c8, hnMu[0],hnMu[0], hnMu[0], hnMu[0], hnMu[0], 0,0.16,0,30,0.,2.5,"nMu", 0);
+  
   for (int i = 0; i < nSample; i++){
-  cout << " Acop no cut " << sample[i] <<  " :" << hAcoplanarity[i]->Integral(1,2) << endl;  
+  cout << " Acop < 0.01 " << sample[i] <<  " :" << hAcoplanarity[i]->Integral(1,2) << endl;  
  }
  
 /*  TLegend *leg2=new TLegend(0.55,0.60,0.90,0.91);
@@ -443,7 +465,7 @@ TCanvas* PlotStackHists(TCanvas* c1, TH1D* hdata, TH1D* hlbyl, TH1D* hqed, TH1D*
   //hs->Add(hMG5_2FSR);
 
   make_hist(hcep, kAzure+1, 21);
-  //hcep->SetFillStyle(3001);
+ // hcep->SetFillStyle(3001);
   hs->Add(hcep);
 
   make_hist(hlbyl,kOrange+7, 21);
@@ -523,10 +545,11 @@ TCanvas* PlotStackHists(TCanvas* c1, TH1D* hdata, TH1D* hlbyl, TH1D* hqed, TH1D*
   c1->Update();
   TString cName=c1->GetName();
   cName+=".png";
-  c1->SaveAs("figures_photonPt2p5_withZDCCut_DiPhoPtCut1_CEPInCohScale/"+cName);
+  //c1->SaveAs("figures_photonPt2p5_NoZDCCut_DiPhoPtCut1_CEPInCohScale/"+cName);
+ // c1->SaveAs("figures_photonPt2p5_0n0n_ZDCCut_DiPhoPtCut1_CEPInCohScale_Ruchi/"+cName);
   TString c2Name=c1->GetName();
   c2Name+=".pdf";
-  c1->SaveAs("figures_photonPt2p5_withZDCCut_DiPhoPtCut1_CEPInCohScale/"+c2Name);
+ // c1->SaveAs("figures_photonPt2p5_withZDCCut_DiPhoPtCut1_CEPInCohScale/"+c2Name);
   return c1;
 }
   
