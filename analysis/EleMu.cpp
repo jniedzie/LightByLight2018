@@ -8,31 +8,36 @@
 
 string configPath = "configs/efficiencies_eleNoIsolation_newThresholdsEta2p2.md";
 bool storeHLTtrees = false;
-
+bool storeZDCtrees = true;//ZDC tree
 /// checks if event has muon and electron (opposite sign)
 bool IsGoodForMuEle(Event &event)
 {
   // Check trigger
-  //if(!(event.HasTrigger(kSingleMuOpenNoHF) or event.HasTrigger(kSingleEG3noHF) or event.HasTrigger(kDoubleEG2noHF) or event.HasTrigger(kSingleEG5noHF))) return false;
-  if(!(event.HasTrigger(kSingleMuOpenNoHF) or event.HasTrigger(kSingleEG3noHF) or event.HasTrigger(kDoubleEG2noHF))) return false;
-  if(event.GetPhysObjects(EPhysObjType::kElectron).size() != 1) return false;
+  if(!(event.HasTrigger(kSingleMuOpenNoHF) or event.HasTrigger(kSingleEG3noHF)  or event.HasTrigger(kSingleEG5noHF))) return false;
+  //if(!(event.HasTrigger(kSingleMuOpenNoHF) or event.HasTrigger(kSingleEG3noHF) or event.HasTrigger(kSingleEG5noHF) or event.HasTrigger(kDoubleEG2noHF))) return false;
+  //if(!(event.HasTrigger(kSingleEG5noHF))) return false;
+  //Check one eltron, one muon and two track should be in an event
+  if(event.GetPhysObjects(EPhysObjType::kGoodElectron).size() != 1) return false;
+  if(event.GetPhysObjects(EPhysObjType::kGoodMuon).size() != 1) return false;
+  if(event.GetPhysObjects(EPhysObjType::kGoodGeneralTrack).size() !=2) return false;
+  if(event.GetPhysObjects(EPhysObjType::kGoodMuon)[0]->GetCharge() ==
+     event.GetPhysObjects(EPhysObjType::kGoodElectron)[0]->GetCharge()) return false;
+  
+  //if(event.GetPhysObjects(EPhysObjType::kGoodElectron)[0]->GetCharge() !=
+    // event.GetPhysObjects(EPhysObjType::kGeneralTrack)[0]->GetCharge()) return false;
+  //if(event.GetPhysObjects(EPhysObjType::kGoodMuon)[0]->GetCharge() !=
+    // event.GetPhysObjects(EPhysObjType::kGeneralTrack)[1]->GetCharge()) return false;
+  //if(event.GetPhysObjects(EPhysObjType::kGeneralTrack)[0]->GetCharge() ==
+    // event.GetPhysObjects(EPhysObjType::kGeneralTrack)[1]->GetCharge()) return false;
 
-  //Check one muon and two track should be in an event
-  if(event.GetPhysObjects(EPhysObjType::kMuon).size() != 1) return false;
-  if(event.GetPhysObjects(EPhysObjType::kGeneralTrack).size() !=2) return false;
-  if(event.GetPhysObjects(EPhysObjType::kMuon)[0]->GetCharge() ==
-    event.GetPhysObjects(EPhysObjType::kElectron)[0]->GetCharge()) return false;
-  //Pt cut(3/08/2022)
-  if(event.GetPhysObjects(EPhysObjType::kMuon)[0]->GetPt() < 2) return false;
-  if(event.GetPhysObjects(EPhysObjType::kElectron)[0]->GetPt() < 2) return false;
-
+  
   //Exclusivity criteria
   if(event.HasAdditionalTowers()) return false;
    
   //Adding acoplanarity cut
-  double aco = physObjectProcessor.GetAcoplanarity(*event.GetPhysObjects(EPhysObjType::kMuon)[0],
-                                                   *event.GetPhysObjects(EPhysObjType::kElectron)[0]);
-  if(aco > 0.4) return false;
+ // double aco = physObjectProcessor.GetAcoplanarity(*event.GetPhysObjects(EPhysObjType::kGoodMuon)[0],
+ //                                                  *event.GetPhysObjects(EPhysObjType::kGoodElectron)[0]);
+ // if(aco < 0.01 || aco > 0.4) return false;
   
   return true;
 }
@@ -80,12 +85,13 @@ int main(int argc, char* argv[])
 
   // Loop over events
   for(int iEvent=0; iEvent<events->GetNevents(); iEvent++){
-    if(iEvent%3000 == 0) cout<<"Processing event "<<iEvent<<endl;
+    if(iEvent%3000 == 0) cout<<"Processing event "<<iEvent<<endl; //counts the events from inputTree
     if(iEvent >= config.params("maxEvents")) break;
     auto event = events->GetEvent(iEvent);
   
     if(argc==5){
-      if(IsGoodForMuEle(*event))                events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
+//      if(IsGoodForMuEle(*event))                events->AddEventToOutputTree(iEvent, outFilePaths[0], storeHLTtrees);
+      if(IsGoodForMuEle(*event))                events->AddEventToOutputTree(iEvent, outFilePaths[0], storeZDCtrees);
    //     cout<<"test4"<<endl;
      
    
