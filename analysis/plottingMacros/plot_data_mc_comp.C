@@ -30,8 +30,8 @@ TCanvas* PlotStackHists(TCanvas* , TH1D* , TH1D* , TH1D*, TH1D*, TH1D*, double ,
 
 //TCanvas* PlotStackHists(TCanvas* , TH1D* , TH1D* , TH1D*, TH1D*, TH1D*, TH1D*, TH1D*, double , double , double , double , double , double , const char *, bool); 
 
-const int nSample = 9;
-const char *sample[nSample]={"Data","LbyL", "QEDSC" , "CEP", "CEPIncoh","QEDSCFSR", "QEDMG5-FSROnePhoton", "QEDMG5-FSRTwoPhoton","QEDSL"};
+const int nSample = 10;
+const char *sample[nSample]={"Data","LbyL","TauTau", "QEDSC" , "CEP", "CEPIncoh","QEDSCFSR", "QEDMG5-FSROnePhoton", "QEDMG5-FSRTwoPhoton","QEDSL"};
 //const char *sample[nSample]={"Data"};
 
 const char *dir = "figures_eta2p2";
@@ -43,8 +43,8 @@ const double LumiLossHotZDCneg = 0;
 
 //const double luminosity       = 1635.123139823; // μb^-1
 //const double luminosity       = 1639.207543; // μb^-1
-//const double luminosity       = 1647.228136; // μb^-1 from Gabi Feb 13, 2022
-const double luminosity       = 1561.948136; // μb^-1 from Gabi Aug, 2022, removing ZDC neg hot region 85.28 mub
+const double luminosity       = 1647.228136; // μb^-1 from Gabi Feb 13, 2022
+//const double luminosity       = 1561.948136; // μb^-1 from Gabi Aug, 2022, removing ZDC neg hot region 85.28 mub
 
 
 
@@ -85,6 +85,8 @@ double scaleFactorPhoton = 0.85 *  // NEE    21.12.2021
 const double xsecGeneratedLbLSC    = 2.59; // μb Superchic
 const double nEventsGeneratedLbLSC = 466000;  //Superchic
 double norm_LbLSC = scaleFactorPhoton*xsecGeneratedLbLSC*luminosity*(1-LumiLossHotZDCneg)/nEventsGeneratedLbLSC;   
+//TauTau
+double norm_Tau = scaleFactorPhoton*570*luminosity*(1-LumiLossHotZDCneg)/1000000;//Date:1/02/2023
 
 const double xsecGeneratedLbLMG    = 0.1406; // μb Madgraph David
 const double nEventsGeneratedLbLMG = 788069; //Madgraph David
@@ -119,7 +121,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
    if(CEPIncohNorm) {norm_cepIncoh = 1;}
    if(QEDNormMG5){lumiNormQEDMG_1FSR = 1;}
   
-   const double wt[nSample] = {1, norm_LbLSC, lumiNormSC, norm_cep, norm_cepIncoh, lumiNormSCFSR, lumiNormQEDMG_1FSR, lumiNormQEDMG_2FSR, lumiNormSL};
+   const double wt[nSample] = {1, norm_LbLSC, norm_Tau, lumiNormSC, norm_cep, norm_cepIncoh, lumiNormSCFSR, lumiNormQEDMG_1FSR, lumiNormQEDMG_2FSR, lumiNormSL};
   // const double wt[nSample] = {1};
 
   cout << "FSR normalization is:" << lumiNormSC << endl;
@@ -138,7 +140,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
   TH1D* hpho_pt[nSample], *hpho_eta[nSample], *hpho_phi[nSample], *hpho_pt2[nSample], *hpho_eta2[nSample], *hpho_phi2[nSample]; 
   TH1D* hdipho_pt[nSample], *hdipho_Rapidity[nSample], *hInvmass[nSample], *hAcoplanarity[nSample], *hdipho_cosThetaStar[nSample];
   TH2D* hpho_EtaPhi[nSample], * hpho_EtaPhi2[nSample];
-  //TH1D* hnMu[nSample];  
+  TH1D* hnMu[nSample];  
  // TH1D* hmuPt[nSample];
 
   for (int i = 0; i < nSample; i++){
@@ -161,7 +163,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
     hpho_EtaPhi[i]    = new TH2D(Form("hpho_EtaPhi%s", sample[i]),"",44,-2.2,2.2,48,-PI,PI);
     hpho_EtaPhi2[i]   = new TH2D(Form("hpho_EtaPhi2%s", sample[i]),"",44,-2.2,2.2,48,-PI,PI);
     //Muon
-  //  hnMu[i]  = new TH1D(Form("hnMu%s", sample[i]),"",5,0,5);
+    hnMu[i]  = new TH1D(Form("hnMu%s", sample[i]),"",5,0,5);
    // hmuPt[i] = new TH1D(Form("hmuPt%s", sample[i]),"",20,-1100,20);
     //
     cout << "nSample:" << i  << endl;
@@ -200,11 +202,12 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
       
       if(i==0) {
          //if(treeR.ok_zdcexcl_4n_pos != 1 || treeR.ok_zdcexcl_4n_neg != 1) continue;
+         //if(treeR.ok_zdcexcl_1n_pos != 1 || treeR.ok_zdcexcl_1n_neg != 1) continue;//0n0n
          //if(treeR.zdc_energy_pos > 1500 || treeR.zdc_energy_neg > 1500)continue;
          //if(treeR.zdc_energy_pos >10000  || treeR.zdc_energy_neg > 10000)continue;
-         if(treeR.ok_zdcexcl!= 1) continue; //bad ZDC negative runs removed in ok_zdcexcl variable
+         //if(treeR.ok_zdcexcl!= 1) continue; //bad ZDC negative runs removed in ok_zdcexcl variable
        }
-  
+ 
       //if(i==1)
       //{  if(treeR.ok_trigger!=1) continue; }
 
@@ -217,7 +220,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
         }
       //Date:8/12/2022
       //No ST Muon is passing
-   //   if(treeR.nMu > 0)continue;
+      if(treeR.nMu > 0)continue;
               
       if(treeR.pho_acop >  0.01) continue; //acop
          
@@ -236,7 +239,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
 
 	hdipho_cosThetaStar[i]->Fill(treeR.costhetastar,wt[i]);
         //Muon
-     //   hnMu[i]->Fill(treeR.nMu);	     
+        hnMu[i]->Fill(treeR.nMu);	     
       //  hmuPt[i]->Fill(treeR.muPt);
     } //entry
   } // for 4 files
@@ -345,9 +348,9 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
 
   //hInvmass[0]->Draw("p");
   //Muon passing
-   //TCanvas*c = new TCanvas();
-   //hnMu[0]->Draw("HIST"); 
-  // c->Print("nMu.png");
+   TCanvas*c = new TCanvas();
+   hnMu[0]->Draw("HIST"); 
+  // c->Print("figures_photonPt2p5_0n0nZDCCut_DiPhoPtCut1_CEPInCohScale_Pranati_STMuon_ZeroSTMuon_13thJan/nMu.png");
   // TCanvas*c10 = new TCanvas();
   // hmuPt[0]->Draw("p");
   // c10->Print("muPt.png");
@@ -546,7 +549,7 @@ TCanvas* PlotStackHists(TCanvas* c1, TH1D* hdata, TH1D* hlbyl, TH1D* hqed, TH1D*
   TString cName=c1->GetName();
   cName+=".png";
   //c1->SaveAs("figures_photonPt2p5_NoZDCCut_DiPhoPtCut1_CEPInCohScale/"+cName);
- // c1->SaveAs("figures_photonPt2p5_0n0n_ZDCCut_DiPhoPtCut1_CEPInCohScale_Ruchi/"+cName);
+  c1->SaveAs("figures_photonPt2p5_0n0nZDCCut_23rdJan_afterTriggerDiphotonSelection2_Ruchintuples/"+cName);
   TString c2Name=c1->GetName();
   c2Name+=".pdf";
  // c1->SaveAs("figures_photonPt2p5_withZDCCut_DiPhoPtCut1_CEPInCohScale/"+c2Name);
