@@ -118,7 +118,12 @@ float muPhi;
 //int convertTrack;
 //float deltaR1;
 //float deltaR2;
-
+///Add Vertex info//Date:5/02/2023
+float nVtx;
+double xVtx;
+double yVtx;
+double zVtx;
+/////////////////////
 /// initialise tree
 void InitTree(TTree *tr) {
   tr->Branch("run",                 &run,           "run/I");
@@ -216,7 +221,12 @@ void InitTree(TTree *tr) {
  // tr->Branch("convertTrack",   &convertTrack,    "converTrack/I"); 
  // tr->Branch("deltaR1",   &deltaR1,    "deltaR1/F"); 
  // tr->Branch("deltaR2",   &deltaR2,    "deltaR2/F"); 
-//
+//Add Vertex info//Date:5/02/2023
+  tr->Branch("nVtx",                 &nVtx,                        "nVtx/F");
+  tr->Branch("xVtx",                 &xVtx,                        "xVtx/F");
+  tr->Branch("yVtx",                 &yVtx,                        "yVtx/F");
+  tr->Branch("zVtx",                 &zVtx,                        "zVtx/F");
+///////////////////////////////
 }
 
 
@@ -309,7 +319,12 @@ void ResetVars() {
  // deltaR1 = 999;
  // deltaR2 = 999;
  // convertTrack = 0;
-/////////////i
+//Add Vertex info//Date:5/02/2023
+  nVtx = -999;
+  xVtx = -999;
+  yVtx = -999;
+  zVtx = -999;
+///////////////////
 }
 
 
@@ -361,12 +376,12 @@ int main(int argc, char* argv[])
     auto event = events->GetEvent(iEvent);
     
     ResetVars();  
-    
-    // Check trigger
-    //if(sampleName != "Data"){
-    //if(!event->HasTrigger(kDoubleEG2noHF)) continue;
-    //}
-
+    //////////////////////////////////////////////
+    // Check trigger, It is comment out before, I remove it to check if this is for trigger,Date:27/12/2022
+//    if(sampleName != "Data"){
+  //  if(!event->HasTrigger(kDoubleEG2noHF)) continue;
+   // }
+    //////////////////////////////////////////////////
     //Log(0)<<"After trigger "<<iEvent<<"\n";
     trigger_passed++;
     hist->SetBinContent(1,trigger_passed);
@@ -375,6 +390,10 @@ int main(int argc, char* argv[])
     run = event->GetRunNumber();
     ls = event->GetLumiSection();
     evtnb = event->GetEventNumber();
+   // xVtx = event->GetPVertexX();
+    // yVtx = event->GetPVertexY();
+    // zVtx = event->GetPVertexZ();
+    // nVtx = event->GetNVertex();
     
     // select two exclusive photons 
     //if(event->GetPhysObjects(EPhysObjType::kGoodPhoton).size() != 2) continue; applying cut on good photon ==2  retains photons with pT less than 2 GeV and there can be more than 2 photons passing the criteria and others not passing... 
@@ -495,11 +514,19 @@ int main(int argc, char* argv[])
     phoSigmaIEta_2     = photon2->GetSigmaEta2012();
     ///Add Muon info, Date:29/10/2022
      nMu = muons.size();
+     xVtx = event->GetPVertexX();
+     cout << "xVtx" << event->GetPVertexX() << endl;
+     yVtx = event->GetPVertexY();
+     zVtx = event->GetPVertexZ();
+     
+     //nVtx = event->GetNVertex();
     for (auto muon : muons) {
      cout << "MuonPt = " << muon->GetPt() << endl;
      muPt = muon->GetPt();
      muEta = muon->GetEta();
      muPhi = muon->GetPhi();
+ //    cout << "xVtx" << event->GetPVertexX() << endl;
+
    }
 /////////////////////////
     double E4_2 = phoEnergyTop_2 + phoEnergyBottom_2 +  phoEnergyLeft_2 + phoEnergyRight_2;
@@ -524,7 +551,8 @@ int main(int argc, char* argv[])
 
    nPixelCluster = event->GetNpixelClusters();
    nPixelRecHits =  event->GetNpixelRecHits();
-
+    
+   //xVtx = event->GetPVertexX();//Add Vertex:Date:6/02/2023
 
 
    cos_photon_pair_helicity0 = cosphotonpair(pho1, dipho, 0); // Boost of one photon in the pair direction (in the rest frame of the pair). The other will be at pi rads from the 1st.
