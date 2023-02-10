@@ -26,7 +26,7 @@ int nbin = 8;
 
 void make_canvas(TCanvas *&);
 void make_hist(TH1D *&, Color_t , int );
-TCanvas* PlotStackHists(TCanvas* , TH1D* , TH1D* , TH1D*, TH1D*, TH1D*, double , double , double , double , double , double , const char *, bool); 
+TCanvas* PlotStackHists(TCanvas* , TH1D* , TH1D* , TH1D*, TH1D*, TH1D*, TH1D*, double , double , double , double , double , double , const char *, bool); 
 
 //TCanvas* PlotStackHists(TCanvas* , TH1D* , TH1D* , TH1D*, TH1D*, TH1D*, TH1D*, TH1D*, double , double , double , double , double , double , const char *, bool); 
 
@@ -140,7 +140,8 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
   TH1D* hpho_pt[nSample], *hpho_eta[nSample], *hpho_phi[nSample], *hpho_pt2[nSample], *hpho_eta2[nSample], *hpho_phi2[nSample]; 
   TH1D* hdipho_pt[nSample], *hdipho_Rapidity[nSample], *hInvmass[nSample], *hAcoplanarity[nSample], *hdipho_cosThetaStar[nSample];
   TH2D* hpho_EtaPhi[nSample], * hpho_EtaPhi2[nSample];
-  TH1D* hnMu[nSample];  
+  TH1D* hnMu[nSample];
+  TH1D* hnVtx[nSample], *hxVtx[nSample], *hyVtx[nSample], *hzVtx[nSample];  
  // TH1D* hmuPt[nSample];
 
   for (int i = 0; i < nSample; i++){
@@ -164,10 +165,13 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
     hpho_EtaPhi2[i]   = new TH2D(Form("hpho_EtaPhi2%s", sample[i]),"",44,-2.2,2.2,48,-PI,PI);
     //Muon
     hnMu[i]  = new TH1D(Form("hnMu%s", sample[i]),"",5,0,5);
+    hnVtx[i]  = new TH1D(Form("hnVtx%s", sample[i]),"",5,0,5);
+    hxVtx[i]  = new TH1D(Form("hxVtx%s", sample[i]),"",10,-1000,50);
+    hyVtx[i]  = new TH1D(Form("hyVtx%s", sample[i]),"",50,-1500,50);
+    hzVtx[i]  = new TH1D(Form("hzVtx%s", sample[i]),"",50,-1500,50);
    // hmuPt[i] = new TH1D(Form("hmuPt%s", sample[i]),"",20,-1100,20);
     //
     cout << "nSample:" << i  << endl;
-//    cout << "nMu:" << hnMu[i] << endl;
     hdipho_cosThetaStar[i]   = new TH1D(Form("hdipho_cosThetaStar%s",sample[i]),"",5,-1,1);
 
     cout << "file " << sample[i] << ":" << tree[i]->GetEntries()  << endl;
@@ -204,7 +208,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
          //if(treeR.ok_zdcexcl_4n_pos != 1 || treeR.ok_zdcexcl_4n_neg != 1) continue;
          //if(treeR.ok_zdcexcl_1n_pos != 1 || treeR.ok_zdcexcl_1n_neg != 1) continue;//0n0n
          //if(treeR.zdc_energy_pos > 1500 || treeR.zdc_energy_neg > 1500)continue;
-         //if(treeR.zdc_energy_pos >10000  || treeR.zdc_energy_neg > 10000)continue;
+        // if(treeR.zdc_energy_pos >10000  || treeR.zdc_energy_neg > 10000)continue;
          //if(treeR.ok_zdcexcl!= 1) continue; //bad ZDC negative runs removed in ok_zdcexcl variable
        }
  
@@ -220,7 +224,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
         }
       //Date:8/12/2022
       //No ST Muon is passing
-      if(treeR.nMu > 0)continue;
+      //if(treeR.nMu > 0)continue;
               
       if(treeR.pho_acop >  0.01) continue; //acop
          
@@ -240,6 +244,10 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
 	hdipho_cosThetaStar[i]->Fill(treeR.costhetastar,wt[i]);
         //Muon
         hnMu[i]->Fill(treeR.nMu);	     
+        hnVtx[i]->Fill(treeR.nVtx);	     
+        hxVtx[i]->Fill(treeR.xVtx);	     
+        hyVtx[i]->Fill(treeR.yVtx);	     
+        hzVtx[i]->Fill(treeR.zVtx);	    
       //  hmuPt[i]->Fill(treeR.muPt);
     } //entry
   } // for 4 files
@@ -320,6 +328,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
     
   for (int i = 1; i <= hAcoplanarity[0]->GetNbinsX(); i++) std::cout << i << "  " << hAcoplanarity[0]->Integral(i,i)  << std::endl;
   std::cout << "data   " << hAcoplanarity[0]->Integral(5,20)  << std::endl;
+  //std::cout << "data   " << h
   std::cout << "LbyL MC   " << hAcoplanarity[1]->Integral(5,20)  << std::endl;
   std::cout << "QED SC FSR  " << hAcoplanarity[5]->Integral(5,20)  << std::endl;
   std::cout << "CEP incoh  " << hAcoplanarity[4]->Integral(5,20)  << std::endl;
@@ -349,7 +358,27 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
   //hInvmass[0]->Draw("p");
   //Muon passing
    TCanvas*c = new TCanvas();
-   hnMu[0]->Draw("HIST"); 
+   hnMu[0]->Draw("HIST");
+   TCanvas*c20 = new TCanvas();
+   hnVtx[0]->Draw("HIST");
+   //c20->Print("figures_photonPt2p5_NoZDCCut_DiPhoPtCut1_CEPInCohScale_VtxInfo/nVtx.png");
+
+   TCanvas*c21 = new TCanvas();
+   hxVtx[0]->Draw("p");
+   //c21->Print("figures_photonPt2p5_NoZDCCut_DiPhoPtCut1_CEPInCohScale_VtxInfo/xVtx.png");
+
+   TCanvas*c22 = new TCanvas();
+   hyVtx[0]->Draw("HIST");
+   //c22->Print("figures_photonPt2p5_NoZDCCut_DiPhoPtCut1_CEPInCohScale_VtxInfo/yVtx.png");
+
+   TCanvas*c23 = new TCanvas();
+   hzVtx[0]->Draw("HIST");
+   //c23->Print("figures_photonPt2p5_NoZDCCut_DiPhoPtCut1_CEPInCohScale_VtxInfo/zVtx.png");
+
+
+
+
+    
   // c->Print("figures_photonPt2p5_0n0nZDCCut_DiPhoPtCut1_CEPInCohScale_Pranati_STMuon_ZeroSTMuon_13thJan/nMu.png");
   // TCanvas*c10 = new TCanvas();
   // hmuPt[0]->Draw("p");
@@ -358,33 +387,33 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
  
   TCanvas* cc1 = new TCanvas("Sum_pt","diphoton pT",254,411,639,592);
   make_canvas(cc1);
-  PlotStackHists(cc1, hdipho_pt[0], hdipho_pt[1], hdipho_pt[2], hdipho_pt[4], hdipho_pt[5], 0.0,2.0,0,30,0.7,1.8,"Diphoton p_{T}", 0);
+  PlotStackHists(cc1, hdipho_pt[0], hdipho_pt[1], hdipho_pt[2], hdipho_pt[4], hdipho_pt[5], hdipho_pt[6], 0.0,2.0,0,30,0.7,1.8,"Diphoton p_{T}", 0);
 
   TCanvas* c2 = new TCanvas("Inv_mass","Invmass",254,411,639,592);
   make_canvas(c2);
-  PlotStackHists(c2, hInvmass[0], hInvmass[1], hInvmass[2], hInvmass[4], hInvmass[5], 0,120,0.1,30,0.6,1.4,"Invariant Mass", 0);
+  PlotStackHists(c2, hInvmass[0], hInvmass[1], hInvmass[2], hInvmass[4], hInvmass[5], hInvmass[6], 0,120,0.1,30,0.6,1.4,"Invariant Mass", 0);
 
   TCanvas* c3 = new TCanvas("Rapidity","Rapidity",254,411,639,592);
   make_canvas(c3);
-  PlotStackHists(c3, hdipho_Rapidity[0], hdipho_Rapidity[1], hdipho_Rapidity[2], hdipho_Rapidity[4], hdipho_Rapidity[5],  -3,3,0,20,0.7,1.3,"Rapidity", 0);
+  PlotStackHists(c3, hdipho_Rapidity[0], hdipho_Rapidity[1], hdipho_Rapidity[2], hdipho_Rapidity[4], hdipho_Rapidity[5], hdipho_Rapidity[6],  -3,3,0,20,0.7,1.3,"Rapidity", 0);
 
   TCanvas* c4 = new TCanvas("Photon_pt","Photon pT",254,411,639,592);
   make_canvas(c4);
-  PlotStackHists(c4, hpho_pt[0], hpho_pt[1], hpho_pt[2], hpho_pt[4], hpho_pt[5], 0,50,0.1,30,0.1,1.8,"Photon p_{T}", 0);
+  PlotStackHists(c4, hpho_pt[0], hpho_pt[1], hpho_pt[2], hpho_pt[4], hpho_pt[5], hpho_pt[6], 0,50,0.1,30,0.1,1.8,"Photon p_{T}", 0);
 
   TCanvas* c5 = new TCanvas("Photon_eta","Photon eta",254,411,639,592);
   make_canvas(c5);
-  PlotStackHists(c5, hpho_eta[0], hpho_eta[1], hpho_eta[2],  hpho_eta[4],hpho_eta[5], -3,3,0,20,0.7,1.3,"Photon #eta", 0);
+  PlotStackHists(c5, hpho_eta[0], hpho_eta[1], hpho_eta[2],  hpho_eta[4], hpho_eta[5], hpho_eta[6], -3,3,0,20,0.7,1.3,"Photon #eta", 0);
 
   TCanvas* c6 = new TCanvas("Photon_phi","Photon phi",254,411,639,592);
   make_canvas(c6);
-  PlotStackHists(c6, hpho_phi[0], hpho_phi[1], hpho_phi[2], hpho_phi[4], hpho_phi[5], -4,4,0,20,0.7,1.3,"Photon #phi", 0);
+  PlotStackHists(c6, hpho_phi[0], hpho_phi[1], hpho_phi[2], hpho_phi[4], hpho_phi[5], hpho_phi[6], -4,4,0,20,0.7,1.3,"Photon #phi", 0);
 
 
   
   TCanvas* c7 = new TCanvas("Acoplanarity","Acoplanarity",2563,306,777,575);
   make_canvas(c7);
-  PlotStackHists(c7, hAcoplanarity[0], hAcoplanarity[1], hAcoplanarity[2], hAcoplanarity[4], hAcoplanarity[5], 0,0.16,0,30,0.,2.5,"A_{#phi}", 0);
+  PlotStackHists(c7, hAcoplanarity[0], hAcoplanarity[1], hAcoplanarity[2], hAcoplanarity[4], hAcoplanarity[5],hAcoplanarity[6], 0,0.16,0,30,0.,2.5,"A_{#phi}", 0);
   //Muon
   //TCanvas* c8 = new TCanvas("nMu","nMu",2563,306,777,575);
  // make_canvas(c8);
@@ -424,7 +453,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
   
 }
 
-TCanvas* PlotStackHists(TCanvas* c1, TH1D* hdata, TH1D* hlbyl, TH1D* hqed, TH1D* hcep,TH1D *hfsr, double hxmin, double hxmax, double hymin, double hymax, double rymin , double rymax, const char *ytitle, bool iflogy){
+TCanvas* PlotStackHists(TCanvas* c1, TH1D* hdata, TH1D* hlbyl, TH1D* htautau, TH1D* hqed, TH1D* hcep,TH1D *hfsr, double hxmin, double hxmax, double hymin, double hymax, double rymin , double rymax, const char *ytitle, bool iflogy){
 //TCanvas* PlotStackHists(TCanvas* c1, TH1D* hdata, TH1D* hlbyl, TH1D* hqed, TH1D* hcep,TH1D *hfsr, TH1D *hMG5, TH1D *hMG5_2FSR, double hxmin, double hxmax, double hymin, double hymax, double rymin , double rymax, const char *ytitle, bool iflogy){
   
   float T = 0.08;
@@ -460,7 +489,9 @@ TCanvas* PlotStackHists(TCanvas* c1, TH1D* hdata, TH1D* hlbyl, TH1D* hqed, TH1D*
  
   make_hist(hfsr, kYellow, 21);
   hs->Add(hfsr);
-
+  //TauTAu
+  make_hist(htautau, kRed, 21);
+  hs->Add(htautau);
   //make_hist(hMG5, kBlue, 21);
   //hs->Add(hMG5);
 
@@ -505,6 +536,7 @@ TCanvas* PlotStackHists(TCanvas* c1, TH1D* hdata, TH1D* hlbyl, TH1D* hqed, TH1D*
   leg2->AddEntry(hcep,"CEP Incoh (gg #rightarrow #gamma #gamma)","f");
   //leg2->AddEntry(hqed,"QED #gamma #gamma #rightarrow e^{+}e^{-} (without FSR)","f");
   leg2->AddEntry(hfsr,"QED SC +Photos","f");
+  leg2->AddEntry(htautau, "TauTau", "f");
   //leg2->AddEntry(hMG5,"QED Madgraph 1 FSR","f");
   //leg2->AddEntry(hMG5_2FSR,"QED Madgraph 2 FSR","f"); 
   leg2->Draw();
@@ -548,8 +580,8 @@ TCanvas* PlotStackHists(TCanvas* c1, TH1D* hdata, TH1D* hlbyl, TH1D* hqed, TH1D*
   c1->Update();
   TString cName=c1->GetName();
   cName+=".png";
-  //c1->SaveAs("figures_photonPt2p5_NoZDCCut_DiPhoPtCut1_CEPInCohScale/"+cName);
-  c1->SaveAs("figures_photonPt2p5_0n0nZDCCut_23rdJan_afterTriggerDiphotonSelection2_Ruchintuples/"+cName);
+  c1->SaveAs("figures_photonPt2p5_NoZDCCut_DiPhoPtCut1_CEPInCohScale_Ruchi_9thFeb/"+cName);
+ // c1->SaveAs("figures_photonPt2p5_0n0nZDCCut_23rdJan_afterTriggerDiphotonSelection2_Ruchintuples/"+cName);
   TString c2Name=c1->GetName();
   c2Name+=".pdf";
  // c1->SaveAs("figures_photonPt2p5_withZDCCut_DiPhoPtCut1_CEPInCohScale/"+c2Name);
