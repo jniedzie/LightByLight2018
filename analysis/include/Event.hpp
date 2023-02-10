@@ -66,10 +66,10 @@ public:
   inline int GetNpixelRecHits()     const { return nPixelRecHits;   }
   inline int GetNdedxHits()         const { return nDedxHits;       }
   /// Add Vertex info: Date:5/02/2023
-  inline double GetNVertex() const { return nVtx;}
-  inline double GetPVertexX() const { return xVtx;}
-  inline double GetPVertexY() const { return yVtx;}
-  inline double GetPVertexZ() const { return zVtx;}
+ // inline double GetNVertex() const { return nVtx;}
+  //inline double GetPVertexX() const { return xVtx;}
+  //inline double GetPVertexY() const { return yVtx;}
+  //inline double GetPVertexZ() const { return zVtx;}
 
   /// Returns total ZDC energy deposit on both z-sides
   double GetTotalZDCenergy() const;
@@ -97,7 +97,8 @@ private:
   PhysObjects GetGoodMatchedElectron();
   PhysObjects GetGoodGeneralTracks(TH1D *cutFlowHist=nullptr);
   PhysObjects GetGoodPixelTracks(TH1D *cutFlowHist=nullptr);
-  
+  //For vertex info; Date: 9/02/2023
+//  PhysObjects GetVertex(); 
   /// Returns noise threshold for given tower in EM calos
   double GetEmThresholdForTower(const PhysObject &tower);
   double GetCastorThreshold(const PhysObject &castor);
@@ -108,10 +109,10 @@ private:
   int nPixelClusters;
   int nPixelRecHits;
   int nDedxHits;
-  double nVtx;//Date:5/02/2023 
-  double xVtx;//Date:5/02/2023 
-  double yVtx;//Date:5/02/2023 
-  double zVtx;//Date:5/02/2023 
+ // double nVtx;//Date:5/02/2023 
+ // double xVtx;//Date:5/02/2023 
+ // double yVtx;//Date:5/02/2023 
+ // double zVtx;//Date:5/02/2023 
   uint runNumber;
   uint lumiSection;
   ULong64_t eventNumber;
