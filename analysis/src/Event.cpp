@@ -16,6 +16,8 @@ Event::Event()
   nPixelClusters = 0;
   nPixelRecHits = 0;
   nDedxHits = 0;
+//Add Vertex info;Date:6/02/2023
+//  xVtx = 0;
 }
 
 Event::~Event()
@@ -32,6 +34,8 @@ void Event::Reset()
   nPixelClusters = 0;
   nPixelRecHits = 0;
   nDedxHits = 0;
+  //Add Vertex info:Date:6/02/2023
+ // xVtx = 0;
 }
 
 bool Event::HasTrigger(ETrigger trigger) const
@@ -50,7 +54,8 @@ PhysObjects Event::GetPhysObjects(EPhysObjType type, TH1D *cutFlowHist)
      || type == EPhysObjType::kGeneralTrack
      || type == EPhysObjType::kL1EG
      || type == EPhysObjType::kZDC
-     || type == EPhysObjType::kPixelTrack){
+     || type == EPhysObjType::kPixelTrack
+     || type == EPhysObjType::kVertex){
     return physObjects.at(type);
   }
   else if(type == EPhysObjType::kGoodGenPhoton)       return GetGoodGenPhotons();
@@ -279,31 +284,31 @@ PhysObjects Event::GetGoodMuons(TH1D *cutFlowHist)
    // if(muon->GetPt() < config.params("muonMinPt")) continue;
    // if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 1 
     
-    if(fabs(muon->GetEta()) >= config.params("muonMaxEta")) continue;// ADD date: 29/12/2022, for the max eta cut
-    double absEta = fabs(muon->GetEta());
-    if((absEta < config.params("muonMaxEtaEB")) && (muon->GetPt() < config.params("muonMinPtEB"))) continue;
-    else if(((absEta > config.params("muonMinEtaEE")) && absEta < config.params("muonMaxEtaEE")) && (muon->GetPt() < config.params("muonMinPtEE"))) continue;
+//    if(fabs(muon->GetEta()) >= config.params("muonMaxEta")) continue;// ADD date: 29/12/2022, for the max eta cut
+  //  double absEta = fabs(muon->GetEta());
+   // if((absEta < config.params("muonMaxEtaEB")) && (muon->GetPt() < config.params("muonMinPtEB"))) continue;
+   // else if(((absEta > config.params("muonMinEtaEE")) && absEta < config.params("muonMaxEtaEE")) && (muon->GetPt() < config.params("muonMinPtEE"))) continue;
 
 
 //    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
 //Soft Muons ID
    //OneMuonStation tight   
      //if(config.params("muonOnestationTight") && muon->IsGood()) continue;
-    if(muon->GetIsGood() == config.params("muonOnestationTight")) continue;
+   // if(muon->GetIsGood() == config.params("muonOnestationTight")) continue;
     //if(muon->GetIsGlobal() < config.params("muonGlobal")) continue;
     //if(muon->GetIsTracker() < config.params("muonTracker")) continue;
     // if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
    //Min innertracker layers
-    if(muon->GetTrkLayers() <= config.params("muonMinTrkInnLayers")) continue; 
+   // if(muon->GetTrkLayers() <= config.params("muonMinTrkInnLayers")) continue; 
    //Min. PixelLayers
-    if(muon->GetPixelLayers() < config.params("muonMinTrkPixelLayers")) continue;
+   // if(muon->GetPixelLayers() < config.params("muonMinTrkPixelLayers")) continue;
    //InnerTrack Quality
-    if(config.params("muonTrkQuality") && muon->TrkQuality()) continue;
+   // if(config.params("muonTrkQuality") && muon->TrkQuality()) continue;
     // if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++);
    // max dxy
-    if(fabs(muon->GetInnerD0()) > config.params("muonMaxDxy")) continue;
+  //  if(fabs(muon->GetInnerD0()) > config.params("muonMaxDxy")) continue;
    //Max dz
-    if(fabs(muon->GetInnerDz()) > config.params("muonMaxDz")) continue;
+  //  if(fabs(muon->GetInnerDz()) > config.params("muonMaxDz")) continue;
 
 
     physObjects.at(EPhysObjType::kGoodMuon).push_back(muon);
