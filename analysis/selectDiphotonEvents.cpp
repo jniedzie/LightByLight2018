@@ -119,10 +119,10 @@ float muPhi;
 //float deltaR1;
 //float deltaR2;
 ///Add Vertex info//Date:5/02/2023
-float nVtx;
-double xVtx;
-double yVtx;
-double zVtx;
+int nVtx;
+float xVtx;
+float yVtx;
+float zVtx;
 /////////////////////
 /// initialise tree
 void InitTree(TTree *tr) {
@@ -222,7 +222,7 @@ void InitTree(TTree *tr) {
  // tr->Branch("deltaR1",   &deltaR1,    "deltaR1/F"); 
  // tr->Branch("deltaR2",   &deltaR2,    "deltaR2/F"); 
 //Add Vertex info//Date:5/02/2023
-  tr->Branch("nVtx",                 &nVtx,                        "nVtx/F");
+  tr->Branch("nVtx",                 &nVtx,                        "nVtx/I");
   tr->Branch("xVtx",                 &xVtx,                        "xVtx/F");
   tr->Branch("yVtx",                 &yVtx,                        "yVtx/F");
   tr->Branch("zVtx",                 &zVtx,                        "zVtx/F");
@@ -320,7 +320,7 @@ void ResetVars() {
  // deltaR2 = 999;
  // convertTrack = 0;
 //Add Vertex info//Date:5/02/2023
-  nVtx = -999;
+  nVtx = 0;
   xVtx = -999;
   yVtx = -999;
   zVtx = -999;
@@ -390,10 +390,6 @@ int main(int argc, char* argv[])
     run = event->GetRunNumber();
     ls = event->GetLumiSection();
     evtnb = event->GetEventNumber();
-   // xVtx = event->GetPVertexX();
-    // yVtx = event->GetPVertexY();
-    // zVtx = event->GetPVertexZ();
-    // nVtx = event->GetNVertex();
     
     // select two exclusive photons 
     //if(event->GetPhysObjects(EPhysObjType::kGoodPhoton).size() != 2) continue; applying cut on good photon ==2  retains photons with pT less than 2 GeV and there can be more than 2 photons passing the criteria and others not passing... 
@@ -423,6 +419,8 @@ int main(int argc, char* argv[])
     auto photon1   = event->GetPhysObjects(EPhysObjType::kGoodPhoton)[0];
     auto photon2   = event->GetPhysObjects(EPhysObjType::kGoodPhoton)[1];
     auto caloTower = event->GetPhysObjects(EPhysObjType::kCaloTower);
+    //Vertex info//Date:09/02/2023
+    auto vertexs = event->GetPhysObjects(EPhysObjType::kVertex);
      //date: 3/11/2022
  //   float deltaR1 = physObjectProcessor.GetDeltaR(*event.GetPhysObjects(EPhysObjType::kGeneralTrack)[0],
    //                                             *event.GetPhysObjects(EPhysObjType::kGoodPhoton)[0]);
@@ -440,7 +438,7 @@ int main(int argc, char* argv[])
     ok_chexcl_tracks = (genTracks.size()==0);
     ok_chexcl_electrons = (electrons.size()==0);
     ok_chexcl_muons = (muons.size()==0);
-   ok_chexcl_goodtracks = (goodGenTracks.size()==0);
+    ok_chexcl_goodtracks = (goodGenTracks.size()==0);
     ok_chexcl_goodelectrons = (goodElectrons.size()==0);
    
     nTracks  = genTracks.size();
@@ -514,10 +512,20 @@ int main(int argc, char* argv[])
     phoSigmaIEta_2     = photon2->GetSigmaEta2012();
     ///Add Muon info, Date:29/10/2022
      nMu = muons.size();
-     xVtx = event->GetPVertexX();
-     cout << "xVtx" << event->GetPVertexX() << endl;
-     yVtx = event->GetPVertexY();
-     zVtx = event->GetPVertexZ();
+     nVtx = vertexs.size();
+    for(auto vertex : vertexs){
+     cout << "xVtx = " << vertex->GetPVertexX() << endl;
+     cout << "yVtx = " << vertex->GetPVertexY() << endl;
+     cout << "zVtx = " << vertex->GetPVertexZ() << endl;
+     xVtx = vertex->GetPVertexX();
+     yVtx = vertex->GetPVertexY();
+     zVtx = vertex->GetPVertexZ();
+
+   }
+     //xVtx = event->GetPVertexX();
+  //   cout << "xVtx" << event->GetPVertexX() << endl;
+ //    yVtx = event->GetPVertexY();
+   //  zVtx = event->GetPVertexZ();
      
      //nVtx = event->GetNVertex();
     for (auto muon : muons) {
@@ -525,7 +533,7 @@ int main(int argc, char* argv[])
      muPt = muon->GetPt();
      muEta = muon->GetEta();
      muPhi = muon->GetPhi();
- //    cout << "xVtx" << event->GetPVertexX() << endl;
+     //cout << "xVtx" << event->GetPVertexX() << endl;
 
    }
 /////////////////////////
