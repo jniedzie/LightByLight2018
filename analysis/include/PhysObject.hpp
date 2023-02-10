@@ -52,10 +52,12 @@ public:
   double GetDzErr()         const;
   double GetXYdistanceFromBeamSpot(EDataset dataset) const;
   double GetZdistanceFromBeamSpot(EDataset dataset)  const;
+//////////////////////////////////
+
   double GetVertexX()       const;
   double GetVertexY()       const;
   double GetVertexZ()       const;
-  
+  ///////////////////////////////////
   double GetEnergy()     const;
   double GetEnergyHad()  const;
   double GetEnergyEm()   const;
@@ -89,7 +91,12 @@ public:
   bool TrkQuality() const;
   double GetInnerD0() const;
   double GetInnerDz() const;   
-
+/////////////////////////////////////////date:5/02/2023, Vertex info
+  int    GetNVertex() const;
+  double GetPVertexX() const;
+  double GetPVertexY() const;
+  double GetPVertexZ() const;
+///////////////////////////////////////////////////////////////////
    
 private:
   double eta;       ///< Pseudorapidity
@@ -130,8 +137,10 @@ private:
   double d0;        ///< transverse impact parameter between track and beam spot
   double dxy, dz;   ///< distance between track and primary vertex
   double dxyErr, dzErr;///< uncertainties on dxy and dz
-  double vx, vy, vz;///< vertex coordinates
-  
+  int nVtx;
+  double  xVtx, yVtx, zVtx;///< vertex coordinates;Date:5/02/2023
+  double vx, vy, vz;
+ // double xVtx; 
   double chargedIso;  ///< Isolation wrt. charged particles
   double photonIso;   ///< Isolation wrt. photons
   double neutralIso;  ///< Isolation wrt. neutral particles
@@ -153,6 +162,7 @@ private:
   double innDz;
 
   friend class EventProcessor;
+
   friend class PhysObjectProcessor;
 };
 
