@@ -54,7 +54,12 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("mcPhi"                 , &mcPhi);
   eventTree->SetBranchAddress("mcEt"                  , &mcEt);
   eventTree->SetBranchAddress("mcPID"                 , &mcPID);
-  
+  //Event vertex info: Date:5/02/2023
+  eventTree->SetBranchAddress("nVtx"                  , &nPhysObjects.at(EPhysObjType::kVertex)); 
+  eventTree->SetBranchAddress("xVtx"                  , &xVtx); 
+  eventTree->SetBranchAddress("yVtx"                  , &yVtx); 
+  eventTree->SetBranchAddress("zVtx"                  , &zVtx); 
+  //
   eventTree->SetBranchAddress("nPho"                  , &nPhysObjects.at(EPhysObjType::kPhoton));
   eventTree->SetBranchAddress("phoHoverE"             , &photonHoverE);
   eventTree->SetBranchAddress("phoEta"                , &photonEta);
@@ -150,7 +155,11 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("run"             , &runNumber);
   eventTree->SetBranchAddress("lumis"           , &lumiSection);
   eventTree->SetBranchAddress("event"           , &eventNumber);
-  
+ //////////////////Date:5/02/2023
+ 
+//  eventTree->SetBranchAddress("xVtx"            , &xVtx);
+
+//////////////////////////////////// 
   eventTree->SetBranchAddress("nDisplacedTracks", &nDisplacedTracks);
   eventTree->SetBranchAddress("nPixelClusters"  , &nPixelClusters);
   eventTree->SetBranchAddress("nPixelRecHits"   , &nPixelRecHits);
@@ -305,7 +314,12 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
   currentEvent->runNumber   = runNumber;
   currentEvent->lumiSection = lumiSection;
   currentEvent->eventNumber = eventNumber;
-  
+  //Add Vertex info:Date:5/02/2023
+//  currentEvent->nVtx = nVtx;
+ // currentEvent->xVtx = xVtx;
+//  currentEvent->yVtx = yVtx;
+ // currentEvent->zVtx = zVtx;
+  /////////////////////////////////  
   currentEvent->nDisplacedTracks = nDisplacedTracks;
   currentEvent->nPixelRecHits = nPixelRecHits;
   currentEvent->nPixelClusters = nPixelClusters;
@@ -472,8 +486,18 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     
     currentEvent->physObjects.at(EPhysObjType::kMuon).push_back(muon);
   }
+ ///For Vtx info//Date:09/02/2023
+ for(size_t iVertex=0; iVertex<nPhysObjects.at(EPhysObjType::kVertex); iVertex++){
+    auto vertex = make_shared<PhysObject>();
+    vertex->xVtx = xVtx->at(iVertex);
+    vertex->yVtx = yVtx->at(iVertex);
+    vertex->zVtx = zVtx->at(iVertex);
+    currentEvent->physObjects.at(EPhysObjType::kVertex).push_back(vertex);
 
-  
+
+  }
+////////////////////////////////////
+ 
   // Fill in collection of L1 EG objects
   
   for(size_t iL1EG=0; iL1EG<nL1EGs; iL1EG++){
