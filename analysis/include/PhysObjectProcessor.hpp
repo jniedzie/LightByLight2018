@@ -19,8 +19,10 @@ public:
   
   /// Default destructor
   ~PhysObjectProcessor();
-  
+  ///Returns deltaPhi
+  double GetdeltaPhi(const PhysObject &a, const PhysObject &b);
   /// Returns ΔR=sqrt(Δη^2 + Δφ^2) between two PhysObjects
+
   double GetDeltaR(const PhysObject &a, const PhysObject &b);
   
   double GetDeltaR_SC(const PhysObject &a, const PhysObject &b);
