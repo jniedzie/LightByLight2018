@@ -27,8 +27,8 @@ const double LumiLossHotZDCneg = 0;
 
 //const double luminosity       = 1635.123139823; // μb^-1
 //const double luminosity       = 1639.207543; // μb^-1
-//const double luminosity       = 1647.228136; // μb^-1 from Gabi Feb 13, 2022
-const double luminosity       = 1561.948136; // μb^-1 from Gabi Aug, 2022, removing ZDC neg hot region 85.28 mub
+const double luminosity       = 1647.228136; // μb^-1 from Gabi Feb 13, 2022
+//const double luminosity       = 1561.948136; // μb^-1 from Gabi Aug, 2022, removing ZDC neg hot region 85.28 mub
 
 const int nSample = 5;
 const char *sample[nSample]={"Data","QEDSCFSR","QEDSL","QEDMG5FSROnePhton","QEDMG5FSRTwoPhton"};
@@ -169,7 +169,7 @@ void plotQED_addUncertainty(){
        if(i==0 ){  
         //if(i==0 && qedR.ok_zdcexcl_4n_pos == 1 && qedR.ok_zdcexcl_4n_neg == 1) 
         //if(i==0 && qedR.zdc_energy_pos < 10000 && qedR.zdc_energy_neg < 10000 ) 
-        if(qedR.ok_zdcexcl != 1 ) continue;  //bad ZDC negative runs removed in ok_zdcexcl variable
+        //if(qedR.ok_zdcexcl != 1 ) continue;  //bad ZDC negative runs removed in ok_zdcexcl variable
         }
             
 
@@ -310,7 +310,7 @@ void plotQED_addUncertainty(){
 
   for (int i = 0; i < nSample; i++){
   cout << " Acop < 0.01 " << sample[i] <<  " :" << hAcop[i]->Integral(1,10) << endl;  
-  cout << " sum pt: " << sample[i] <<  " :" << hSumPt[i]->Integral() << endl;  
+  //cout << " sum pt: " << sample[i] <<  " :" << hSumPt[i]->Integral() << endl;  
  }
 
   
