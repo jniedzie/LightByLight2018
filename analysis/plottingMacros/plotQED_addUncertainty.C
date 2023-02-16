@@ -112,11 +112,12 @@ void plotQED_addUncertainty(){
   TH1D* hCosThetaStar[nSample];
  
   TH1D* hZDCPos[nSample], *hZDCNeg[nSample];
+  TH1D* hnVtx[nSample], *hxVtx[nSample], *hyVtx[nSample], *hzVtx[nSample];//For vertex info//
 
 
   for (int i = 0; i < 1; i++){
     qed[i] = new TChain("output_tree");
-    qed[i]->Add(Form("%s_cosThetaStar_qed.root",sample[i]));
+    qed[i]->Add(Form("/eos/user/p/pjana/LByL/AcoRootFromRuchi/fordielectron/%s_qed.root",sample[i]));
 
     hElePt1[i]    = new TH1D(Form("hElePt1%s", sample[i]),"",50,0,50);
     hEleEta1[i]   = new TH1D(Form("hEleEta1%s",sample[i]),"",24,-2.4,2.4);
@@ -137,7 +138,12 @@ void plotQED_addUncertainty(){
     
     hZDCPos[i]   = new TH1D(Form("hZDCPos%s",sample[i]),"",110,0,220000);
     hZDCNeg[i]   = new TH1D(Form("hZDCNeg%s",sample[i]),"",425,0,850000);
-
+    ///Vertex info
+    hnVtx[i]  = new TH1D(Form("hnVtx%s", sample[i]),"",10,0,10);
+    hxVtx[i]  = new TH1D(Form("hxVtx%s", sample[i]),"",96,-0.8,0.8);
+    hyVtx[i]  = new TH1D(Form("hyVtx%s", sample[i]),"",96,-0.8,0.8);
+    hzVtx[i]  = new TH1D(Form("hzVtx%s", sample[i]),"",40,-20,20);
+    /////
     cout << "file " << qed[i]->GetEntries()  << endl;
     ReadQEDTree  qedR(qed[i]);
     qedR.fChain->SetBranchStatus("*",1);
@@ -169,7 +175,7 @@ void plotQED_addUncertainty(){
        if(i==0 ){  
         //if(i==0 && qedR.ok_zdcexcl_4n_pos == 1 && qedR.ok_zdcexcl_4n_neg == 1) 
         //if(i==0 && qedR.zdc_energy_pos < 10000 && qedR.zdc_energy_neg < 10000 ) 
-        if(qedR.ok_zdcexcl != 1 ) continue;  //bad ZDC negative runs removed in ok_zdcexcl variable
+        //if(qedR.ok_zdcexcl != 1 ) continue;  //bad ZDC negative runs removed in ok_zdcexcl variable
         }
             
 
@@ -194,6 +200,16 @@ void plotQED_addUncertainty(){
 	hCosThetaStar[i]->Fill(abs(qedR.costhetastar),acoSF);
 	hZDCPos[i]->Fill(qedR.zdc_energy_pos,acoSF);
 	hZDCNeg[i]->Fill(qedR.zdc_energy_neg,acoSF);
+        //
+        hnVtx[i]->Fill(qedR.nVtx);
+        hxVtx[i]->Fill(qedR.xVtx);
+        hyVtx[i]->Fill(qedR.yVtx);
+        hzVtx[i]->Fill(qedR.zVtx);
+        cout << "xVtx = " << qedR.xVtx << endl;
+        cout << "yVtx = " << qedR.yVtx << endl;
+        cout << "zVtx = " << qedR.zVtx << endl;
+      //  cout << "xVtx = " << qedR.xVtx << endl;
+
       
     } //entry
   } // for 4 files
@@ -202,6 +218,7 @@ void plotQED_addUncertainty(){
     hElePt1[i]->Add(hElePt2[i]);
     hEleEta1[i]->Add(hEleEta2[i]);
     hElePhi1[i]->Add(hElePhi2[i]);
+
   }
   
 
@@ -212,7 +229,7 @@ void plotQED_addUncertainty(){
   for (int i = 1; i < nSample; i++){
     
     fMC[i] = TFile::Open(Form("%s_withSFs.root",sample[i]));
-      tr[i]   = (TTree*) fMC[i]->Get("trMC");
+      //tr[i]   = (TTree*) fMC[i]->Get("trMC");
 
   cout << " file is opened: " << sample[i] << endl;
 
@@ -244,7 +261,25 @@ void plotQED_addUncertainty(){
    float B = 0.14;
    float L = 0.14;
    float R = 0.04;
-   
+   //
+   TCanvas*c21 = new TCanvas();
+   hxVtx[0]->Draw("HIST");
+   c21->Print("xVtx.png");
+
+   TCanvas*c20 = new TCanvas();
+   hnVtx[0]->Draw("HIST");
+   c20->Print("nVtx.png");
+
+   TCanvas*c22 = new TCanvas();
+   hyVtx[0]->Draw("HIST");
+   c22->Print("yVtx.png");
+
+   TCanvas*c23 = new TCanvas();
+   hzVtx[0]->Draw("HIST");
+   c23->Print("zVtx.png");
+
+   //
+   ///////   
    
    MyCanvas mc1("mass","Dielectron invariant mass (GeV)", "Entries / (2 GeV)", W, H);
    mc1.SetLogy(false);
@@ -252,7 +287,7 @@ void plotQED_addUncertainty(){
    mc1.SetRatioRange(0.1,1.9);
    mc1.SetLegendPosition(0.60,0.68,0.9,0.85);
    mc1.CanvasWithThreeHistogramsRatioPlot(hInvmass[0],hInvmass[1],hInvmass[2],"Data","Superchic+Photos","Starlight","Data/MC",kBlack,kBlue,kRed,kFALSE,kTRUE,kTRUE,"EP","hist SAME", "hist SAME");
-   mc1.PrintCanvas();
+ //  mc1.PrintCanvas();
  
  
    MyCanvas mc2("pt","Dielectron p_{T} (GeV)", "Entries / (0.5 GeV)", W, H);
@@ -262,14 +297,14 @@ void plotQED_addUncertainty(){
    mc2.SetRatioRange(0.1,1.9);
    mc2.SetLegendPosition(0.6,0.68,0.9,0.85);
    mc2.CanvasWithThreeHistogramsRatioPlot(hSumPt[0],hSumPt[1],hSumPt[2],"Data","Superchic+photos","Starlight","Data/MC",kBlack,kBlue,kRed,kFALSE,kTRUE,kTRUE,"EP","hist SAME", "hist SAME");
-   mc2.PrintCanvas();   
+   //mc2.PrintCanvas();   
    
    MyCanvas mc3("rap","Dielectron y", "Entries / (0.2)", W, H);
    mc3.SetYRange(0,5000);
    mc3.SetRatioRange(0.1,1.9);
    mc3.SetLegendPosition(0.16,0.68,0.56,0.85);
    mc3.CanvasWithThreeHistogramsRatioPlot(hRap[0],hRap[1],hRap[2],"Data","Superchic+Photos","Starlight","Data/MC",kBlack,kBlue,kRed,kFALSE,kTRUE,kTRUE,"EP","hist SAME", "hist SAME");
-   mc3.PrintCanvas();
+   //mc3.PrintCanvas();
    
    MyCanvas mc4("elePt","Electron Pt", "Entries / (0.2)", W, H);
    mc4.SetLogy(false);
@@ -277,7 +312,7 @@ void plotQED_addUncertainty(){
    mc4.SetRatioRange(0.1,1.9);
    mc4.SetLegendPosition(0.6,0.68,0.9,0.85);
    mc4.CanvasWithThreeHistogramsRatioPlot(hElePt1[0],hElePt1[1],hElePt1[2],"Data","Superchic+Photos","Starlight","Data/MC",kBlack,kBlue,kRed,kFALSE,kTRUE,kTRUE,"EP","hist SAME", "hist SAME");
-   mc4.PrintCanvas();
+   //mc4.PrintCanvas();
 
  
 
@@ -286,7 +321,7 @@ void plotQED_addUncertainty(){
    mc5.SetRatioRange(0.1,1.9);
    mc5.SetLegendPosition(0.16,0.68,0.56,0.85);
    mc5.CanvasWithThreeHistogramsRatioPlot(hEleEta1[0],hEleEta1[1],hEleEta1[2],"Data","Superchic+Photos","Starlight","Data/MC",kBlack,kBlue,kRed,kFALSE,kTRUE,kTRUE,"EP","hist SAME", "hist SAME");
-   mc5.PrintCanvas();
+   //mc5.PrintCanvas();
 
 
 
@@ -295,7 +330,7 @@ void plotQED_addUncertainty(){
    mc6.SetRatioRange(0.1,1.9);
    mc6.SetLegendPosition(0.16,0.68,0.56,0.85);
    mc6.CanvasWithThreeHistogramsRatioPlot(hElePhi1[0],hElePhi1[1],hElePhi1[2],"Data","Superchic+Photos","Starlight","Data/MC",kBlack,kBlue,kRed,kFALSE,kTRUE,kTRUE,"EP","hist SAME", "hist SAME");
-   mc6.PrintCanvas();
+   //mc6.PrintCanvas();
   
 
    MyCanvas mc7("acop","Dielectron acoplanarity", "Entries / (2 GeV)", W, H);
@@ -323,7 +358,7 @@ TH1D* SFuncert(TTree *tr, const char* name, const char* var, const char* cut, in
    for (int ibin=0; ibin<7; ibin++) {
       TString namei = Form("Reco%s_%d",name,ibin);
       hvari[ibin] = new TH1D(namei,"",nbins,binmin, binmax);
-      tr->Project(namei,var,Form("SFweightR[%d]*SFweightT[%d]*(%s)",ibin,ibin,cut));
+ //     tr->Project(namei,var,Form("SFweightR[%d]*SFweightT[%d]*(%s)",ibin,ibin,cut));
 
       
    }
@@ -335,7 +370,7 @@ TH1D* SFuncert(TTree *tr, const char* name, const char* var, const char* cut, in
       tr->Project(namei,var,Form("SFweightT[%d]*(%s)",ibin,cut));
 
       
-   }
+   }*/
 
    /*new TCanvas(); 
    hvari[0]->SetLineColor(kRed);
@@ -352,7 +387,7 @@ TH1D* SFuncert(TTree *tr, const char* name, const char* var, const char* cut, in
 
    TH1D *hans = new TH1D(name,"",nbins,binmin,binmax);
    if (dorew) hans = (TH1D*) hvari[0]->Clone(name);
-   else tr->Project(name,var,cut); 
+//   else tr->Project(name,var,cut); 
 
 
    for (int i=1; i<=hans->GetNbinsX(); i++) {
