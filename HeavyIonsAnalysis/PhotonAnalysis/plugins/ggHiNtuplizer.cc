@@ -1245,7 +1245,7 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
       //break;
    // }
 /////////////////////////////////////////
-//Try to implement vtx info like in 2015
+// Vtx info
   reco::Vertex pv(math::XYZPoint(0, 0, -999), math::Error<3>::type());
   for (const auto& v : *vtxHandle)
     if (!v.isFake()) {
@@ -1547,6 +1547,8 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     elePt_               .push_back(ele->pt());
     std::cout << "elePt" << ele->pt() << std::endl;
     eleEta_              .push_back(ele->eta());
+    std::cout << "eleEta" << ele->eta() << std::endl;
+
     elePhi_              .push_back(ele->phi());
     eleSCEn_             .push_back(ele->superCluster()->energy());
     eleESEn_             .push_back(ele->superCluster()->preshowerEnergy());
@@ -1777,6 +1779,8 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
     phoE_             .push_back(pho->energy());
     phoEt_            .push_back(pho->et());
     phoEta_           .push_back(pho->eta());
+ //   std::(pho->eta());
+     std::cout << "PhoEta" << pho->eta() << std::endl;
     phoPhi_           .push_back(pho->phi());
 
     // energies from different types of corrections
@@ -1844,6 +1848,8 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
     // phoEleVeto_       .push_back((int)pho->passElectronVeto());   // TODO: not available in reco::
     phoHadTowerOverEm_.push_back(pho->hadTowOverEm());
     phoHoverE_        .push_back(pho->hadronicOverEm());
+    std::cout << "PhoHOverE" << pho->hadronicOverEm() << std::endl;
+
     phoHoverEValid_   .push_back(pho->hadronicOverEmValid());
     phoSigmaIEtaIEta_ .push_back(pho->sigmaIetaIeta());
     phoR9_            .push_back(pho->r9());
@@ -2179,7 +2185,7 @@ void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, re
   for (const auto& mu : *recoMuonsHandle) {
     
     //if (mu.pt() < 3.0) continue;
-    if (!(mu.isPFMuon() || mu.isGlobalMuon() || mu.isTrackerMuon() || mu.isStandAloneMuon())) continue;
+    if (!(mu.isPFMuon() || mu.isGlobalMuon() || mu.isTrackerMuon())) continue;
     //if (!(mu.isStandAloneMuon())) continue;
 
     //Date:19/08/2022,px,py,pz  
