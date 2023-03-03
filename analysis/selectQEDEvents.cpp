@@ -100,6 +100,12 @@ float costhetastar;
 float cos_photon_pair_helicity0;
 float cos_photon_pair_helicity1;
 
+int nVtx;
+float xVtx;
+float yVtx;
+float zVtx;
+
+
 /// initialise gen tree
 void InitGenTree(TTree *genTree) {
   genTree->Branch("gen_Pt1",  &gen_Pt1, "gen_Pt1/F");
@@ -184,6 +190,11 @@ void InitTree(TTree *tr) {
   tr->Branch("costhetastar",        &costhetastar,        "costhetastar/F");
   tr->Branch("cos_photon_pair_helicity0",     &cos_photon_pair_helicity0,     "cos_photon_pair_helicity0/F");
   tr->Branch("cos_photon_pair_helicity1",     &cos_photon_pair_helicity1,     "cos_photon_pair_helicity1/F");
+  //
+  tr->Branch("nVtx",                 &nVtx,                        "nVtx/I");
+  tr->Branch("xVtx",                 &xVtx,                        "xVtx/F");
+  tr->Branch("yVtx",                 &yVtx,                        "yVtx/F");
+  tr->Branch("zVtx",                 &zVtx,                        "zVtx/F");
 
 }
 
@@ -261,6 +272,12 @@ void ResetVars() {
   costhetastar = -999;
   cos_photon_pair_helicity0 = -999;
   cos_photon_pair_helicity1 = -999;
+  //
+  nVtx = 0;
+  xVtx = -999;
+  yVtx = -999;
+  zVtx = -999;
+
 }
 
 
@@ -366,7 +383,10 @@ int main(int argc, char* argv[])
     auto electron1 = event->GetPhysObjects(EPhysObjType::kGoodElectron)[0];
     auto electron2 = event->GetPhysObjects(EPhysObjType::kGoodElectron)[1];
     auto caloTower = event->GetPhysObjects(EPhysObjType::kCaloTower);
+    //
+     auto vertexs = event->GetPhysObjects(EPhysObjType::kVertex);
 
+    //
     if(electron1->GetCharge() == electron2->GetCharge()) continue;
     oppCharge++;
     hist->SetBinContent(3,oppCharge);      hist_wozdc->SetBinContent(3,oppCharge);
@@ -433,7 +453,18 @@ int main(int argc, char* argv[])
     eleSCEta_2   = electron2->GetEtaSC();
     eleSCPhi_2   = electron2->GetPhiSC();
     eleEoverP_2  = electron2->GetEoverP(); 
- 
+    ////////////////////////////////////////
+    nVtx = vertexs.size();
+    for(auto vertex : vertexs){
+     cout << "xVtx = " << vertex->GetPVertexX() << endl;
+     cout << "yVtx = " << vertex->GetPVertexY() << endl;
+     cout << "zVtx = " << vertex->GetPVertexZ() << endl;
+     xVtx = vertex->GetPVertexX();
+     yVtx = vertex->GetPVertexY();
+     zVtx = vertex->GetPVertexZ();
+
+   }
+    //////////////////////////////////////////////////
     // reco+ID scale factor   
     double sf1_reco = SF_reco(elePt_1,eleEta_1);
     double sf2_reco = SF_reco(elePt_2,eleEta_2);
