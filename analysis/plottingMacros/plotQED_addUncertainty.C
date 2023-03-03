@@ -112,7 +112,7 @@ void plotQED_addUncertainty(){
   TH1D* hCosThetaStar[nSample];
  
   TH1D* hZDCPos[nSample], *hZDCNeg[nSample];
-  TH1D* hnVtx[nSample], *hxVtx[nSample], *hyVtx[nSample], *hzVtx[nSample];//For vertex info//
+  TH1D* hnVtx[nSample], *hxVtx[nSample], *hyVtx[nSample], *hzVtx[nSample], *hnRun[nSample], *hnLS[nSample], *hnEvt[nSample];//For vertex info//
 
 
   for (int i = 0; i < 1; i++){
@@ -144,6 +144,10 @@ void plotQED_addUncertainty(){
     hyVtx[i]  = new TH1D(Form("hyVtx%s", sample[i]),"",96,-0.8,0.8);
     hzVtx[i]  = new TH1D(Form("hzVtx%s", sample[i]),"",40,-20,20);
     /////
+    hnRun[i]  = new TH1D(Form("hnRun%s", sample[i]),"",330, 0, 330000);
+    hnLS[i]  = new TH1D(Form("hnLS%s", sample[i]),"",1400, 0, 1400);
+    hnEvt[i]  = new TH1D(Form("hnEvt%s", sample[i]),"",70000, 0, 700000000);
+
     cout << "file " << qed[i]->GetEntries()  << endl;
     ReadQEDTree  qedR(qed[i]);
     qedR.fChain->SetBranchStatus("*",1);
@@ -208,7 +212,12 @@ void plotQED_addUncertainty(){
         cout << "xVtx = " << qedR.xVtx << endl;
         cout << "yVtx = " << qedR.yVtx << endl;
         cout << "zVtx = " << qedR.zVtx << endl;
-      //  cout << "xVtx = " << qedR.xVtx << endl;
+        hnRun[i]->Fill(qedR.run);
+        cout << "nRun: " << qedR.run;
+        hnLS[i]->Fill(qedR.ls);
+        cout << ":" << qedR.ls;
+        hnEvt[i]->Fill(qedR.evtnb);
+        cout << ":" << qedR.evtnb << endl;
 
       
     } //entry
@@ -277,8 +286,17 @@ void plotQED_addUncertainty(){
    TCanvas*c23 = new TCanvas();
    hzVtx[0]->Draw("HIST");
    c23->Print("zVtx.png");
+   //Run no
+   TCanvas*c24 = new TCanvas();
+   hnRun[0]->Draw("HIST");
+   //LS
+   TCanvas*c25 = new TCanvas();
+   hnLS[0]->Draw("HIST");
+   //Event no
+   TCanvas*c26 = new TCanvas();
+   hnEvt[0]->Draw("HIST");
 
-   //
+   
    ///////   
    
    MyCanvas mc1("mass","Dielectron invariant mass (GeV)", "Entries / (2 GeV)", W, H);
@@ -287,7 +305,7 @@ void plotQED_addUncertainty(){
    mc1.SetRatioRange(0.1,1.9);
    mc1.SetLegendPosition(0.60,0.68,0.9,0.85);
    mc1.CanvasWithThreeHistogramsRatioPlot(hInvmass[0],hInvmass[1],hInvmass[2],"Data","Superchic+Photos","Starlight","Data/MC",kBlack,kBlue,kRed,kFALSE,kTRUE,kTRUE,"EP","hist SAME", "hist SAME");
- //  mc1.PrintCanvas();
+   mc1.PrintCanvas();
  
  
    MyCanvas mc2("pt","Dielectron p_{T} (GeV)", "Entries / (0.5 GeV)", W, H);
@@ -297,14 +315,14 @@ void plotQED_addUncertainty(){
    mc2.SetRatioRange(0.1,1.9);
    mc2.SetLegendPosition(0.6,0.68,0.9,0.85);
    mc2.CanvasWithThreeHistogramsRatioPlot(hSumPt[0],hSumPt[1],hSumPt[2],"Data","Superchic+photos","Starlight","Data/MC",kBlack,kBlue,kRed,kFALSE,kTRUE,kTRUE,"EP","hist SAME", "hist SAME");
-   //mc2.PrintCanvas();   
+   mc2.PrintCanvas();   
    
    MyCanvas mc3("rap","Dielectron y", "Entries / (0.2)", W, H);
    mc3.SetYRange(0,5000);
    mc3.SetRatioRange(0.1,1.9);
    mc3.SetLegendPosition(0.16,0.68,0.56,0.85);
    mc3.CanvasWithThreeHistogramsRatioPlot(hRap[0],hRap[1],hRap[2],"Data","Superchic+Photos","Starlight","Data/MC",kBlack,kBlue,kRed,kFALSE,kTRUE,kTRUE,"EP","hist SAME", "hist SAME");
-   //mc3.PrintCanvas();
+   mc3.PrintCanvas();
    
    MyCanvas mc4("elePt","Electron Pt", "Entries / (0.2)", W, H);
    mc4.SetLogy(false);
@@ -312,7 +330,7 @@ void plotQED_addUncertainty(){
    mc4.SetRatioRange(0.1,1.9);
    mc4.SetLegendPosition(0.6,0.68,0.9,0.85);
    mc4.CanvasWithThreeHistogramsRatioPlot(hElePt1[0],hElePt1[1],hElePt1[2],"Data","Superchic+Photos","Starlight","Data/MC",kBlack,kBlue,kRed,kFALSE,kTRUE,kTRUE,"EP","hist SAME", "hist SAME");
-   //mc4.PrintCanvas();
+   mc4.PrintCanvas();
 
  
 
@@ -321,7 +339,7 @@ void plotQED_addUncertainty(){
    mc5.SetRatioRange(0.1,1.9);
    mc5.SetLegendPosition(0.16,0.68,0.56,0.85);
    mc5.CanvasWithThreeHistogramsRatioPlot(hEleEta1[0],hEleEta1[1],hEleEta1[2],"Data","Superchic+Photos","Starlight","Data/MC",kBlack,kBlue,kRed,kFALSE,kTRUE,kTRUE,"EP","hist SAME", "hist SAME");
-   //mc5.PrintCanvas();
+   mc5.PrintCanvas();
 
 
 
@@ -330,7 +348,7 @@ void plotQED_addUncertainty(){
    mc6.SetRatioRange(0.1,1.9);
    mc6.SetLegendPosition(0.16,0.68,0.56,0.85);
    mc6.CanvasWithThreeHistogramsRatioPlot(hElePhi1[0],hElePhi1[1],hElePhi1[2],"Data","Superchic+Photos","Starlight","Data/MC",kBlack,kBlue,kRed,kFALSE,kTRUE,kTRUE,"EP","hist SAME", "hist SAME");
-   //mc6.PrintCanvas();
+   mc6.PrintCanvas();
   
 
    MyCanvas mc7("acop","Dielectron acoplanarity", "Entries / (2 GeV)", W, H);
