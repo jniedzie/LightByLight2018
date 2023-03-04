@@ -190,11 +190,6 @@ private:
   uint lumiSection = 0;
   ULong64_t eventNumber = 0;
  /////////////////////
-//  int nVtx = 0;
-//  double  xVtx = -999;
-//  double yVtx = -999;
-//  double zVtx = -999;
-  //////////////////// 
   int nDisplacedTracks = 0;
   int nPixelClusters = 0;
   int nPixelRecHits = 0;
