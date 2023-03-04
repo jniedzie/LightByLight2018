@@ -212,16 +212,13 @@ void InitTree(TTree *tr) {
   tr->Branch("costhetastar",        &costhetastar,        "costhetastar/F");
   tr->Branch("cos_photon_pair_helicity0",     &cos_photon_pair_helicity0,     "cos_photon_pair_helicity0/F");
   tr->Branch("cos_photon_pair_helicity1",     &cos_photon_pair_helicity1,     "cos_photon_pair_helicity1/F");
-  ////Muon info, Date:29/10/2022
+  ////Muon info
   tr->Branch("nMu",                  &nMu,                          "nMu/I");
   tr->Branch("muCharge",             &muCharge,                     "muCharge/I");
   tr->Branch("muPt",                 &muPt,                         "muPt/F");
   tr->Branch("muEta",                &muEta,                        "muEta/F");
   tr->Branch("muPhi",                &muPhi,                        "muPhi/F");
- // tr->Branch("convertTrack",   &convertTrack,    "converTrack/I"); 
- // tr->Branch("deltaR1",   &deltaR1,    "deltaR1/F"); 
- // tr->Branch("deltaR2",   &deltaR2,    "deltaR2/F"); 
-//Add Vertex info//Date:5/02/2023
+  //Vertex info
   tr->Branch("nVtx",                 &nVtx,                        "nVtx/I");
   tr->Branch("xVtx",                 &xVtx,                        "xVtx/F");
   tr->Branch("yVtx",                 &yVtx,                        "yVtx/F");
@@ -309,17 +306,13 @@ void ResetVars() {
   costhetastar = -999;
   cos_photon_pair_helicity0 = -999;
   cos_photon_pair_helicity1 = -999;
-  //Add muon, Date:29/10/2022
+  //Add muon
   nMu = 0;
   muCharge = 0;
   muPt = -999;
   muEta = -999;
   muPhi = -999;
-  //Date:3/11/2022
- // deltaR1 = 999;
- // deltaR2 = 999;
- // convertTrack = 0;
-//Add Vertex info//Date:5/02/2023
+//Add Vertex info
   nVtx = 0;
   xVtx = -999;
   yVtx = -999;
@@ -419,15 +412,9 @@ int main(int argc, char* argv[])
     auto photon1   = event->GetPhysObjects(EPhysObjType::kGoodPhoton)[0];
     auto photon2   = event->GetPhysObjects(EPhysObjType::kGoodPhoton)[1];
     auto caloTower = event->GetPhysObjects(EPhysObjType::kCaloTower);
-    //Vertex info//Date:09/02/2023
-    auto vertexs = event->GetPhysObjects(EPhysObjType::kVertex);
-     //date: 3/11/2022
- //   float deltaR1 = physObjectProcessor.GetDeltaR(*event.GetPhysObjects(EPhysObjType::kGeneralTrack)[0],
-   //                                             *event.GetPhysObjects(EPhysObjType::kGoodPhoton)[0]);
-   // float deltaR2 = physObjectProcessor.GetDeltaR(*event.GetPhysObjects(EPhysObjType::kGeneralTrack)[0],
-     //                                           *event.GetPhysObjects(EPhysObjType::kGoodPhoton)[1]);
-   // int convertTrack = (deltaR1 < 0.1 || deltaR2 < 0.1);
-    ////////////////////////////
+    //Vertex info
+    auto vertices = event->GetPhysObjects(EPhysObjType::kVertex);
+   
        // event variables
     ok_neuexcl = (!event->HasAdditionalTowers());
     ok_castorexcl = (!event->HasCastorTowers());
@@ -510,10 +497,10 @@ int main(int argc, char* argv[])
     phoEnergyCrysMax_2 = photon2->GetEnergyCrystalMax();
     phoSeedTime_2      = photon2->GetSeedTime();
     phoSigmaIEta_2     = photon2->GetSigmaEta2012();
-    ///Add Muon info, Date:29/10/2022
+    ///Add Muon info
      nMu = muons.size();
-     nVtx = vertexs.size();
-    for(auto vertex : vertexs){
+     nVtx = vertices.size();
+    for(auto vertex : vertices){
      cout << "xVtx = " << vertex->GetPVertexX() << endl;
      cout << "yVtx = " << vertex->GetPVertexY() << endl;
      cout << "zVtx = " << vertex->GetPVertexZ() << endl;
@@ -522,18 +509,12 @@ int main(int argc, char* argv[])
      zVtx = vertex->GetPVertexZ();
 
    }
-     //xVtx = event->GetPVertexX();
-  //   cout << "xVtx" << event->GetPVertexX() << endl;
- //    yVtx = event->GetPVertexY();
-   //  zVtx = event->GetPVertexZ();
      
-     //nVtx = event->GetNVertex();
     for (auto muon : muons) {
      cout << "MuonPt = " << muon->GetPt() << endl;
      muPt = muon->GetPt();
      muEta = muon->GetEta();
      muPhi = muon->GetPhi();
-     //cout << "xVtx" << event->GetPVertexX() << endl;
 
    }
 /////////////////////////
@@ -560,8 +541,6 @@ int main(int argc, char* argv[])
    nPixelCluster = event->GetNpixelClusters();
    nPixelRecHits =  event->GetNpixelRecHits();
     
-   //xVtx = event->GetPVertexX();//Add Vertex:Date:6/02/2023
-
 
    cos_photon_pair_helicity0 = cosphotonpair(pho1, dipho, 0); // Boost of one photon in the pair direction (in the rest frame of the pair). The other will be at pi rads from the 1st.
    cos_photon_pair_helicity1 = cosphotonpair(pho1, dipho, 1); 
