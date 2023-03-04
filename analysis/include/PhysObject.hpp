@@ -138,7 +138,7 @@ private:
   double dxy, dz;   ///< distance between track and primary vertex
   double dxyErr, dzErr;///< uncertainties on dxy and dz
   int nVtx;
-  double  xVtx, yVtx, zVtx;///< vertex coordinates;Date:5/02/2023
+  double  xVtx, yVtx, zVtx;///< vertex coordinates
   double vx, vy, vz;
  // double xVtx; 
   double chargedIso;  ///< Isolation wrt. charged particles
