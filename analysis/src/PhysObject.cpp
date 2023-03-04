@@ -47,7 +47,7 @@ dzErr(-9999),
 vx(-9999),
 vy(-9999),
 vz(-9999),
-////////////////////date:5/02/2023
+///////////////////
 nVtx(0),
 xVtx(-9999),
 yVtx(-9999),
@@ -274,7 +274,7 @@ double PhysObject::GetVertexZ() const
   if(vz < -999) Log(1)<<"WARNING - carefull, vz probably not set\n";
   return vz;
 }
-/////////////////////////////////////////Date:5/02/2023
+//////////////////////////////////////
 int PhysObject::GetNVertex() const
 {
   if(nVtx < 0) Log(1)<<"WARNING - carefull, vx probably not set\n";
