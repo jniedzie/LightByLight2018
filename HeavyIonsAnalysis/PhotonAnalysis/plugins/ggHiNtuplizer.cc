@@ -1236,14 +1236,6 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   edm::Handle<std::vector<reco::Vertex> > vtxHandle;
   e.getByToken(vtxCollection_, vtxHandle);
 
-  // best-known primary vertex coordinates
-  // /////////////////////////////////Comment out to implement 2015 vtx info
-  //reco::Vertex pv(math::XYZPoint(0, 0, -999), math::Error<3>::type());
-  //for (const auto& v : *vtxHandle)
-    //if (!v.isFake()) {
-      //pv = v;
-      //break;
-   // }
 /////////////////////////////////////////
 // Vtx info
   reco::Vertex pv(math::XYZPoint(0, 0, -999), math::Error<3>::type());
@@ -1539,7 +1531,7 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     eleTrkNormalizedChi2_.push_back(ele->gsfTrack()->normalizedChi2());
     eleTrkValidHits_     .push_back(ele->gsfTrack()->numberOfValidHits());
     eleTrkLayers_        .push_back(ele->gsfTrack()->hitPattern().trackerLayersWithMeasurement());
-    //date:19/08/2022,px,py,pz
+    //px,py,pz
     elePx_               .push_back(ele->px());
     elePy_               .push_back(ele->py());
     elePz_               .push_back(ele->pz());
@@ -2188,7 +2180,7 @@ void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, re
     if (!(mu.isPFMuon() || mu.isGlobalMuon() || mu.isTrackerMuon())) continue;
     //if (!(mu.isStandAloneMuon())) continue;
 
-    //Date:19/08/2022,px,py,pz  
+    //px,py,pz  
     muPx_    .push_back(mu.px());
     muPy_    .push_back(mu.py());
     muPz_    .push_back(mu.pz());
@@ -2243,7 +2235,7 @@ void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, re
       muInnerPt_     .push_back(-99);
       muInnerPtErr_  .push_back(-99);
       muInnerEta_    .push_back(-99);
-      //muonTrkPhi,16/08/2022
+      //muonTrkPhi
       muInnerPhi_    .push_back(-99);    
       //
       muTrkLayers_   .push_back(-99);
@@ -2253,14 +2245,14 @@ void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, re
     } else {
       muInnerD0_     .push_back(innMu->dxy(pv.position()));
       muInnerDz_     .push_back(innMu->dz(pv.position()));
-      //date:29/08/20222,print innerdz
+      //print innerdz
       std::cout << "MuonInnerDz:" << (innMu->dz(pv.position())) << std::endl;     
       muInnerD0Err_  .push_back(innMu->dxyError());
       muInnerDzErr_  .push_back(innMu->dzError());
       muInnerPt_     .push_back(innMu->pt());
       muInnerPtErr_  .push_back(innMu->ptError());
       muInnerEta_    .push_back(innMu->eta());
-      //muonTrkPhi,16/08/2022
+      //muonTrkPhi
       muInnerPhi_    .push_back(innMu->phi());     
       //
       muTrkLayers_   .push_back(innMu->hitPattern().trackerLayersWithMeasurement());
@@ -2398,7 +2390,7 @@ void ggHiNtuplizer::fillCaloTower(const edm::Event& e, const edm::EventSetup& es
   }
 } // calo tower loop
 
-//Date:22/09/2022; siPixel module is not prseent in GK's FSR sample
+
 void ggHiNtuplizer::fillTrackerHits(const edm::Event& event)
 {
   /// dE/dx hit info
