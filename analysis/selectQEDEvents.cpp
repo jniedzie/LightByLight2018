@@ -384,7 +384,7 @@ int main(int argc, char* argv[])
     auto electron2 = event->GetPhysObjects(EPhysObjType::kGoodElectron)[1];
     auto caloTower = event->GetPhysObjects(EPhysObjType::kCaloTower);
     //
-     auto vertexs = event->GetPhysObjects(EPhysObjType::kVertex);
+     auto vertices = event->GetPhysObjects(EPhysObjType::kVertex);
 
     //
     if(electron1->GetCharge() == electron2->GetCharge()) continue;
@@ -454,8 +454,8 @@ int main(int argc, char* argv[])
     eleSCPhi_2   = electron2->GetPhiSC();
     eleEoverP_2  = electron2->GetEoverP(); 
     ////////////////////////////////////////
-    nVtx = vertexs.size();
-    for(auto vertex : vertexs){
+    nVtx = vertices.size();
+    for(auto vertex : vertices){
      cout << "xVtx = " << vertex->GetPVertexX() << endl;
      cout << "yVtx = " << vertex->GetPVertexY() << endl;
      cout << "zVtx = " << vertex->GetPVertexZ() << endl;
