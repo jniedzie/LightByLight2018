@@ -16,8 +16,6 @@ Event::Event()
   nPixelClusters = 0;
   nPixelRecHits = 0;
   nDedxHits = 0;
-//Add Vertex info;Date:6/02/2023
-//  xVtx = 0;
 }
 
 Event::~Event()
@@ -34,8 +32,6 @@ void Event::Reset()
   nPixelClusters = 0;
   nPixelRecHits = 0;
   nDedxHits = 0;
-  //Add Vertex info:Date:6/02/2023
- // xVtx = 0;
 }
 
 bool Event::HasTrigger(ETrigger trigger) const
