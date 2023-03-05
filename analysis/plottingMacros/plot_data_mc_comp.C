@@ -143,7 +143,9 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
   TH1D* hnMu[nSample];
   TH1D* hnVtx[nSample], *hxVtx[nSample], *hyVtx[nSample], *hzVtx[nSample];  
  // TH1D* hmuPt[nSample];
-
+  TH1D* hDeltaSeedTime[nSample];
+  TH2D* hSeedTime[nSample];
+  //
   for (int i = 0; i < nSample; i++){
     tree[i] = new TChain("output_tree");
     tree[i]->Add(Form("/eos/user/p/pjana/LByL/AcoRootFromRuchi/forPranati/%s_diphoton.root",sample[i]));
@@ -170,7 +172,10 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
     hyVtx[i]  = new TH1D(Form("hyVtx%s", sample[i]),"",50,-1500,50);
     hzVtx[i]  = new TH1D(Form("hzVtx%s", sample[i]),"",50,-1500,50);
    // hmuPt[i] = new TH1D(Form("hmuPt%s", sample[i]),"",20,-1100,20);
-    //
+    //SeedTime//Pranati
+    hSeedTime[i] = new TH2D(Form("hSeedTime%s", sample[i]),"",48,-4,4,48,-4,4);
+    hDeltaSeedTime[i] = new TH1D(Form("hDeltaSeedTime%s", sample[i]),"",8,0,4);
+    ////
     cout << "nSample:" << i  << endl;
     hdipho_cosThetaStar[i]   = new TH1D(Form("hdipho_cosThetaStar%s",sample[i]),"",5,-1,1);
 
@@ -206,9 +211,9 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
       
       if(i==0) {
          //if(treeR.ok_zdcexcl_4n_pos != 1 || treeR.ok_zdcexcl_4n_neg != 1) continue;
-         //if(treeR.ok_zdcexcl_1n_pos != 1 || treeR.ok_zdcexcl_1n_neg != 1) continue;//0n0n
-         //if(treeR.zdc_energy_pos > 1500 || treeR.zdc_energy_neg > 1500)continue;
-        // if(treeR.zdc_energy_pos >10000  || treeR.zdc_energy_neg > 10000)continue;
+        // if(treeR.ok_zdcexcl_1n_pos != 1 || treeR.ok_zdcexcl_1n_neg != 1) continue;//0n0n
+        // if(treeR.zdc_energy_pos > 1500 || treeR.zdc_energy_neg > 1500)continue;
+         //if(treeR.zdc_energy_pos >10000  || treeR.zdc_energy_neg > 10000)continue;
          //if(treeR.ok_zdcexcl!= 1) continue; //bad ZDC negative runs removed in ok_zdcexcl variable
        }
  
@@ -222,7 +227,7 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
 	hpho_EtaPhi[i]->Fill(treeR.phoEta_1,treeR.phoPhi_1,wt[i]);
         hpho_EtaPhi2[i]->Fill(treeR.phoEta_2,treeR.phoPhi_2,wt[i]);
         }
-      //Date:8/12/2022
+      
       //No ST Muon is passing
       //if(treeR.nMu > 0)continue;
               
@@ -249,6 +254,9 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
         hyVtx[i]->Fill(treeR.yVtx);	     
         hzVtx[i]->Fill(treeR.zVtx);	    
       //  hmuPt[i]->Fill(treeR.muPt);
+      //SeedTime//Pranati
+        hSeedTime[i]->Fill(treeR.phoSeedTime_1,treeR.phoSeedTime_2,wt[i]);
+        hDeltaSeedTime[i]->Fill(fabs(treeR.phoSeedTime_1 - treeR.phoSeedTime_2),wt[i]);
     } //entry
   } // for 4 files
   
@@ -374,9 +382,14 @@ void plot_data_mc_comp(bool QEDNorm, bool QEDNormMG5, bool CEPNorm, bool CEPInco
    TCanvas*c23 = new TCanvas();
    hzVtx[0]->Draw("HIST");
    //c23->Print("figures_photonPt2p5_NoZDCCut_DiPhoPtCut1_CEPInCohScale_VtxInfo/zVtx.png");
-
-
-
+   //
+   TCanvas*c24 = new TCanvas();
+   hSeedTime[0]->Draw("COLZ");
+   c24->Print("SeedTime/SeedTime2D_2.png");
+   TCanvas*c25 = new TCanvas();
+   hDeltaSeedTime[0]->Draw("HIST");
+   c25->Print("SeedTime/DeltaSeedTime_2.png");
+   
 
     
   // c->Print("figures_photonPt2p5_0n0nZDCCut_DiPhoPtCut1_CEPInCohScale_Pranati_STMuon_ZeroSTMuon_13thJan/nMu.png");
@@ -580,7 +593,7 @@ TCanvas* PlotStackHists(TCanvas* c1, TH1D* hdata, TH1D* hlbyl, TH1D* htautau, TH
   c1->Update();
   TString cName=c1->GetName();
   cName+=".png";
-  c1->SaveAs("figures_photonPt2p5_NoZDCCut_DiPhoPtCut1_CEPInCohScale_Ruchi_9thFeb/"+cName);
+  c1->SaveAs("TauTau_Arash/"+cName);
  // c1->SaveAs("figures_photonPt2p5_0n0nZDCCut_23rdJan_afterTriggerDiphotonSelection2_Ruchintuples/"+cName);
   TString c2Name=c1->GetName();
   c2Name+=".pdf";
