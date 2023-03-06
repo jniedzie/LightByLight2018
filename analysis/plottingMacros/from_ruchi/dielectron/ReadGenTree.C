@@ -1,14 +1,14 @@
-#define ReadTree_cxx
-#include "ReadTree.h"
+#define ReadGenTree_cxx
+#include "ReadGenTree.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
 
-void ReadTree::Loop()
+void ReadGenTree::Loop()
 {
 //   In a ROOT session, you can do:
-//      root> .L ReadTree.C
-//      root> ReadTree t
+//      root> .L ReadGenTree.C
+//      root> ReadGenTree t
 //      root> t.GetEntry(12); // Fill t data members with entry number 12
 //      root> t.Show();       // Show values of entry 12
 //      root> t.Show(16);     // Read and show values of entry 16
