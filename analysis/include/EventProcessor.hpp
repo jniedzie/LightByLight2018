@@ -57,7 +57,11 @@ private:
   vector<float> *mcEt                   = nullptr;
   vector<float> *mcE                    = nullptr;
   vector<float> *mcPID                  = nullptr;
-  
+  ///////// 
+  vector<float> *xVtx                   = nullptr;
+  vector<float> *yVtx                   = nullptr;
+  vector<float> *zVtx                   = nullptr;
+  /////////Date:7/02/2023
   vector<float> *photonHoverE           = nullptr;
   vector<float> *photonEta              = nullptr;
   vector<float> *photonPhi              = nullptr;
@@ -185,7 +189,7 @@ private:
   uint runNumber = 0;
   uint lumiSection = 0;
   ULong64_t eventNumber = 0;
-  
+ /////////////////////
   int nDisplacedTracks = 0;
   int nPixelClusters = 0;
   int nPixelRecHits = 0;

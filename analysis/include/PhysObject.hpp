@@ -52,10 +52,12 @@ public:
   double GetDzErr()         const;
   double GetXYdistanceFromBeamSpot(EDataset dataset) const;
   double GetZdistanceFromBeamSpot(EDataset dataset)  const;
+//////////////////////////////////
+
   double GetVertexX()       const;
   double GetVertexY()       const;
   double GetVertexZ()       const;
-  
+  ///////////////////////////////////
   double GetEnergy()     const;
   double GetEnergyHad()  const;
   double GetEnergyEm()   const;
@@ -70,6 +72,7 @@ public:
   double GetPhotonIso()  const;
   double GetNeutralIso() const;
   
+
   double GetRelIsoWithEA()  const;
   double GetDetaSeed()      const;
   
@@ -81,6 +84,20 @@ public:
   int  GetZside()     const;
   double GetSeedTime()      const;
   
+  //For soft muons
+  bool IsGood()     const;
+  int  GetTrkLayers() const;
+  int  GetPixelLayers() const;
+  bool TrkQuality() const;
+  double GetInnerD0() const;
+  double GetInnerDz() const;   
+/////////////////////////////////////////date:5/02/2023, Vertex info
+  int    GetNVertex() const;
+  double GetPVertexX() const;
+  double GetPVertexY() const;
+  double GetPVertexZ() const;
+///////////////////////////////////////////////////////////////////
+   
 private:
   double eta;       ///< Pseudorapidity
   double phi;       ///< Azimuthal angle
@@ -120,8 +137,10 @@ private:
   double d0;        ///< transverse impact parameter between track and beam spot
   double dxy, dz;   ///< distance between track and primary vertex
   double dxyErr, dzErr;///< uncertainties on dxy and dz
-  double vx, vy, vz;///< vertex coordinates
-  
+  int nVtx;
+  double  xVtx, yVtx, zVtx;///< vertex coordinates
+  double vx, vy, vz;
+ // double xVtx; 
   double chargedIso;  ///< Isolation wrt. charged particles
   double photonIso;   ///< Isolation wrt. photons
   double neutralIso;  ///< Isolation wrt. neutral particles
@@ -134,7 +153,16 @@ private:
   
   int zSide;          ///< z-side for ZDC
   
+  ///For soft muon
+  bool isGood;
+  int  trkLayers;
+  int  pixelLayers;
+  bool trkQuality;
+  double innD0;
+  double innDz;
+
   friend class EventProcessor;
+
   friend class PhysObjectProcessor;
 };
 

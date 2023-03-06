@@ -112,11 +112,12 @@ void plotQED_addUncertainty(){
   TH1D* hCosThetaStar[nSample];
  
   TH1D* hZDCPos[nSample], *hZDCNeg[nSample];
+  TH1D* hnVtx[nSample], *hxVtx[nSample], *hyVtx[nSample], *hzVtx[nSample], *hnRun[nSample], *hnLS[nSample], *hnEvt[nSample];//For vertex info//
 
 
   for (int i = 0; i < 1; i++){
     qed[i] = new TChain("output_tree");
-    qed[i]->Add(Form("%s_cosThetaStar_qed.root",sample[i]));
+    qed[i]->Add(Form("/eos/user/p/pjana/LByL/AcoRootFromRuchi/fordielectron/%s_qed.root",sample[i]));
 
     hElePt1[i]    = new TH1D(Form("hElePt1%s", sample[i]),"",50,0,50);
     hEleEta1[i]   = new TH1D(Form("hEleEta1%s",sample[i]),"",24,-2.4,2.4);
@@ -137,6 +138,15 @@ void plotQED_addUncertainty(){
     
     hZDCPos[i]   = new TH1D(Form("hZDCPos%s",sample[i]),"",110,0,220000);
     hZDCNeg[i]   = new TH1D(Form("hZDCNeg%s",sample[i]),"",425,0,850000);
+    ///Vertex info
+    hnVtx[i]  = new TH1D(Form("hnVtx%s", sample[i]),"",10,0,10);
+    hxVtx[i]  = new TH1D(Form("hxVtx%s", sample[i]),"",96,-0.8,0.8);
+    hyVtx[i]  = new TH1D(Form("hyVtx%s", sample[i]),"",96,-0.8,0.8);
+    hzVtx[i]  = new TH1D(Form("hzVtx%s", sample[i]),"",40,-20,20);
+    /////
+    hnRun[i]  = new TH1D(Form("hnRun%s", sample[i]),"",330, 0, 330000);
+    hnLS[i]  = new TH1D(Form("hnLS%s", sample[i]),"",1400, 0, 1400);
+    hnEvt[i]  = new TH1D(Form("hnEvt%s", sample[i]),"",70000, 0, 700000000);
 
     cout << "file " << qed[i]->GetEntries()  << endl;
     ReadQEDTree  qedR(qed[i]);
@@ -194,6 +204,21 @@ void plotQED_addUncertainty(){
 	hCosThetaStar[i]->Fill(abs(qedR.costhetastar),acoSF);
 	hZDCPos[i]->Fill(qedR.zdc_energy_pos,acoSF);
 	hZDCNeg[i]->Fill(qedR.zdc_energy_neg,acoSF);
+        //
+        hnVtx[i]->Fill(qedR.nVtx);
+        hxVtx[i]->Fill(qedR.xVtx);
+        hyVtx[i]->Fill(qedR.yVtx);
+        hzVtx[i]->Fill(qedR.zVtx);
+        cout << "xVtx = " << qedR.xVtx << endl;
+        cout << "yVtx = " << qedR.yVtx << endl;
+        cout << "zVtx = " << qedR.zVtx << endl;
+        hnRun[i]->Fill(qedR.run);
+        cout << "nRun: " << qedR.run;
+        hnLS[i]->Fill(qedR.ls);
+        cout << ":" << qedR.ls;
+        hnEvt[i]->Fill(qedR.evtnb);
+        cout << ":" << qedR.evtnb << endl;
+
       
     } //entry
   } // for 4 files
@@ -202,6 +227,7 @@ void plotQED_addUncertainty(){
     hElePt1[i]->Add(hElePt2[i]);
     hEleEta1[i]->Add(hEleEta2[i]);
     hElePhi1[i]->Add(hElePhi2[i]);
+
   }
   
 
@@ -212,7 +238,7 @@ void plotQED_addUncertainty(){
   for (int i = 1; i < nSample; i++){
     
     fMC[i] = TFile::Open(Form("%s_withSFs.root",sample[i]));
-      tr[i]   = (TTree*) fMC[i]->Get("trMC");
+      //tr[i]   = (TTree*) fMC[i]->Get("trMC");
 
   cout << " file is opened: " << sample[i] << endl;
 
@@ -244,7 +270,34 @@ void plotQED_addUncertainty(){
    float B = 0.14;
    float L = 0.14;
    float R = 0.04;
+   //
+   TCanvas*c21 = new TCanvas();
+   hxVtx[0]->Draw("HIST");
+   c21->Print("xVtx.png");
+
+   TCanvas*c20 = new TCanvas();
+   hnVtx[0]->Draw("HIST");
+   c20->Print("nVtx.png");
+
+   TCanvas*c22 = new TCanvas();
+   hyVtx[0]->Draw("HIST");
+   c22->Print("yVtx.png");
+
+   TCanvas*c23 = new TCanvas();
+   hzVtx[0]->Draw("HIST");
+   c23->Print("zVtx.png");
+   //Run no
+   TCanvas*c24 = new TCanvas();
+   hnRun[0]->Draw("HIST");
+   //LS
+   TCanvas*c25 = new TCanvas();
+   hnLS[0]->Draw("HIST");
+   //Event no
+   TCanvas*c26 = new TCanvas();
+   hnEvt[0]->Draw("HIST");
+
    
+   ///////   
    
    MyCanvas mc1("mass","Dielectron invariant mass (GeV)", "Entries / (2 GeV)", W, H);
    mc1.SetLogy(false);
@@ -323,7 +376,7 @@ TH1D* SFuncert(TTree *tr, const char* name, const char* var, const char* cut, in
    for (int ibin=0; ibin<7; ibin++) {
       TString namei = Form("Reco%s_%d",name,ibin);
       hvari[ibin] = new TH1D(namei,"",nbins,binmin, binmax);
-      tr->Project(namei,var,Form("SFweightR[%d]*SFweightT[%d]*(%s)",ibin,ibin,cut));
+ //     tr->Project(namei,var,Form("SFweightR[%d]*SFweightT[%d]*(%s)",ibin,ibin,cut));
 
       
    }
@@ -335,7 +388,7 @@ TH1D* SFuncert(TTree *tr, const char* name, const char* var, const char* cut, in
       tr->Project(namei,var,Form("SFweightT[%d]*(%s)",ibin,cut));
 
       
-   }
+   }*/
 
    /*new TCanvas(); 
    hvari[0]->SetLineColor(kRed);
@@ -352,7 +405,7 @@ TH1D* SFuncert(TTree *tr, const char* name, const char* var, const char* cut, in
 
    TH1D *hans = new TH1D(name,"",nbins,binmin,binmax);
    if (dorew) hans = (TH1D*) hvari[0]->Clone(name);
-   else tr->Project(name,var,cut); 
+//   else tr->Project(name,var,cut); 
 
 
    for (int i=1; i<=hans->GetNbinsX(); i++) {

@@ -55,6 +55,7 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
       eleTightIdMapToken_     = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronTightID"));
     }
   }
+   //Date:22/08/2022, not adding photons for data
   if (doPhotons_){
     recoPhotonsCollection_  = consumes<edm::View<reco::Photon>>(ps.getParameter<edm::InputTag>("recoPhotonSrc"));
     ebReducedRecHitCollection_ = consumes<EcalRecHitCollection>          (ps.getParameter<edm::InputTag>("ebReducedRecHitCollection"));
@@ -98,7 +99,7 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
   doGeneralTracks_          = ps.getParameter<bool>("doGeneralTracks");
   doPixelTracks_            = ps.getParameter<bool>("doPixelTracks");
   doCaloTower_              = ps.getParameter<bool>("doCaloTower");
-  doTrackerHits_            = ps.getParameter<bool>("doTrackerHits");
+  doTrackerHits_            = ps.getParameter<bool>("doTrackerHits");//Date:22/09/2022, not present in GK's FSR samples
   
   if (doGeneralTracks_) {
     generalTracks_ = consumes<reco::TrackCollection>(ps.getParameter<edm::InputTag>("generalTrk"));
@@ -110,7 +111,7 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     DeDxHitInfoCollection_    = consumes<std::vector<reco::DeDxHitInfo>>(edm::InputTag("dedxHitInfo"));
     PixelClustersCollection_  = consumes<edmNew::DetSetVector<SiPixelCluster>>(edm::InputTag("siPixelClusters"));
     PixelRecHitsCollection_   = consumes<edmNew::DetSetVector<SiPixelRecHit>>(edm::InputTag("siPixelRecHits"));
-  }
+  }  //Date:22/09/2022
   
 
   // initialize output TTree
@@ -121,6 +122,12 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
   tree_->Branch("event",  &event_);
   tree_->Branch("lumis",  &lumis_);
   tree_->Branch("isData", &isData_);
+  //Adding Vertex info//Date: 27/12/2022,Pranati
+  tree_->Branch("nVtx",   &nVtx_);
+  tree_->Branch("xVtx",   &xVtx_);
+  tree_->Branch("yVtx",   &yVtx_);
+  tree_->Branch("zVtx",   &zVtx_);
+  ///
   if (doEffectiveAreas_) {
     tree_->Branch("rho",  &rho_);
   }
@@ -188,7 +195,13 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("eleTrkNormalizedChi2",  &eleTrkNormalizedChi2_);
     tree_->Branch("eleTrkValidHits",       &eleTrkValidHits_);
     tree_->Branch("eleTrkLayers",          &eleTrkLayers_);
+    
+    //date:19/08/2022, for ele 
 
+    tree_->Branch("elePx",                 &elePx_);
+    tree_->Branch("elePy",                 &elePy_);
+    tree_->Branch("elePz",                 &elePz_);
+    //
     tree_->Branch("elePt",                 &elePt_);
     tree_->Branch("eleEta",                &eleEta_);
     tree_->Branch("elePhi",                &elePhi_);
@@ -539,6 +552,11 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
 
   if (doMuons_) {
     tree_->Branch("nMu",                   &nMu_);
+    //date:19/08/2022, for muon px,py,pz
+    tree_->Branch("muPx",                  &muPx_);
+    tree_->Branch("muPy",                  &muPy_);
+    tree_->Branch("muPz",                  &muPz_);
+    //
     tree_->Branch("muPt",                  &muPt_);
     tree_->Branch("muEta",                 &muEta_);
     tree_->Branch("muPhi",                 &muPhi_);
@@ -550,7 +568,8 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("muIsTracker",           &muIsTracker_);
     tree_->Branch("muIsPF",                &muIsPF_);
     tree_->Branch("muIsSTA",               &muIsSTA_);
-
+    
+   
     tree_->Branch("muD0",                  &muD0_);
     tree_->Branch("muDz",                  &muDz_);
     tree_->Branch("muIP3D",                &muIP3D_);
@@ -564,9 +583,12 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("muInnerD0Err",          &muInnerD0Err_);
     tree_->Branch("muInnerDzErr",          &muInnerDzErr_);
     tree_->Branch("muInnerPt",             &muInnerPt_);
+   
     tree_->Branch("muInnerPtErr",             &muInnerPtErr_);
     tree_->Branch("muInnerEta",             &muInnerEta_);
-
+    //muon Trk phi,16/08/2022
+    tree_->Branch("muInnerPhi",             &muInnerPhi_);
+    //
     tree_->Branch("muTrkLayers",           &muTrkLayers_);
     tree_->Branch("muPixelLayers",         &muPixelLayers_);
     tree_->Branch("muPixelHits",           &muPixelHits_);
@@ -589,6 +611,11 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
   }
   if (doGeneralTracks_){
     tree_->Branch("nTrk",            &nTrk_);
+    //date:19/08/2022, for trk px,py,pz
+    tree_->Branch("trkPx",           &trkPx_);
+    tree_->Branch("trkPy",           &trkPy_);
+    tree_->Branch("trkPz",           &trkPz_);
+    //
     tree_->Branch("trkPt",           &trkPt_);
     tree_->Branch("trkP",            &trkP_);
     tree_->Branch("trkEta",          &trkEta_);
@@ -641,19 +668,27 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("CaloTower_et",          &CaloTower_et_);
     tree_->Branch("CaloTower_eta",         &CaloTower_eta_);
     tree_->Branch("CaloTower_phi",         &CaloTower_phi_);
+    //Date:15/11/2022
+    tree_->Branch("CaloTower_ieta",         &CaloTower_ieta_);
+    tree_->Branch("CaloTower_iphi",         &CaloTower_iphi_);
   }
 
   if(doTrackerHits_){
      tree_->Branch("nTrackerHits",   &nTrackerHits_);
      tree_->Branch("nPixelClusters", &nPixelClusters_);
      tree_->Branch("nPixelRecHits",  &nPixelRecHits_);
-  }
+  }   //Date:22/09/2022
 }
 
 void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
   // cleanup from previous event
-
+  // Clean up vtx from previous event, Date:27/12/2022, Pranati
+  nVtx_ = 0;
+  xVtx_                 .clear();
+  yVtx_                 .clear();
+  zVtx_                 .clear();
+  ///
   if (doGenParticles_) {
     nPUInfo_ = 0;
     nPU_                  .clear();
@@ -717,6 +752,11 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     eleTrkNormalizedChi2_ .clear();
     eleTrkValidHits_      .clear();
     eleTrkLayers_         .clear();
+    //Date:19/08/2022 for px,py,pz
+    elePx_                .clear();
+    elePy_                .clear();
+    elePz_                .clear();
+    //
     elePt_                .clear();
     eleEta_               .clear();
     elePhi_               .clear();
@@ -1046,6 +1086,11 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 
   if (doMuons_) {
     nMu_ = 0;
+    //date:19/08/2022, px,py,pz
+    muPx_                 .clear();
+    muPy_                 .clear();
+    muPz_                 .clear();
+    //
     muPt_                 .clear();
     muEta_                .clear();
     muPhi_                .clear();
@@ -1058,6 +1103,8 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     muIsPF_.clear();
     muIsSTA_.clear();
 
+
+
     muD0_                 .clear();
     muDz_                 .clear();
     muIP3D_               .clear();
@@ -1068,11 +1115,14 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     muInnerD0_            .clear();
     muInnerDz_            .clear();
     
-    muInnerD0Err_.clear();
-    muInnerDzErr_.clear();
-    muInnerPt_.clear();
-    muInnerPtErr_.clear();
-    muInnerEta_.clear();
+    muInnerD0Err_         .clear();
+    muInnerDzErr_         .clear();
+    muInnerPt_            .clear();
+    muInnerPtErr_         .clear();
+    muInnerEta_           .clear();
+    //muontrkPhi,16/08/2022
+    muInnerPhi_           .clear();
+    //
 
     muTrkLayers_          .clear();
     muPixelLayers_        .clear();
@@ -1097,6 +1147,11 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 
   if (doGeneralTracks_){
     nTrk_ = 0;
+    //Date:19/08/2022, for px,py,pz
+    trkPx_             .clear();
+    trkPy_             .clear();
+    trkPz_             .clear();
+    //
     trkPt_             .clear();
     trkP_              .clear();
     trkEta_            .clear();
@@ -1148,6 +1203,9 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     CaloTower_et_         .clear();
     CaloTower_eta_        .clear();
     CaloTower_phi_        .clear();
+    //Date:15/11/2022
+    CaloTower_ieta_        .clear();
+    CaloTower_iphi_        .clear();
   }
   
   if(doTrackerHits_){
@@ -1178,13 +1236,22 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   edm::Handle<std::vector<reco::Vertex> > vtxHandle;
   e.getByToken(vtxCollection_, vtxHandle);
 
-  // best-known primary vertex coordinates
+/////////////////////////////////////////
+// Vtx info
   reco::Vertex pv(math::XYZPoint(0, 0, -999), math::Error<3>::type());
   for (const auto& v : *vtxHandle)
     if (!v.isFake()) {
       pv = v;
+      xVtx_    .push_back(v.x());
+      yVtx_    .push_back(v.y());
+      zVtx_    .push_back(v.z());
+      nVtx_++;
       break;
     }
+
+
+
+////////////////////////
 
   edm::ESHandle<TransientTrackBuilder> trackBuilder;
   es.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
@@ -1208,7 +1275,7 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   if (doGeneralTracks_) fillGeneralTracks(e, es, pv);
   if (doPixelTracks_) fillPixelTracks(e, es, pv);
   if (doCaloTower_) fillCaloTower(e, es, pv);
-  if (doTrackerHits_) fillTrackerHits(e);
+  if (doTrackerHits_) fillTrackerHits(e);  //Date:22/09/2022
 
   tree_->Fill();
 }
@@ -1464,8 +1531,16 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     eleTrkNormalizedChi2_.push_back(ele->gsfTrack()->normalizedChi2());
     eleTrkValidHits_     .push_back(ele->gsfTrack()->numberOfValidHits());
     eleTrkLayers_        .push_back(ele->gsfTrack()->hitPattern().trackerLayersWithMeasurement());
+    //px,py,pz
+    elePx_               .push_back(ele->px());
+    elePy_               .push_back(ele->py());
+    elePz_               .push_back(ele->pz());
+    //
     elePt_               .push_back(ele->pt());
+    std::cout << "elePt" << ele->pt() << std::endl;
     eleEta_              .push_back(ele->eta());
+    std::cout << "eleEta" << ele->eta() << std::endl;
+
     elePhi_              .push_back(ele->phi());
     eleSCEn_             .push_back(ele->superCluster()->energy());
     eleESEn_             .push_back(ele->superCluster()->preshowerEnergy());
@@ -1696,6 +1771,8 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
     phoE_             .push_back(pho->energy());
     phoEt_            .push_back(pho->et());
     phoEta_           .push_back(pho->eta());
+ //   std::(pho->eta());
+     std::cout << "PhoEta" << pho->eta() << std::endl;
     phoPhi_           .push_back(pho->phi());
 
     // energies from different types of corrections
@@ -1763,6 +1840,8 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
     // phoEleVeto_       .push_back((int)pho->passElectronVeto());   // TODO: not available in reco::
     phoHadTowerOverEm_.push_back(pho->hadTowOverEm());
     phoHoverE_        .push_back(pho->hadronicOverEm());
+    std::cout << "PhoHOverE" << pho->hadronicOverEm() << std::endl;
+
     phoHoverEValid_   .push_back(pho->hadronicOverEmValid());
     phoSigmaIEtaIEta_ .push_back(pho->sigmaIetaIeta());
     phoR9_            .push_back(pho->r9());
@@ -2099,7 +2178,13 @@ void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, re
     
     //if (mu.pt() < 3.0) continue;
     if (!(mu.isPFMuon() || mu.isGlobalMuon() || mu.isTrackerMuon())) continue;
+    //if (!(mu.isStandAloneMuon())) continue;
 
+    //px,py,pz  
+    muPx_    .push_back(mu.px());
+    muPy_    .push_back(mu.py());
+    muPz_    .push_back(mu.pz());
+    //
     muPt_    .push_back(mu.pt());
     muEta_   .push_back(mu.eta());
     muPhi_   .push_back(mu.phi());
@@ -2132,6 +2217,7 @@ void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, re
     const reco::TrackRef glbMu = mu.globalTrack();
     const reco::TrackRef innMu = mu.innerTrack();
 
+
     if (glbMu.isNull()) {
       muChi2NDF_ .push_back(-99);
       muMuonHits_.push_back(-99);
@@ -2149,8 +2235,9 @@ void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, re
       muInnerPt_     .push_back(-99);
       muInnerPtErr_  .push_back(-99);
       muInnerEta_    .push_back(-99);
-     
-      
+      //muonTrkPhi
+      muInnerPhi_    .push_back(-99);    
+      //
       muTrkLayers_   .push_back(-99);
       muPixelLayers_ .push_back(-99);
       muPixelHits_   .push_back(-99);
@@ -2158,13 +2245,16 @@ void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, re
     } else {
       muInnerD0_     .push_back(innMu->dxy(pv.position()));
       muInnerDz_     .push_back(innMu->dz(pv.position()));
-      
+      //print innerdz
+      std::cout << "MuonInnerDz:" << (innMu->dz(pv.position())) << std::endl;     
       muInnerD0Err_  .push_back(innMu->dxyError());
       muInnerDzErr_  .push_back(innMu->dzError());
       muInnerPt_     .push_back(innMu->pt());
       muInnerPtErr_  .push_back(innMu->ptError());
       muInnerEta_    .push_back(innMu->eta());
-      
+      //muonTrkPhi
+      muInnerPhi_    .push_back(innMu->phi());     
+      //
       muTrkLayers_   .push_back(innMu->hitPattern().trackerLayersWithMeasurement());
       muPixelLayers_ .push_back(innMu->hitPattern().pixelLayersWithMeasurement());
       muPixelHits_   .push_back(innMu->hitPattern().numberOfValidPixelHits());
@@ -2206,6 +2296,11 @@ void ggHiNtuplizer::fillGeneralTracks(const edm::Event& e, const edm::EventSetup
   //reco::TrackBase::Point(0.010, 0.047, 0.903)
   
  for (reco::TrackCollection::const_iterator trk = generalTracksHandle->begin(); trk != generalTracksHandle->end(); ++trk) {
+    
+    trkPx_             .push_back(trk->px());            
+    trkPy_             .push_back(trk->py());            
+    trkPz_             .push_back(trk->pz());      
+    //      
     trkPt_             .push_back(trk->pt());            
     trkP_              .push_back(trk->p());            
     trkEta_            .push_back(trk->eta());           
@@ -2287,23 +2382,27 @@ void ggHiNtuplizer::fillCaloTower(const edm::Event& e, const edm::EventSetup& es
        CaloTower_et_   .push_back(calo->et());
        CaloTower_phi_  .push_back(calo->phi());
        CaloTower_eta_  .push_back(calo->eta());
+       //Date:15/11/2022
+       CaloTower_ieta_  .push_back(calo->ieta());
+       CaloTower_iphi_  .push_back(calo->iphi());
     
     nTower_++;
   }
 } // calo tower loop
 
+
 void ggHiNtuplizer::fillTrackerHits(const edm::Event& event)
 {
-  // dE/dx hit info
+  /// dE/dx hit info
   edm::Handle<std::vector<reco::DeDxHitInfo>> TrackerHitsHandle;
   event.getByToken(DeDxHitInfoCollection_, TrackerHitsHandle);
   
   for(auto hit = TrackerHitsHandle->begin(); hit != TrackerHitsHandle->end(); ++hit){
-//       CaloTower_emE_  .push_back(calo->emEnergy());
+// /      CaloTower_emE_  .push_back(calo->emEnergy());
     nTrackerHits_++;
   }
   
-  // Pixel Clusters
+  /// Pixel Clusters
   edm::Handle<edmNew::DetSetVector<SiPixelCluster>> PixelClustersHandle;
   event.getByToken(PixelClustersCollection_, PixelClustersHandle);
   
@@ -2311,7 +2410,7 @@ void ggHiNtuplizer::fillTrackerHits(const edm::Event& event)
     nPixelClusters_++;
   }
   
-  // Pixel Rec hits
+  /// Pixel Rec hits
   edm::Handle<edmNew::DetSetVector<SiPixelRecHit>> PixelRecHitsHandle;
   event.getByToken(PixelRecHitsCollection_, PixelRecHitsHandle);
   
@@ -2320,4 +2419,5 @@ void ggHiNtuplizer::fillTrackerHits(const edm::Event& event)
   }
 }
 
+/// TrackerHits loop end here
 DEFINE_FWK_MODULE(ggHiNtuplizer);

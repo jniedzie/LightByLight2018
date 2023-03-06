@@ -108,8 +108,22 @@ int   nTracks;
 float costhetastar;
 float cos_photon_pair_helicity0;
 float cos_photon_pair_helicity1;
-
-
+///Add Muon , Date:29/10/2022
+int nMu;
+int muCharge;
+float muPt;
+float muEta;
+float muPhi;
+//Date:3/11/2022
+//int convertTrack;
+//float deltaR1;
+//float deltaR2;
+///Add Vertex info//Date:5/02/2023
+int nVtx;
+float xVtx;
+float yVtx;
+float zVtx;
+/////////////////////
 /// initialise tree
 void InitTree(TTree *tr) {
   tr->Branch("run",                 &run,           "run/I");
@@ -198,7 +212,18 @@ void InitTree(TTree *tr) {
   tr->Branch("costhetastar",        &costhetastar,        "costhetastar/F");
   tr->Branch("cos_photon_pair_helicity0",     &cos_photon_pair_helicity0,     "cos_photon_pair_helicity0/F");
   tr->Branch("cos_photon_pair_helicity1",     &cos_photon_pair_helicity1,     "cos_photon_pair_helicity1/F");
-
+  ////Muon info
+  tr->Branch("nMu",                  &nMu,                          "nMu/I");
+  tr->Branch("muCharge",             &muCharge,                     "muCharge/I");
+  tr->Branch("muPt",                 &muPt,                         "muPt/F");
+  tr->Branch("muEta",                &muEta,                        "muEta/F");
+  tr->Branch("muPhi",                &muPhi,                        "muPhi/F");
+  //Vertex info
+  tr->Branch("nVtx",                 &nVtx,                        "nVtx/I");
+  tr->Branch("xVtx",                 &xVtx,                        "xVtx/F");
+  tr->Branch("yVtx",                 &yVtx,                        "yVtx/F");
+  tr->Branch("zVtx",                 &zVtx,                        "zVtx/F");
+///////////////////////////////
 }
 
 
@@ -281,7 +306,18 @@ void ResetVars() {
   costhetastar = -999;
   cos_photon_pair_helicity0 = -999;
   cos_photon_pair_helicity1 = -999;
-
+  //Add muon
+  nMu = 0;
+  muCharge = 0;
+  muPt = -999;
+  muEta = -999;
+  muPhi = -999;
+//Add Vertex info
+  nVtx = 0;
+  xVtx = -999;
+  yVtx = -999;
+  zVtx = -999;
+///////////////////
 }
 
 
@@ -333,12 +369,12 @@ int main(int argc, char* argv[])
     auto event = events->GetEvent(iEvent);
     
     ResetVars();  
-    
-    // Check trigger
-    //if(sampleName != "Data"){
-    //if(!event->HasTrigger(kDoubleEG2noHF)) continue;
-    //}
-
+    //////////////////////////////////////////////
+    // Check trigger, It is comment out before, I remove it to check if this is for trigger,Date:27/12/2022
+//    if(sampleName != "Data"){
+  //  if(!event->HasTrigger(kDoubleEG2noHF)) continue;
+   // }
+    //////////////////////////////////////////////////
     //Log(0)<<"After trigger "<<iEvent<<"\n";
     trigger_passed++;
     hist->SetBinContent(1,trigger_passed);
@@ -376,12 +412,16 @@ int main(int argc, char* argv[])
     auto photon1   = event->GetPhysObjects(EPhysObjType::kGoodPhoton)[0];
     auto photon2   = event->GetPhysObjects(EPhysObjType::kGoodPhoton)[1];
     auto caloTower = event->GetPhysObjects(EPhysObjType::kCaloTower);
-
+    //Vertex info
+    auto vertices = event->GetPhysObjects(EPhysObjType::kVertex);
+   
        // event variables
     ok_neuexcl = (!event->HasAdditionalTowers());
     ok_castorexcl = (!event->HasCastorTowers());
     
     ok_chexcl  = (genTracks.size()==0 && electrons.size()==0 && muons.size()==0 );
+   // Change for converted photon
+   // ok_chexcl  = (electrons.size()==0 && muons.size()==0 );
     ok_chexcl_tracks = (genTracks.size()==0);
     ok_chexcl_electrons = (electrons.size()==0);
     ok_chexcl_muons = (muons.size()==0);
@@ -389,6 +429,8 @@ int main(int argc, char* argv[])
     ok_chexcl_goodelectrons = (goodElectrons.size()==0);
    
     nTracks  = genTracks.size();
+ //   nMu = muons.size();
+//     muPt = muons->GetPt();
 
     if(sampleName == "Data"){
       zdc_energy_pos = event->GetTotalZDCenergyPos(); zdc_energy_neg = event->GetTotalZDCenergyNeg();
@@ -415,6 +457,7 @@ int main(int argc, char* argv[])
       ok_zdcexcl_4n_neg &= ok_zdc_run;
       ok_zdcexcl_5n_pos &= ok_zdc_run;
       ok_zdcexcl_5n_neg &= ok_zdc_run;
+      
     }
     
     // start filling photon information here ........................................
@@ -454,7 +497,27 @@ int main(int argc, char* argv[])
     phoEnergyCrysMax_2 = photon2->GetEnergyCrystalMax();
     phoSeedTime_2      = photon2->GetSeedTime();
     phoSigmaIEta_2     = photon2->GetSigmaEta2012();
+    ///Add Muon info
+     nMu = muons.size();
+     nVtx = vertices.size();
+    for(auto vertex : vertices){
+     cout << "xVtx = " << vertex->GetPVertexX() << endl;
+     cout << "yVtx = " << vertex->GetPVertexY() << endl;
+     cout << "zVtx = " << vertex->GetPVertexZ() << endl;
+     xVtx = vertex->GetPVertexX();
+     yVtx = vertex->GetPVertexY();
+     zVtx = vertex->GetPVertexZ();
 
+   }
+     
+    for (auto muon : muons) {
+     cout << "MuonPt = " << muon->GetPt() << endl;
+     muPt = muon->GetPt();
+     muEta = muon->GetEta();
+     muPhi = muon->GetPhi();
+
+   }
+/////////////////////////
     double E4_2 = phoEnergyTop_2 + phoEnergyBottom_2 +  phoEnergyLeft_2 + phoEnergyRight_2;
     phoSwissCross_2 = 1 - (E4_2/phoEnergyCrysMax_2);
     
@@ -477,8 +540,7 @@ int main(int argc, char* argv[])
 
    nPixelCluster = event->GetNpixelClusters();
    nPixelRecHits =  event->GetNpixelRecHits();
-
-
+    
 
    cos_photon_pair_helicity0 = cosphotonpair(pho1, dipho, 0); // Boost of one photon in the pair direction (in the rest frame of the pair). The other will be at pi rads from the 1st.
    cos_photon_pair_helicity1 = cosphotonpair(pho1, dipho, 1); 

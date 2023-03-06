@@ -150,3 +150,12 @@ noiseThresholdCASTOR_12:  60.86
 noiseThresholdCASTOR_13:  53.54
 noiseThresholdCASTOR_14:  63.87
 noiseThresholdCASTOR_15:  58.37
+
+### Muon ID Cuts:
+muonOnestationTight:   1
+muonMinPt:             2.0
+muonMinTrkInnLayers:   5
+muonMinTrkPixelLayers: 1
+muonTrkQuality:        1
+muonMaxDxy:            0.3
+muonMaxDz:             20.0

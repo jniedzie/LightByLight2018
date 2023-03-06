@@ -65,7 +65,7 @@ public:
   inline int GetNpixelClusters()    const { return nPixelClusters;  }
   inline int GetNpixelRecHits()     const { return nPixelRecHits;   }
   inline int GetNdedxHits()         const { return nDedxHits;       }
-  
+
   /// Returns total ZDC energy deposit on both z-sides
   double GetTotalZDCenergy() const;
   
@@ -92,7 +92,8 @@ private:
   PhysObjects GetGoodMatchedElectron();
   PhysObjects GetGoodGeneralTracks(TH1D *cutFlowHist=nullptr);
   PhysObjects GetGoodPixelTracks(TH1D *cutFlowHist=nullptr);
-  
+  //For vertex info; Date: 9/02/2023
+//  PhysObjects GetVertex(); 
   /// Returns noise threshold for given tower in EM calos
   double GetEmThresholdForTower(const PhysObject &tower);
   double GetCastorThreshold(const PhysObject &castor);
@@ -103,11 +104,10 @@ private:
   int nPixelClusters;
   int nPixelRecHits;
   int nDedxHits;
-  
   uint runNumber;
   uint lumiSection;
   ULong64_t eventNumber;
-  
+    
   friend class EventProcessor;
 };
 

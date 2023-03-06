@@ -19,8 +19,10 @@ public:
   
   /// Default destructor
   ~PhysObjectProcessor();
-  
+  ///Returns deltaPhi
+  double GetdeltaPhi(const PhysObject &a, const PhysObject &b);
   /// Returns ΔR=sqrt(Δη^2 + Δφ^2) between two PhysObjects
+
   double GetDeltaR(const PhysObject &a, const PhysObject &b);
   
   double GetDeltaR_SC(const PhysObject &a, const PhysObject &b);
@@ -36,6 +38,9 @@ public:
  
   /// Returns a lorentz vector which is a sum of provided objects, assuming they are muons
   TLorentzVector GetDimuon(const PhysObject &a, const PhysObject &b);
+  
+  ///Returns a lorentz vector which is a sum of provided objects,assuming they are electron+muon
+  TLorentzVector GetEleMu(const PhysObject &a, const PhysObject &b);
 
  
   /// Returns acoplanarity of pair of objects

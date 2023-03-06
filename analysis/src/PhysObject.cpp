@@ -47,7 +47,12 @@ dzErr(-9999),
 vx(-9999),
 vy(-9999),
 vz(-9999),
-
+///////////////////
+nVtx(0),
+xVtx(-9999),
+yVtx(-9999),
+zVtx(-9999),
+///////////////////
 chargedIso(-9999),
 photonIso(-9999),
 neutralIso(-9999),
@@ -57,7 +62,14 @@ dEtaSeed(-9999),
 
 hasConversionTracks(false),
 seedTime(-9999),
-zSide(-9999)
+zSide(-9999),
+
+isGood(false),
+trkLayers(-9999),
+pixelLayers(-9999),
+trkQuality(false),
+innD0(-9999),
+innDz(-9999)
 {
   
 }
@@ -247,22 +259,47 @@ double PhysObject::GetZdistanceFromBeamSpot(EDataset dataset) const
 
 double PhysObject::GetVertexX() const
 {
-  if(vx < -999) Log(1)<<"WARNING - carefull, vx probably not set\n";
+  if(vx < -999) Log(1)<<"WARNING - carefull, vy probably not set\n";
   return vx;
 }
-
+ 
 double PhysObject::GetVertexY() const
 {
-  if(vy < -999) Log(1)<<"WARNING - carefull, vy probably not set\n";
+  if(vy < -999) Log(1)<<"WARNING - carefull, vz probably not set\n";
   return vy;
 }
-
+ 
 double PhysObject::GetVertexZ() const
 {
   if(vz < -999) Log(1)<<"WARNING - carefull, vz probably not set\n";
   return vz;
 }
+//////////////////////////////////////
+int PhysObject::GetNVertex() const
+{
+  if(nVtx < 0) Log(1)<<"WARNING - carefull, vx probably not set\n";
+  return nVtx;
+}
 
+double PhysObject::GetPVertexX() const
+{
+  if(xVtx < -999) Log(1)<<"WARNING - carefull, vy probably not set\n";
+  return xVtx;
+}
+
+double PhysObject::GetPVertexY() const
+{
+  if(yVtx < -999) Log(1)<<"WARNING - carefull, vz probably not set\n";
+  return yVtx;
+}
+
+double PhysObject::GetPVertexZ() const
+{
+  if(zVtx < -999) Log(1)<<"WARNING - carefull, vz probably not set\n";
+  return zVtx;
+}
+ 
+/////////////////////////////////////////////////////////////////////////////
 double PhysObject::GetEnergy()     const
 {
   if(energy<0) Log(1)<<"WARNING - carefull, energy probably not set\n";
@@ -296,7 +333,8 @@ double PhysObject::GetEnergyCrystalBottom() const
 double PhysObject::GetEnergyCrystalLeft() const
 {
   if(energyLeft < -999) Log(1)<<"WARNING - carefull, energyLeft probably not set\n";
-  return energyLeft;
+ 
+ return energyLeft;
 }
 
 double PhysObject::GetEnergyCrystalRight() const
@@ -381,4 +419,40 @@ int PhysObject::GetZside() const
   if(zSide < -999) Log(1)<<"WARNING - carefull, zSide probably not set\n";
   return zSide;
 }
+/****************************************/
+//Soft muon
 
+bool PhysObject::IsGood() const
+{
+  return isGood;
+}
+
+int PhysObject::GetTrkLayers() const
+{
+  if(trkLayers < -999) Log(1)<<"WARNING - carefull, TrkLayers probably not set\n";
+  return trkLayers;
+}
+
+int PhysObject::GetPixelLayers() const
+{
+  if(pixelLayers < -999) Log(1)<<"WARNING - carefull, PixelLayers probably not set\n";
+  return pixelLayers;
+}
+
+bool PhysObject::TrkQuality() const
+{
+  return trkQuality;
+}
+
+double PhysObject::GetInnerD0() const
+{
+  if(innD0 < -999) Log(1)<<"WARNING - carefull, innerdxy probably not set\n";
+  return innD0;
+}
+
+double PhysObject::GetInnerDz() const
+{
+  if(innDz < -999) Log(1)<<"WARNING - carefull, innerdz probably not set\n";
+  return innDz;
+}
+/*******************************************************/
