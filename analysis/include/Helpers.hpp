@@ -103,6 +103,7 @@ enum class EPhysObjType {
   kPixelTrack,
   kGoodPixelTrack,
   kZDC,
+  kVertex,
 };
 
 const vector<EPhysObjType> physObjTypes = {
@@ -126,6 +127,7 @@ const vector<EPhysObjType> physObjTypes = {
   EPhysObjType::kPixelTrack,
   EPhysObjType::kGoodPixelTrack,
   EPhysObjType::kZDC,
+  EPhysObjType::kVertex,
 };
 
 const map<EDataset, int> datasetColor = {
