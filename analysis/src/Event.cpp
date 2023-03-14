@@ -218,6 +218,9 @@ PhysObjects Event::GetGoodElectrons(TH1D *cutFlowHist)
     int cutFlowIndex=0;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 0
     
+    // Keep or reject electrons coming from photon conversion
+    if(electron->IsFromConversion() && config.params("skipElectronsFromConversions")) continue;
+    
     // Check pt
     if(electron->GetPt() < config.params("electronMinPt")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 1
@@ -259,7 +262,7 @@ PhysObjects Event::GetGoodElectrons(TH1D *cutFlowHist)
     
     if(electron->GetNeutralIso() >= config.params("electronMaxNeutralIso"+subdet)) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
-
+    
     physObjects.at(EPhysObjType::kGoodElectron).push_back(electron);
   }
   physObjectsReady.at(EPhysObjType::kGoodElectron) = true;

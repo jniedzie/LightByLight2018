@@ -125,6 +125,7 @@ private:
   vector<float> *electronChIso          = nullptr;
   vector<float> *electronPhoIso         = nullptr;
   vector<float> *electronNeuIso         = nullptr;
+  vector<int>   *electronPassesConvVeto = nullptr;
 
 
   vector<int>   *muonCharge             = nullptr;

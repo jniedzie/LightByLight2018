@@ -81,6 +81,7 @@ public:
   ECaloType GetTowerSubdetEm()  const;
   
   bool IsConverted()  const;
+  bool IsFromConversion() const;
   int  GetZside()     const;
   double GetSeedTime()      const;
   
@@ -149,6 +150,7 @@ private:
   double dEtaSeed;      ///< Seed Δη
   
   bool hasConversionTracks; ///< Is it a converted photon
+  bool passesConversionVeto; ///< It an electron NOT from photon conversion
   double seedTime;      ///< Seed Δη
   
   int zSide;          ///< z-side for ZDC

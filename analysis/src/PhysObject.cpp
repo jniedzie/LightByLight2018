@@ -61,6 +61,7 @@ relIsoWithEA(-9999),
 dEtaSeed(-9999),
 
 hasConversionTracks(false),
+passesConversionVeto(true),
 seedTime(-9999),
 zSide(-9999),
 
@@ -406,6 +407,11 @@ double PhysObject::GetNeutralIso() const
 bool PhysObject::IsConverted() const
 {
   return hasConversionTracks;
+}
+
+bool PhysObject::IsFromConversion() const
+{
+  return !passesConversionVeto;
 }
 
 double PhysObject::GetSeedTime() const

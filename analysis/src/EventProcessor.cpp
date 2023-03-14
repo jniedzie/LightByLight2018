@@ -128,6 +128,7 @@ void EventProcessor::SetupBranches(string inputPath, vector<string> outputPaths,
   eventTree->SetBranchAddress("elePFChIso"        , &electronChIso);
   eventTree->SetBranchAddress("elePFPhoIso"       , &electronPhoIso);
   eventTree->SetBranchAddress("elePFNeuIso"       , &electronNeuIso);
+  eventTree->SetBranchAddress("eleConvVeto"       , &electronPassesConvVeto);
 
   eventTree->SetBranchAddress("nMu"              , &nPhysObjects.at(EPhysObjType::kMuon));
   eventTree->SetBranchAddress("muCharge"         , &muonCharge);
@@ -449,6 +450,7 @@ shared_ptr<Event> EventProcessor::GetEvent(int iEvent)
     electron->chargedIso   = electronChIso->at(iElectron);
     electron->photonIso    = electronPhoIso->at(iElectron);
     electron->neutralIso   = electronNeuIso->at(iElectron);
+    electron->passesConversionVeto = electronPassesConvVeto->at(iElectron);
     
     currentEvent->physObjects.at(EPhysObjType::kElectron).push_back(electron);
   }

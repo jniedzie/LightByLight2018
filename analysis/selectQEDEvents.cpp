@@ -456,13 +456,9 @@ int main(int argc, char* argv[])
     ////////////////////////////////////////
     nVtx = vertices.size();
     for(auto vertex : vertices){
-     cout << "xVtx = " << vertex->GetPVertexX() << endl;
-     cout << "yVtx = " << vertex->GetPVertexY() << endl;
-     cout << "zVtx = " << vertex->GetPVertexZ() << endl;
      xVtx = vertex->GetPVertexX();
      yVtx = vertex->GetPVertexY();
      zVtx = vertex->GetPVertexZ();
-
    }
     //////////////////////////////////////////////////
     // reco+ID scale factor   

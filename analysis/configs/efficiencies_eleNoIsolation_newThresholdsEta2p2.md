@@ -70,6 +70,7 @@ diphotonMaxAco:                      0.01
 photonRejectConverted:           1
 
 ### Electron ID cuts:
+skipElectronsFromConversions: 0
 electronMinPt:                            2.0
 electronMaxEta:                         2.2
 electronMaxNmissingHits:         1
