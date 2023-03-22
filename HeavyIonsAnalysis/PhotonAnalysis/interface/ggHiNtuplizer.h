@@ -50,6 +50,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    void fillSC           (const edm::Event&);
    void fillTrackerHits  (const edm::Event&);
    void fillElectrons    (const edm::Event&, const edm::EventSetup&, reco::Vertex& pv);
+   
    void fillPhotons      (const edm::Event&, const edm::EventSetup&, reco::Vertex& pv);
    void fillMuons        (const edm::Event&, const edm::EventSetup&, reco::Vertex& pv);
    void fillGeneralTracks(const edm::Event&, const edm::EventSetup&, reco::Vertex& pv);
@@ -63,6 +64,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    // switches
    bool doGenParticles_;
    bool doElectrons_;
+   
    bool doPhotons_;
    bool doMuons_;
    bool runOnParticleGun_;
@@ -129,7 +131,11 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    UInt_t         lumis_;
    Bool_t         isData_;
    Float_t        rho_;
-
+   //Vtx info/
+   Int_t          nVtx_;
+   std::vector<float>  xVtx_;
+   std::vector<float>  yVtx_;
+   std::vector<float>  zVtx_;
    // PileupSummaryInfo
    Int_t          nPUInfo_;
    std::vector<int>    nPU_;
@@ -185,6 +191,11 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    std::vector<float>  eleTrkNormalizedChi2_;
    std::vector<int>    eleTrkValidHits_;
    std::vector<int>    eleTrkLayers_;
+   //Date:19/08/2022 for e_pz
+   std::vector<float>  elePx_;
+   std::vector<float>  elePy_;
+   std::vector<float>  elePz_;
+   //
    std::vector<float>  elePt_;
    std::vector<float>  eleEta_;
    std::vector<float>  elePhi_;
@@ -520,6 +531,11 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
 
    // reco::Muon
    Int_t          nMu_;
+   //Date:19/08/2022, For muon px,py,pz
+   std::vector<float>  muPx_;
+   std::vector<float>  muPy_;
+   std::vector<float>  muPz_;
+   //
    std::vector<float>  muPt_;
    std::vector<float>  muEta_;
    std::vector<float>  muPhi_;
@@ -547,7 +563,9 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    std::vector<float>  muInnerPt_;
    std::vector<float>  muInnerPtErr_;
    std::vector<float>  muInnerEta_;
-
+   //Soft Muon,16/08/2022
+   std::vector<float>  muInnerPhi_;   
+   //
    std::vector<int>    muTrkLayers_;
    std::vector<int>    muPixelLayers_;
    std::vector<int>    muPixelHits_;
@@ -571,6 +589,11 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
 
     // reco::general track     
     Int_t         nTrk_;
+    //Date:19/08/2022, for trk px,py,pz
+    std::vector<float> trkPx_;            
+    std::vector<float> trkPy_;            
+    std::vector<float> trkPz_;     
+    //       
     std::vector<float> trkPt_;            
     std::vector<float> trkP_;            
     std::vector<float> trkEta_;           
@@ -624,12 +647,19 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    std::vector<float> CaloTower_et_;
    std::vector<float> CaloTower_eta_;
    std::vector<float> CaloTower_phi_;
-   
+   std::vector<float> CaloTower_ieta_;
+   std::vector<float> CaloTower_iphi_;
+     
    // tracker hits
+   // Date:22/09/2022; siPixel module not present FSR sample produced by GK
    Int_t nTrackerHits_;
    Int_t nPixelClusters_;
    Int_t nPixelRecHits_;
-  
+
+   //Date:22/08/2022,ZDC 
+
+   
+
 };
 
 #endif
