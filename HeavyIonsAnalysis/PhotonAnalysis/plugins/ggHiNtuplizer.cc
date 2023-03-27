@@ -194,6 +194,9 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("elePy",                 &elePy_);
     tree_->Branch("elePz",                 &elePz_);
     //
+    tree_->Branch("eleTrkVx",              &eleTrkVx_);
+    tree_->Branch("eleTrkVy",              &eleTrkVy_);
+    tree_->Branch("eleTrkVz",              &eleTrkVz_);
     tree_->Branch("elePt",                 &elePt_);
     tree_->Branch("eleEta",                &eleEta_);
     tree_->Branch("elePhi",                &elePhi_);
@@ -757,6 +760,9 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     elePy_                .clear();
     elePz_                .clear();
     //
+    eleTrkVx_             .clear();
+    eleTrkVy_             .clear();
+    eleTrkVz_             .clear();
     elePt_                .clear();
     eleEta_               .clear();
     elePhi_               .clear();
@@ -1544,6 +1550,9 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     elePy_               .push_back(ele->py());
     elePz_               .push_back(ele->pz());
     //
+    eleTrkVx_            .push_back(ele->gsfTrack()->vx());
+    eleTrkVy_            .push_back(ele->gsfTrack()->vy());
+    eleTrkVz_            .push_back(ele->gsfTrack()->vz());
     elePt_               .push_back(ele->pt());
     //std::cout << "elePt" << ele->pt() << std::endl;
     eleEta_              .push_back(ele->eta());
