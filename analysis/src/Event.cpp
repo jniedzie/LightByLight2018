@@ -357,35 +357,35 @@ PhysObjects Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 1
     
     // Check eta
-//    if(fabs(track->GetEta()) > config.params("trackMaxEta")) continue;
-  //  if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 2
+    if(fabs(track->GetEta()) > config.params("trackMaxEta")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 2
     
     // Check distance from PV
-   // if(fabs(track->GetDxy()) > config.params("trackMaxDxy")) continue;
-   // if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
+    if(fabs(track->GetDxy()) > config.params("trackMaxDxy")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 3
     
-   // if(fabs(track->GetXYdistanceFromBeamSpot(dataset)) > config.params("trackMaxXYdistanceFromBS")) continue;
-   // if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 4
+    if(fabs(track->GetXYdistanceFromBeamSpot(dataset)) > config.params("trackMaxXYdistanceFromBS")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 4
     
-  //  if(fabs(track->GetDxy() / track->GetDxyErr()) > config.params("trackMaxDxyOverSigma")) continue;
-   // if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 5
+    if(fabs(track->GetDxy() / track->GetDxyErr()) > config.params("trackMaxDxyOverSigma")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 5
     
-   // if(fabs(track->GetDz()) > config.params("trackMaxDz")) continue;
-   // if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 6
+    if(fabs(track->GetDz()) > config.params("trackMaxDz")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 6
     
-  //  if(fabs(track->GetZdistanceFromBeamSpot(dataset)) > config.params("trackMaxZdistanceFromBS")) continue;
-  //  if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 7
+    if(fabs(track->GetZdistanceFromBeamSpot(dataset)) > config.params("trackMaxZdistanceFromBS")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 7
     
-   // if(fabs(track->GetDz() / track->GetDzErr()) > config.params("trackMaxDzOverSigma")) continue;
-   // if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 8
+    if(fabs(track->GetDz() / track->GetDzErr()) > config.params("trackMaxDzOverSigma")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 8
     
     // Check n hits
-   // if(track->GetNvalidHits() < config.params("trackMinNvalidHits")) continue;
-   // if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 9
+    if(track->GetNvalidHits() < config.params("trackMinNvalidHits")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 9
     
     // Check chi2
-   // if(track->GetChi2() > config.params("trackMaxChi2")) continue;
-  //  if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
+    if(track->GetChi2() > config.params("trackMaxChi2")) continue;
+    if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
     
     physObjects.at(EPhysObjType::kGoodGeneralTrack).push_back(track);
   }
