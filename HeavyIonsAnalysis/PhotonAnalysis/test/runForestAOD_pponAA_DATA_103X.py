@@ -30,22 +30,29 @@ process.HiForest.HiForestVersion = cms.string(version)
 process.source = cms.Source("PoolSource",
     duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
     fileNames = cms.untracked.vstring(
+	"file:/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/DC7E3E48-4A3D-3F47-9FB4-9F2D00EE7948.root"
+        #"/store/group/phys_heavyions/rchudasa/lbyl_2018/HIEmptyBX/AODSIM/00A27B92-67AA-8A46-B36E-476AE0A3AAC7.root",
+        #"/store/group/phys_heavyions/rchudasa/lbyl_2018/HIEmptyBX/AODSIM/012B1944-13FE-AE4D-9BA6-122546E924A3.root",
+        #"/store/group/phys_heavyions/rchudasa/lbyl_2018/HIEmptyBX/AODSIM/0176659B-6BBF-7849-941A-1414FC31BED8.root",
+        #"/store/group/phys_heavyions/rchudasa/lbyl_2018/HIEmptyBX/AODSIM/02B1B4C6-AEA2-2145-8C70-D8055EDE3D19.root"
 
         #"file:/afs/cern.ch/work/r/rbi/public/forest/HIHardProbes_HIRun2018A-PromptReco-v2_AOD.root"
-        # "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/B3B60266-96AA-A146-8658-4FE0F40F9D00.root"
-        #"/store/hidata/HIRun2018A/HIEmptyBX/AOD/27Feb2019-v1/110000/63642B26-DA82-934B-A025-2520A60462B4.root"
-        "/store/hidata/HIRun2018A/HIForward/AOD/ForLByL-v2/20000/01A52D57-2199-354D-AAA5-BEF26229F7FC.root"
+        #"/store/group/phys_heavyions/rchudasa/lbyl_2018/HIEmptyBX/HIEmptyBX/EmptyBx_LbyLReco/210714_064226/0000/step3_RAW2DIGI_L1Reco_RECO_1-1.root"
+        #"root://cmsxrootd.fnal.gov///store/hidata/HIRun2018A/HIForward/AOD/ForLByL-v2/20000/01705C8F-2F1C-834A-A483-6DB03849ADD4.root"
+       #"/store/hidata/HIRun2018A/HIEmptyBX/AOD/27Feb2019-v1/110000/63642B26-DA82-934B-A025-2520A60462B4.root"
+        #"/store/hidata/HIRun2018A/HIForward/AOD/ForLByL-v2/20000/01A52D57-2199-354D-AAA5-BEF26229F7FC.root"
         # "file:/eos/cms/store/hidata/HIRun2018A/HIEmptyBX/AOD/27Feb2019-v1/110000/450F2ABE-73C8-DC41-A53E-A2AFB5993430.root"
         # 'file:B3B60266-96AA-A146-8658-4FE0F40F9D00.root'
         #"file:/afs/cern.ch/work/r/rchudasa/private/hiforest_1034/CMSSW_10_3_4/src/from_old_1034_repo/step3_RAW2DIGI_L1Reco_RECO.root"
         #"file:/afs/cern.ch/work/r/rchudasa/private/hiforest_1034/CMSSW_10_3_4/src/from_old_1034_repo/wo_lbyl_mod/step3_RAW2DIGI_L1Reco_RECO.root"
-),
+	),
     )
 
 # Number of events we want to process, -1 = all events
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
-    )
+    #input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(500)
+)
 
 ###############################################################################
 # Load Global Tag, Geometry, etc.
@@ -56,6 +63,7 @@ process.load('Configuration.Geometry.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, '103X_dataRun2_Prompt_v2', '')
@@ -83,7 +91,7 @@ process.centralityBin.centralityVariable = cms.string("HFtowers")
 
 process.TFileService = cms.Service("TFileService",
     #fileName = cms.string("data_HiForestAOD_wohlt_eta2p3_norechit.root"))
-    fileName = cms.string("data_HiForwardAOD.root"))
+    fileName = cms.string("data_HiForwardAOD_CastorInfo.root"))
 
 ###############################################################################
 # Additional Reconstruction and Analysis: Main Body

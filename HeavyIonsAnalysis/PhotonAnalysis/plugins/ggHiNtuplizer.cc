@@ -55,12 +55,9 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
       eleTightIdMapToken_     = consumes<edm::ValueMap<bool> >(ps.getParameter<edm::InputTag>("electronTightID"));
     }
   }
-   //Date:22/08/2022, not adding photons for data
+
   if (doPhotons_){
     recoPhotonsCollection_  = consumes<edm::View<reco::Photon>>(ps.getParameter<edm::InputTag>("recoPhotonSrc"));
-    ebReducedRecHitCollection_ = consumes<EcalRecHitCollection>          (ps.getParameter<edm::InputTag>("ebReducedRecHitCollection"));
-    eeReducedRecHitCollection_ = consumes<EcalRecHitCollection>          (ps.getParameter<edm::InputTag>("eeReducedRecHitCollection"));
-    esReducedRecHitCollection_ = consumes<EcalRecHitCollection>          (ps.getParameter<edm::InputTag>("esReducedRecHitCollection")); 
  }
   if (doMuons_)
     recoMuonsCollection_    = consumes<edm::View<reco::Muon>>(ps.getParameter<edm::InputTag>("recoMuonSrc"));
@@ -74,16 +71,9 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
       rhoToken_ = consumes<double>(ps.getParameter<edm::InputTag>("rho"));
   }
   doPhoEReg_              = ps.getParameter<bool>("doPhoERegression");
-  if (doRecHitsEB_ || doEleEReg_) {
-      recHitsEB_ = consumes<EcalRecHitCollection> (
-        ps.getUntrackedParameter<edm::InputTag>("recHitsEB",
-          edm::InputTag("ecalRecHit","EcalRecHitsEB")));
-  }
-  if (doRecHitsEE_ || doEleEReg_) {
-      recHitsEE_ = consumes<EcalRecHitCollection> (
-        ps.getUntrackedParameter<edm::InputTag>("recHitsEE",
-          edm::InputTag("ecalRecHit","EcalRecHitsEE")));
-  }
+  recHitsEB_   = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("recHitsEB"));
+  recHitsEE_   = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("recHitsEE"));
+  recHitsES_   = consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("recHitsEE"));
 
   if (doPfIso_) {
     pfCollection_         = consumes<edm::View<reco::PFCandidate> > (
@@ -99,6 +89,7 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
   doGeneralTracks_          = ps.getParameter<bool>("doGeneralTracks");
   doPixelTracks_            = ps.getParameter<bool>("doPixelTracks");
   doCaloTower_              = ps.getParameter<bool>("doCaloTower");
+  doCastorTower_            = ps.getParameter<bool>("doCastorTower");
   doTrackerHits_            = ps.getParameter<bool>("doTrackerHits");//Date:22/09/2022, not present in GK's FSR samples
   
   if (doGeneralTracks_) {
@@ -107,6 +98,7 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
   }
   if (doPixelTracks_) pixelTracks_       = consumes<reco::TrackCollection>        (ps.getParameter<edm::InputTag>("pixelTrk"));
   if (doCaloTower_) CaloTowerCollection_     = consumes<edm::SortedCollection<CaloTower>>(ps.getParameter<edm::InputTag>("recoCaloTower"));
+  if (doCastorTower_) CastorTowerCollection_ = consumes<reco::CastorTowerCollection>(ps.getParameter<edm::InputTag>("recoCastorTower"));
   if (doTrackerHits_){
     DeDxHitInfoCollection_    = consumes<std::vector<reco::DeDxHitInfo>>(edm::InputTag("dedxHitInfo"));
     PixelClustersCollection_  = consumes<edmNew::DetSetVector<SiPixelCluster>>(edm::InputTag("siPixelClusters"));
@@ -673,6 +665,14 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps) :
     tree_->Branch("CaloTower_iphi",         &CaloTower_iphi_);
   }
 
+
+  if (doCastorTower_){
+    tree_->Branch("nCastorTower",            &nCastorTower_);
+    tree_->Branch("CastorTower_hadE",        &CastorTower_hadE_);
+    tree_->Branch("CastorTower_emE",         &CastorTower_emE_);
+    tree_->Branch("CastorTower_p4",          &CastorTower_p4_);
+    tree_->Branch("CastorTower_NrecHits",    &CastorTower_NrecHits_);
+  }
   if(doTrackerHits_){
      tree_->Branch("nTrackerHits",   &nTrackerHits_);
      tree_->Branch("nPixelClusters", &nPixelClusters_);
@@ -1207,7 +1207,14 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
     CaloTower_ieta_        .clear();
     CaloTower_iphi_        .clear();
   }
-  
+ 
+  if (doCastorTower_){
+    nCastorTower_= 0;
+    CastorTower_hadE_       .clear();
+    CastorTower_emE_        .clear();
+    CastorTower_p4_         .clear();
+    CastorTower_NrecHits_   .clear(); 
+  } 
   if(doTrackerHits_){
     nTrackerHits_   = 0;
     nPixelClusters_ = 0;
@@ -1276,7 +1283,7 @@ void ggHiNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   if (doPixelTracks_) fillPixelTracks(e, es, pv);
   if (doCaloTower_) fillCaloTower(e, es, pv);
   if (doTrackerHits_) fillTrackerHits(e);  //Date:22/09/2022
-
+  if (doCastorTower_) fillCastorTower(e, es, pv);
   tree_->Fill();
 }
 
@@ -1321,8 +1328,9 @@ void ggHiNtuplizer::fillGenParticles(const edm::Event& e)
     bool isHeavy = (p->pdgId() == 23 || abs(p->pdgId()) == 24 || p->pdgId() == 25 ||
         abs(p->pdgId()) == 6 || abs(p->pdgId()) == 5);
 
+    bool isPhotonorPi0 = (p->pdgId() == 22 || p->pdgId() == 111);
     // reduce size of output root file
-    if (!isStableFast && !isStableLepton && !isHeavy)
+    if (!isStableFast && !isStableLepton && !isHeavy && !isPhotonorPi0)
       continue;
     //std::cout << " in gen loop "<< std::endl;
     mcPID_   .push_back(p->pdgId());
@@ -1537,9 +1545,9 @@ void ggHiNtuplizer::fillElectrons(const edm::Event& e, const edm::EventSetup& es
     elePz_               .push_back(ele->pz());
     //
     elePt_               .push_back(ele->pt());
-    std::cout << "elePt" << ele->pt() << std::endl;
+    //std::cout << "elePt" << ele->pt() << std::endl;
     eleEta_              .push_back(ele->eta());
-    std::cout << "eleEta" << ele->eta() << std::endl;
+    //std::cout << "eleEta" << ele->eta() << std::endl;
 
     elePhi_              .push_back(ele->phi());
     eleSCEn_             .push_back(ele->superCluster()->energy());
@@ -1742,25 +1750,15 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
   }
 
   edm::Handle<EcalRecHitCollection> recHitsEBHandle;
-  if (doRecHitsEB_) {
-      e.getByToken(recHitsEB_, recHitsEBHandle);
-  }
+  e.getByToken(recHitsEB_, recHitsEBHandle);
+ 
   edm::Handle<EcalRecHitCollection> recHitsEEHandle;
-  if (doRecHitsEE_) {
-      e.getByToken(recHitsEE_, recHitsEEHandle);
-  }
+  e.getByToken(recHitsEE_, recHitsEEHandle);
 
-  edm::Handle<EcalRecHitCollection> ecalhitsCollEB;
-  e.getByToken(ebReducedRecHitCollection_, ecalhitsCollEB);
-
-  edm::Handle<EcalRecHitCollection> ecalhitsCollEE;
-  e.getByToken(eeReducedRecHitCollection_, ecalhitsCollEE);
-
-  edm::Handle<EcalRecHitCollection> ecalhitsCollES;
-  e.getByToken(esReducedRecHitCollection_, ecalhitsCollES);
-
-
-  EcalClusterLazyTools       lazyTool    (e, es, ebReducedRecHitCollection_, eeReducedRecHitCollection_, esReducedRecHitCollection_);
+  edm::Handle<EcalRecHitCollection> recHitsESHandle;
+  e.getByToken(recHitsES_, recHitsESHandle);
+  
+  EcalClusterLazyTools       lazyTool    (e, es, recHitsEB_, recHitsEE_, recHitsES_);
 
   // loop over photons
   for (auto pho = recoPhotonsHandle->begin(); pho != recoPhotonsHandle->end(); ++pho) {
@@ -1772,7 +1770,7 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
     phoEt_            .push_back(pho->et());
     phoEta_           .push_back(pho->eta());
  //   std::(pho->eta());
-     std::cout << "PhoEta" << pho->eta() << std::endl;
+     //std::cout << "PhoEta" << pho->eta() << std::endl;
     phoPhi_           .push_back(pho->phi());
 
     // energies from different types of corrections
@@ -1840,7 +1838,7 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es, 
     // phoEleVeto_       .push_back((int)pho->passElectronVeto());   // TODO: not available in reco::
     phoHadTowerOverEm_.push_back(pho->hadTowOverEm());
     phoHoverE_        .push_back(pho->hadronicOverEm());
-    std::cout << "PhoHOverE" << pho->hadronicOverEm() << std::endl;
+    //std::cout << "PhoHOverE" << pho->hadronicOverEm() << std::endl;
 
     phoHoverEValid_   .push_back(pho->hadronicOverEmValid());
     phoSigmaIEtaIEta_ .push_back(pho->sigmaIetaIeta());
@@ -2246,7 +2244,7 @@ void ggHiNtuplizer::fillMuons(const edm::Event& e, const edm::EventSetup& es, re
       muInnerD0_     .push_back(innMu->dxy(pv.position()));
       muInnerDz_     .push_back(innMu->dz(pv.position()));
       //print innerdz
-      std::cout << "MuonInnerDz:" << (innMu->dz(pv.position())) << std::endl;     
+      //std::cout << "MuonInnerDz:" << (innMu->dz(pv.position())) << std::endl;     
       muInnerD0Err_  .push_back(innMu->dxyError());
       muInnerDzErr_  .push_back(innMu->dzError());
       muInnerPt_     .push_back(innMu->pt());
@@ -2390,6 +2388,20 @@ void ggHiNtuplizer::fillCaloTower(const edm::Event& e, const edm::EventSetup& es
   }
 } // calo tower loop
 
+void ggHiNtuplizer::fillCastorTower(const edm::Event& e, const edm::EventSetup& es, reco::Vertex& pv)
+{
+  // Fills tree branches for castor tower 
+  edm::Handle<reco::CastorTowerCollection> CastorTowerHandle;
+  e.getByToken(CastorTowerCollection_, CastorTowerHandle);  
+
+  for (reco::CastorTowerCollection::const_iterator i = CastorTowerHandle->begin(); i != CastorTowerHandle->end(); ++i) {  
+    CastorTower_emE_  .push_back(i->emEnergy());
+    CastorTower_hadE_ .push_back(i->hadEnergy());
+    CastorTower_NrecHits_  .push_back(i->rechitsSize());
+    CastorTower_p4_  .push_back(reco::Candidate::LorentzVector(i->px(),i->py(),i->pz(),i->energy()));
+    nCastorTower_++;
+  }
+} //castor tower loop
 
 void ggHiNtuplizer::fillTrackerHits(const edm::Event& event)
 {
