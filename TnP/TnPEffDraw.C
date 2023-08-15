@@ -84,11 +84,29 @@ bool doToys = false;
 
 
 // Location of the files
-//const char* fDataName = "tnp_Ana_Data_EleRecoID_singleEG5_eta2p1.root";
-//const char* fMCName = "tnp_Ana_Data_EleRecoID_singleEG5_eta2p1.root";
+// const char* fDataName = "tnp_Ana_Data_EleRecoID_singleEG5_eta2p1.root";
+// const char* fMCName = "tnp_Ana_MCSL_EleRecoID_singleEG5_eta2p1.root";
 
- const char* fDataName = "tnp_Ana_Data_EleRecoID_singleEG5_eta2p4_OliverThresholds.root";
- const char* fMCName = "tnp_Ana_QEDSL_EleRecoID_singleEG5_eta2p4_OliverThresholds.root";
+// const char* fDataName = "tnp_Ana_Data_EleRecoID_singleEG5_eta2p1_crackrmv_probe.root";
+// const char* fMCName = "tnp_Ana_MCSL_EleRecoID_singleEG5_eta2p1_crackrmv_probe.root";
+
+// const char* fDataName = "tnp_Ana_Data_EleRecoID_singleEG3_eta2p2_OliverThresholds.root";
+// const char* fMCName = "tnp_Ana_QEDSC_EleRecoID_singleEG3_eta2p2_OliverThresholds.root";
+
+// const char* fDataName = "tnp_Ana_Data_EleRecoID_singleEG3_absEta_EmilienComments.root";
+// const char* fMCName = "tnp_Ana_MC_EleRecoID_singleEG3_absEta_EmilienComments.root";
+
+// const char* fDataName = "tnp_Ana_Data_EleRecoID_singleEG5_absEta_EmilienComments_singleEG5TriggerOnly.root";
+// const char* fMCName = "tnp_Ana_MC_EleRecoID_singleEG5_absEta_EmilienComments_singleEG5TriggerOnly.root";
+
+//const char* fDataName = "tnp_Ana_Data_EleRecoID_singleEG3_absEta_EmilienComments_singleEG3TriggerOnly.root";
+//const char* fMCName = "tnp_Ana_QEDSC_EleRecoID_singleEG3_absEta_EmilienComments_singleEG3TriggerOnly.root";
+
+// const char* fDataName = "tnp_Ana_Data_EleRecoID_singleEG3_DPNote_eta2p1.root";
+// const char* fMCName = "tnp_Ana_MC_EleRecoID_singleEG3_DPNote_eta2p1.root";
+
+const char* fDataName = "tnp_Ana_Data_EleRecoID_singleEG3_pt2p5_eta2p2_invmass5.root";
+const char* fMCName = "tnp_Ana_MC_EleRecoID_singleEG3_pt2p5_eta2p2_invmass5.root";
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -102,12 +120,12 @@ const int nAbsEtaBins = 2;
 TString cutTag("tnpQED"); 
 TString cutLegend("electron reco");
 TString absetaTag("elereco_EBEE");
-TString absetaVar("eta");
+TString absetaVar("abseta");
 ofstream file_sfs("correction_functions.txt");
 
 const double effmin = 0.;
 const double sfrange = 0.55;
-
+TString dirName = "EleRecoID_singleEG3_pt2p5_eta2p2_invmass5/";
 
 // Function Define
 TH2F *plotEff2D(RooDataSet *a, TString b);
@@ -234,7 +252,8 @@ void TnPEffDraw() {
   pad2->SetFillStyle(0);
   pad2->SetBottomMargin(gStyle->GetPadBottomMargin()/0.3);
   pad1->SetTopMargin(gStyle->GetPadTopMargin()/0.7);
-  // pad2->SetGridy();
+  pad1->SetGridx();
+  pad1->SetGridy();
   pad1->Draw();
   pad1->cd();
 
@@ -243,8 +262,8 @@ void TnPEffDraw() {
 
 
   // TH1F *hPad = new TH1F("hPad",";p^{e}_{T} [GeV/c];Single ele. Efficiency",5,0,20);
-  TH1F *hPad = new TH1F("hPad",";SC E_{T} [GeV/c];Single ele. Efficiency",5,0,20);
-  TH1F *hPad1 = new TH1F("hPad1",";#eta^{e} ;Single ele. Efficiency",5,0,2.4);
+  TH1F *hPad = new TH1F("hPad",";E_{T}^{SC} (GeV);Electron reco+ID efficiency",5,0,20);
+  TH1F *hPad1 = new TH1F("hPad1",";#eta^{e} ;Electron reco+ID efficiency",5,0,2.4);
   hPad->GetXaxis()->CenterTitle();
   hPad1->GetXaxis()->CenterTitle();
   hPad->GetXaxis()->SetLabelSize(0.);
@@ -265,20 +284,28 @@ void TnPEffDraw() {
   hPad1->GetYaxis()->SetRangeUser(effmin,1.05);
 
   pad2->cd();
+  pad2->SetTopMargin(0.11);
+  pad2->SetGridx();
   pad2->SetGridy();
   double tsize = (1./0.36)*hPad->GetYaxis()->GetTitleSize(); // 1./0.36
-  TH1F *hPadr = (TH1F*) hPad->Clone("hPadr"); hPadr->GetYaxis()->SetRangeUser(1.-sfrange,1.+sfrange);
-  hPadr->GetYaxis()->SetTitle("Scale Factor");
+  TH1F *hPadr = (TH1F*) hPad->Clone("hPadr"); 
+  hPadr->GetYaxis()->SetRangeUser(0.9,1.05);
+  //hPadr->GetYaxis()->SetRangeUser(1.-sfrange,1.+sfrange);
+  hPadr->GetYaxis()->SetTitle("Data/MC");
   hPadr->GetXaxis()->SetTitleSize(tsize);
   hPadr->GetXaxis()->SetLabelSize(tsize);
-  hPadr->GetYaxis()->SetTitleSize(tsize);
+  hPadr->GetYaxis()->SetTitleSize(0.14);
+  hPadr->GetYaxis()->SetTitleOffset(0.33);
   hPadr->GetYaxis()->SetLabelSize(tsize);
   hPadr->GetYaxis()->SetNdivisions(504,kTRUE);
-  TH1F *hPad1r = (TH1F*) hPad1->Clone("hPad1r"); hPad1r->GetYaxis()->SetRangeUser(1.-sfrange,1.+sfrange);
-  hPad1r->GetYaxis()->SetTitle("Scale Factor");
+  TH1F *hPad1r = (TH1F*) hPad1->Clone("hPad1r"); 
+  hPad1r->GetYaxis()->SetRangeUser(1.-sfrange,1.+sfrange);
+  //hPad1r->GetYaxis()->SetRangeUser(1.-sfrange,1.+sfrange);
+  hPad1r->GetYaxis()->SetTitle("Data/MC");
   hPad1r->GetXaxis()->SetTitleSize(tsize);
   hPad1r->GetXaxis()->SetLabelSize(tsize);
-  hPad1r->GetYaxis()->SetTitleSize(tsize);
+  hPad1r->GetYaxis()->SetTitleSize(0.14);
+  hPad1r->GetYaxis()->SetTitleOffset(0.33);
   hPad1r->GetYaxis()->SetLabelSize(tsize);
   hPad1r->GetYaxis()->SetNdivisions(504,kTRUE);
 
@@ -296,7 +323,7 @@ void TnPEffDraw() {
      leg1->SetFillStyle(0);
      leg1->SetFillColor(0);
      leg1->SetBorderSize(0);
-     leg1->SetTextSize(0.035);
+     leg1->SetTextSize(0.05);
      double ptmin = ((RooRealVar*) daPtData0[i]->get()->find("pt"))->getBinning().binLow(0);
      double etamin, etamax;
      if (daPtData0[i]->get()->find(absetaVar))
@@ -304,34 +331,70 @@ void TnPEffDraw() {
         etamin = ((RooRealVar*) daPtData0[i]->get()->find(absetaVar))->getBinning().binLow(0);
         etamax = ((RooRealVar*) daPtData0[i]->get()->find(absetaVar))->getBinning().binHigh(0);
         // leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(p^{e}_{T}>%.1f, |#eta| #in [%.1f, %.1f])}",ptmin,etamin,etamax));
-        leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(SC E_{T}>%.1f, |#eta| #in [%.1f, %.1f])}",ptmin,etamin,etamax));
+        //leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(SC E_{T}>%.1f, |#eta| #in [%.1f, %.1f])}",ptmin,etamin,etamax));
+        //leg1->SetHeader(Form(" (SC E_{T}>%.1f, |#eta| #in [%.1f, %.1f])",ptmin,etamin,etamax));
+        //leg1->SetHeader(Form(" (|#eta^{SC}| #in [%.1f, %.1f])",etamin,etamax));
+        leg1->SetHeader(Form(" %.1f < |#eta^{SC}| < %.1f",etamin,etamax));
      }
      else
      {
         etamin = ((RooRealVar*) daPtData0[i]->get()->find("eta"))->getBinning().binLow(0);
         etamax = ((RooRealVar*) daPtData0[i]->get()->find("eta"))->getBinning().binHigh(0);
         // leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(p^{e}_{T}>%.1f, #eta #in [%.1f, %.1f])}",ptmin,etamin,etamax));
-        leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(SC E_{T}>%.1f, #eta #in [%.1f, %.1f])}",ptmin,etamin,etamax));
+        //leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(SC E_{T}>%.1f, #eta #in [%.1f, %.1f])}",ptmin,etamin,etamax));
+        //leg1->SetHeader(Form("(SC E_{T}>%.1f, #eta #in [%.1f, %.1f])",ptmin,etamin,etamax));
+        leg1->SetHeader(Form(" (|SC #eta| #in [%.1f, %.1f])",etamin,etamax));
      }
-     sprintf(legs,"MC Superchic: %.4f^{ + %.3f}_{ - %.3f}", TrkAbsEta0[i][0], TrkAbsEta0[i][1], TrkAbsEta0[i][2]);
+     //sprintf(legs,"MC Superchic: %.4f^{ + %.3f}_{ - %.3f}", TrkAbsEta0[i][0], TrkAbsEta0[i][1], TrkAbsEta0[i][2]);
+     sprintf(legs,"MC Superchic");
      leg1->AddEntry(ComPt0[i],legs,"pl");
-     sprintf(legs,"Data: %.4f^{ + %.3f}_{ - %.3f}", TrkAbsEta1[i][0], TrkAbsEta1[i][1], TrkAbsEta1[i][2]);
+     //sprintf(legs,"Data: %.4f^{ + %.3f}_{ - %.3f}", TrkAbsEta1[i][0], TrkAbsEta1[i][1], TrkAbsEta1[i][2]);
+     sprintf(legs,"Data");
      leg1->AddEntry(ComPt1[i],legs,"pl");
      leg1->Draw("same");
 
      ComPt0[i]->Draw("pz same");
      ComPt1[i]->Draw("pz same");
 
-     lt1->SetTextSize(0.05);
-     lt1->DrawLatex(0.43,0.60,"CMS Preliminary");
+TLatex *   tex = new TLatex(0.90,0.8724,"PbPb 1.65 nb^{-1} (5.02 TeV)");
+tex->SetNDC();
+   tex->SetTextAlign(31);
+   tex->SetTextFont(42);
+   tex->SetTextSize(0.04);
+   tex->SetLineWidth(2);
+   tex->Draw();
+      tex = new TLatex(0.16,0.8724,"");
+tex->SetNDC();
+   tex->SetTextFont(42);
+   tex->SetTextSize(0.04);
+   tex->SetLineWidth(2);
+   tex->Draw();
+      tex = new TLatex(0.11,0.8724,"CMS");
+tex->SetNDC();
+   tex->SetTextFont(61);
+   tex->SetTextSize(0.06);
+   tex->SetLineWidth(2);
+   tex->Draw();
+      tex = new TLatex(0.2084,0.8724,"Preliminary");
+tex->SetNDC();
+   tex->SetTextFont(52);
+   tex->SetTextSize(0.0456);
+   tex->SetLineWidth(2);
+   tex->Draw();
+
+
+     //lt1->SetTextSize(0.045);
+     //lt1->DrawLatex(0.43,0.60,"CMS Preliminary");
+     //lt1->DrawLatex(0.12,0.88,"CMS Preliminary");
      //lt1->DrawLatex(0.43,0.54,"pp  #sqrt{s} = 5.02 TeV");
-     lt1->DrawLatex(0.43,0.54,collTag + "  #sqrt{s_{NN}} = 5.02 TeV");
+     //lt1-/>DrawLatex(0.6,0.88,collTag + " 1.65 nb^{-1} (5.02 TeV)");
 
      // now take care of the data/mc ratio panel
      c1->cd();
      // pad2->SetFrameFillStyle(4000);
      pad2->Draw();
      pad2->cd();
+     hPadr->Fit("pol0","","",4,20);
      hPadr->Draw();
 
      int nbins = ComPt0[i]->GetN();
@@ -361,8 +424,9 @@ void TnPEffDraw() {
      gratio->Draw("pz same");
 
      // save
-     c1->SaveAs(cutTag + Form("Eff%i_",i) + collTag + "_RD_MC_PT.root");
-     c1->SaveAs(cutTag + Form("Eff%i_",i) + collTag + "_RD_MC_PT.pdf");
+     c1->SaveAs(dirName + cutTag + Form("Eff%i_",i) + collTag + "_RD_MC_PT.C");
+     c1->SaveAs(dirName + cutTag + Form("Eff%i_",i) + collTag + "_RD_MC_PT.pdf");
+     c1->SaveAs(dirName + cutTag + Form("Eff%i_",i) + collTag + "_RD_MC_PT.png");
 
      // print the scale factors to file
      file_sfs << "// etmin etmax SF SF_uncert" << endl;
@@ -378,7 +442,8 @@ void TnPEffDraw() {
      double chi2, pval; int dof;
 
      // fit data
-     TF1 *fdata = new TF1("fdata","[0]*TMath::Erf((x-[1])/[2])",ptmin,ptmax);
+     //TF1 *fdata = new TF1("fdata","[0]*TMath::Erf((x-[1])/[2])",ptmin,ptmax);
+     TF1 *fdata = new TF1("fdata","[0]*TMath::Erf((x-[1])/[2])",ptmin,14);
      fdata->SetParNames("eff0","x0","m");
      // Initialize the normalization to the efficiency in the last point
      fdata->SetParameters(ComPt1[i]->GetX()[ComPt1[i]->GetN()-1],0.1,1.0);
@@ -416,7 +481,8 @@ void TnPEffDraw() {
      // now the bottom panel
      pad2->cd();
      // hPadr->Draw();
-     TF1 *fratio = new TF1("fratio","[0]*TMath::Erf((x-[1])/[2])/([3]*TMath::Erf((x-[4])/[5]))",ptmin,ptmax);
+     //TF1 *fratio = new TF1("fratio","[0]*TMath::Erf((x-[1])/[2])/([3]*TMath::Erf((x-[4])/[5]))",ptmin,ptmax);
+     TF1 *fratio = new TF1("fratio","[0]*TMath::Erf((x-[1])/[2])/([3]*TMath::Erf((x-[4])/[5]))",ptmin,14);
      fratio->SetParameters(
            fdata->GetParameter(0),fdata->GetParameter(1),fdata->GetParameter(2),
            fmc->GetParameter(0),fmc->GetParameter(1),fmc->GetParameter(2)
@@ -431,8 +497,8 @@ void TnPEffDraw() {
      tchi.DrawLatex(0.6,0.8,Form("#chi^{2}/dof = %.1f/%d (p-value: %.2f)",chi2,dof,pval));
 
      // save
-     c1->SaveAs(cutTag + Form("SF%i_",i) + collTag + "_RD_MC_PT.root");
-     c1->SaveAs(cutTag + Form("SF%i_",i) + collTag + "_RD_MC_PT.pdf");
+     c1->SaveAs(dirName + cutTag + Form("SF%i_",i) + collTag + "_RD_MC_PT.C");
+     c1->SaveAs(dirName + cutTag + Form("SF%i_",i) + collTag + "_RD_MC_PT.pdf");
 
      // print the fit results to file
      file_sfs << "Data " << etamin << " " << etamax << endl;
@@ -456,14 +522,16 @@ void TnPEffDraw() {
   TLatex *lt1 = new TLatex();
   lt1->SetNDC();
   char legs[512];
-  TLegend *leg1 = new TLegend(0.43,0.21,0.66,0.43);
+  TLegend *leg1 = new TLegend(0.13,0.17,0.50,0.43);
   leg1->SetFillStyle(0);
   leg1->SetFillColor(0);
   leg1->SetBorderSize(0);
-  leg1->SetTextSize(0.035);
+  leg1->SetTextSize(0.05);
   double ptmin = ((RooRealVar*) daEtaData0->get()->find("pt"))->getBinning().binLow(0);
   // leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(p^{e}_{T}>%.1f)}",ptmin));
-  leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(SC E_{T}>%.1f)}",ptmin));
+  leg1->SetHeader(Form("(SC E_{T} > %.1f GeV)",ptmin));
+
+  //leg1->SetHeader(TString("#splitline{") + cutLegend + Form(" Efficiency}{(SC E_{T}>%.1f)}",ptmin));
   sprintf(legs,"MC Superchic: %.4f^{ + %.3f}_{ - %.3f}", Trk0[0], Trk0[1], Trk0[2]);
   leg1->AddEntry(ComPt0[0],legs,"pl");
   sprintf(legs,"Data: %.4f^{ + %.3f}_{ - %.3f}", Trk1[0], Trk1[1], Trk1[2]);
@@ -471,10 +539,13 @@ void TnPEffDraw() {
   leg1->Draw("same");
   leg1->Draw("same");
 
-  lt1->SetTextSize(0.05);
-  lt1->DrawLatex(0.43,0.60,"CMS Preliminary");
+   lt1->SetTextSize(0.045);
+   //lt1->DrawLatex(0.43,0.60,"CMS Preliminary");
+   lt1->DrawLatex(0.12,0.88,"CMS Preliminary");
   //lt1->DrawLatex(0.43,0.54,"pp  #sqrt{s} = 5.02 TeV");
-  lt1->DrawLatex(0.43,0.54,collTag + "  #sqrt{s_{NN}} = 5.02 TeV");
+  lt1->DrawLatex(0.6,0.88,collTag + " 1.65 nb^{-1} (5.02 TeV)");
+
+  
 
   // now take care of the data/mc ratio panel
   c1->cd();
@@ -509,8 +580,9 @@ void TnPEffDraw() {
   gratio1->SetLineWidth(1);
   gratio1->Draw("pz same");
 
-  c1->SaveAs(cutTag + "Eff_" + collTag + "_RD_MC_Eta.root");
-  c1->SaveAs(cutTag + "Eff_" + collTag + "_RD_MC_Eta.pdf");
+  c1->SaveAs(dirName + cutTag + "Eff_" + collTag + "_RD_MC_Eta.C");
+  c1->SaveAs(dirName + cutTag + "Eff_" + collTag + "_RD_MC_Eta.pdf");
+  c1->SaveAs(dirName + cutTag + "Eff_" + collTag + "_RD_MC_Eta.png");
   
 
   file_sfs.close();
@@ -525,7 +597,7 @@ void formatTH1F(TH1* a, int b, int c, int d){
   a->GetYaxis()->SetTitle("Efficiency");
   if(d == 1){
     // a->GetXaxis()->SetTitle("p_{T} [GeV/c]");
-    a->GetXaxis()->SetTitle("SC E_{T} [GeV/c]");
+    a->GetXaxis()->SetTitle("E_{T}^{SC} (GeV)");
   }else if(d == 2){
     a->GetXaxis()->SetTitle("#eta");
   }else if(d == 3){
@@ -568,7 +640,7 @@ void formatTGraph(TGraph* a, int b, int c, int d)
   a->GetXaxis()->CenterTitle();
   if(d == 1){ 
     // a->GetXaxis()->SetTitle("p_{T} (GeV/c)"); 
-    a->GetXaxis()->SetTitle("SC E_{T} (GeV/c)"); 
+    a->GetXaxis()->SetTitle("E_{T}^{SC} (GeV)"); 
   }else if(d == 2){ 
     a->GetXaxis()->SetTitle("eta"); 
   }else if(d == 3){ 
@@ -697,7 +769,7 @@ vector<TGraphAsymmErrors*> plotEff_Nbins(RooDataSet *a, int aa, const char* varx
      b->GetXaxis()->SetTitleSize(0.05);
      b->GetYaxis()->SetTitleSize(0.05);
      // b->GetXaxis()->SetTitle("p_{T} [GeV/c]");
-     b->GetXaxis()->SetTitle("SC E_{T} [GeV/c]");
+     b->GetXaxis()->SetTitle("E_{T}^{SC} (GeV)");
      b->GetYaxis()->SetTitle("Efficiency");
      b->GetXaxis()->CenterTitle();
      //b->Draw("apz");
@@ -734,7 +806,7 @@ TH2F *plotEff2D(RooDataSet *a, TString b){
   h->GetZaxis()->SetRangeUser(-0.001,1.001);
   h->SetStats(kFALSE);
   // h->GetYaxis()->SetTitle("p_{T} [GeV/c]");
-  h->GetYaxis()->SetTitle("SC E_{T} [GeV/c]");
+  h->GetYaxis()->SetTitle("E_{T}^{SC} (GeV)");
   h->GetXaxis()->SetTitle("#eta");
   h->GetXaxis()->CenterTitle();
   h->GetYaxis()->CenterTitle();
