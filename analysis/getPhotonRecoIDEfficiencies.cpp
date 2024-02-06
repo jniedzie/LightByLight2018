@@ -23,12 +23,16 @@ int ls;
 int evtnb;
 float swissCross;
 float etaWidth;
+float etaWidth2012;
 float HoE;
 int ok_photon;
 int ok_ID;
 int ok_etaWidth;
+int ok_etaWidth2012;
 int ok_swissCross;
 int ok_HoE;
+int ok_rejectConveredPhoton;
+int ok_seedTime;
 int tag_charge;
 int nTag;
 float tag_Et;
@@ -87,12 +91,16 @@ void InitTree(TTree *tr) {
   tr->Branch("tag_L1Eta_passEG5",&tag_L1Eta_passEG5,"tag_L1Eta_passEG5/F");
   tr->Branch("swissCross",&swissCross,"swissCross/F");
   tr->Branch("etaWidth",&etaWidth,"etaWidth/F");
+  tr->Branch("etaWidth2012",&etaWidth2012,"etaWidth2012/F");
   tr->Branch("HoE",&HoE,"HoE/F");
   tr->Branch("ok_photon",&ok_photon,"ok_photon/I");
   tr->Branch("ok_ID",&ok_ID,"ok_ID/I");
   tr->Branch("ok_etaWidth",&ok_etaWidth,"ok_etaWidth/I");
+  tr->Branch("ok_etaWidth2012",&ok_etaWidth2012,"ok_etaWidth2012/I");
   tr->Branch("ok_swissCross",&ok_swissCross,"ok_swissCross/I");
   tr->Branch("ok_HoE",&ok_HoE,"ok_HoE/I");
+  tr->Branch("ok_rejectConveredPhoton",&ok_rejectConveredPhoton,"ok_rejectConveredPhoton/I");
+  tr->Branch("ok_seedTime",&ok_seedTime,"ok_seedTime/I");
   tr->Branch("nPho_notag",   &nPho_notag,   "nPho_notag/I");
   tr->Branch("phoEt_notag",&phoEt_notag,"phoEt_notag/F");
   tr->Branch("phoEtBarrel_notag",&phoEtBarrel_notag,"phoEtBarrel_notag/F");
@@ -163,10 +171,12 @@ void ResetTagVars() {
 void ResetPassingProbeVars() {
    swissCross     = -999;
    etaWidth       = -999;
+   etaWidth2012   = -999;
    HoE            = -999;
    ok_photon      = -999;
    ok_ID          = -999;
    ok_etaWidth    = -999;
+   ok_etaWidth2012= -999;
    ok_swissCross  = -999;
    ok_HoE         = -999;
    nPho_notag     = 0;
@@ -308,7 +318,9 @@ int main(int argc, char* argv[])
     auto event = events->GetEvent(iEvent);
     
     // Check trigger
-    if(!event->HasTrigger(kSingleEG3noHF) && !event->HasTrigger(kSingleEG5noHF)) continue;
+    //if(!event->HasTrigger(kSingleEG3noHF) && !event->HasTrigger(kSingleEG5noHF)) continue;
+    //if(!event->HasTrigger(kSingleEG3noHF) ) continue;
+    if(!event->HasTrigger(kSingleEG5noHF)) continue;
     
     ResetEventVars();
     run = event->GetRunNumber();
@@ -339,23 +351,25 @@ int main(int argc, char* argv[])
     // loop on tags (good electrons with additional cuts)
     for (auto tag : goodElectrons) {
       // trigger matching
-      auto matchedL1EG3 = TriggerMatch(*tag, L1EGs, 3, 5);
+      //auto matchedL1EG3 = TriggerMatch(*tag, L1EGs, 3, 5);
       auto matchedL1EG5 = TriggerMatch(*tag, L1EGs, 5, 5);
-      if (!matchedL1EG3 && !matchedL1EG5) continue;
+      //if (!matchedL1EG3 && !matchedL1EG5) continue;
+      if (!matchedL1EG5) continue;
       //ResetTagVars();
-      if(matchedL1EG3){
+      /*if(matchedL1EG3){
 	pass_EG3 = 1;
 	Log(1) << "matched EG3:"<< pass_EG3 << "\n";
 	tag_L1Et_passEG3   = matchedL1EG3->GetEt();
 	tag_L1Eta_passEG3  = matchedL1EG3->GetEta();
-      }
+      }*/
       if(matchedL1EG5){
 	pass_EG5 = 1;
 	Log(1) << "matched EG5:"<< pass_EG5 << "\n";
 	tag_L1Et_passEG5   = matchedL1EG5->GetEt();
 	tag_L1Eta_passEG5  = matchedL1EG5->GetEta();
       }
-      if(matchedL1EG3 || matchedL1EG5){
+      //if(matchedL1EG3 || matchedL1EG5){
+      if(matchedL1EG5){
 	goodMatchedElectrons.push_back(tag);
       }
     } // electron loop
@@ -425,21 +439,28 @@ int main(int argc, char* argv[])
       
       // ID parameters
       etaWidth   = photon->GetEtaWidth();
+      etaWidth2012 = photon->GetSigmaEta2012();
       HoE        = photon->GetHoverE();
       double E4  = photon->GetEnergyCrystalTop() + photon->GetEnergyCrystalBottom() + 
 	photon->GetEnergyCrystalLeft() + photon->GetEnergyCrystalRight();
-      swissCross = E4/photon->GetEnergyCrystalMax();
+      swissCross = 1-(E4/photon->GetEnergyCrystalMax());
       
       ok_swissCross = (swissCross < config.params("photonMaxSwissCross"));
+
+      ok_rejectConveredPhoton = photon->IsConverted() == 0;
+      ok_seedTime = (fabs(photon->GetSeedTime()) < 3);
+
       if (fabs(phoSCEta_notag) < 1.5) { // barrel
 	ok_etaWidth = (etaWidth < config.params("photonMaxEtaWidthBarrel"));
 	ok_HoE      = (HoE < config.params("photonMaxHoverEbarrel"));
+        ok_etaWidth2012 = (etaWidth2012 < config.params("photonMaxSigmaEta2012Barrel"));
       }
       else { // endcap
 	ok_etaWidth = (etaWidth < config.params("photonMaxEtaWidthEndcap"));
 	ok_HoE      = (HoE < config.params("photonMaxHoverEendcap"));
+        ok_etaWidth2012 = (etaWidth2012 < config.params("photonMaxSigmaEta2012Barrel"));
       }
-      if (ok_swissCross && ok_etaWidth && ok_HoE) ok_ID = 1;
+      if (ok_swissCross && ok_etaWidth && ok_HoE && ok_etaWidth2012 && ok_rejectConveredPhoton && ok_seedTime) ok_ID = 1;
     } // photon loop
     
     // there should be max 1 photon unmatched to the tag

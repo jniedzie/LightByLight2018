@@ -78,8 +78,8 @@ PhysObjects Event::GetGoodGenPhotons() const
     if(genPhoton->GetPID() != 22) continue;
     if(fabs(genPhoton->GetEta()) > config.params("photonMaxEta")) continue;
     if(genPhoton->GetEt() < config.params("photonMinEt")) continue;
-    if(physObjectProcessor.IsInCrack(*genPhoton)) continue;
-    if(physObjectProcessor.IsInHEM(*genPhoton)) continue;
+    //if(physObjectProcessor.IsInCrack(*genPhoton)) continue;
+   // if(physObjectProcessor.IsInHEM(*genPhoton)) continue;
  
     goodGenPhotons.push_back(genPhoton);
   }
@@ -112,8 +112,7 @@ PhysObjects Event::GetPhotonsInAcceptance()
   physObjects.at(EPhysObjType::kPhotonInAcceptance).clear();
   
   for(auto photon : physObjects.at(EPhysObjType::kPhoton)){
-    
-   
+       
     // Check Et
     if(photon->GetEt() < config.params("photonMinEt")) continue;
     
@@ -136,14 +135,19 @@ PhysObjects Event::GetGoodPhotons()
   
   physObjects.at(EPhysObjType::kGoodPhoton).clear();
   
+   
   for(auto photon : physObjects.at(EPhysObjType::kPhoton)){
     
-    // Check if photon converted
+//    if(photon->FromConversion()){
+  //     physObjects.at(EPhysObjType::kGoodPhoton).push_back(photon);
+    //   continue;    
+   //  }  
+     // Check if photon converted
     if(config.params("photonRejectConverted") && photon->IsConverted()) continue;
-    
+   // cout << "conversion:" << endl; 
     // Check Et
     if(photon->GetEt() < config.params("photonMinEt")) continue;
-    
+   // cout << "Et:" << endl;
     // Check swiss cross
     double E4 = photon->GetEnergyCrystalTop() +
     photon->GetEnergyCrystalBottom() +
@@ -154,32 +158,41 @@ PhysObjects Event::GetGoodPhotons()
       Log(1)<<"WARNING -- swiss cross cannot be calculated. The event will pass this selection automatically!!\n";
     }
     else{
-      double swissCross = E4/photon->GetEnergyCrystalMax();
-      if(swissCross > config.params("photonMinSwissCross")) continue;
+      double swissCross = 1 - (E4/photon->GetEnergyCrystalMax());
+      //if(swissCross > config.params("photonMinSwissCross")) continue;
+      if(swissCross > config.params("photonMaxSwissCross")) continue;
     }
-    
+  //  cout << "swiss cross" << endl;
     // Check eta & phi (remove noisy region >2.3, remove cracks between EB and EE, remove HEM issue region)
     double absEta = fabs(photon->GetEta());
     if(absEta > config.params("photonMaxEta")) continue;
+  //  cout << "eta" << endl;
     if(physObjectProcessor.IsInCrack(*photon)) continue;
+//cout << "crack:" << endl;
     if(physObjectProcessor.IsInHEM(*photon)) continue;
-    
+   // cout << "HEM" << endl;
     // Check η shower shape
     if((absEta < maxEtaEB) && (photon->GetEtaWidth() > config.params("photonMaxEtaWidthBarrel"))) continue;
     else if((absEta < maxEtaEE) && (photon->GetEtaWidth() > config.params("photonMaxEtaWidthEndcap"))) continue;
-    
+   // cout << "Etawidth" << endl;
     if((absEta < maxEtaEB) && (photon->GetSigmaEta2012() > config.params("photonMaxSigmaEta2012Barrel"))) continue;
     else if((absEta < maxEtaEE) && (photon->GetSigmaEta2012() > config.params("photonMaxSigmaEta2012Endcap"))) continue;
-    
+    //cout << "sigmaIEta" << endl;
     
     // Check H/E
     if((absEta < maxEtaEB) && (photon->GetHoverE() > config.params("photonMaxHoverEbarrel"))) continue;
     else if((absEta < maxEtaEE) && (photon->GetHoverE() > config.params("photonMaxHoverEendcap"))) continue;
-    
+  // cout << "H/E" << endl;
+   // cout << "Photon seed time:" << photon->GetSeedTime() << endl;
+    if(fabs(photon->GetSeedTime()) > 3) continue; 
+// cout << "seed time" << endl;
     physObjects.at(EPhysObjType::kGoodPhoton).push_back(photon);
   }
+     
+  
   physObjectsReady.at(EPhysObjType::kGoodPhoton) = true;
   return physObjects.at(EPhysObjType::kGoodPhoton);
+  
 }
 
 PhysObjects Event::GetElectronsInAcceptance()
@@ -200,6 +213,7 @@ PhysObjects Event::GetElectronsInAcceptance()
     if(physObjectProcessor.IsInCrack(*electron)) continue;
     if(physObjectProcessor.IsInHEM(*electron)) continue;
     
+       
     
     physObjects.at(EPhysObjType::kElectronInAcceptance).push_back(electron);
   }
@@ -217,9 +231,6 @@ PhysObjects Event::GetGoodElectrons(TH1D *cutFlowHist)
   for(auto electron : physObjects.at(EPhysObjType::kElectron)){
     int cutFlowIndex=0;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 0
-    
-    // Keep or reject electrons coming from photon conversion
-    if(electron->IsFromConversion() && config.params("skipElectronsFromConversions")) continue;
     
     // Check pt
     if(electron->GetPt() < config.params("electronMinPt")) continue;
@@ -262,7 +273,7 @@ PhysObjects Event::GetGoodElectrons(TH1D *cutFlowHist)
     
     if(electron->GetNeutralIso() >= config.params("electronMaxNeutralIso"+subdet)) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 10
-    
+
     physObjects.at(EPhysObjType::kGoodElectron).push_back(electron);
   }
   physObjectsReady.at(EPhysObjType::kGoodElectron) = true;
@@ -280,10 +291,10 @@ PhysObjects Event::GetGoodMuons(TH1D *cutFlowHist)
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 0
     
     // Check pt
-   // if(muon->GetPt() < config.params("muonMinPt")) continue;
+    if(muon->GetPt() < config.params("muonMinPt")) continue;
    // if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 1 
     
-//    if(fabs(muon->GetEta()) >= config.params("muonMaxEta")) continue;// ADD date: 29/12/2022, for the max eta cut
+    if(fabs(muon->GetEta()) >= config.params("muonMaxEta")) continue;// ADD date: 29/12/2022, for the max eta cut
   //  double absEta = fabs(muon->GetEta());
    // if((absEta < config.params("muonMaxEtaEB")) && (muon->GetPt() < config.params("muonMinPtEB"))) continue;
    // else if(((absEta > config.params("muonMinEtaEE")) && absEta < config.params("muonMaxEtaEE")) && (muon->GetPt() < config.params("muonMinPtEE"))) continue;
@@ -379,7 +390,7 @@ PhysObjects Event::GetGoodGeneralTracks(TH1D *cutFlowHist)
     if(fabs(track->GetDz() / track->GetDzErr()) > config.params("trackMaxDzOverSigma")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 8
     
-    // Check n hits
+     //Check n hits
     if(track->GetNvalidHits() < config.params("trackMinNvalidHits")) continue;
     if(cutFlowHist) cutFlowHist->Fill(cutFlowIndex++); // 9
     
@@ -507,6 +518,7 @@ bool Event::HasAdditionalTowers()
         return true;
       }
     }
+//  cout << "HF" << endl;
     if(subdetHad==kHB || subdetHad==kHE){ // Check HB and HE exclusivity
       if(subdetHad==kHE && (ieta == 16 || ieta == -16 )) continue;
       
@@ -514,6 +526,7 @@ bool Event::HasAdditionalTowers()
         return true;
       }
     }
+//cout << "HB && HE" << endl;
     if(subdetEm==kEB){
       if(IsOverlappingWithGoodPhoton(*tower)) continue;
       if(IsOverlappingWithGoodElectron(*tower)) continue;
@@ -522,6 +535,7 @@ bool Event::HasAdditionalTowers()
         return true;
       }
     }
+//cout << "EB" << endl;
     if(subdetEm==kEE){ // Check EB and EE exclusivity
       //if(ieta == 27 || ieta == 28 || ieta == 29 || ieta == -27 || ieta == -28 || ieta == -29) continue;
       if(fabs(tower->GetEta()) > config.params("maxEtaEEtower")) continue;
@@ -533,6 +547,7 @@ bool Event::HasAdditionalTowers()
         return true;
       }
     }
+//cout << "EE"<< endl;
   }
 
 /*    if(subdetHad==kHFp || subdetHad==kHFm){ // Check HF exclusivity

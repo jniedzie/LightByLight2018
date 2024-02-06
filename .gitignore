@@ -58,7 +58,8 @@ analysis/commands.txt
 analysis/condor/'
 analysis/condor/*.root
 analysis/condor/*.cc
-
+analysis/makeQEDUnfoldingTrees
+analysis/makeUnfoldingTrees
 
 analysis/test
 
