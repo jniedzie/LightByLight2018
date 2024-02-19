@@ -23,7 +23,7 @@ EFFICIENCYSET =cms.PSet(
                 #probetkdxy = cms.vdouble(-0.3,0.3),
                 tag_pt        = cms.vdouble(3.0,50.0),
                 probetkMinDpt = cms.vdouble(2,20),
-                probetkEta = cms.vdouble(-2.1, 2.1),
+                probetkEta = cms.vdouble(-2.2, 2.2),
             ),
          BinToPDFmap = cms.vstring(PDFName)
         ),
@@ -35,7 +35,7 @@ EFFICIENCYSET =cms.PSet(
                 #probetkdxy = cms.vdouble(-0.3,0.3),
                 tag_pt        = cms.vdouble(3.0,50.0),
                 probetkMinDpt = cms.vdouble(2, 20),
-                probetkEta = cms.vdouble(0, 1.5, 2.1),
+                probetkEta = cms.vdouble(0, 1.5, 2.2),
             ),
          BinToPDFmap = cms.vstring(PDFName)
         ),
@@ -47,7 +47,8 @@ EFFICIENCYSET =cms.PSet(
                 #probetkdxy = cms.vdouble(-0.3,0.3),
                 tag_pt        = cms.vdouble(3.0,50.0),
                 probetkMinDpt = cms.vdouble(2, 20),
-                probetkEta = cms.vdouble(-2.4, -2.3, -2.2, -2.1, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.1, 2.2, 2.3, 2.4),
+                #probetkEta = cms.vdouble(-2.4, -2.3, -2.2, -2.1, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.1, 2.2, 2.3, 2.4),
+                probetkEta = cms.vdouble(-2.2, -2.1, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.1, 2.2),
             ),
          BinToPDFmap = cms.vstring(PDFName)
         ),
@@ -71,20 +72,16 @@ EFFICIENCYSET =cms.PSet(
                 #probetkdxy = cms.vdouble(-0.3,0.3),
                 tag_pt        = cms.vdouble(3.0,50.0),
                 probetkMinDpt = cms.vdouble(2, 4, 6, 8, 20),
-                probetkEta = cms.vdouble(1.5, 2.1),
+                probetkEta = cms.vdouble(1.5, 2.2),
             ),
          BinToPDFmap = cms.vstring(PDFName)
         )
 )
 
 if dataOrMC == "Data":
-   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/photonEfficienciesQED_data_15March21/DataAll_2Trks_more_variables.root"
-   inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/photonEfficienciesQED_data_eleIsolationApplied_24March21/DataAll_eleIsolation.root"
-   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/photonEfficienciesQED_data_loose_track_excl_criteria_10March21/efficienciesQED_DataAll.root"
+   inputfiles = "file:/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/analysis_ruchi/photonRecoIDEfficiency/data__L1EG3_photon2GeV_allIDCutsJeremi_12Feb2024/efficienciesQED_Data_singleEG3_photonEt2_13Feb2024.root"
 else:
-   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/photonEfficienciesQED_mc_qed_sc_15March21/QEDSCAll_2Trks_more_variables.root" #starlight eta 2.1 file
-   inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/photonEfficienciesQED_mc_qed_sc_eleIsolationApplied_24March21/QEDSCAll_eleIsolation.root" #starlight eta 2.1 file
-   #inputfiles = "file:/eos/cms/store/group/phys_diffraction/lbyl_2018/analysis_ruchi/efficienciesQED/photonEfficienciesQED_mc_qed_sc_loose_track_excl_criteria_10March21/efficienciesQED_QEDSCAll.root" #starlight eta 2.1 file
+   inputfiles = "file:/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/analysis_ruchi/photonRecoIDEfficiency/mc_photos_sc__L1EG3_photon2GeV_allIDCutsJeremi_12Feb2024/efficienciesQED_MC_singleEG3_photonEt2_13Feb2024.root" #starlight eta 2.1 file
 
 
 process.tagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
@@ -92,7 +89,7 @@ process.tagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     InputFileNames = cms.vstring(inputfiles),
     InputDirectoryName = cms.string("tnpQED"),
     InputTreeName = cms.string("fitter_tree"),
-    OutputFileName = cms.string("tnp_Ana_%s_photonReco_2trk_isolation_tagpt5_EG3.root" % ( dataOrMC)),
+    OutputFileName = cms.string("tnp_Ana_%s_photonReco_EG3_moreCutsonProbe_acop0p07.root" % ( dataOrMC)),
     #numbrer of CPUs to use for fitting
     NumCPU = cms.uint32(4),
     # specifies whether to save the RooWorkspace containing the data for each bin and
@@ -105,11 +102,12 @@ process.tagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     # defines all the real variables of the probes available in the input tree and intended for use in the efficiencies
     Variables = cms.PSet(
                          tag_pt           = cms.vstring("tag pt",        "3.0", "50.0", ""),
-                         probetkAco       = cms.vstring("Probe-tag aco", "0.0", "0.5", ""),
-                         probetkdxy       = cms.vstring("Probe d_{xy}", "-0.3", "0.3", "cm"),
-                         probetkPt        = cms.vstring("Probe p_{T}", "0.0", "2", "GeV/c"),
+                         probetkAco       = cms.vstring("Probe-tag aco", "0.0", "0.07", ""),
+                         #probetkdxy       = cms.vstring("Probe d_{xy}", "-0.3", "0.3", "cm"),
+                         probetkValidHits = cms.vstring("Probe valid hits", "5", "50", "cm"),
+                         probetkPt        = cms.vstring("Probe p_{T}", "0.65", "20", "GeV/c"),
                          probetkMinDpt    = cms.vstring("p_{T}^{e} - p_{T}^{tk} ", "2.0", "20.0", "GeV/c"),
-                         probetkEta       = cms.vstring("Probe #eta", "-2.4", "2.4", ""),
+                         probetkEta       = cms.vstring("Probe #eta", "-2.2", "2.2", ""),
                          phoEt_notag      = cms.vstring("Photon Et", "-1000", "20", "GeV/c")
     ),
     # defines all the discrete variables of the probes available in the input tree and intended for use in the efficiency calculations

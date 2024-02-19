@@ -23,13 +23,13 @@ EFFICIENCYSET =cms.PSet(
             UnbinnedVariables = cms.vstring("pair_acop"),
             BinnedVariables = cms.PSet(
                 pass_EG3 = cms.vstring("true"),
-                pt = cms.vdouble(2.5, 20),
+                pt = cms.vdouble(2.0, 20),
                 #pt = cms.vdouble(3, 20),
                 abseta = cms.vdouble(0, 2.2),
-                #eta = cms.vdouble(-2.1, 2.1),
+                #eta = cms.vdouble(-2.2, 2.2),
                 #eta = cms.vdouble(-2.4, 2.4),
                 pair_mass = cms.vdouble(5.0, 100.0),
-                pair_pt   = cms.vdouble(0.0, 2.0),
+                pair_pt   = cms.vdouble(0.0, 1.0),
 
             ),
          BinToPDFmap = cms.vstring(PDFName)
@@ -39,13 +39,13 @@ EFFICIENCYSET =cms.PSet(
             UnbinnedVariables = cms.vstring("pair_acop"),
             BinnedVariables = cms.PSet(
                 pass_EG3 = cms.vstring("true"),
-                pt = cms.vdouble(2.5, 20),
+                pt = cms.vdouble(2.0, 20),
                 #pt = cms.vdouble(3, 20),
                 abseta = cms.vdouble(0, 1.5, 2.2),
                 #eta = cms.vdouble(0, 1.5, 2.1),
                 #eta = cms.vdouble(0, 1.5, 2.4),
                 pair_mass = cms.vdouble(5.0, 100.0),
-                pair_pt   = cms.vdouble(0.0, 2.0),
+                pair_pt   = cms.vdouble(0.0, 1.0),
             ),
          BinToPDFmap = cms.vstring(PDFName)
         ),
@@ -54,14 +54,14 @@ EFFICIENCYSET =cms.PSet(
             UnbinnedVariables = cms.vstring("pair_acop"),
             BinnedVariables = cms.PSet(
                 pass_EG3 = cms.vstring("true"),
-                pt = cms.vdouble(2.5, 20),
+                pt = cms.vdouble(2.0, 20),
                 #pt = cms.vdouble(3, 20),
                 abseta = cms.vdouble(0, 0.5, 1, 1.5, 2, 2.2),
                 #eta = cms.vdouble(-2.4, -2.3, -2.2, -2.1, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.1, 2.2, 2.3, 2.4),
                 #eta = cms.vdouble(-2.2, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.2),
                 #eta = cms.vdouble(-2.4, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.4),
 		pair_mass = cms.vdouble(5.0, 100.0),
-                pair_pt   = cms.vdouble(0.0, 2.0),
+                pair_pt   = cms.vdouble(0.0, 1.0),
             ),
          BinToPDFmap = cms.vstring(PDFName)
         ),
@@ -70,7 +70,7 @@ EFFICIENCYSET =cms.PSet(
             UnbinnedVariables = cms.vstring("pair_acop"),
             BinnedVariables = cms.PSet(
                 pass_EG3 = cms.vstring("true"),
-                pt = cms.vdouble(2.5, 3, 4, 5, 6, 7, 10, 14, 20),
+                pt = cms.vdouble(2.0, 3, 4, 5, 6, 7, 10, 14, 20),
                 #pt = cms.vdouble(3, 4, 5, 6, 7, 10, 14, 20),
                 # used abseta from 0-2.2 for DP note purpose otherwise use 0-1.5, i.e. estimate efficiency 
                 #separately in barrel and endcap region as a fucntion of pt 
@@ -78,7 +78,7 @@ EFFICIENCYSET =cms.PSet(
                 #abseta = cms.vdouble(0, 2.2),
                 #eta = cms.vdouble(-1.5, 1.5),
                 pair_mass = cms.vdouble(5.0, 100.0),
-                pair_pt   = cms.vdouble(0.0, 2.0),
+                pair_pt   = cms.vdouble(0.0, 1.0),
             ),
          BinToPDFmap = cms.vstring(PDFName)
         ),
@@ -87,13 +87,13 @@ EFFICIENCYSET =cms.PSet(
             UnbinnedVariables = cms.vstring("pair_acop"),
             BinnedVariables = cms.PSet(
                 pass_EG3 = cms.vstring("true"),
-                pt = cms.vdouble(2.5, 3, 4, 5, 6, 7, 10, 14, 20),
+                pt = cms.vdouble(2.0, 3, 4, 5, 6, 7, 10, 14, 20),
                 #pt = cms.vdouble(3, 4, 5, 6, 7, 10, 14, 20),
                 abseta = cms.vdouble(1.5, 2.2),
                 #eta = cms.vdouble(1.5, 2.1),
                 #eta = cms.vdouble(1.5, 2.4),
                 pair_mass = cms.vdouble(5.0, 100.0),
-                pair_pt   = cms.vdouble(0.0, 2.0),
+                pair_pt   = cms.vdouble(0.0, 1.0),
             ),
          BinToPDFmap = cms.vstring(PDFName)
         )
@@ -120,7 +120,7 @@ process.tagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     InputDirectoryName = cms.string("tnpQED"),
     InputTreeName = cms.string("fitter_tree"),
     #OutputFileName = cms.string("tnp_Ana_%s_EleRecoID_singleEG3_absEta_EmilienComments_singleEG3TriggerOnly.root" % ( dataOrMC)),
-    OutputFileName = cms.string("tnp_Ana_%s_EleRecoID_singleEG3_pt2p5_eta2p2_invmass5.root" % ( dataOrMC)),
+    OutputFileName = cms.string("tnp_Ana_%s_EleRecoID_singleEG3_pt2p0_eta2p2_invmass5_pairPt1.root" % ( dataOrMC)),
     #numbrer of CPUs to use for fitting
     NumCPU = cms.uint32(4),
     # specifies whether to save the RooWorkspace containing the data for each bin and
@@ -133,11 +133,11 @@ process.tagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     # defines all the real variables of the probes available in the input tree and intended for use in the efficiencies
     Variables = cms.PSet(
                          pair_mass         = cms.vstring("diele Mass", "5.0", "100.0", "GeV/c^{2}"), 
-                         pair_pt           = cms.vstring("diele Pt", "0", "2.0", "GeV/c"), 
-                         pair_y            = cms.vstring("diele y", "-3", "3", ""), 
+                         pair_pt           = cms.vstring("diele Pt", "0", "1.0", "GeV/c"), 
+                         pair_y            = cms.vstring("diele y", "-2.2", "2.2", ""), 
                          pair_acop         = cms.vstring("diele acop", "0", "0.06", ""), 
-                         pt                = cms.vstring("Probe p_{T}", "2.5", "20", "GeV/c"),
-                         #eta               = cms.vstring("Probe #eta", "-2.4", "2.4", ""),
+                         pt                = cms.vstring("Probe p_{T}", "2.0", "20", "GeV/c"),
+                         eta               = cms.vstring("Probe #eta", "-2.2", "2.2", ""),
                          abseta            = cms.vstring("Probe |#eta|", "0", "2.2", ""),
                          tag_pt            = cms.vstring("Tag p_{T}", "0", "20", "GeV/c^{2}"),
                          NMissHits         = cms.vstring("NMissHits", "0", "1", ""),

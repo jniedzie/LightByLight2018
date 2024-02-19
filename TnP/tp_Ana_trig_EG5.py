@@ -26,12 +26,12 @@ EFFICIENCYSET =cms.PSet(
                 ok_elematch = cms.vstring("true"),
                 ok_ID = cms.vstring("true"),
                 # L1Et = cms.vdouble(2, 20),
-                SCEt = cms.vdouble(2.5, 20),
+                SCEt = cms.vdouble(2.0, 20),
                 abseta = cms.vdouble(0, 2.2),
                 #SCeta = cms.vdouble(-2.1, 2.1),
                 #SCeta = cms.vdouble(-2.4, 2.4),
                 pair_mass = cms.vdouble(5.0, 100.0),
-                pair_pt   = cms.vdouble(0.0, 2.0),
+                pair_pt   = cms.vdouble(0.0, 1.0),
 
             ),
          BinToPDFmap = cms.vstring(PDFName)
@@ -43,13 +43,13 @@ EFFICIENCYSET =cms.PSet(
                 pass_EG5    = cms.vstring("true"),
                 ok_elematch = cms.vstring("true"),
                 ok_ID = cms.vstring("true"),
-                SCEt = cms.vdouble(2.5, 20),
+                SCEt = cms.vdouble(2.0, 20),
                 # L1Et = cms.vdouble(2, 20),
                 abseta = cms.vdouble(0, 1.5, 2.2),
                 #SCeta = cms.vdouble(0, 1.5, 2.1),
                 #SCeta = cms.vdouble(0, 1.5, 2.4),
                 pair_mass = cms.vdouble(5.0, 100.0),
-                pair_pt   = cms.vdouble(0.0, 2.0),
+                pair_pt   = cms.vdouble(0.0, 1.0),
 
             ),
          BinToPDFmap = cms.vstring(PDFName)
@@ -61,14 +61,14 @@ EFFICIENCYSET =cms.PSet(
                 pass_EG5    = cms.vstring("true"),
                 ok_elematch = cms.vstring("true"),
                 ok_ID  = cms.vstring("true"),
-                SCEt = cms.vdouble(2.5, 20),
+                SCEt = cms.vdouble(2.0, 20),
                 # L1Et = cms.vdouble(2, 20),
                 abseta = cms.vdouble(0, 0.5, 1, 1.5, 2, 2.2),
                 #eta = cms.vdouble(-2.4, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2, 2.4),
                 #SCeta = cms.vdouble(-2.4,-2.35, -2.3,-2.25,-2.2,-2.15,-2.1,-2.05, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2,2.05, 2.1, 2.15, 2.2, 2.25, 2.3, 2.35, 2.4),
-                #SCeta = cms.vdouble(-2.1, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2,2.1),
+                #SCeta = cms.vdouble(-2.2, -2, -1.5, -1, -0.5, 0, 0.5, 1, 1.5, 2,2.2),
                 pair_mass = cms.vdouble(5.0, 100.0),
-                pair_pt   = cms.vdouble(0.0, 2.0),
+                pair_pt   = cms.vdouble(0.0, 1.0),
 
             ),
          BinToPDFmap = cms.vstring(PDFName)
@@ -80,7 +80,7 @@ EFFICIENCYSET =cms.PSet(
                 pass_EG5    = cms.vstring("true"),
                 ok_elematch = cms.vstring("true"),
                 ok_ID = cms.vstring("true"),
-                SCEt = cms.vdouble(2.5, 3, 4, 5, 6, 7, 10, 14, 20),
+                SCEt = cms.vdouble(2.0, 3, 4, 5, 6, 7, 10, 14, 20),
                 # L1Et = cms.vdouble(2, 3, 4, 5, 6, 7, 10, 14, 20),
  		# used abseta from 0-2.2 for DP note purpose otherwise use 0-1.5, i.e. estimate efficiency 
 		#separately in barrel and endcap region as a fucntion of pt 
@@ -88,7 +88,7 @@ EFFICIENCYSET =cms.PSet(
                 abseta = cms.vdouble(0, 1.5),
                 #SCeta = cms.vdouble(-1.5, 1.5),
                 pair_mass = cms.vdouble(5.0, 100.0),
-                pair_pt   = cms.vdouble(0.0, 2.0),
+                pair_pt   = cms.vdouble(0.0, 1.0),
 
             ),
          BinToPDFmap = cms.vstring(PDFName)
@@ -100,13 +100,13 @@ EFFICIENCYSET =cms.PSet(
                 pass_EG5    = cms.vstring("true"),
                 ok_elematch = cms.vstring("true"),
                 ok_ID = cms.vstring("true"),
-                SCEt = cms.vdouble(2.5, 3, 4, 5, 6, 7, 10, 14, 20),
+                SCEt = cms.vdouble(2.0, 3, 4, 5, 6, 7, 10, 14, 20),
                 # L1Et = cms.vdouble(2, 3.5, 5, 7, 12, 20),
                 abseta = cms.vdouble(1.5, 2.2),
                 #SCeta = cms.vdouble(1.5, 2.4),
                 #SCeta = cms.vdouble(1.5, 2.1),
                 pair_mass = cms.vdouble(5.0, 100.0),
-                pair_pt   = cms.vdouble(0.0, 2.0),
+                pair_pt   = cms.vdouble(0.0, 1.0),
 
             ),
          BinToPDFmap = cms.vstring(PDFName)
@@ -138,7 +138,7 @@ process.tagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     InputDirectoryName = cms.string("tnpQED"),
     InputTreeName = cms.string("fitter_tree"),
     #OutputFileName = cms.string("tnp_Ana_%s_trig_EG5_eta2p2_OliverThresholds_singleEG5TriggerOnly.root" % ( dataOrMC)),
-    OutputFileName = cms.string("tnp_Ana_%s_trig_EG5_pt2p5_eta2p2_invmass5.root" % ( dataOrMC)),
+    OutputFileName = cms.string("tnp_Ana_%s_trig_EG5_pt2p0_eta2p2_invmass5_pairpt1.root" % ( dataOrMC)),
     #OutputFileName = cms.string("check_%s_.root" % ( dataOrMC)),
     #numbrer of CPUs to use for fitting
     NumCPU = cms.uint32(4),
@@ -152,15 +152,15 @@ process.tagProbeFitTreeAnalyzer = cms.EDAnalyzer("TagProbeFitTreeAnalyzer",
     # defines all the real variables of the probes available in the input tree and intended for use in the efficiencies
     Variables = cms.PSet(
                          pair_mass        = cms.vstring("diele Mass", "5.0", "100.0", "GeV/c^{2}"), 
-                         pair_pt          = cms.vstring("diele Pt", "0", "20.0", "GeV/c"), 
-                         pair_y           = cms.vstring("diele y", "-3", "3", ""), 
+                         pair_pt          = cms.vstring("diele Pt", "0", "1.0", "GeV/c"), 
+                         pair_y           = cms.vstring("diele y", "-2.2", "2.2", ""), 
                          pair_acop        = cms.vstring("diele acop", "0", "0.06", ""), 
-                         SCEt             = cms.vstring("Probe SC E_{T}", "2.5", "20", "GeV/c"),
+                         SCEt             = cms.vstring("Probe SC E_{T}", "2.0", "20", "GeV/c"),
                          #SCeta            = cms.vstring("Probe SC #eta", "-2.4", "2.4", ""),
-                         L1Et             = cms.vstring("Probe E_{T}", "2.5", "20", "GeV/c"),
+                         L1Et             = cms.vstring("Probe E_{T}", "2.0", "20", "GeV/c"),
                          #L1Eta            = cms.vstring("Probe #eta", "-2.4", "2.4", ""),
-                         abseta         = cms.vstring("Probe |#eta|", "0", "2.22", ""),
-                         tag_pt           = cms.vstring("Tag p_{T}", "2.5", "20", "GeV/c^{2}"),
+                         abseta         = cms.vstring("Probe |#eta|", "0", "2.2", ""),
+                         tag_pt           = cms.vstring("Tag p_{T}", "2.0", "20", "GeV/c^{2}"),
     ),
     # defines all the discrete variables of the probes available in the input tree and intended for use in the efficiency calculations
     Categories = cms.PSet(
