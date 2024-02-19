@@ -319,8 +319,8 @@ int main(int argc, char* argv[])
     
     // Check trigger
     //if(!event->HasTrigger(kSingleEG3noHF) && !event->HasTrigger(kSingleEG5noHF)) continue;
-    //if(!event->HasTrigger(kSingleEG3noHF) ) continue;
-    if(!event->HasTrigger(kSingleEG5noHF)) continue;
+    if(!event->HasTrigger(kSingleEG3noHF) ) continue;
+    //if(!event->HasTrigger(kSingleEG5noHF)) continue;
     
     ResetEventVars();
     run = event->GetRunNumber();
@@ -351,25 +351,25 @@ int main(int argc, char* argv[])
     // loop on tags (good electrons with additional cuts)
     for (auto tag : goodElectrons) {
       // trigger matching
-      //auto matchedL1EG3 = TriggerMatch(*tag, L1EGs, 3, 5);
-      auto matchedL1EG5 = TriggerMatch(*tag, L1EGs, 5, 5);
+      auto matchedL1EG3 = TriggerMatch(*tag, L1EGs, 3, 5);
+      //auto matchedL1EG5 = TriggerMatch(*tag, L1EGs, 5, 5);
       //if (!matchedL1EG3 && !matchedL1EG5) continue;
-      if (!matchedL1EG5) continue;
-      //ResetTagVars();
-      /*if(matchedL1EG3){
+      if (!matchedL1EG3) continue;
+      ResetTagVars();
+      if(matchedL1EG3){
 	pass_EG3 = 1;
 	Log(1) << "matched EG3:"<< pass_EG3 << "\n";
 	tag_L1Et_passEG3   = matchedL1EG3->GetEt();
 	tag_L1Eta_passEG3  = matchedL1EG3->GetEta();
-      }*/
-      if(matchedL1EG5){
+      }
+      /*if(matchedL1EG5){
 	pass_EG5 = 1;
 	Log(1) << "matched EG5:"<< pass_EG5 << "\n";
 	tag_L1Et_passEG5   = matchedL1EG5->GetEt();
 	tag_L1Eta_passEG5  = matchedL1EG5->GetEta();
-      }
+      }*/
       //if(matchedL1EG3 || matchedL1EG5){
-      if(matchedL1EG5){
+      if(matchedL1EG3){
 	goodMatchedElectrons.push_back(tag);
       }
     } // electron loop

@@ -473,7 +473,7 @@ void CheckTriggerHFvetoEfficiency(Event &event, map<string, TH1D*> &hists, strin
   if(dielectron.M() < 5.0) return;
   hists[cutThouthName]->Fill(cutLevel++); // 7
   
-  if(dielectron.Pt() > 2.0) return;
+  if(dielectron.Pt() > 1.0) return;
   hists[cutThouthName]->Fill(cutLevel++); // 8
   
   if(fabs(dielectron.Rapidity()) > 2.2) return;
