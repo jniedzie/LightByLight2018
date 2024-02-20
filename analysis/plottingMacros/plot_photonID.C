@@ -176,9 +176,9 @@ void plot_photonID(){
   //TFile *outf= new TFile("histos.root","recreate");  
 
   TChain *data = new TChain("tnpQED/fitter_tree");
-  data->Add("efficienciesQED_Data_singleEG3_photonEt2_13Feb2024.root");
+  data->Add("/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/analysis_ruchi/photonRecoIDEfficiency/data__L1EG3_photon2GeV_allIDCutsJeremi_12Feb2024/efficienciesQED_Data_singleEG3_photonEt2_13Feb2024.root");
   TChain *qed = new TChain("tnpQED/fitter_tree");
-  qed->Add("efficienciesQED_MC_singleEG3_photonEt2_13Feb2024.root");
+  qed->Add("/eos/cms/store/group/phys_heavyions/rchudasa/lbyl_2018/analysis_ruchi/photonRecoIDEfficiency/mc_photos_sc__L1EG3_photon2GeV_allIDCutsJeremi_12Feb2024/efficienciesQED_MC_singleEG3_photonEt2_13Feb2024.root");
 
 
   int run;
